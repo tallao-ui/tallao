@@ -1,6 +1,6 @@
 {
   "name": "tallao",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "UI kit en Svelte 5 para interfaces generativas — extraído del admin de Kitsuden",
   "type": "module",
   "private": true,
