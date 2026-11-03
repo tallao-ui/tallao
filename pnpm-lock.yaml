@@ -11,12 +11,6 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.8.0
         version: 1.8.0
-      leaflet:
-        specifier: ^1.9.4
-        version: 1.9.4
-      sveaflet:
-        specifier: ^0.1.5
-        version: 0.1.5(leaflet@1.9.4)(svelte@5.57.3)
     devDependencies:
       '@sveltejs/package':
         specifier: ^2.5.8
@@ -39,11 +33,17 @@ importers:
       happy-dom:
         specifier: ^18.0.1
         version: 18.0.1
+      leaflet:
+        specifier: ^1.9.4
+        version: 1.9.4
       publint:
         specifier: ^0.3.25
         version: 0.3.25
+      sveaflet:
+        specifier: ^0.1.5
+        version: 0.1.5(leaflet@1.9.4)(svelte@5.57.3)
       svelte:
-        specifier: ^5.17.0
+        specifier: ^5.57.0
         version: 5.57.3
       svelte-check:
         specifier: ^4.7.8
