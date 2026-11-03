@@ -48,7 +48,7 @@
     class: className = "",
   }: Props = $props();
 
-  const T = {
+  const T = $derived({
     aprobar: "Aprobar",
     rechazar: "Rechazar",
     ejecutando: "Ejecutando…",
@@ -59,7 +59,7 @@
     argumentos: "Argumentos",
     resultado: "Resultado",
     ...textos,
-  };
+  });
 
   const estadoBadge: Record<Estado, { variant: "warning" | "info" | "success" | "default" | "error"; texto: keyof typeof T }> = {
     pending: { variant: "warning", texto: "pendiente" },
@@ -202,6 +202,7 @@
     color: rgb(var(--ta-text-dim));
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

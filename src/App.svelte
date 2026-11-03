@@ -21,7 +21,6 @@
     TableCell,
     PromptInput,
     ToolCallCard,
-    MapaDelJuego,
     Select,
     Textarea,
     Checkbox,
@@ -30,7 +29,15 @@
     Alert,
     Stat,
     ConfirmDialog,
+    Popover,
+    Tooltip,
+    DropdownMenu,
+    MenuItem,
+    MenuLabel,
+    MenuSeparator,
+    Combobox,
   } from "$lib/components";
+  import { MapaDelJuego } from "$lib/map";
 
   let tema = $state<"dark" | "light">("dark");
   let dialogoAbierto = $state(false);
@@ -44,6 +51,15 @@
   let pestana = $state("miembros");
   let confirmarAbierto = $state(false);
   let avisoVisible = $state(true);
+
+  // ——— Capa flotante ———
+  let filtroPopover = $state("");
+  let ultimaAccion = $state("ninguna");
+  let juegoElegido = $state<string | null>(null);
+  const juegosCombo = [
+    "Aniimo", "Cardback", "Cozy Games", "Diablo IV", "Elden Ring", "Grim Dawn", "Last Epoch",
+    "Monster Hunter Wilds", "Palworld", "Path of Exile 2", "Pokémon TCG Pocket", "Star Rail",
+  ].map((n) => ({ value: n.toLowerCase().replaceAll(" ", "-"), label: n }));
 
   $effect(() => {
     document.documentElement.dataset.tallaoTheme = tema;
@@ -333,6 +349,38 @@
     />
   </section>
 
+  <!-- ——— CAPA FLOTANTE ——— -->
+  <section class="seccion">
+    <h2>Popover · Tooltip · DropdownMenu · Combobox</h2>
+    <div class="fila">
+      <Popover title="Filtros">
+        {#snippet trigger(props)}<Button variant="secondary" {...props}>Filtros</Button>{/snippet}
+        <Field label="Nombre contiene"><Input bind:value={filtroPopover} placeholder="Escribe…" /></Field>
+      </Popover>
+
+      <Tooltip text="Copia el enlace al portapapeles">
+        {#snippet trigger(props)}<Button variant="outline" {...props}>Copiar enlace</Button>{/snippet}
+      </Tooltip>
+
+      <DropdownMenu label="Acciones del proyecto">
+        {#snippet trigger(props)}<Button variant="secondary" {...props}>Acciones ▾</Button>{/snippet}
+        <MenuLabel>Proyecto</MenuLabel>
+        <MenuItem onSelect={() => (ultimaAccion = "editar")}>Editar</MenuItem>
+        <MenuItem onSelect={() => (ultimaAccion = "duplicar")} disabled>Duplicar</MenuItem>
+        <MenuItem onSelect={() => (ultimaAccion = "archivar")}>Archivar</MenuItem>
+        <MenuSeparator />
+        <MenuItem variant="danger" onSelect={() => (ultimaAccion = "borrar")}>Borrar</MenuItem>
+      </DropdownMenu>
+      <span class="nota">Última acción: {ultimaAccion}</span>
+    </div>
+    <div class="cuadricula">
+      <Field label="Juego">
+        <Combobox options={juegosCombo} bind:value={juegoElegido} placeholder="Busca un juego…" />
+      </Field>
+      <p class="nota">Elegido: {juegoElegido ?? "ninguno"}</p>
+    </div>
+  </section>
+
   <!-- ——— CAPA GENERATIVA ——— -->
   <section class="seccion">
     <h2>PromptInput + ToolCallCard</h2>
@@ -475,6 +523,8 @@
     letter-spacing: 0.05em;
     color: rgb(var(--ta-text-dim));
   }
+
+  .nota { color: rgb(var(--ta-text-dim)); font-size: 0.8125rem; }
 
   .dialogo-texto { margin: 0; color: rgb(var(--ta-text-dim)); }
 

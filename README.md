@@ -1,38 +1,93 @@
 # tallao ⛏️
 
-UI kit en **Svelte 5** para interfaces generativas — extraído del admin de
-Kitsuden y desacoplado de Tailwind, stores y APIs. CSS puro sobre tokens.
+UI kit en **Svelte 5** para interfaces generativas, extraído del admin de
+Kitsuden y desacoplado de Tailwind, stores y APIs. CSS puro sobre tokens,
+accesible por teclado y lector de pantalla, y compatible con SSR (SvelteKit).
 
-## Uso
+## Instalar
 
-Los componentes se copian al proyecto (modelo shadcn/Magic UI): copia
-`src/lib/components/*`, `src/lib/tokens.css`, `src/lib/base.css` y
-`src/lib/utils.ts`, y arranca la demo con:
+Como paquete (compila al instalar con `prepare`):
 
 ```bash
-pnpm install
-pnpm dev
+pnpm add github:Kitsuden/tallao
 ```
 
-## v0.1 — componentes
+```svelte
+<script>
+  import "tallao/tokens.css";
+  import "tallao/base.css";
+  import { Button, Dialog, DropdownMenu, MenuItem } from "tallao";
+</script>
+```
 
-| Componente | Archivos |
+El mapa va aparte porque arrastra Leaflet: `import { MapaDelJuego } from "tallao/map"`
+(instala `leaflet` y `sveaflet`).
+
+También se puede **copiar** un componente al proyecto, como en shadcn: copia
+`src/lib/components/<componente>.svelte`, los que importe, `src/lib/internal/`,
+`src/lib/utils.ts` y los dos CSS.
+
+Requiere Svelte 5.29 o superior.
+
+## Componentes
+
+| Componente | Qué es |
 |---|---|
-| Button | `button.svelte` (5 variantes × 4 tamaños, loading, href) |
-| Badge | `badge.svelte` (7 variantes × 2 tallas) |
-| Input | `input.svelte` (bindable, disabled, rest props) |
-| Dialog | `dialog.svelte` (Escape, cierre por fondo, retorno de foco, 4 tamaños) |
-| Card | `card*.svelte` (contenedor + header/title/content/footer) |
-| Table | `table*.svelte` (contenedor + header/body/row/head/cell; `colspan` en la celda) |
-| Select | `select.svelte` (nativo, opciones por prop o hijos, 2 tallas) |
-| Textarea | `textarea.svelte` (bindable, mismos estados que Input) |
-| Checkbox | `checkbox.svelte` (bindable, etiqueta clicable) |
-| Field | `field.svelte` (etiqueta + control + error, obligatorio) |
-| Tabs | `tabs.svelte` (tablist accesible, flechas/Inicio/Fin, contador) |
-| Alert | `alert.svelte` (4 variantes, título, cerrar) |
-| Stat | `stat.svelte` (cifra + etiqueta, 4 variantes) |
-| ConfirmDialog | `confirm-dialog.svelte` (sobre Dialog; `onConfirm` asíncrono) |
-| ThemeScope | `theme-scope.svelte` (tokens en un contenedor: Shadow DOM, puente `--kitsuden-*`) |
+| Button | 5 variantes × 4 tamaños, `loading`, `href`; pasa al elemento cualquier atributo y adjunto |
+| Badge | 7 variantes × 2 tallas |
+| Input · Textarea · Select · Checkbox | controles nativos con los tokens del kit |
+| Field | etiqueta + control + error, marca de obligatorio |
+| Card | contenedor + header / title (`level`) / content / footer |
+| Table | contenedor con scroll + header / body / row / head / cell (`colspan`) |
+| Tabs | tablist accesible: flechas, Inicio y Fin, contador, ids estables en SSR |
+| Alert | 4 variantes, título, cerrar |
+| Stat | cifra + etiqueta |
+| Dialog | `<dialog>` nativo con `showModal()`: foco contenido, Escape solo el de arriba, scroll bloqueado, foco de vuelta |
+| ConfirmDialog | sobre Dialog; `onConfirm` asíncrono, sigue abierto si falla |
+| Popover | panel no modal anclado a su disparador |
+| Tooltip | descripción al pasar o enfocar; Escape la oculta (WCAG 1.4.13) |
+| DropdownMenu · MenuItem · MenuSeparator · MenuLabel | menú de acciones: flechas, Inicio/Fin, búsqueda por letra |
+| Combobox | campo con lista filtrable (ARIA 1.2, `aria-activedescendant`), sin mayúsculas ni acentos |
+| ThemeScope | tokens en un contenedor: Shadow DOM y puente con `--kitsuden-*` |
+| PromptInput · ToolCallCard | entrada de chat y llamada a herramienta con aprobar / rechazar |
+| MapaDelJuego (`tallao/map`) | Leaflet con el tema del kit |
+
+### Disparadores
+
+Popover, Tooltip y DropdownMenu reciben su disparador como snippet, con las
+props que debe llevar (`aria-*`, eventos y la referencia del elemento):
+
+```svelte
+<DropdownMenu label="Acciones del proyecto">
+  {#snippet trigger(props)}<Button {...props}>Acciones</Button>{/snippet}
+  <MenuItem onSelect={editar}>Editar</MenuItem>
+  <MenuSeparator />
+  <MenuItem variant="danger" onSelect={borrar}>Borrar</MenuItem>
+</DropdownMenu>
+```
+
+## La capa flotante
+
+Popover, Tooltip, DropdownMenu y Combobox comparten `src/lib/internal/`:
+
+- **Capa superior del navegador** (Popover API, `popover="manual"`): el panel
+  queda por encima de cualquier `z-index` u `overflow: hidden` sin moverse en el
+  DOM, así que hereda los tokens y funciona dentro de un Shadow DOM.
+- **Posición** con [Floating UI](https://floating-ui.com): voltea y se desplaza
+  en los bordes, y se recoloca al hacer scroll o redimensionar.
+- **Pila de capas**: Escape cierra solo la de arriba (y no el `<dialog>` que la
+  contiene); un clic fuera cierra las que no lo contienen.
+
+## Calidad
+
+```bash
+pnpm test      # vitest: comportamiento, teclado y axe (happy-dom) + render en servidor (Node)
+pnpm check     # svelte-check
+pnpm package   # compila el paquete en dist/ y lo revisa con publint
+pnpm dev       # la demo
+```
+
+La CI (`.github/workflows/ci.yml`) corre las cuatro en cada push.
 
 ## Dentro de un Shadow DOM
 
@@ -47,3 +102,7 @@ Así se hacen las vistas de kon (custom elements) con tallao.
 Todos los colores son variables `--ta-*` en `tokens.css`. Tema oscuro por
 defecto; `data-tallao-theme="light"` en `<html>` invierte a claro. Cambia una
 variable y todo el kit se retematiza.
+
+## Licencia
+
+MIT.

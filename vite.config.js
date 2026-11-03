@@ -8,4 +8,6 @@ export default defineConfig({
     // "$lib" igual que en SvelteKit: los componentes no cambian al portarlos.
     alias: { $lib: path.resolve("./src/lib") },
   },
+  // La demo; el paquete lo construye svelte-package en dist/.
+  build: { outDir: "demo-dist" },
 });

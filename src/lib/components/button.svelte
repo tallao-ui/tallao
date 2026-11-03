@@ -18,6 +18,9 @@
     title?: string;
     children?: import("svelte").Snippet;
     onclick?: (e: MouseEvent) => void;
+    /** Cualquier otro atributo (aria-*, data-*, eventos) y adjuntos ({@attach}) van al elemento:
+        así un Popover, un Menu o un Tooltip pueden usar el botón como disparador. */
+    [key: string | symbol]: unknown;
   }
 
   const {
@@ -32,6 +35,7 @@
     title,
     children,
     onclick,
+    ...rest
   }: Props = $props();
 </script>
 
@@ -43,24 +47,31 @@
 {/snippet}
 
 {#if href}
+  <!-- Un enlace desactivado pierde el href (deja de navegar y de recibir Tab),
+       como recomienda la APG: role="link" + aria-disabled lo sigue anunciando. -->
   <a
-    {href}
+    {...rest}
+    href={disabled || loading ? undefined : href}
+    role={disabled || loading ? "link" : undefined}
     class={cn("ta-btn", `ta-btn--${variant}`, `ta-btn--${size}`, className)}
-    aria-disabled={disabled || loading}
+    aria-disabled={disabled || loading ? "true" : undefined}
+    aria-busy={loading || undefined}
     aria-label={ariaLabel}
     {title}
+    onclick={disabled || loading ? undefined : onclick}
   >
     {@render cuerpo()}
   </a>
 {:else}
   <button
+    {...rest}
     {type}
     class={cn("ta-btn", `ta-btn--${variant}`, `ta-btn--${size}`, className)}
     disabled={disabled || loading}
     {onclick}
     aria-label={ariaLabel}
     {title}
-    aria-busy={loading}
+    aria-busy={loading || undefined}
   >
     {@render cuerpo()}
   </button>

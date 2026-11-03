@@ -31,8 +31,10 @@
     children?: import("svelte").Snippet<[string]>;
   } = $props();
 
-  // Varias pestañas en la misma página no deben chocar en sus ids.
-  const prefijo = `ta-tabs-${Math.random().toString(36).slice(2, 8)}`;
+  // Ids únicos e iguales en servidor y navegador ($props.id): con Math.random
+  // el HTML del SSR no casaba con el de la hidratación.
+  const uid = $props.id();
+  const prefijo = `ta-tabs-${uid}`;
   let lista: HTMLElement | undefined = $state();
 
   function elegir(id: string, enfocar = false) {

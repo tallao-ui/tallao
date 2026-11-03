@@ -1,22 +1,77 @@
 {
   "name": "tallao",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "UI kit en Svelte 5 para interfaces generativas — extraído del admin de Kitsuden",
-  "type": "module",
+  "license": "MIT",
+  "author": "Victor Antinori Broce (https://github.com/vigogami)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kitsuden/tallao.git"
+  },
   "private": true,
+  "type": "module",
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./map": {
+      "types": "./dist/map/index.d.ts",
+      "svelte": "./dist/map/index.js",
+      "default": "./dist/map/index.js"
+    },
+    "./tokens.css": "./dist/tokens.css",
+    "./base.css": "./dist/base.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "build:demo": "vite build",
+    "package": "svelte-package -o dist && publint",
+    "prepare": "svelte-package -o dist",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run"
   },
-  "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^5.0.3",
-    "@types/leaflet": "^1.9.22",
-    "svelte": "^5.17.0",
-    "vite": "^6.0.0"
+  "peerDependencies": {
+    "svelte": "^5.29.0",
+    "leaflet": "^1.9.4",
+    "sveaflet": "^0.1.5"
+  },
+  "peerDependenciesMeta": {
+    "leaflet": {
+      "optional": true
+    },
+    "sveaflet": {
+      "optional": true
+    }
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.8.0"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.5.8",
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@testing-library/svelte": "^5.4.2",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/leaflet": "^1.9.22",
+    "axe-core": "^4.14.0",
+    "happy-dom": "^18.0.1",
+    "publint": "^0.3.25",
+    "svelte": "^5.57.0",
+    "svelte-check": "^4.7.8",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.0",
+    "vitest": "^3.2.7",
     "leaflet": "^1.9.4",
     "sveaflet": "^0.1.5"
   }

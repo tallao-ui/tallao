@@ -1,15 +1,17 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
   interface Props {
+    /** Nivel del encabezado: el que toque en la página que lo usa (por defecto h3). */
+    level?: 1 | 2 | 3 | 4 | 5 | 6;
     class?: string;
     children?: import("svelte").Snippet;
   }
-  const { class: className = "", children }: Props = $props();
+  const { level = 3, class: className = "", children }: Props = $props();
 </script>
 
-<h3 class={cn("ta-card-title", className)}>
+<svelte:element this={`h${level}`} class={cn("ta-card-title", className)}>
   {@render children?.()}
-</h3>
+</svelte:element>
 
 <style>
   .ta-card-title {

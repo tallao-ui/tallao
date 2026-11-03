@@ -26,6 +26,8 @@
     alto?: string;
     /** Atribución obligatoria de los tiles. */
     atribucion?: string;
+    /** Nombre accesible del mapa. */
+    ariaLabel?: string;
     class?: string;
   }
 
@@ -36,44 +38,51 @@
     oscuro = true,
     alto = "24rem",
     atribucion,
+    ariaLabel = "Mapa",
     class: className = "",
   }: Props = $props();
 
   // CARTO empezó a pedir API key para dark_all; Esri Dark Gray es libre.
-  const urlTiles = oscuro
+  const urlTiles = $derived(oscuro
     ? "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-    : "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-  const atribucionFinal =
+    : "https://tile.openstreetmap.org/{z}/{x}/{y}.png");
+  const atribucionFinal = $derived(
     atribucion ??
     (oscuro
       ? 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
-      : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>');
-</script>
+      : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>')
+  );
 
-<script lang="ts" context="module">
-  import { DivIcon } from "leaflet";
-
-  // Marcador por defecto: un punto con el acento del tema (los iconos PNG
-  // por defecto de Leaflet no resuelven bien con bundlers).
-  const iconoPorDefecto = new DivIcon({
-    className: "ta-mapa-pin-contenedor",
-    html: '<div class="ta-mapa-pin"></div>',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
-  });
+  // Leaflet toca `window` al importarse: se carga solo en el navegador, nunca
+  // en el render del servidor (SvelteKit), donde el mapa queda como caja vacía.
+  const cargando =
+    typeof window === "undefined"
+      ? null
+      : Promise.all([import("sveaflet"), import("leaflet")]).then(([S, L]) => ({
+          S,
+          // Marcador por defecto: un punto con el acento del tema (los iconos PNG
+          // por defecto de Leaflet no resuelven bien con bundlers).
+          icono: new L.DivIcon({
+            className: "ta-mapa-pin-contenedor",
+            html: '<div class="ta-mapa-pin"></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7],
+          }),
+        }));
 </script>
 
 <div
   class={cn("ta-mapa", className)}
   style={`height: ${alto}`}
   role="application"
-  aria-label="Mapa"
+  aria-label={ariaLabel}
 >
-  {#await import("sveaflet") then S}
+  {#if cargando}
+  {#await cargando then { S, icono }}
     <S.Map options={{ center: centro, zoom }}>
       <S.TileLayer url={urlTiles} options={{ attribution: atribucionFinal }} />
       {#each marcadores as m}
-        <S.Marker latLng={[m.lat, m.lng]} options={{ icon: iconoPorDefecto }}>
+        <S.Marker latLng={[m.lat, m.lng]} options={{ icon: icono }}>
           <S.Popup>
             <div class="ta-mapa-popup">
               <strong>{m.titulo}</strong>
@@ -86,6 +95,7 @@
       {/each}
     </S.Map>
   {/await}
+  {/if}
 </div>
 
 <style>
