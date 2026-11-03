@@ -1,6 +1,6 @@
 {
   "name": "tallao",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "UI kit en Svelte 5 para interfaces generativas — extraído del admin de Kitsuden",
   "license": "MIT",
   "author": "Victor Antinori Broce (https://github.com/vigogami)",

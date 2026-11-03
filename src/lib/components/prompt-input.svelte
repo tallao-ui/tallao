@@ -4,7 +4,9 @@
   salta de línea, estado de carga, botón de adjuntos opcional.
 -->
 <script lang="ts">
+  import { useLabels } from "$lib/i18n";
   import { cn } from "$lib/utils";
+
   import Button from "./button.svelte";
 
   interface Props {
@@ -14,21 +16,29 @@
     disabled?: boolean;
     loading?: boolean;
     /** Muestra el botón de adjuntos y emite onAttach. */
-    conAdjuntos?: boolean;
+    attachments?: boolean;
     /** Envía al pulsar Enter (Shift+Enter = nueva línea). Por defecto true. */
-    enviarConEnter?: boolean;
+    submitOnEnter?: boolean;
+    /** Nombre accesible del campo (por defecto, el placeholder). */
+    ariaLabel?: string;
+    sendLabel?: string;
+    attachLabel?: string;
     onSend?: (texto: string) => void;
     onAttach?: () => void;
     class?: string;
   }
 
+  const L = useLabels();
   let {
     value = $bindable(""),
-    placeholder = "Escribe un mensaje…",
+    placeholder = L.promptPlaceholder,
     disabled = false,
     loading = false,
-    conAdjuntos = false,
-    enviarConEnter = true,
+    attachments = false,
+    submitOnEnter = true,
+    ariaLabel,
+    sendLabel = L.send,
+    attachLabel = L.attach,
     onSend,
     onAttach,
     class: className = "",
@@ -43,7 +53,7 @@
   }
 
   function tecla(e: KeyboardEvent) {
-    if (enviarConEnter && e.key === "Enter" && !e.shiftKey) {
+    if (submitOnEnter && e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       enviar();
     }
@@ -54,13 +64,13 @@
   class={cn("ta-prompt", className)}
   onsubmit={(e) => { e.preventDefault(); enviar(); }}
 >
-  {#if conAdjuntos}
+  {#if attachments}
     <button
       type="button"
       class="ta-prompt-adjunto"
       onclick={onAttach}
       disabled={disabled || loading}
-      aria-label="Adjuntar archivo"
+      aria-label={attachLabel}
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
     </button>
@@ -72,7 +82,7 @@
     disabled={disabled || loading}
     rows="1"
     class="ta-prompt-texto"
-    aria-label={placeholder}
+    aria-label={ariaLabel ?? placeholder}
     onkeydown={tecla}
   ></textarea>
 
@@ -82,7 +92,7 @@
     size="icon"
     loading={loading}
     disabled={!puedeEnviar}
-    ariaLabel="Enviar mensaje"
+    ariaLabel={sendLabel}
   >
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
   </Button>

@@ -36,8 +36,23 @@
     MenuLabel,
     MenuSeparator,
     Combobox,
+    Switch,
+    RadioGroup,
+    Sheet,
+    Toaster,
+    Command,
+    ContextMenu,
+    Accordion,
+    Progress,
+    Skeleton,
+    Avatar,
   } from "$lib/components";
-  import { MapaDelJuego } from "$lib/map";
+  import { GameMap } from "$lib/map";
+  import { es, setLabels } from "$lib/i18n";
+  import { toast } from "$lib/toast.svelte";
+
+  // La demo está en español: los textos del kit también.
+  setLabels(es);
 
   let tema = $state<"dark" | "light">("dark");
   let dialogoAbierto = $state(false);
@@ -56,6 +71,19 @@
   let filtroPopover = $state("");
   let ultimaAccion = $state("ninguna");
   let juegoElegido = $state<string | null>(null);
+
+  // ——— 0.4 ———
+  let avisosActivos = $state(true);
+  let plan = $state("pro");
+  let lateral = $state(false);
+  let paleta = $state(false);
+  let ultimaOrden = $state("ninguna");
+  const ordenes = [
+    { id: "nuevo", label: "Nuevo proyecto", group: "Proyectos", shortcut: "N", onSelect: () => (ultimaOrden = "nuevo proyecto") },
+    { id: "abrir", label: "Abrir Aniimo", group: "Proyectos", keywords: ["juego"], onSelect: () => (ultimaOrden = "abrir Aniimo") },
+    { id: "tema", label: "Cambiar tema", group: "Ajustes", keywords: ["oscuro", "claro"], onSelect: () => alternarTema() },
+    { id: "salir", label: "Cerrar sesión", group: "Ajustes", disabled: true, onSelect: () => {} },
+  ];
   const juegosCombo = [
     "Aniimo", "Cardback", "Cozy Games", "Diablo IV", "Elden Ring", "Grim Dawn", "Last Epoch",
     "Monster Hunter Wilds", "Palworld", "Path of Exile 2", "Pokémon TCG Pocket", "Star Rail",
@@ -117,9 +145,9 @@
 
   // ——— Mapa ———
   const marcadoresDemo = [
-    { lat: 40.4168, lng: -3.7038, titulo: "Madrid", descripcion: "Sede del gremio · 12 miembros" },
-    { lat: 41.3874, lng: 2.1686, titulo: "Barcelona", descripcion: "Torneo regional · sábado 18:00" },
-    { lat: 37.3891, lng: -5.9845, titulo: "Sevilla", descripcion: "Quedada de la comunidad" },
+    { lat: 40.4168, lng: -3.7038, title: "Madrid", description: "Sede del gremio · 12 miembros" },
+    { lat: 41.3874, lng: 2.1686, title: "Barcelona", description: "Torneo regional · sábado 18:00" },
+    { lat: 37.3891, lng: -5.9845, title: "Sevilla", description: "Quedada de la comunidad" },
   ];
 </script>
 
@@ -381,6 +409,68 @@
     </div>
   </section>
 
+  <!-- ——— 0.4 ——— -->
+  <section class="seccion">
+    <h2>Switch · RadioGroup · Sheet · Toast · Command · ContextMenu</h2>
+    <div class="cuadricula">
+      <Switch bind:checked={avisosActivos} label="Avisos por correo" />
+      <RadioGroup
+        legend="Plan"
+        bind:value={plan}
+        orientation="horizontal"
+        options={[
+          { value: "free", label: "Gratis" },
+          { value: "pro", label: "Pro", description: "Con soporte" },
+          { value: "team", label: "Equipo", disabled: true },
+        ]}
+      />
+    </div>
+    <div class="fila">
+      <Button variant="secondary" onclick={() => (lateral = true)}>Ver detalle</Button>
+      <Button variant="secondary" onclick={() => toast.success("Guardado", { description: "Los cambios ya están en las 4 webs" })}>Toast</Button>
+      <Button variant="secondary" onclick={() => toast.error("No se pudo publicar", { action: { label: "Reintentar", onClick: () => toast("Reintentando…") } })}>Toast de error</Button>
+      <Button variant="outline" onclick={() => (paleta = true)}>Paleta (Ctrl+K)</Button>
+      <span class="nota">Última orden: {ultimaOrden}</span>
+    </div>
+    <ContextMenu label="Acciones de la fila">
+      {#snippet target(props)}<div {...props} class="zona-contexto">Clic derecho aquí (o Mayús+F10)</div>{/snippet}
+      <MenuItem onSelect={() => toast("Abrir")}>Abrir</MenuItem>
+      <MenuItem onSelect={() => toast("Duplicar")}>Duplicar</MenuItem>
+      <MenuSeparator />
+      <MenuItem variant="danger" onSelect={() => toast.warning("Borrado")}>Borrar</MenuItem>
+    </ContextMenu>
+    <Sheet bind:open={lateral} title="Detalle de Aniimo" description="Ficha del juego">
+      <p class="dialogo-texto">Contenido del panel lateral.</p>
+      {#snippet footer()}<Button onclick={() => (lateral = false)}>Listo</Button>{/snippet}
+    </Sheet>
+    <Command bind:open={paleta} items={ordenes} />
+  </section>
+
+  <section class="seccion">
+    <h2>Accordion · Progress · Skeleton · Avatar</h2>
+    <div class="cuadricula-2">
+      <Accordion
+        single
+        items={[
+          { id: "a", title: "¿Qué es tallao?", content: "Un kit de componentes en Svelte 5.", open: true },
+          { id: "b", title: "¿Funciona con SSR?", content: "Sí: los ids son estables y nada toca window en el servidor." },
+          { id: "c", title: "¿Es accesible?", content: "Cada componente pasa axe y se prueba con teclado." },
+        ]}
+      />
+      <div class="pila">
+        <Progress label="Subida de imágenes" value={62} showValue />
+        <Progress label="Sincronizando" />
+        <Skeleton lines={3} />
+        <div class="fila">
+          <Avatar name="Ana López" />
+          <Avatar name="Agente Uno" badge="IA" />
+          <Avatar name="Rota" src="/no-existe.png" size="lg" />
+        </div>
+      </div>
+    </div>
+  </section>
+  <Toaster />
+
   <!-- ——— CAPA GENERATIVA ——— -->
   <section class="seccion">
     <h2>PromptInput + ToolCallCard</h2>
@@ -395,10 +485,10 @@
           <p class="chat-usuario">{m.texto}</p>
         {:else}
           <ToolCallCard
-            nombre={m.nombre}
+            name={m.nombre}
             args={m.args}
-            estado={m.estado}
-            resultado={m.estado === "executed" ? "Entrada publicada en valhalla-legion.com/noticias" : undefined}
+            status={m.estado}
+            result={m.estado === "executed" ? "Entrada publicada en valhalla-legion.com/noticias" : undefined}
             onApprove={m.estado === "pending" ? () => decidir(i, true) : undefined}
             onReject={m.estado === "pending" ? () => decidir(i, false) : undefined}
           />
@@ -410,7 +500,7 @@
 
       <PromptInput
         placeholder="Pídele algo al agente… (Enter envía)"
-        conAdjuntos={true}
+        attachments={true}
         loading={pensando}
         onSend={enviarPrompt}
         onAttach={() => alert("Adjuntar archivo")}
@@ -419,31 +509,31 @@
 
     <div class="cuadricula-2">
       <ToolCallCard
-        nombre="rebuild_site"
+        name="rebuild_site"
         args={{ sitio: "cozy", forzar: true }}
-        estado="executing"
+        status="executing"
       />
       <ToolCallCard
-        nombre="publish_post"
+        name="publish_post"
         args={{ sitio: "cardback", titulo: "Resultados del regional" }}
-        estado="failed"
-        resultado="La API devolvió 503 tras 3 reintentos"
+        status="failed"
+        result="La API devolvió 503 tras 3 reintentos"
       />
     </div>
   </section>
 
   <!-- ——— MAPA ——— -->
   <section class="seccion">
-    <h2>MapaDelJuego</h2>
+    <h2>GameMap</h2>
     <p class="seccion-nota">
       Envoltura fina sobre sveaflet (Leaflet) con capa oscura (Esri) y
       marcadores del color de acento del tema.
     </p>
-    <MapaDelJuego
-      centro={[40.4168, -3.7038]}
+    <GameMap
+      center={[40.4168, -3.7038]}
       zoom={5}
-      marcadores={marcadoresDemo}
-      alto="22rem"
+      markers={marcadoresDemo}
+      height="22rem"
     />
   </section>
 
@@ -523,6 +613,9 @@
     letter-spacing: 0.05em;
     color: rgb(var(--ta-text-dim));
   }
+
+  .pila { display: flex; flex-direction: column; gap: 1rem; }
+  .zona-contexto { margin-top: 0.75rem; padding: 1.25rem; text-align: center; color: rgb(var(--ta-text-dim)); border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
 
   .nota { color: rgb(var(--ta-text-dim)); font-size: 0.8125rem; }
 

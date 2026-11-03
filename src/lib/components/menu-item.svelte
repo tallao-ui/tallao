@@ -5,9 +5,8 @@
   Una opción desactivada se anuncia y se salta al navegar, pero no se oculta.
 -->
 <script lang="ts">
+  import { useMenu } from "$lib/internal/menu";
   import { cn } from "$lib/utils";
-
-  import { useMenu } from "./dropdown-menu.svelte";
 
   interface Props {
     onSelect?: () => void;

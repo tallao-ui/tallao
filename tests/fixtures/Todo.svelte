@@ -56,7 +56,7 @@
     <Tabs items={[{ id: "a", label: "Uno" }, { id: "b", label: "Dos", count: 2 }]} ariaLabel="Secciones">
       {#snippet children(activa)}<p>Panel {activa}</p>{/snippet}
     </Tabs>
-    <ToolCallCard nombre="publish_post" args={{ titulo: "Hola" }} onApprove={() => {}} onReject={() => {}} />
+    <ToolCallCard name="publish_post" args={{ titulo: "Hola" }} onApprove={() => {}} onReject={() => {}} />
     <PromptInput />
     <Dialog open={abierto} title="Diálogo" description="Detalle"><p>Cuerpo</p></Dialog>
     <ConfirmDialog title="¿Seguro?" onConfirm={() => {}} />

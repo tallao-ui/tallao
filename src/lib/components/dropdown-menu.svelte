@@ -15,19 +15,6 @@
       <MenuItem variant="danger" onSelect={borrar}>Borrar</MenuItem>
     </DropdownMenu>
 -->
-<script lang="ts" module>
-  import { getContext, setContext } from "svelte";
-
-  const CLAVE = Symbol("ta-menu");
-
-  export interface MenuContext {
-    /** Cierra el menú y devuelve el foco al disparador. */
-    close: () => void;
-  }
-
-  export const useMenu = () => getContext<MenuContext | undefined>(CLAVE);
-</script>
-
 <script lang="ts">
   import { tick } from "svelte";
   import { createAttachmentKey } from "svelte/attachments";
@@ -35,6 +22,7 @@
   import { cn } from "$lib/utils";
   import { devolverFoco } from "$lib/internal/focus";
   import { pushLayer } from "$lib/internal/layers";
+  import { focusItem, menuKeyboard, provideMenu } from "$lib/internal/menu";
   import { anchor, type Placement } from "$lib/internal/position";
 
   import type { TriggerProps } from "./popover.svelte";
@@ -63,8 +51,6 @@
   const id = $props.id();
   let disparador: HTMLElement | null = $state(null);
   let lista: HTMLElement | undefined = $state();
-  let busqueda = "";
-  let finBusqueda: ReturnType<typeof setTimeout> | undefined;
 
   function poner(valor: boolean) {
     if (open === valor) return;
@@ -72,20 +58,11 @@
     onOpenChange?.(valor);
   }
 
-  const opciones = () =>
-    lista ? [...lista.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')] : [];
-
-  function enfocar(i: number) {
-    const todas = opciones();
-    if (todas.length === 0) return;
-    todas[(i + todas.length) % todas.length].focus();
-  }
-
   async function abrir(foco: "primera" | "ultima") {
     poner(true);
     await tick();
     // El panel se coloca en un efecto; el foco espera a que exista.
-    enfocar(foco === "primera" ? 0 : -1);
+    focusItem(lista, foco === "primera" ? 0 : -1);
   }
 
   function cerrar() {
@@ -93,7 +70,7 @@
     devolverFoco(disparador);
   }
 
-  setContext<MenuContext>(CLAVE, { close: cerrar });
+  provideMenu({ close: cerrar });
 
   const triggerProps = $derived({
     id: `${id}-boton`,
@@ -115,26 +92,7 @@
     },
   });
 
-  function tecla(e: KeyboardEvent) {
-    const todas = opciones();
-    const i = todas.indexOf(e.target as HTMLElement);
-    if (e.key === "ArrowDown") enfocar(i + 1);
-    else if (e.key === "ArrowUp") enfocar(i - 1);
-    else if (e.key === "Home") enfocar(0);
-    else if (e.key === "End") enfocar(-1);
-    else if (e.key === "Tab") {
-      poner(false);
-      return;
-    } else if (e.key.length === 1 && /\S/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      // Búsqueda por teclado: las letras pulsadas seguidas forman el prefijo.
-      clearTimeout(finBusqueda);
-      busqueda += e.key.toLowerCase();
-      finBusqueda = setTimeout(() => (busqueda = ""), 500);
-      const orden = [...todas.slice(i + 1), ...todas.slice(0, i + 1)];
-      orden.find((el) => el.textContent?.trim().toLowerCase().startsWith(busqueda))?.focus();
-    } else return;
-    e.preventDefault();
-  }
+  const teclado = menuKeyboard(() => poner(false));
 
   $effect(() => {
     const l = lista;
@@ -163,7 +121,7 @@
     aria-label={label}
     popover="manual"
     class={cn("ta-menu", className)}
-    onkeydown={tecla}
+    onkeydown={(e) => teclado(e, lista)}
   >
     {@render children?.()}
   </div>

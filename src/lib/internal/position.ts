@@ -17,9 +17,10 @@ import {
   size,
   type Middleware,
   type Placement,
+  type VirtualElement,
 } from "@floating-ui/dom";
 
-export type { Placement };
+export type { Placement, VirtualElement };
 
 export interface AnchorOptions {
   placement?: Placement;
@@ -31,8 +32,16 @@ export interface AnchorOptions {
 
 const hasPopoverApi = () => typeof HTMLElement !== "undefined" && "showPopover" in HTMLElement.prototype;
 
+/** Un punto de la ventana como ancla (un menú contextual se abre donde se pulsó). */
+export function pointAnchor(x: number, y: number, context?: Element): VirtualElement {
+  return {
+    getBoundingClientRect: () => ({ x, y, left: x, top: y, right: x, bottom: y, width: 0, height: 0 }),
+    contextElement: context,
+  };
+}
+
 /** Muestra `panel` anclado a `anchor`; devuelve la función que lo oculta y deja de seguirlo. */
-export function anchor(anchorEl: Element, panel: HTMLElement, opts: AnchorOptions = {}): () => void {
+export function anchor(anchorEl: Element | VirtualElement, panel: HTMLElement, opts: AnchorOptions = {}): () => void {
   if (hasPopoverApi() && panel.hasAttribute("popover")) {
     try {
       panel.showPopover();

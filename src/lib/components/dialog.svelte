@@ -9,6 +9,7 @@
 <script lang="ts">
   import { untrack } from "svelte";
 
+  import { useLabels } from "$lib/i18n";
   import { cn } from "$lib/utils";
   import { devolverFoco, elementoActivo, tabulables } from "$lib/internal/focus";
   import { lockScroll } from "$lib/internal/scroll-lock";
@@ -27,6 +28,8 @@
     titleLevel?: 1 | 2 | 3 | 4 | 5 | 6;
     /** Cerrar al pulsar fuera del panel (por defecto sí). */
     closeOnBackdrop?: boolean;
+    /** Centrado, o pegado a un borde de la ventana (es lo que usa Sheet). */
+    placement?: "center" | "left" | "right" | "top" | "bottom";
     class?: string;
     onClose?: () => void;
     onOpenChange?: (v: boolean) => void;
@@ -34,16 +37,18 @@
     footer?: import("svelte").Snippet;
   }
 
+  const L = useLabels();
   let {
     open = $bindable(false),
     title = "",
     description,
     size = "md",
     showClose = true,
-    closeLabel = "Cerrar diálogo",
+    closeLabel = L.close,
     ariaLabel,
     titleLevel = 2,
     closeOnBackdrop = true,
+    placement = "center",
     class: className = "",
     onClose,
     onOpenChange,
@@ -109,6 +114,7 @@
 <dialog
   bind:this={dialogo}
   class="ta-dialog-capa"
+  data-placement={placement}
   aria-labelledby={title ? `${id}-titulo` : undefined}
   aria-describedby={title && description ? `${id}-descripcion` : undefined}
   aria-label={title ? undefined : ariaLabel}
@@ -117,7 +123,11 @@
   onclick={alPulsar}
 >
   {#if open}
-    <div class={cn("ta-dialog", className)} style:max-width={anchos[size]} tabindex="-1">
+    <div
+      class={cn("ta-dialog", className)}
+      style:max-width={placement === "top" || placement === "bottom" ? undefined : anchos[size]}
+      tabindex="-1"
+    >
       {#if title}
         <div class="ta-dialog-cabecera">
           <div>
@@ -167,6 +177,35 @@
     align-items: center;
     justify-content: center;
   }
+
+  .ta-dialog-capa[open][data-placement="left"] { justify-content: flex-start; padding: 0; }
+  .ta-dialog-capa[open][data-placement="right"] { justify-content: flex-end; padding: 0; }
+  .ta-dialog-capa[open][data-placement="top"] { align-items: flex-start; padding: 0; }
+  .ta-dialog-capa[open][data-placement="bottom"] { align-items: flex-end; padding: 0; }
+
+  /* Pegado a un borde: ocupa todo el alto (o el ancho) y sin esquinas en ese lado. */
+  [data-placement="left"] .ta-dialog,
+  [data-placement="right"] .ta-dialog {
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+  [data-placement="top"] .ta-dialog,
+  [data-placement="bottom"] .ta-dialog {
+    max-height: 85vh;
+    border-radius: 0;
+  }
+  [data-placement="left"] .ta-dialog { animation-name: ta-dialog-izquierda; border-left: none; }
+  [data-placement="right"] .ta-dialog { animation-name: ta-dialog-derecha; border-right: none; }
+  [data-placement="top"] .ta-dialog { animation-name: ta-dialog-arriba; border-top: none; }
+  [data-placement="bottom"] .ta-dialog { animation-name: ta-dialog-abajo; border-bottom: none; }
+  [data-placement="left"] .ta-dialog-cuerpo,
+  [data-placement="right"] .ta-dialog-cuerpo { flex: 1; }
+
+  @keyframes ta-dialog-izquierda { from { transform: translateX(-100%); } to { transform: none; } }
+  @keyframes ta-dialog-derecha { from { transform: translateX(100%); } to { transform: none; } }
+  @keyframes ta-dialog-arriba { from { transform: translateY(-100%); } to { transform: none; } }
+  @keyframes ta-dialog-abajo { from { transform: translateY(100%); } to { transform: none; } }
 
   .ta-dialog-capa::backdrop {
     background: rgb(var(--ta-backdrop, 0 0 0) / 0.7);

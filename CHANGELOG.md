@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.4.0 — 2026-11-03
+
+### Cambios que rompen
+- Los textos por defecto pasan a inglés. `setLabels(es)` (exportado junto con `en`
+  y `useLabels`) los vuelve al español en todo lo que cuelga del componente.
+- Props públicas en inglés:
+  - **PromptInput**: `conAdjuntos` → `attachments`, `enviarConEnter` → `submitOnEnter`;
+    nuevas `ariaLabel`, `sendLabel`, `attachLabel`.
+  - **ToolCallCard**: `nombre` → `name`, `estado` → `status`, `resultado` → `result`,
+    `textos` → `labels` (con claves en inglés).
+  - **MapaDelJuego** → **GameMap**: `centro` → `center`, `marcadores` → `markers`
+    (`titulo`/`descripcion` → `title`/`description`), `oscuro` → `dark`, `alto` →
+    `height`, `atribucion` → `attribution`.
+
+### Nuevo
+- **Switch**, **RadioGroup**, **Sheet**, **Toaster** + `toast()`, **Command**
+  (paleta Ctrl+K), **ContextMenu**, **Accordion**, **Progress**, **Skeleton**, **Avatar**.
+- **Dialog**: `placement` (`center`, `left`, `right`, `top`, `bottom`).
+- La capa flotante puede anclar a un punto de la pantalla (`pointAnchor`) y
+  DropdownMenu y ContextMenu comparten el teclado del menú (`internal/menu.ts`).
+
+### Arreglos que encontraron los tests nuevos
+- RadioGroup: el detalle de una opción ya no se suma a su nombre accesible.
+- Command: escribir en el buscador ya no lo vaciaba en cada tecla.
+
 ## 0.3.0 — 2026-11-03
 
 ### Paquete

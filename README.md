@@ -20,7 +20,7 @@ pnpm add github:Kitsuden/tallao
 </script>
 ```
 
-El mapa va aparte porque arrastra Leaflet: `import { MapaDelJuego } from "tallao/map"`
+El mapa va aparte porque arrastra Leaflet: `import { GameMap } from "tallao/map"`
 (instala `leaflet` y `sveaflet`).
 
 También se puede **copiar** un componente al proyecto, como en shadcn: copia
@@ -42,15 +42,40 @@ Requiere Svelte 5.29 o superior.
 | Tabs | tablist accesible: flechas, Inicio y Fin, contador, ids estables en SSR |
 | Alert | 4 variantes, título, cerrar |
 | Stat | cifra + etiqueta |
-| Dialog | `<dialog>` nativo con `showModal()`: foco contenido, Escape solo el de arriba, scroll bloqueado, foco de vuelta |
+| Switch | interruptor (`role="switch"`) para ajustes que se aplican al momento |
+| RadioGroup | radios nativos en `<fieldset>` con su `<legend>`; detalle por opción |
+| Dialog | `<dialog>` nativo con `showModal()`: foco contenido, Escape solo el de arriba, scroll bloqueado, foco de vuelta; centrado o pegado a un borde |
+| Sheet | panel lateral modal (un Dialog pegado a un borde) |
 | ConfirmDialog | sobre Dialog; `onConfirm` asíncrono, sigue abierto si falla |
+| Toaster · `toast()` | avisos efímeros en una región `aria-live`; la cuenta atrás se pausa con ratón o foco; acción opcional |
+| Command | paleta de órdenes (Ctrl+K / ⌘K) con grupos, palabras clave y atajos |
+| ContextMenu | menú de clic derecho (o tecla Menú / Mayús+F10) con las piezas de DropdownMenu |
+| Accordion | secciones plegables sobre `<details>` nativo; `single` exclusivo |
+| Progress | barra con valor o indeterminada |
+| Skeleton | hueco de carga (rect, círculo o líneas de texto) |
+| Avatar | foto con iniciales de respaldo, color estable por nombre, insignia |
 | Popover | panel no modal anclado a su disparador |
 | Tooltip | descripción al pasar o enfocar; Escape la oculta (WCAG 1.4.13) |
 | DropdownMenu · MenuItem · MenuSeparator · MenuLabel | menú de acciones: flechas, Inicio/Fin, búsqueda por letra |
 | Combobox | campo con lista filtrable (ARIA 1.2, `aria-activedescendant`), sin mayúsculas ni acentos |
 | ThemeScope | tokens en un contenedor: Shadow DOM y puente con `--kitsuden-*` |
 | PromptInput · ToolCallCard | entrada de chat y llamada a herramienta con aprobar / rechazar |
-| MapaDelJuego (`tallao/map`) | Leaflet con el tema del kit |
+| GameMap (`tallao/map`) | Leaflet con el tema del kit |
+
+## Idioma de los textos
+
+Los textos que pone el kit (botones de cerrar, «sin resultados», estados de una
+herramienta…) están en inglés por defecto; el español viene incluido. Para toda
+la aplicación, en el componente raíz:
+
+```svelte
+<script>
+  import { setLabels, es } from "tallao";
+  setLabels(es); // o setLabels({ ...es, close: "Salir" })
+</script>
+```
+
+Una prop explícita (`closeLabel`, `emptyText`, `labels` de ToolCallCard…) manda sobre esto.
 
 ### Disparadores
 

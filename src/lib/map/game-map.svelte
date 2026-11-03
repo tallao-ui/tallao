@@ -1,54 +1,56 @@
 <!--
-  tallao — MapaDelJuego
+  tallao — GameMap
   Envoltura fina sobre sveaflet (Leaflet) con el tema del kit:
   capa oscura por defecto, marcadores con Badge y popups estilados.
   sveaflet es dependencia del proyecto que usa el componente — este archivo
   es un punto de partida para copiar, no una reimplementación de Leaflet.
 -->
 <script lang="ts">
+  import { useLabels } from "$lib/i18n";
   import { cn } from "$lib/utils";
 
-  interface Marcador {
+  interface Marker {
     lat: number;
     lng: number;
-    titulo: string;
-    descripcion?: string;
+    title: string;
+    description?: string;
   }
 
   interface Props {
     /** Centro inicial [lat, lng]. */
-    centro?: [number, number];
+    center?: [number, number];
     zoom?: number;
-    marcadores?: Marcador[];
+    markers?: Marker[];
     /** Capa oscura (Esri Dark Gray) por defecto; false = OpenStreetMap estándar. */
-    oscuro?: boolean;
+    dark?: boolean;
     /** Alto del mapa (CSS). */
-    alto?: string;
+    height?: string;
     /** Atribución obligatoria de los tiles. */
-    atribucion?: string;
+    attribution?: string;
     /** Nombre accesible del mapa. */
     ariaLabel?: string;
     class?: string;
   }
 
+  const L = useLabels();
   const {
-    centro = [40.4168, -3.7038],
+    center = [40.4168, -3.7038],
     zoom = 5,
-    marcadores = [],
-    oscuro = true,
-    alto = "24rem",
-    atribucion,
-    ariaLabel = "Mapa",
+    markers = [],
+    dark = true,
+    height = "24rem",
+    attribution,
+    ariaLabel = L.map,
     class: className = "",
   }: Props = $props();
 
   // CARTO empezó a pedir API key para dark_all; Esri Dark Gray es libre.
-  const urlTiles = $derived(oscuro
+  const urlTiles = $derived(dark
     ? "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
     : "https://tile.openstreetmap.org/{z}/{x}/{y}.png");
   const atribucionFinal = $derived(
-    atribucion ??
-    (oscuro
+    attribution ??
+    (dark
       ? 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
       : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>')
   );
@@ -73,21 +75,21 @@
 
 <div
   class={cn("ta-mapa", className)}
-  style={`height: ${alto}`}
+  style={`height: ${height}`}
   role="application"
   aria-label={ariaLabel}
 >
   {#if cargando}
   {#await cargando then { S, icono }}
-    <S.Map options={{ center: centro, zoom }}>
+    <S.Map options={{ center, zoom }}>
       <S.TileLayer url={urlTiles} options={{ attribution: atribucionFinal }} />
-      {#each marcadores as m}
+      {#each markers as m}
         <S.Marker latLng={[m.lat, m.lng]} options={{ icon: icono }}>
           <S.Popup>
             <div class="ta-mapa-popup">
-              <strong>{m.titulo}</strong>
-              {#if m.descripcion}
-                <p>{m.descripcion}</p>
+              <strong>{m.title}</strong>
+              {#if m.description}
+                <p>{m.description}</p>
               {/if}
             </div>
           </S.Popup>

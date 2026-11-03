@@ -6,6 +6,8 @@
   (p. ej. a dónde mover lo que se borra).
 -->
 <script lang="ts">
+  import { useLabels } from "$lib/i18n";
+
   import Button from "./button.svelte";
   import Dialog from "./dialog.svelte";
 
@@ -21,12 +23,13 @@
     children?: import("svelte").Snippet;
   }
 
+  const L = useLabels();
   let {
     open = $bindable(false),
     title,
     description,
-    confirmLabel = "Confirmar",
-    cancelLabel = "Cancelar",
+    confirmLabel = L.confirm,
+    cancelLabel = L.cancel,
     closeLabel,
     variant = "danger",
     onConfirm,

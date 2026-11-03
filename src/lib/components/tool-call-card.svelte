@@ -5,68 +5,51 @@
   Inspirada en el ProposalInbox y ChatInterface del admin de Kitsuden.
 -->
 <script lang="ts">
+  import { useLabels, type Labels } from "$lib/i18n";
   import { cn } from "$lib/utils";
+
   import Badge from "./badge.svelte";
   import Button from "./button.svelte";
 
-  type Estado = "pending" | "executing" | "executed" | "rejected" | "failed";
+  type Status = "pending" | "executing" | "executed" | "rejected" | "failed";
+  type LabelKey = "approve" | "reject" | "pending" | "running" | "done" | "rejected" | "failed" | "arguments" | "result";
 
   interface Props {
     /** Nombre de la herramienta (p. ej. "publish_post"). */
-    nombre: string;
+    name: string;
     /** Argumentos de la llamada; se muestran como JSON. */
     args?: Record<string, unknown>;
     /** Resultado de la ejecución, si lo hay. */
-    resultado?: string;
-    estado?: Estado;
+    result?: string;
+    status?: Status;
     /** Si está pendiente: botones de decisión. */
     onApprove?: () => void;
     onReject?: () => void;
-    /** Textos personalizables (el kit no impone idioma). */
-    textos?: {
-      aprobar?: string;
-      rechazar?: string;
-      ejecutando?: string;
-      ejecutado?: string;
-      rechazado?: string;
-      fallido?: string;
-      pendiente?: string;
-      argumentos?: string;
-      resultado?: string;
-    };
+    /** Textos propios de esta tarjeta; los demás salen de setLabels (inglés por defecto). */
+    labels?: Partial<Pick<Labels, LabelKey>>;
     class?: string;
   }
 
+  const L = useLabels();
   const {
-    nombre,
+    name,
     args = {},
-    resultado,
-    estado = "pending",
+    result,
+    status = "pending",
     onApprove,
     onReject,
-    textos = {},
+    labels = {},
     class: className = "",
   }: Props = $props();
 
-  const T = $derived({
-    aprobar: "Aprobar",
-    rechazar: "Rechazar",
-    ejecutando: "Ejecutando…",
-    ejecutado: "Ejecutado",
-    rechazado: "Rechazado",
-    fallido: "Fallido",
-    pendiente: "Pendiente",
-    argumentos: "Argumentos",
-    resultado: "Resultado",
-    ...textos,
-  });
+  const T = $derived({ ...L, ...labels });
 
-  const estadoBadge: Record<Estado, { variant: "warning" | "info" | "success" | "default" | "error"; texto: keyof typeof T }> = {
-    pending: { variant: "warning", texto: "pendiente" },
-    executing: { variant: "info", texto: "ejecutando" },
-    executed: { variant: "success", texto: "ejecutado" },
-    rejected: { variant: "default", texto: "rechazado" },
-    failed: { variant: "error", texto: "fallido" },
+  const estadoBadge: Record<Status, { variant: "warning" | "info" | "success" | "default" | "error"; texto: LabelKey }> = {
+    pending: { variant: "warning", texto: "pending" },
+    executing: { variant: "info", texto: "running" },
+    executed: { variant: "success", texto: "done" },
+    rejected: { variant: "default", texto: "rejected" },
+    failed: { variant: "error", texto: "failed" },
   };
 
   let argsAbiertos = $state(false);
@@ -74,13 +57,13 @@
   const argsLargos = $derived(argsJson.length > 120);
 </script>
 
-<div class={cn("ta-toolcall", `ta-toolcall--${estado}`, className)}>
+<div class={cn("ta-toolcall", `ta-toolcall--${status}`, className)}>
   <div class="ta-toolcall-cabecera">
     <span class="ta-toolcall-icono" aria-hidden="true">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
     </span>
-    <span class="ta-toolcall-nombre">{nombre}</span>
-    <Badge variant={estadoBadge[estado].variant}>{T[estadoBadge[estado].texto]}</Badge>
+    <span class="ta-toolcall-nombre">{name}</span>
+    <Badge variant={estadoBadge[status].variant}>{T[estadoBadge[status].texto]}</Badge>
   </div>
 
   {#if Object.keys(args).length > 0}
@@ -91,7 +74,7 @@
         onclick={() => (argsAbiertos = !argsAbiertos)}
         aria-expanded={argsAbiertos}
       >
-        {T.argumentos}
+        {T.arguments}
         {#if argsLargos}
           <span class="ta-toolcall-mas">{argsAbiertos ? "▾" : "▸"}</span>
         {/if}
@@ -100,20 +83,20 @@
     </div>
   {/if}
 
-  {#if resultado}
+  {#if result}
     <div class="ta-toolcall-bloque">
-      <span class="ta-toolcall-etiqueta">{T.resultado}</span>
-      <p class="ta-toolcall-resultado">{resultado}</p>
+      <span class="ta-toolcall-etiqueta">{T.result}</span>
+      <p class="ta-toolcall-resultado">{result}</p>
     </div>
   {/if}
 
-  {#if estado === "pending" && (onApprove || onReject)}
+  {#if status === "pending" && (onApprove || onReject)}
     <div class="ta-toolcall-acciones">
       {#if onReject}
-        <Button variant="ghost" size="sm" onclick={onReject}>{T.rechazar}</Button>
+        <Button variant="ghost" size="sm" onclick={onReject}>{T.reject}</Button>
       {/if}
       {#if onApprove}
-        <Button variant="primary" size="sm" onclick={onApprove}>{T.aprobar}</Button>
+        <Button variant="primary" size="sm" onclick={onApprove}>{T.approve}</Button>
       {/if}
     </div>
   {/if}

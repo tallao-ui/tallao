@@ -20,6 +20,7 @@
 </script>
 
 <script lang="ts">
+  import { useLabels } from "$lib/i18n";
   import { cn } from "$lib/utils";
   import { pushLayer } from "$lib/internal/layers";
   import { anchor } from "$lib/internal/position";
@@ -39,12 +40,13 @@
     onValueChange?: (value: string | null) => void;
   }
 
+  const L = useLabels();
   let {
     options,
     value = $bindable(null),
     placeholder,
     ariaLabel,
-    emptyText = "Sin resultados",
+    emptyText = L.noResults,
     disabled = false,
     filter = (o, q) => normalizar(o.label).includes(normalizar(q)),
     class: className = "",

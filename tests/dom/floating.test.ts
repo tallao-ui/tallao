@@ -127,7 +127,7 @@ describe("Combobox", () => {
   it("says so when nothing matches", async () => {
     render(Flotantes);
     await userEvent.type(screen.getByRole("combobox", { name: "País" }), "zzz");
-    expect(screen.getByText("Sin resultados")).toBeTruthy();
+    expect(screen.getByText("No results")).toBeTruthy();
   });
 });
 

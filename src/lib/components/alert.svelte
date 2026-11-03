@@ -4,6 +4,7 @@
   Con `onDismiss` lleva botón de cerrar.
 -->
 <script lang="ts">
+  import { useLabels } from "$lib/i18n";
   import { cn } from "$lib/utils";
 
   interface Props {
@@ -15,11 +16,12 @@
     children?: import("svelte").Snippet;
   }
 
+  const L = useLabels();
   const {
     variant = "info",
     title,
     onDismiss,
-    dismissLabel = "Cerrar aviso",
+    dismissLabel = L.dismiss,
     class: className = "",
     children,
   }: Props = $props();
