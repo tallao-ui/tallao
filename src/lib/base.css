@@ -1,0 +1,35 @@
+/**
+ * tallao — estilos base
+ * Reset mínimo + estilado de elementos raíz usando los tokens.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: rgb(var(--ta-bg));
+  color: rgb(var(--ta-text));
+  font-family: var(--ta-font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Selección acorde a la marca */
+::selection {
+  background: rgb(var(--ta-accent) / 0.35);
+}
+
+/* Scrollbars discretas */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--ta-muted)) transparent;
+}

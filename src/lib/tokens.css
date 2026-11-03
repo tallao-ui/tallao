@@ -1,0 +1,60 @@
+/**
+ * tallao — tokens de diseño
+ *
+ * Canales RGB sin `rgb(...)` para poder componer alfa desde los componentes:
+ *   background: rgb(var(--ta-surface) / <alpha-value>)
+ *
+ * Tema oscuro por defecto; `[data-tallao-theme="light"]` invierte a claro.
+ * Reemplaza una variable a nivel documento para retematizar todo el kit.
+ */
+
+:root {
+  /* Marcas */
+  --ta-accent: 168 85 247; /* púrpura */
+  --ta-accent-hover: 192 132 252;
+  --ta-accent-dim: 126 58 194;
+  --ta-accent-2: 255 45 111; /* rosa */
+  --ta-accent-2-dim: 214 31 90;
+
+  /* Semánticos */
+  --ta-success: 52 211 153;
+  --ta-warning: 251 191 36;
+  --ta-info: 96 165 250;
+  --ta-danger: 248 113 113;
+
+  /* Radio y tipografía */
+  --ta-radius-sm: 0.375rem;
+  --ta-radius: 0.5rem;
+  --ta-radius-lg: 0.75rem;
+  --ta-font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --ta-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+/* ——— Tema oscuro (por defecto) ——— */
+:root,
+:root[data-tallao-theme="dark"] {
+  color-scheme: dark;
+  --ta-bg: 9 9 11;
+  --ta-surface: 24 24 27; /* zinc-900: cards, inputs */
+  --ta-elevated: 39 39 42; /* zinc-800: hovers, headers */
+  --ta-border: 39 39 42;
+  --ta-muted: 63 63 70; /* zinc-700 */
+  --ta-subtle: 82 82 91; /* zinc-500 */
+  --ta-text: 250 250 250;
+  --ta-text-dim: 161 161 170;
+  --ta-backdrop: 0 0 0;
+}
+
+/* ——— Tema claro ——— */
+:root[data-tallao-theme="light"] {
+  color-scheme: light;
+  --ta-bg: 250 250 250;
+  --ta-surface: 255 255 255;
+  --ta-elevated: 244 244 245;
+  --ta-border: 228 228 231;
+  --ta-muted: 212 212 216;
+  --ta-subtle: 113 113 122;
+  --ta-text: 24 24 27;
+  --ta-text-dim: 82 82 91;
+  --ta-backdrop: 9 9 11;
+}
