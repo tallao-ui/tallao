@@ -1,6 +1,6 @@
 {
   "name": "tallao",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "UI kit en Svelte 5 para interfaces generativas — extraído del admin de Kitsuden",
   "license": "MIT",
   "author": "Victor Antinori Broce (https://github.com/vigogami)",
@@ -23,6 +23,11 @@
       "svelte": "./dist/map/index.js",
       "default": "./dist/map/index.js"
     },
+    "./code": {
+      "types": "./dist/code/index.d.ts",
+      "svelte": "./dist/code/index.js",
+      "default": "./dist/code/index.js"
+    },
     "./tokens.css": "./dist/tokens.css",
     "./base.css": "./dist/base.css",
     "./package.json": "./package.json"
@@ -44,9 +49,17 @@
     "kit:check": "pnpm --filter tallao-kit-check build && pnpm --filter tallao-kit-check test"
   },
   "peerDependencies": {
+    "@codemirror/commands": "^6",
+    "@codemirror/lang-javascript": "^6",
+    "@codemirror/lang-json": "^6",
+    "@codemirror/lang-markdown": "^6",
+    "@codemirror/language": "^6",
+    "@codemirror/state": "^6",
+    "@codemirror/view": "^6",
     "leaflet": "^1.9.4",
     "sveaflet": "^0.1.5",
-    "svelte": "^5.29.0"
+    "svelte": "^5.29.0",
+    "@lezer/highlight": "^1"
   },
   "peerDependenciesMeta": {
     "leaflet": {
@@ -54,12 +67,44 @@
     },
     "sveaflet": {
       "optional": true
+    },
+    "@codemirror/state": {
+      "optional": true
+    },
+    "@codemirror/view": {
+      "optional": true
+    },
+    "@codemirror/commands": {
+      "optional": true
+    },
+    "@codemirror/language": {
+      "optional": true
+    },
+    "@codemirror/lang-markdown": {
+      "optional": true
+    },
+    "@codemirror/lang-json": {
+      "optional": true
+    },
+    "@codemirror/lang-javascript": {
+      "optional": true
+    },
+    "@lezer/highlight": {
+      "optional": true
     }
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0"
   },
   "devDependencies": {
+    "@codemirror/commands": "^6.11.1",
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
+    "@lezer/highlight": "^1.2.5",
     "@sveltejs/package": "^2.5.8",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@testing-library/svelte": "^5.4.2",

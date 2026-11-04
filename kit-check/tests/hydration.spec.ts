@@ -119,3 +119,46 @@ test.describe("a SvelteKit form action receives every tallao control", () => {
     });
   });
 });
+
+const ESPERADO_ESQUEMA = {
+  "post.titulo": ["Hola"],
+  "post.estado": ["live"],
+  "post.nivel": ["3"],
+  "post.publicar": ["2026-11-04"],
+  "post.activo": ["true"],
+  "post.etiquetas": ["guia", "evento"],
+  cuerpo: ["# Notas"],
+};
+
+test.describe("SchemaForm as the form of a SvelteKit action", () => {
+  test("with JavaScript: posts the schema's fields and the code editor", async ({ page }) => {
+    const problemas = vigilar(page);
+    await abrir(page, "/esquema");
+    await expect(page.locator(".cm-content")).toContainText("# Notas");
+    await page.getByRole("button", { name: "Enviar" }).click();
+    await expect(page.getByTestId("recibido")).toHaveText(JSON.stringify(ESPERADO_ESQUEMA));
+    expect(problemas).toEqual([]);
+  });
+
+  test("with JavaScript: an invalid form never reaches the action", async ({ page }) => {
+    const peticiones: string[] = [];
+    page.on("request", (r) => r.method() === "POST" && peticiones.push(r.url()));
+    await abrir(page, "/esquema");
+    const titulo = page.getByLabel(/Título/);
+    await titulo.fill("ab");
+    await page.getByRole("button", { name: "Enviar" }).click();
+    await expect(titulo).toBeFocused();
+    await expect(titulo).toHaveAttribute("aria-invalid", "true");
+    await expect(page.getByTestId("recibido")).toHaveCount(0);
+    expect(peticiones).toEqual([]);
+  });
+
+  test.describe("without JavaScript (progressive enhancement)", () => {
+    test.use({ javaScriptEnabled: false });
+    test("the server-rendered form posts the same values", async ({ page }) => {
+      await page.goto("/esquema");
+      await page.getByRole("button", { name: "Enviar" }).click();
+      await expect(page.getByTestId("recibido")).toHaveText(JSON.stringify(ESPERADO_ESQUEMA));
+    });
+  });
+});

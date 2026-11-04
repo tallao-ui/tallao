@@ -1,7 +1,7 @@
 import axe from "axe-core";
 
 /**
- * Infracciones de accesibilidad de axe en `raiz`. happy-dom no calcula estilos
+ * Infracciones de accesibilidad de axe en `raiz`. jsdom no calcula estilos
  * ni posiciones, así que el contraste queda fuera (lo cubre la demo en navegador).
  */
 export async function infracciones(raiz: Element) {

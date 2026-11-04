@@ -51,6 +51,17 @@ export interface Labels {
   chooseFiles: string;
   dropFiles: string;
   actions: string;
+  breadcrumb: string;
+  resize: string;
+  navigation: string;
+  collapse: string;
+  expand: string;
+  showData: string;
+  hideData: string;
+  codeEditor: string;
+  required: string;
+  invalid: string;
+  submit: string;
 }
 
 export const en: Labels = {
@@ -91,6 +102,17 @@ export const en: Labels = {
   chooseFiles: "Choose files",
   dropFiles: "or drop them here",
   actions: "Actions",
+  breadcrumb: "Breadcrumb",
+  resize: "Resize",
+  navigation: "Navigation",
+  collapse: "Collapse",
+  expand: "Expand",
+  showData: "Show data",
+  hideData: "Hide data",
+  codeEditor: "Code editor",
+  required: "Required",
+  invalid: "Invalid value",
+  submit: "Save",
 };
 
 export const es: Labels = {
@@ -131,6 +153,17 @@ export const es: Labels = {
   chooseFiles: "Elegir archivos",
   dropFiles: "o suéltalos aquí",
   actions: "Acciones",
+  breadcrumb: "Ruta de navegación",
+  resize: "Redimensionar",
+  navigation: "Navegación",
+  collapse: "Contraer",
+  expand: "Expandir",
+  showData: "Ver datos",
+  hideData: "Ocultar datos",
+  codeEditor: "Editor de código",
+  required: "Obligatorio",
+  invalid: "Valor no válido",
+  submit: "Guardar",
 };
 
 const KEY = Symbol("tallao-labels");

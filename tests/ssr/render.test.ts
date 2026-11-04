@@ -89,3 +89,25 @@ describe("server rendering of the 0.6 components", () => {
     expect(render(Formularios).body).toBe(body);
   });
 });
+
+import CodeEditor from "$lib/code/code-editor.svelte";
+import Paneles from "../fixtures/Paneles.svelte";
+
+describe("server rendering of the 0.7 components", () => {
+  it("renders them all, the same every time", () => {
+    const { body } = render(Paneles, { props: { nombre: "post" } });
+    expect(body).toContain('role="separator"');
+    expect(body).toContain('aria-current="page"');
+    expect(body).toContain('role="slider"');
+    expect(body).toContain('name="post.titulo"');
+    expect(body).toContain("<fieldset");
+    expect(render(Paneles, { props: { nombre: "post" } }).body).toBe(body);
+  });
+
+  it("renders the code editor as a plain textarea, without loading CodeMirror", () => {
+    const { body } = render(CodeEditor, { props: { value: "{ }", language: "json", name: "datos" } });
+    expect(body).toMatch(/<textarea[^>]*name="datos"/);
+    expect(body).toContain("{ }");
+    expect(body).not.toContain("cm-editor");
+  });
+});

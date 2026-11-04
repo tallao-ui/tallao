@@ -34,3 +34,10 @@ if (typeof proto.showModal !== "function") {
 HTMLCanvasElement.prototype.getContext = (() => null) as unknown as HTMLCanvasElement["getContext"];
 
 export {};
+
+// jsdom no trae ResizeObserver; bind:clientWidth (las gráficas) lo usa. Sin medidas, nunca avisa.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as unknown as typeof ResizeObserver;

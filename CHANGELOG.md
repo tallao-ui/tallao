@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.7.0 — 2026-11-04
+
+Lo que faltaba para montar el panel de Kitsuden entero con tallao.
+
+### Nuevo
+- **Sidebar** (grupos, insignias, ramas desplegables con `aria-expanded`, página actual con
+  `aria-current` y su rama abierta, plegada a iconos) y **SplitPane** (separador con el
+  patrón APG: flechas, Inicio/Fin, Intro pliega y restaura, arrastre con puntero).
+- **Breadcrumb** e **Icon** (iconos propios por nombre, decorativos salvo con `label`).
+- **BarChart** y **LineChart**: ocho colores de serie en los tokens (`--ta-series-1..8`,
+  validados para daltonismo en oscuro y claro), columnas de 24px como mucho con el extremo
+  redondeado, líneas de 2px, leyenda con dos o más series, tooltip con ratón y teclado (la
+  gráfica es un deslizador que lee cada categoría) y la tabla con todos los datos.
+- **SchemaForm**: un formulario a partir de un JSON Schema (texto, email, url, fecha,
+  números con mínimo y máximo, enum, booleano, lista de enum, objetos anidados). Valida al
+  enviar y al salir de cada campo, enfoca el primer error y, con `name`, es el `<form>` de
+  una acción de SvelteKit (un envío no válido no llega a `enhance`).
+- **CodeEditor** en `tallao/code`: CodeMirror 6 con el tema y el resaltado del kit; en el
+  servidor y sin JavaScript es un `<textarea>` que se envía. CodeMirror va en
+  peerDependencies opcionales.
+- `kit-check` prueba SchemaForm con CodeEditor dentro en una acción, con y sin JavaScript.
+- Textos nuevos en `en`/`es`: breadcrumb, resize, navigation, collapse, expand, showData,
+  hideData, codeEditor, required, invalid, submit.
+
 ## 0.6.0 — 2026-11-03
 
 Lo que bloqueaba usar tallao en los formularios de SvelteKit y en el panel de Kitsuden.

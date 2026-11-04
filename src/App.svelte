@@ -58,7 +58,16 @@
     DatePicker,
     Calendar,
     FileUpload,
+    Breadcrumb,
+    Icon,
+    SplitPane,
+    Sidebar,
+    BarChart,
+    LineChart,
+    SchemaForm,
+    type JsonSchema,
   } from "$lib/components";
+  import { CodeEditor } from "$lib/code";
   import { GameMap } from "$lib/map";
   import { es, setLabels } from "$lib/i18n";
   import { toast } from "$lib/toast.svelte";
@@ -185,6 +194,39 @@
     { lat: 41.3874, lng: 2.1686, title: "Barcelona", description: "Torneo regional · sábado 18:00" },
     { lat: 37.3891, lng: -5.9845, title: "Sevilla", description: "Quedada de la comunidad" },
   ];
+
+  // ——— 0.7 ———
+  let anchoLista = $state(35);
+  let barraPlegada = $state(false);
+  const visitasMes = [
+    { mes: "Jun", visitas: 4200, altas: 310 },
+    { mes: "Jul", visitas: 5100, altas: 380 },
+    { mes: "Ago", visitas: 4800, altas: 290 },
+    { mes: "Sep", visitas: 6900, altas: 520 },
+    { mes: "Oct", visitas: 8300, altas: 610 },
+    { mes: "Nov", visitas: 7600, altas: 570 },
+  ];
+  const esquemaDemo: JsonSchema = {
+    type: "object",
+    required: ["titulo", "estado"],
+    properties: {
+      titulo: { type: "string", title: "Título", minLength: 3 },
+      estado: {
+        type: "string",
+        title: "Estado",
+        oneOf: [
+          { const: "draft", title: "Borrador" },
+          { const: "live", title: "Publicado" },
+        ],
+      },
+      prioridad: { type: "integer", title: "Prioridad", minimum: 1, maximum: 5, default: 3 },
+      publicar: { type: "string", title: "Publicar el", format: "date" },
+      destacado: { type: "boolean", title: "Destacado" },
+      etiquetas: { type: "array", title: "Etiquetas", items: { enum: ["guía", "parche", "evento"] } },
+    },
+  };
+  let valorEsquema = $state<Record<string, unknown>>({});
+  let codigoDemo = $state(["# Notas del parche", "", "- Nuevo **mapa**", "- Arreglos varios", ""].join("\n"));
 </script>
 
 <svelte:head>
@@ -445,6 +487,52 @@
     </div>
   </section>
 
+  <!-- ——— 0.7 ——— -->
+  <section class="seccion">
+    <h2>Breadcrumb · Icon · SplitPane · Sidebar</h2>
+    <Breadcrumb items={[{ label: "Inicio", href: "#" }, { label: "Kons", href: "#" }, { label: "Agile" }]} />
+    <div class="iconos">
+      {#each ["check", "plus", "search", "home", "user", "trash", "edit", "copy", "calendar", "settings", "bot"] as const as n (n)}
+        <Icon name={n} size={18} />
+      {/each}
+    </div>
+    <div class="marco-split">
+      <Sidebar
+        bind:collapsed={barraPlegada}
+        current="agile"
+        groups={[
+          { items: [{ id: "inicio", label: "Inicio", icon: "home" }, { id: "usuarios", label: "Usuarios", icon: "user", badge: 4 }] },
+          {
+            label: "Kons",
+            items: [
+              { id: "kons", label: "Kons", icon: "settings", children: [{ id: "agile", label: "Agile" }, { id: "blog", label: "Blog" }] },
+            ],
+          },
+        ]}
+      />
+      <SplitPane bind:size={anchoLista} label="Ancho de la lista">
+        {#snippet first()}<div class="panel-demo">Lista ({anchoLista}%)</div>{/snippet}
+        {#snippet second()}<div class="panel-demo">Detalle</div>{/snippet}
+      </SplitPane>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <h2>BarChart · LineChart</h2>
+    <div class="cuadricula-2">
+      <BarChart title="Visitas y altas por mes" data={visitasMes} x="mes" series={[{ key: "visitas", label: "Visitas" }, { key: "altas", label: "Altas" }]} locale="es" />
+      <LineChart title="Visitas por mes" data={visitasMes} x="mes" series={[{ key: "visitas", label: "Visitas" }]} area locale="es" />
+    </div>
+  </section>
+
+  <section class="seccion">
+    <h2>SchemaForm · CodeEditor</h2>
+    <div class="cuadricula-2">
+      <SchemaForm schema={esquemaDemo} bind:value={valorEsquema} onsubmit={(v) => toast.success("Guardado", { description: JSON.stringify(v) })} />
+      <CodeEditor bind:value={codigoDemo} language="markdown" />
+    </div>
+  </section>
+
   <!-- ——— 0.6 ——— -->
   <section class="seccion">
     <h2>DataTable · Pagination · Combobox remoto y múltiple · DatePicker · FileUpload</h2>
@@ -666,6 +754,11 @@
 </div>
 
 <style>
+  .iconos { display: flex; gap: 0.75rem; margin: 1rem 0; color: rgb(var(--ta-text-dim)); }
+  .marco-split { display: flex; height: 16rem; border: 1px solid rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); overflow: hidden; }
+  .marco-split > :global(:last-child) { flex: 1; min-width: 0; }
+  .panel-demo { height: 100%; padding: 1rem; font-size: 0.875rem; color: rgb(var(--ta-text-dim)); }
+
   .demo {
     max-width: 60rem;
     margin: 0 auto;

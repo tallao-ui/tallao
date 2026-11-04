@@ -43,6 +43,16 @@
   --ta-text: 250 250 250;
   --ta-text-dim: 161 161 170;
   --ta-backdrop: 0 0 0;
+  /* Series de gráficas (orden fijo: azul, naranja, aguamarina, amarillo, magenta, verde,
+     violeta, rojo), validadas contra la superficie oscura: CVD y contraste ≥ 3:1. */
+  --ta-series-1: 57 135 229;
+  --ta-series-2: 217 89 38;
+  --ta-series-3: 25 158 112;
+  --ta-series-4: 201 133 0;
+  --ta-series-5: 213 81 129;
+  --ta-series-6: 0 131 0;
+  --ta-series-7: 144 133 233;
+  --ta-series-8: 230 103 103;
 }
 
 /* ——— Tema claro ——— */
@@ -57,4 +67,14 @@
   --ta-text: 24 24 27;
   --ta-text-dim: 82 82 91;
   --ta-backdrop: 9 9 11;
+  /* Las mismas ocho, en sus pasos para fondo claro (aguamarina, amarillo y magenta quedan
+     bajo 3:1: las gráficas llevan siempre leyenda y la tabla de datos). */
+  --ta-series-1: 42 120 214;
+  --ta-series-2: 235 104 52;
+  --ta-series-3: 27 175 122;
+  --ta-series-4: 237 161 0;
+  --ta-series-5: 232 123 164;
+  --ta-series-6: 0 131 0;
+  --ta-series-7: 98 80 214;
+  --ta-series-8: 227 73 72;
 }

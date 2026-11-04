@@ -21,7 +21,9 @@ pnpm add github:Kitsuden/tallao
 ```
 
 El mapa va aparte porque arrastra Leaflet: `import { GameMap } from "tallao/map"`
-(instala `leaflet` y `sveaflet`).
+(instala `leaflet` y `sveaflet`). El editor de código también, por CodeMirror:
+`import { CodeEditor } from "tallao/code"` (instala `@codemirror/state`, `view`,
+`commands`, `language`, `@lezer/highlight` y el `lang-*` de cada lenguaje).
 
 También se puede **copiar** un componente al proyecto, como en shadcn: copia
 `src/lib/components/<componente>.svelte`, los que importe, `src/lib/internal/`,
@@ -63,6 +65,12 @@ Requiere Svelte 5.29 o superior.
 | Pagination | Anterior / números con «…» / Siguiente, `aria-current="page"` |
 | Calendar · DatePicker | elegir un día con el teclado (patrón APG), fechas ISO, `min`/`max`, nombres del idioma; el DatePicker además se escribe |
 | FileUpload | elegir o soltar archivos sobre un `<input type="file">` real; `accept`, `maxSize`, `maxFiles` con el motivo de cada rechazo |
+| Breadcrumb | ruta de navegación en `<nav>` + `<ol>`; la última es `aria-current="page"` |
+| Icon | iconos propios por nombre (`check`, `search`, `bot`…) o un dibujo propio; decorativo salvo que lleve `label` |
+| Sidebar | navegación lateral con grupos, insignias y ramas desplegables; marca la página actual y abre su rama; se pliega a iconos |
+| SplitPane | dos paneles con separador accesible (patrón APG «window splitter»): flechas, Inicio/Fin, Intro pliega |
+| BarChart · LineChart | gráficas de columnas y de líneas con los colores de serie del kit: leyenda con dos o más series, tooltip al pasar el ratón **o recorrer con el teclado**, tabla con todos los datos |
+| SchemaForm | formulario a partir de un JSON Schema: valida al enviar, enfoca el primer error, sirve como `<form>` de una acción de SvelteKit |
 | Popover | panel no modal anclado a su disparador |
 | Tooltip | descripción al pasar o enfocar; Escape la oculta (WCAG 1.4.13) |
 | DropdownMenu · MenuItem · MenuSeparator · MenuLabel | menú de acciones: flechas, Inicio/Fin, búsqueda por letra |
@@ -70,6 +78,7 @@ Requiere Svelte 5.29 o superior.
 | ThemeScope | tokens en un contenedor: Shadow DOM y puente con `--kitsuden-*` |
 | PromptInput · ToolCallCard | entrada de chat y llamada a herramienta con aprobar / rechazar |
 | GameMap (`tallao/map`) | Leaflet con el tema del kit |
+| CodeEditor (`tallao/code`) | CodeMirror 6 con el tema del kit (Markdown, JSON, JS/TS); antes de cargar, y sin JavaScript, es un `<textarea>` que se envía con el formulario |
 
 ## Idioma de los textos
 
@@ -136,8 +145,21 @@ módulo es uno solo para todas las peticiones).
 
 **Formularios de SvelteKit.** Con `name`, cada control se envía en un `<form method="POST">`
 como uno nativo, también sin JavaScript: Switch (como un checkbox), Combobox (uno o varios
-valores), KeyValueEditor (`name[clave]`), DatePicker (ISO) y FileUpload (los archivos,
-también los soltados).
+valores), KeyValueEditor (`name[clave]`), DatePicker (ISO), FileUpload (los archivos,
+también los soltados) y CodeEditor.
+
+SchemaForm es el propio `<form>`: con `name`, sus campos se envían como `name.campo`, y un
+envío no válido se para antes de que `enhance` lo mande.
+
+```svelte
+<script>
+  import { enhance } from "$app/forms";
+  import { fromAction } from "svelte/attachments";
+  import { SchemaForm } from "tallao";
+</script>
+
+<SchemaForm {schema} name="post" method="POST" {@attach fromAction(enhance)} />
+```
 
 `kit-check/` es una app SvelteKit 3 que usa el paquete como cualquier proyecto y lo prueba
 en la CI: el prerender sale completo y sin estado compartido entre páginas
@@ -151,7 +173,7 @@ pnpm kit:check
 ## Calidad
 
 ```bash
-pnpm test      # vitest: comportamiento, teclado y axe (happy-dom) + render en servidor (Node)
+pnpm test      # vitest: comportamiento, teclado y axe (jsdom) + render en servidor (Node)
 pnpm check     # svelte-check
 pnpm package   # compila el paquete en dist/ y lo revisa con publint
 pnpm dev       # la demo

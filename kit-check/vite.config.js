@@ -5,5 +5,20 @@ import adapter from "@sveltejs/adapter-static";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 
-// `fallback`: /formulario tiene una acción de servidor y no se prerenderiza.
-export default defineConfig({ plugins: [sveltekit({ adapter: adapter({ fallback: "200.html" }) })] });
+// `fallback`: /formulario y /esquema tienen una acción de servidor y no se prerenderizan.
+export default defineConfig({
+  plugins: [sveltekit({ adapter: adapter({ fallback: "200.html" }) })],
+  // CodeMirror se importa al montar el CodeEditor. Sin esto, `vite dev` lo descubre en la
+  // primera visita a /esquema, lo vuelve a empaquetar y recarga todas las páginas abiertas:
+  // el test que corriera a la vez en otro worker fallaba al perder su página.
+  optimizeDeps: {
+    include: [
+      "@codemirror/state",
+      "@codemirror/view",
+      "@codemirror/commands",
+      "@codemirror/language",
+      "@codemirror/lang-markdown",
+      "@lezer/highlight",
+    ],
+  },
+});

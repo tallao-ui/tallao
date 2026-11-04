@@ -64,6 +64,14 @@
     --ta-radius-lg: 0.75rem;
     --ta-font-sans: "Inter", system-ui, -apple-system, sans-serif;
     --ta-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+    --ta-series-1: 57 135 229;
+    --ta-series-2: 217 89 38;
+    --ta-series-3: 25 158 112;
+    --ta-series-4: 201 133 0;
+    --ta-series-5: 213 81 129;
+    --ta-series-6: 0 131 0;
+    --ta-series-7: 144 133 233;
+    --ta-series-8: 230 103 103;
   }
 
   /*
@@ -95,5 +103,14 @@
     --ta-radius-lg: 0.75rem;
     --ta-font-sans: var(--kitsuden-font-sans, "Inter", system-ui, -apple-system, sans-serif);
     --ta-font-mono: var(--kitsuden-font-mono, "JetBrains Mono", "Fira Code", ui-monospace, monospace);
+    /* El admin no define series de gráficas: van las de tallao para fondo oscuro. */
+    --ta-series-1: 57 135 229;
+    --ta-series-2: 217 89 38;
+    --ta-series-3: 25 158 112;
+    --ta-series-4: 201 133 0;
+    --ta-series-5: 213 81 129;
+    --ta-series-6: 0 131 0;
+    --ta-series-7: 144 133 233;
+    --ta-series-8: 230 103 103;
   }
 </style>
