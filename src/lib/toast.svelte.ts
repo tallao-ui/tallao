@@ -34,7 +34,13 @@ let nextId = 1;
 /** Los avisos abiertos; los lee el Toaster. */
 export const toasts = $state<Toast[]>([]);
 
+// En el servidor este módulo es uno solo para todas las peticiones (SvelteKit): un aviso
+// guardado aquí durante un render saldría en la página de otro usuario. Un aviso es algo
+// que pasa en el navegador, así que en el servidor toast() no hace nada.
+const enServidor = typeof window === "undefined";
+
 function show(variant: ToastVariant, message: string, opts: ToastOptions = {}): number {
+  if (enServidor) return 0;
   const t: Toast = { id: nextId++, message, variant, ...opts };
   t.duration ??= variant === "error" ? 8000 : 5000;
   toasts.push(t);

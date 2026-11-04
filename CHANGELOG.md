@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.1 — 2026-11-03
+
+### SvelteKit
+- `toast()` no hace nada en el servidor. El módulo de avisos es uno solo para todas las
+  peticiones: un `toast()` durante el render salía en el HTML de otra página (lo
+  comprobó `kit-check` antes del arreglo).
+- `kit-check/`: app SvelteKit 3 que consume el paquete empaquetado. En la CI se
+  prerenderiza y se revisa su HTML, y Playwright (Chromium) comprueba la hidratación: sin
+  avisos de desajuste, los ids del servidor se conservan y los componentes responden.
+
 ## 0.5.0 — 2026-11-03
 
 Lo que pidieron las vistas de administración de los kons al pasarlas a tallao.

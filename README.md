@@ -108,6 +108,37 @@ Popover, Tooltip, DropdownMenu y Combobox comparten `src/lib/internal/`:
 - **Pila de capas**: Escape cierra solo la de arriba (y no el `<dialog>` que la
   contiene); un clic fuera cierra las que no lo contienen.
 
+## SvelteKit
+
+tallao funciona en SvelteKit tal cual (probado con SvelteKit 3; SvelteKit 2 consume
+el mismo formato, pero no se prueba): se publica con `svelte-package`, así que
+SvelteKit compila los componentes para el servidor y para el navegador. Los ids salen de
+`$props.id()` (iguales en los dos lados), nada toca `window` al importarse, los textos de
+`setLabels` van por contexto (por petición) y `toast()` no hace nada en el servidor (allí el
+módulo es uno solo para todas las peticiones).
+
+```svelte
+<!-- src/routes/+layout.svelte -->
+<script>
+  import "tallao/tokens.css";
+  import "tallao/base.css";
+  import { Toaster } from "tallao";
+  let { children } = $props();
+</script>
+
+{@render children()}
+<Toaster />
+```
+
+`kit-check/` es una app SvelteKit 3 que usa el paquete como cualquier proyecto y lo prueba
+en la CI: el prerender sale completo y sin estado compartido entre páginas
+(`check-prerender.mjs`), y en Chromium la hidratación no da desajustes, los ids del servidor
+son los que se quedan y todo responde después (`tests/hydration.spec.ts`).
+
+```bash
+pnpm kit:check
+```
+
 ## Calidad
 
 ```bash

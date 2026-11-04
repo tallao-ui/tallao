@@ -64,3 +64,12 @@ describe("server rendering of the 0.5 components", () => {
     expect(render(Integrados).body).toBe(body);
   });
 });
+
+import { toast, toasts } from "$lib/toast.svelte";
+
+describe("toast() on the server", () => {
+  it("does nothing: the module is shared by every request, so a toast would leak to other users", () => {
+    expect(toast("from a server render")).toBe(0);
+    expect(toasts).toHaveLength(0);
+  });
+});
