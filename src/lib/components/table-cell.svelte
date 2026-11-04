@@ -5,11 +5,13 @@
     /** Para una fila que ocupa toda la tabla (p. ej. «sin resultados»). */
     colspan?: number;
     children?: import("svelte").Snippet;
+    /** Cualquier otro atributo (title, data-*, headers…) va al <td>. */
+    [key: string]: unknown;
   }
-  const { class: className = "", colspan, children }: Props = $props();
+  const { class: className = "", colspan, children, ...rest }: Props = $props();
 </script>
 
-<td class={cn("ta-table-td", className)} {colspan}>
+<td {...rest} class={cn("ta-table-td", className)} {colspan}>
   {@render children?.()}
 </td>
 

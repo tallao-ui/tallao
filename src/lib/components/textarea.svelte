@@ -7,12 +7,15 @@
 
   let {
     value = $bindable(""),
+    /** El elemento nativo (bind:ref), para enfocarlo o medirlo. */
+    ref = $bindable(),
     rows = 3,
     class: className = "",
     disabled = false,
     ...rest
   }: {
     value?: string;
+    ref?: HTMLTextAreaElement;
     rows?: number;
     class?: string;
     disabled?: boolean;
@@ -20,7 +23,7 @@
   } = $props();
 </script>
 
-<textarea bind:value {rows} {disabled} class={cn("ta-textarea", className)} {...rest}></textarea>
+<textarea bind:this={ref} bind:value {rows} {disabled} class={cn("ta-textarea", className)} {...rest}></textarea>
 
 <style>
   .ta-textarea {

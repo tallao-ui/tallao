@@ -1,6 +1,6 @@
 {
   "name": "tallao",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "UI kit en Svelte 5 para interfaces generativas — extraído del admin de Kitsuden",
   "license": "MIT",
   "author": "Victor Antinori Broce (https://github.com/vigogami)",
@@ -43,9 +43,9 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "svelte": "^5.29.0",
     "leaflet": "^1.9.4",
-    "sveaflet": "^0.1.5"
+    "sveaflet": "^0.1.5",
+    "svelte": "^5.29.0"
   },
   "peerDependenciesMeta": {
     "leaflet": {
@@ -66,13 +66,14 @@
     "@types/leaflet": "^1.9.22",
     "axe-core": "^4.14.0",
     "happy-dom": "^18.0.1",
+    "jsdom": "^26.1.0",
+    "leaflet": "^1.9.4",
     "publint": "^0.3.25",
+    "sveaflet": "^0.1.5",
     "svelte": "^5.57.0",
     "svelte-check": "^4.7.8",
     "typescript": "^5.9.3",
     "vite": "^6.0.0",
-    "vitest": "^3.2.7",
-    "leaflet": "^1.9.4",
-    "sveaflet": "^0.1.5"
+    "vitest": "^3.2.7"
   }
 }

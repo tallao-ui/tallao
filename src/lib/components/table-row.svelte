@@ -3,11 +3,13 @@
   interface Props {
     class?: string;
     children?: import("svelte").Snippet;
+    /** Cualquier otro atributo (title, data-*, eventos) va al <tr>. */
+    [key: string]: unknown;
   }
-  const { class: className = "", children }: Props = $props();
+  const { class: className = "", children, ...rest }: Props = $props();
 </script>
 
-<tr class={cn("ta-table-row", className)}>
+<tr {...rest} class={cn("ta-table-row", className)}>
   {@render children?.()}
 </tr>
 

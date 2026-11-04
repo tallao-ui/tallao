@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0 — 2026-11-03
+
+Lo que pidieron las vistas de administración de los kons al pasarlas a tallao.
+
+### Nuevo
+- **SelectionBar**, **KeyValueEditor**, **CopyButton**, **DragBoard** + **DropZone** +
+  **DragItem** (arrastrar accesible con teclado) y **ChatMessage**.
+- **ConfirmDialog**: `onCancel` y `onOpenChange` (un solo aviso por cierre).
+- **Input**, **Textarea** y **Select**: `bind:ref` da el elemento nativo.
+- **TableRow** y **TableCell** pasan cualquier otro atributo (`title`, `data-*`…).
+
+### Tests
+- El entorno `dom` pasa de happy-dom a jsdom: happy-dom descarta `<tr>`/`<td>` dentro
+  de un `<template>` (Svelte construye el DOM con plantillas) y rompía una fila con
+  atributos esparcidos, que en un navegador real funciona. jsdom no tiene `<dialog>`
+  modal: `tests/setup.ts` pone lo mínimo; el comportamiento real se prueba en Chrome.
+
 ## 0.4.0 — 2026-11-03
 
 ### Cambios que rompen

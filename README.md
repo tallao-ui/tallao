@@ -54,6 +54,11 @@ Requiere Svelte 5.29 o superior.
 | Progress | barra con valor o indeterminada |
 | Skeleton | hueco de carga (rect, círculo o líneas de texto) |
 | Avatar | foto con iniciales de respaldo, color estable por nombre, insignia |
+| SelectionBar | «seleccionar todo» (con estado parcial) y acciones por lotes que aparecen al marcar |
+| KeyValueEditor | lista de pares clave → valor editable; clave libre o de una lista, valor texto o número |
+| CopyButton | copia un texto al portapapeles y lo anuncia |
+| DragBoard · DropZone · DragItem | arrastrar entre zonas con ratón **y con teclado** (Espacio coge, flechas, Espacio suelta, Escape cancela), con avisos para lector de pantalla |
+| ChatMessage | un mensaje de una conversación (usuario, asistente o sistema), con estado «escribiendo» |
 | Popover | panel no modal anclado a su disparador |
 | Tooltip | descripción al pasar o enfocar; Escape la oculta (WCAG 1.4.13) |
 | DropdownMenu · MenuItem · MenuSeparator · MenuLabel | menú de acciones: flechas, Inicio/Fin, búsqueda por letra |

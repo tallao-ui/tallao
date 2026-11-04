@@ -46,6 +46,13 @@
     Progress,
     Skeleton,
     Avatar,
+    SelectionBar,
+    KeyValueEditor,
+    CopyButton,
+    DragBoard,
+    DropZone,
+    DragItem,
+    ChatMessage,
   } from "$lib/components";
   import { GameMap } from "$lib/map";
   import { es, setLabels } from "$lib/i18n";
@@ -71,6 +78,12 @@
   let filtroPopover = $state("");
   let ultimaAccion = $state("ninguna");
   let juegoElegido = $state<string | null>(null);
+
+  // ——— 0.5 ———
+  const filasDemo = ["Comentario de ana", "Comentario de luis", "Comentario de eva"];
+  let marcadasDemo = $state<string[]>([]);
+  let statsDemo = $state([{ key: "hp", value: "1200" }, { key: "atk", value: "85" }]);
+  let tiersDemo = $state<Record<string, string>>({ Nahida: "pool", Raiden: "pool", Furina: "s" });
 
   // ——— 0.4 ———
   let avisosActivos = $state(true);
@@ -409,6 +422,55 @@
     </div>
   </section>
 
+  <!-- ——— 0.5 ——— -->
+  <section class="seccion">
+    <h2>SelectionBar · KeyValueEditor · CopyButton · DragBoard · ChatMessage</h2>
+    <div class="cuadricula-2">
+      <div class="pila">
+        <SelectionBar
+          total={filasDemo.length}
+          selected={marcadasDemo.length}
+          onToggleAll={(todo) => (marcadasDemo = todo ? [...filasDemo] : [])}
+        >
+          {#snippet actions()}<Button size="sm" variant="secondary">Ocultar</Button>{/snippet}
+        </SelectionBar>
+        {#each filasDemo as f (f)}
+          <Checkbox
+            label={f}
+            checked={marcadasDemo.includes(f)}
+            onchange={(e: Event) =>
+              (marcadasDemo = (e.currentTarget as HTMLInputElement).checked
+                ? [...marcadasDemo, f]
+                : marcadasDemo.filter((m) => m !== f))}
+          />
+        {/each}
+        <CopyButton text="https://valhalla-legion.com/obs/marcador" />
+      </div>
+      <KeyValueEditor bind:entries={statsDemo} keyLabel="Estadística" valueLabel="Valor" valueType="number" />
+    </div>
+    <DragBoard
+      onMove={(item, zona) => {
+        tiersDemo[item] = zona;
+      }}
+    >
+      <div class="cuadricula">
+        {#each ["pool", "s", "a"] as z (z)}
+          <DropZone id={z} label={z === "pool" ? "Sin clasificar" : `Tier ${z.toUpperCase()}`} class="zona-demo">
+            <strong>{z === "pool" ? "Sin clasificar" : `Tier ${z.toUpperCase()}`}</strong>
+            {#each Object.entries(tiersDemo).filter(([, zz]) => zz === z) as [item] (item)}
+              <DragItem id={item} label={item} zone={z}>{item}</DragItem>
+            {/each}
+          </DropZone>
+        {/each}
+      </div>
+    </DragBoard>
+    <div class="pila">
+      <ChatMessage role="user" content="¿Qué build recomiendas para Nahida?" />
+      <ChatMessage role="assistant" author="Asistente de Valhalla" content="Dendro catalizador con maestría elemental alta." />
+      <ChatMessage role="assistant" pending />
+    </div>
+  </section>
+
   <!-- ——— 0.4 ——— -->
   <section class="seccion">
     <h2>Switch · RadioGroup · Sheet · Toast · Command · ContextMenu</h2>
@@ -614,6 +676,7 @@
     color: rgb(var(--ta-text-dim));
   }
 
+  :global(.zona-demo) { display: flex; flex-direction: column; gap: 0.5rem; min-height: 6rem; padding: 0.75rem; border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
   .pila { display: flex; flex-direction: column; gap: 1rem; }
   .zona-contexto { margin-top: 0.75rem; padding: 1.25rem; text-align: center; color: rgb(var(--ta-text-dim)); border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
 

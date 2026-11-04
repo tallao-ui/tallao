@@ -53,3 +53,14 @@ describe("server rendering of the 0.4 components", () => {
     expect(render(Nuevos).body).toBe(body);
   });
 });
+
+import Integrados from "../fixtures/Integrados.svelte";
+
+describe("server rendering of the 0.5 components", () => {
+  it("renders them all, the same every time", () => {
+    const { body } = render(Integrados);
+    expect(body).toContain("Select all");
+    expect(body).toContain("<article");
+    expect(render(Integrados).body).toBe(body);
+  });
+});

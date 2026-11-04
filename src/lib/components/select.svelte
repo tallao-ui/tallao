@@ -16,6 +16,8 @@
 
   let {
     value = $bindable(""),
+    /** El elemento nativo (bind:ref), para enfocarlo o medirlo. */
+    ref = $bindable(),
     options = [],
     placeholder,
     size = "md",
@@ -25,6 +27,7 @@
     ...rest
   }: {
     value?: string;
+    ref?: HTMLSelectElement;
     options?: SelectOption[];
     /** Primera opción vacía (valor ""). */
     placeholder?: string;
@@ -36,7 +39,7 @@
   } = $props();
 </script>
 
-<select bind:value {disabled} class={cn("ta-select", `ta-select--${size}`, className)} {...rest}>
+<select bind:this={ref} bind:value {disabled} class={cn("ta-select", `ta-select--${size}`, className)} {...rest}>
   {#if placeholder !== undefined}
     <option value="">{placeholder}</option>
   {/if}

@@ -20,6 +20,9 @@
     closeLabel?: string;
     variant?: "primary" | "danger";
     onConfirm: () => void | Promise<void>;
+    /** Se cerró sin confirmar: Cancelar, Escape, la X o un clic fuera. */
+    onCancel?: () => void;
+    onOpenChange?: (open: boolean) => void;
     children?: import("svelte").Snippet;
   }
 
@@ -33,28 +36,51 @@
     closeLabel,
     variant = "danger",
     onConfirm,
+    onCancel,
+    onOpenChange,
     children,
   }: Props = $props();
 
   let ocupado = $state(false);
+  // Un solo aviso por apertura: el botón Cancelar y el cierre del Dialog pueden llegar los dos.
+  let avisado = false;
+  $effect(() => {
+    if (open) avisado = false;
+  });
+
+  function avisarCancelacion() {
+    if (avisado) return;
+    avisado = true;
+    onOpenChange?.(false);
+    onCancel?.();
+  }
 
   async function confirmar() {
     ocupado = true;
     try {
       await onConfirm();
+      avisado = true;
       open = false;
+      onOpenChange?.(false);
     } catch {
       // Quien llama ya muestra el error; el diálogo sigue abierto para reintentar.
     } finally {
       ocupado = false;
     }
   }
+
+  function cancelar() {
+    open = false;
+    avisarCancelacion();
+  }
 </script>
 
-<Dialog bind:open {title} {description} {closeLabel} size="sm">
+<!-- Dialog avisa con onClose solo cuando lo cierra el usuario (Escape, la X, el fondo):
+     eso es cancelar. Cerrarlo por haber confirmado no pasa por ahí. -->
+<Dialog bind:open {title} {description} {closeLabel} size="sm" onClose={avisarCancelacion}>
   {@render children?.()}
   {#snippet footer()}
-    <Button variant="ghost" onclick={() => (open = false)} disabled={ocupado}>{cancelLabel}</Button>
+    <Button variant="ghost" onclick={cancelar} disabled={ocupado}>{cancelLabel}</Button>
     <Button {variant} loading={ocupado} onclick={confirmar}>{confirmLabel}</Button>
   {/snippet}
 </Dialog>

@@ -1,6 +1,6 @@
 /**
  * Dos proyectos de tests:
- *   dom: componentes montados en happy-dom (comportamiento, teclado, axe).
+ *   dom: componentes montados en jsdom (comportamiento, teclado, axe).
  *   ssr: los mismos componentes compilados para servidor y renderizados con
  *        svelte/server en Node, sin `window`, como en SvelteKit.
  */
@@ -19,10 +19,12 @@ export default defineConfig({
         resolve: { alias },
         test: {
           name: "dom",
-          environment: "happy-dom",
+          environment: "jsdom",
           globals: true,
           include: ["tests/dom/**/*.test.ts"],
           setupFiles: ["tests/setup.ts"],
+          // jsdom es más lento que happy-dom: las pruebas con teclado y axe pasan de los 5 s.
+          testTimeout: 30_000,
         },
       },
       {

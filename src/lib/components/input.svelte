@@ -8,12 +8,15 @@
 
   let {
     value = $bindable(""),
+    /** El elemento nativo (bind:ref), para enfocarlo o medirlo. */
+    ref = $bindable(),
     class: className = "",
     type = "text",
     disabled = false,
     ...rest
   }: {
     value?: string;
+    ref?: HTMLInputElement;
     class?: string;
     type?: string;
     disabled?: boolean;
@@ -22,6 +25,7 @@
 </script>
 
 <input
+  bind:this={ref}
   bind:value
   {type}
   {disabled}
