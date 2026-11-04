@@ -59,6 +59,10 @@ Requiere Svelte 5.29 o superior.
 | CopyButton | copia un texto al portapapeles y lo anuncia |
 | DragBoard · DropZone · DragItem | arrastrar entre zonas con ratón **y con teclado** (Espacio coge, flechas, Espacio suelta, Escape cancela), con avisos para lector de pantalla |
 | ChatMessage | un mensaje de una conversación (usuario, asistente o sistema), con estado «escribiendo» |
+| DataTable | tabla de datos: orden por columna (`aria-sort`), paginación, selección con «seleccionar todo», carga; en el navegador o contra la API (`manual`) |
+| Pagination | Anterior / números con «…» / Siguiente, `aria-current="page"` |
+| Calendar · DatePicker | elegir un día con el teclado (patrón APG), fechas ISO, `min`/`max`, nombres del idioma; el DatePicker además se escribe |
+| FileUpload | elegir o soltar archivos sobre un `<input type="file">` real; `accept`, `maxSize`, `maxFiles` con el motivo de cada rechazo |
 | Popover | panel no modal anclado a su disparador |
 | Tooltip | descripción al pasar o enfocar; Escape la oculta (WCAG 1.4.13) |
 | DropdownMenu · MenuItem · MenuSeparator · MenuLabel | menú de acciones: flechas, Inicio/Fin, búsqueda por letra |
@@ -129,6 +133,11 @@ módulo es uno solo para todas las peticiones).
 {@render children()}
 <Toaster />
 ```
+
+**Formularios de SvelteKit.** Con `name`, cada control se envía en un `<form method="POST">`
+como uno nativo, también sin JavaScript: Switch (como un checkbox), Combobox (uno o varios
+valores), KeyValueEditor (`name[clave]`), DatePicker (ISO) y FileUpload (los archivos,
+también los soltados).
 
 `kit-check/` es una app SvelteKit 3 que usa el paquete como cualquier proyecto y lo prueba
 en la CI: el prerender sale completo y sin estado compartido entre páginas

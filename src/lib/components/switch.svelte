@@ -14,6 +14,8 @@
     ariaLabel,
     disabled = false,
     size = "md",
+    name,
+    value = "on",
     class: className = "",
     onchange,
     children,
@@ -23,6 +25,9 @@
     ariaLabel?: string;
     disabled?: boolean;
     size?: "sm" | "md";
+    /** Nombre en un formulario: encendido envía `name=value`, apagado no envía nada (como un checkbox). */
+    name?: string;
+    value?: string;
     class?: string;
     onchange?: (checked: boolean) => void;
     children?: import("svelte").Snippet;
@@ -38,6 +43,7 @@
 </script>
 
 <span class={cn("ta-switch", `ta-switch--${size}`, disabled && "ta-switch--off", className)}>
+  {#if name && checked}<input type="hidden" {name} {value} />{/if}
   <button
     type="button"
     role="switch"

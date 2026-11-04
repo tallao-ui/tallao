@@ -92,3 +92,30 @@ test("labels follow each page on client navigation, and a server toast never sho
   await expect(page.locator("body")).not.toContainText("Descartar");
   expect(problemas).toEqual([]);
 });
+
+const ESPERADO = {
+  avisos: ["on"],
+  pais: ["pe"],
+  etiquetas: ["bug", "ux"],
+  fecha: ["2026-11-03"],
+  "stats[hp]": ["100"],
+};
+
+test.describe("a SvelteKit form action receives every tallao control", () => {
+  test("with JavaScript and use:enhance", async ({ page }) => {
+    const problemas = vigilar(page);
+    await abrir(page, "/formulario");
+    await page.getByRole("button", { name: "Enviar" }).click();
+    await expect(page.getByTestId("recibido")).toHaveText(JSON.stringify(ESPERADO));
+    expect(problemas).toEqual([]);
+  });
+
+  test.describe("without JavaScript (progressive enhancement)", () => {
+    test.use({ javaScriptEnabled: false });
+    test("the server-rendered form posts the same values", async ({ page }) => {
+      await page.goto("/formulario");
+      await page.getByRole("button", { name: "Enviar" }).click();
+      await expect(page.getByTestId("recibido")).toHaveText(JSON.stringify(ESPERADO));
+    });
+  });
+});

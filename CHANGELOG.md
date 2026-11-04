@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.6.0 — 2026-11-03
+
+Lo que bloqueaba usar tallao en los formularios de SvelteKit y en el panel de Kitsuden.
+
+### Nuevo
+- **DataTable** (orden con `aria-sort`, paginación, selección con estado parcial, carga,
+  fila vacía visible; datos en el navegador o en la API con `manual`) y **Pagination**.
+- **Calendar** y **DatePicker** (patrón APG: flechas, Inicio/Fin, RePág/AvPág, fechas ISO
+  calculadas en UTC, «hoy» marcado solo en el navegador).
+- **FileUpload** sobre un `<input type="file">` real, con `accept`, `maxSize` y `maxFiles`.
+- **Combobox**: búsqueda en la API (`loadOptions`, con espera y cancelando la anterior) y
+  varios valores (`multiple` + `values`, fichas que se quitan).
+- **Formularios nativos**: `name` en Switch, Combobox, KeyValueEditor y DatePicker (inputs
+  ocultos que ya salen en el HTML del servidor). `kit-check` lo prueba con una acción de
+  SvelteKit, con y sin JavaScript.
+- TableHead pasa cualquier otro atributo (`aria-sort`, `style`…).
+- Textos nuevos en `en`/`es`: remove, previous, next, pagination, page, rowsPerPage,
+  selectRow, selectAll, today, chooseDate, previousMonth, nextMonth, chooseFiles, dropFiles, actions.
+
+### Arreglo que encontraron los tests nuevos
+- Calendar: tras elegir un día, cambiar de mes con el teclado lo devolvía al mes elegido.
+
 ## 0.5.1 — 2026-11-03
 
 ### SvelteKit

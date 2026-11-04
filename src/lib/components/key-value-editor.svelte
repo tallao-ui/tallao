@@ -39,6 +39,7 @@
     removeLabel = "Remove",
     emptyText = L.noResults,
     disabled = false,
+    name,
     class: className = "",
     onchange,
   }: {
@@ -61,6 +62,8 @@
     /** Lo que se ve cuando no hay pares: la lista no desaparece. */
     emptyText?: string;
     disabled?: boolean;
+    /** Nombre en un formulario: cada par se envía como `name[clave]=valor`. */
+    name?: string;
     class?: string;
     onchange?: (entries: KeyValueEntry[]) => void;
   } = $props();
@@ -107,6 +110,9 @@
 </script>
 
 <div class={cn("ta-kv", className)}>
+  {#if name}
+    {#each entries as e, i (i)}<input type="hidden" name={`${name}[${e.key}]`} value={e.value} />{/each}
+  {/if}
   {#if entries.length}
     <ul class="ta-kv-lista">
       {#each entries as par, i (`${i}:${par.key}`)}

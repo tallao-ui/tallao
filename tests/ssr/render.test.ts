@@ -73,3 +73,19 @@ describe("toast() on the server", () => {
     expect(toasts).toHaveLength(0);
   });
 });
+
+import Formularios from "../fixtures/Formularios.svelte";
+
+describe("server rendering of the 0.6 components", () => {
+  it("renders the form values as hidden inputs, so a form posts without JavaScript", () => {
+    const { body } = render(Formularios);
+    expect(body).toContain('name="avisos" value="on"');
+    expect(body).toContain('name="pais" value="pe"');
+    expect(body).toContain('name="etiquetas" value="bug"');
+    expect(body).toContain('name="stats[hp]" value="100"');
+    expect(body).toContain('name="fecha" value="2026-11-03"');
+    expect(body).toContain('role="grid"');
+    expect(body).toContain('aria-sort="none"');
+    expect(render(Formularios).body).toBe(body);
+  });
+});

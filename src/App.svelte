@@ -53,6 +53,11 @@
     DropZone,
     DragItem,
     ChatMessage,
+    DataTable,
+    Pagination,
+    DatePicker,
+    Calendar,
+    FileUpload,
   } from "$lib/components";
   import { GameMap } from "$lib/map";
   import { es, setLabels } from "$lib/i18n";
@@ -78,6 +83,24 @@
   let filtroPopover = $state("");
   let ultimaAccion = $state("ninguna");
   let juegoElegido = $state<string | null>(null);
+
+  // ——— 0.6 ———
+  const juegosTabla = [
+    { id: "aniimo", nombre: "Aniimo", visitas: 4120, estado: "Publicado" },
+    { id: "cardback", nombre: "Cardback", visitas: 2875, estado: "Revisión" },
+    { id: "cozy", nombre: "Cozy Games", visitas: 640, estado: "Borrador" },
+    { id: "d4", nombre: "Diablo IV", visitas: 9810, estado: "Publicado" },
+    { id: "er", nombre: "Elden Ring", visitas: 7302, estado: "Publicado" },
+    { id: "gd", nombre: "Grim Dawn", visitas: 1203, estado: "Borrador" },
+  ];
+  let seleccionTabla = $state<string[]>([]);
+  let fechaDemo = $state<string | null>("2026-11-03");
+  let paginaDemo = $state(3);
+  let etiquetasDemo = $state<string[]>(["bug"]);
+  const buscarJuegos = (q: string) =>
+    new Promise<{ value: string; label: string }[]>((r) =>
+      setTimeout(() => r(juegosTabla.filter((j) => j.nombre.toLowerCase().includes(q.toLowerCase())).map((j) => ({ value: j.id, label: j.nombre }))), 300)
+    );
 
   // ——— 0.5 ———
   const filasDemo = ["Comentario de ana", "Comentario de luis", "Comentario de eva"];
@@ -420,6 +443,41 @@
       </Field>
       <p class="nota">Elegido: {juegoElegido ?? "ninguno"}</p>
     </div>
+  </section>
+
+  <!-- ——— 0.6 ——— -->
+  <section class="seccion">
+    <h2>DataTable · Pagination · Combobox remoto y múltiple · DatePicker · FileUpload</h2>
+    <DataTable
+      caption="Juegos"
+      rows={juegosTabla}
+      rowKey="id"
+      rowLabel={(r) => r.nombre}
+      columns={[
+        { key: "nombre", header: "Juego", sortable: true },
+        { key: "visitas", header: "Visitas", sortable: true, align: "right" },
+        { key: "estado", header: "Estado" },
+      ]}
+      pageSize={4}
+      selectable
+      bind:selected={seleccionTabla}
+    >
+      {#snippet cell(row, col)}
+        {#if col.key === "estado"}<Badge variant={row.estado === "Publicado" ? "success" : "default"}>{row.estado}</Badge>{:else}{row[col.key as keyof typeof row]}{/if}
+      {/snippet}
+    </DataTable>
+    <div class="cuadricula">
+      <Field label="Juego (búsqueda remota)"><Combobox loadOptions={buscarJuegos} placeholder="Escribe…" /></Field>
+      <Field label="Etiquetas">
+        <Combobox multiple bind:values={etiquetasDemo} options={[{ value: "bug", label: "Bug" }, { value: "ux", label: "UX" }, { value: "api", label: "API" }]} />
+      </Field>
+      <Field label="Publicación"><DatePicker bind:value={fechaDemo} /></Field>
+    </div>
+    <div class="cuadricula-2">
+      <Calendar bind:value={fechaDemo} />
+      <FileUpload multiple accept="image/*" maxSize={2_000_000} />
+    </div>
+    <Pagination bind:page={paginaDemo} pageCount={12} />
   </section>
 
   <!-- ——— 0.5 ——— -->

@@ -36,6 +36,21 @@ export interface Labels {
   loading: string;
   search: string;
   commandPalette: string;
+  remove: string;
+  previous: string;
+  next: string;
+  pagination: string;
+  page: string;
+  rowsPerPage: string;
+  selectRow: string;
+  selectAll: string;
+  today: string;
+  chooseDate: string;
+  previousMonth: string;
+  nextMonth: string;
+  chooseFiles: string;
+  dropFiles: string;
+  actions: string;
 }
 
 export const en: Labels = {
@@ -61,6 +76,21 @@ export const en: Labels = {
   loading: "Loading",
   search: "Search…",
   commandPalette: "Command palette",
+  remove: "Remove",
+  previous: "Previous",
+  next: "Next",
+  pagination: "Pagination",
+  page: "Page",
+  rowsPerPage: "Rows per page",
+  selectRow: "Select row",
+  selectAll: "Select all",
+  today: "Today",
+  chooseDate: "Choose date",
+  previousMonth: "Previous month",
+  nextMonth: "Next month",
+  chooseFiles: "Choose files",
+  dropFiles: "or drop them here",
+  actions: "Actions",
 };
 
 export const es: Labels = {
@@ -86,6 +116,21 @@ export const es: Labels = {
   loading: "Cargando",
   search: "Buscar…",
   commandPalette: "Paleta de órdenes",
+  remove: "Quitar",
+  previous: "Anterior",
+  next: "Siguiente",
+  pagination: "Paginación",
+  page: "Página",
+  rowsPerPage: "Filas por página",
+  selectRow: "Seleccionar fila",
+  selectAll: "Seleccionar todo",
+  today: "Hoy",
+  chooseDate: "Elegir fecha",
+  previousMonth: "Mes anterior",
+  nextMonth: "Mes siguiente",
+  chooseFiles: "Elegir archivos",
+  dropFiles: "o suéltalos aquí",
+  actions: "Acciones",
 };
 
 const KEY = Symbol("tallao-labels");
