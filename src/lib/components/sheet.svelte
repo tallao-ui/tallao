@@ -1,8 +1,8 @@
 <!--
   tallao — Sheet
-  Panel lateral modal (detalle de un registro, ajustes, un carrito): es un
-  Dialog pegado a un borde, con todo lo suyo (foco contenido, Escape, scroll
-  bloqueado, foco de vuelta).
+  Modal side panel (a record's detail, settings, a cart): it is a
+  Dialog attached to an edge, with everything that comes with it (contained focus, Escape,
+  locked scroll, focus restored).
 -->
 <script lang="ts">
   import Dialog from "./dialog.svelte";
@@ -24,7 +24,7 @@
     side?: "left" | "right" | "top" | "bottom";
     title?: string;
     description?: string;
-    /** Ancho del panel lateral (no aplica arriba ni abajo). */
+    /** Width of the side panel (does not apply to top or bottom). */
     size?: "sm" | "md" | "lg" | "xl" | "2xl";
     closeLabel?: string;
     ariaLabel?: string;

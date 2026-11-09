@@ -1,18 +1,18 @@
 import { render } from "@testing-library/svelte";
 import { tick } from "svelte";
 
-import { infracciones } from "../axe";
-import Todo from "../fixtures/Todo.svelte";
+import { axeViolations } from "../axe";
+import AllComponents from "../fixtures/AllComponents.svelte";
 
 describe("axe", () => {
   it("finds no accessibility violations in any component", async () => {
-    const { container } = render(Todo);
-    expect(await infracciones(container)).toEqual([]);
+    const { container } = render(AllComponents);
+    expect(await axeViolations(container)).toEqual([]);
   });
 
   it("finds none with a dialog open", async () => {
-    const { container } = render(Todo, { abierto: true });
+    const { container } = render(AllComponents, { dialogOpen: true });
     await tick();
-    expect(await infracciones(container)).toEqual([]);
+    expect(await axeViolations(container)).toEqual([]);
   });
 });

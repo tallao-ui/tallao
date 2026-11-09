@@ -3,11 +3,13 @@
   interface Props {
     class?: string;
     children?: import("svelte").Snippet;
+    /** Any other attribute (id, style, data-*…) goes to the <tbody>. */
+    [key: string]: unknown;
   }
-  const { class: className = "", children }: Props = $props();
+  const { class: className = "", children, ...rest }: Props = $props();
 </script>
 
-<tbody class={cn("ta-table-body", className)}>
+<tbody {...rest} class={cn("ta-table-body", className)}>
   {@render children?.()}
 </tbody>
 

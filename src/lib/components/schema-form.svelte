@@ -1,19 +1,19 @@
 <!--
   tallao — SchemaForm
-  Un formulario a partir de un JSON Schema (el subconjunto de los formularios): sirve
-  para lo que define el servidor o para revisar los argumentos que propone un agente
-  antes de aprobar una herramienta.
+  A form built from a JSON Schema (the subset used by forms): for what the server
+  defines, or for reviewing the arguments an agent proposes before approving a
+  tool.
     string → Input (email, url), DatePicker (format "date"), Textarea ("x-widget": "textarea")
-    enum   → Select, o RadioGroup con "x-widget": "radio"; nombres con oneOf [{ const, title }]
-    number / integer → Input numérico con minimum / maximum (el valor es un número)
-    boolean → Switch (o Checkbox con "x-widget": "checkbox")
-    array con items.enum → Combobox múltiple
-    object → <fieldset> con su <legend>
-  Valida required, minLength / maxLength, pattern, minimum / maximum y el formato al
-  enviar (y cada campo al salir de él, una vez tocado). Con `name`, los campos se envían
-  en el envío nativo del formulario como `name.campo.subcampo`: en SvelteKit, el propio
-  SchemaForm es el <form> (method="POST" y {@attach fromAction(enhance)}); un envío no
-  válido no llega a la acción.
+    enum   → Select, or RadioGroup with "x-widget": "radio"; names with oneOf [{ const, title }]
+    number / integer → numeric Input with minimum / maximum (the value is a number)
+    boolean → Switch (or Checkbox with "x-widget": "checkbox")
+    array with items.enum → multiple Combobox
+    object → <fieldset> with its <legend>
+  Validates required, minLength / maxLength, pattern, minimum / maximum and the format on
+  submit (and each field on leaving it, once touched). With `name`, the fields are sent
+  in the form's native submission as `name.field.subfield`: in SvelteKit, SchemaForm
+  itself is the <form> (method="POST" and {@attach fromAction(enhance)}); an invalid
+  submission never reaches the action.
 -->
 <script lang="ts" module>
   export interface JsonSchema {
@@ -35,13 +35,13 @@
     "x-widget"?: "textarea" | "radio" | "checkbox";
   }
 
-  type Valor = Record<string, unknown>;
+  type FormValue = Record<string, unknown>;
 
-  /** El valor de partida: los `default` del esquema, o vacío. */
+  /** The starting value: the schema's `default`s, or empty. */
   export function defaultsOf(schema: JsonSchema): unknown {
     if (schema.default !== undefined) return structuredClone(schema.default);
     if (schema.type === "object") {
-      const o: Valor = {};
+      const o: FormValue = {};
       for (const [k, s] of Object.entries(schema.properties ?? {})) o[k] = defaultsOf(s);
       return o;
     }
@@ -84,51 +84,51 @@
     ...rest
   }: {
     schema: JsonSchema;
-    value?: Valor;
-    /** Prefijo de los nombres en un <form> nativo; sin él, el formulario es solo de datos. */
+    value?: FormValue;
+    /** Prefix of the names in a native <form>; without it, the form is data-only. */
     name?: string;
     submitLabel?: string;
     showSubmit?: boolean;
-    /** Muestra la `description` de cada campo bajo él. */
+    /** Shows each field's `description` below it. */
     descriptions?: boolean;
     disabled?: boolean;
     class?: string;
-    /** Con el valor ya validado. */
-    onsubmit?: (value: Valor) => void;
-    /** Más campos tras los del esquema y antes del botón (un CodeEditor, un FileUpload…). */
+    /** With the value already validated. */
+    onsubmit?: (value: FormValue) => void;
+    /** More fields after the schema's and before the button (a CodeEditor, a FileUpload…). */
     children?: import("svelte").Snippet;
-    /** method, action, enctype y adjuntos ({@attach fromAction(enhance)}) van al <form>. */
+    /** method, action, enctype and attachments ({@attach fromAction(enhance)}) go to the <form>. */
     [key: string]: unknown;
   } = $props();
 
   const id = $props.id();
-  // Lo que falte en el valor de entrada se completa con los `default` del esquema.
+  // Whatever is missing from the incoming value is filled in with the schema's `default`s.
   untrack(() => {
-    const base = defaultsOf(schema) as Valor;
+    const base = defaultsOf(schema) as FormValue;
     value = { ...base, ...value };
   });
 
-  let errores = $state<Record<string, string>>({});
-  let tocados = $state<Record<string, boolean>>({});
-  let formulario: HTMLFormElement | undefined = $state();
+  let errors = $state<Record<string, string>>({});
+  let touched = $state<Record<string, boolean>>({});
+  let formEl: HTMLFormElement | undefined = $state();
 
-  const leer = (ruta: string[]) => ruta.reduce<unknown>((o, k) => (o as Valor | undefined)?.[k], value);
-  function escribir(ruta: string[], v: unknown) {
-    let o = value as Valor;
-    for (const k of ruta.slice(0, -1)) o = (o[k] ??= {}) as Valor;
-    o[ruta.at(-1)!] = v;
-    if (tocados[ruta.join(".")]) validarCampo(ruta);
+  const read = (path: string[]) => path.reduce<unknown>((o, k) => (o as FormValue | undefined)?.[k], value);
+  function write(path: string[], v: unknown) {
+    let o = value as FormValue;
+    for (const k of path.slice(0, -1)) o = (o[k] ??= {}) as FormValue;
+    o[path.at(-1)!] = v;
+    if (touched[path.join(".")]) validateField(path);
   }
 
-  const opcionesDe = (s: JsonSchema) =>
+  const optionsOf = (s: JsonSchema) =>
     (s.oneOf?.map((o) => ({ value: String(o.const), label: o.title ?? String(o.const) })) ??
       s.enum?.map((e) => ({ value: String(e), label: String(e) })) ??
       []) as { value: string; label: string }[];
 
-  /** El primer problema de un valor, o null. */
-  function problema(s: JsonSchema, v: unknown, obligatorio: boolean): string | null {
-    const vacio = v == null || v === "" || (Array.isArray(v) && v.length === 0);
-    if (vacio) return obligatorio ? L.required : null;
+  /** The first problem with a value, or null. */
+  function problemOf(s: JsonSchema, v: unknown, isRequired: boolean): string | null {
+    const empty = v == null || v === "" || (Array.isArray(v) && v.length === 0);
+    if (empty) return isRequired ? L.required : null;
     if (s.type === "string" && typeof v === "string") {
       if (s.minLength != null && v.length < s.minLength) return `${L.invalid} (≥ ${s.minLength})`;
       if (s.maxLength != null && v.length > s.maxLength) return `${L.invalid} (≤ ${s.maxLength})`;
@@ -136,7 +136,7 @@
       if (s.format === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return L.invalid;
       if (s.format === "uri" && !/^[a-z][a-z0-9+.-]*:\/\/\S+$/i.test(v)) return L.invalid;
       if (s.format === "date" && !/^\d{4}-\d{2}-\d{2}$/.test(v)) return L.invalid;
-      if ((s.enum || s.oneOf) && !opcionesDe(s).some((o) => o.value === v)) return L.invalid;
+      if ((s.enum || s.oneOf) && !optionsOf(s).some((o) => o.value === v)) return L.invalid;
     }
     if ((s.type === "number" || s.type === "integer") && typeof v === "number") {
       if (s.type === "integer" && !Number.isInteger(v)) return L.invalid;
@@ -146,51 +146,51 @@
     return null;
   }
 
-  function esquemaDe(ruta: string[]): { s: JsonSchema; obligatorio: boolean } {
+  function schemaAt(path: string[]): { s: JsonSchema; isRequired: boolean } {
     let s = schema;
-    let obligatorio = false;
-    for (const k of ruta) {
-      obligatorio = !!s.required?.includes(k);
+    let isRequired = false;
+    for (const k of path) {
+      isRequired = !!s.required?.includes(k);
       s = s.properties?.[k] ?? {};
     }
-    return { s, obligatorio };
+    return { s, isRequired };
   }
 
-  function validarCampo(ruta: string[]) {
-    const { s, obligatorio } = esquemaDe(ruta);
-    const p = problema(s, leer(ruta), obligatorio);
-    const clave = ruta.join(".");
-    if (p) errores[clave] = p;
-    else delete errores[clave];
+  function validateField(path: string[]) {
+    const { s, isRequired } = schemaAt(path);
+    const p = problemOf(s, read(path), isRequired);
+    const key = path.join(".");
+    if (p) errors[key] = p;
+    else delete errors[key];
   }
 
-  function hojas(s: JsonSchema, ruta: string[] = []): string[][] {
-    if (s.type !== "object") return [ruta];
-    return Object.entries(s.properties ?? {}).flatMap(([k, hijo]) => hojas(hijo, [...ruta, k]));
+  function leaves(s: JsonSchema, path: string[] = []): string[][] {
+    if (s.type !== "object") return [path];
+    return Object.entries(s.properties ?? {}).flatMap(([k, child]) => leaves(child, [...path, k]));
   }
 
-  /** Valida todo; devuelve si está bien y enfoca el primer campo con error. */
+  /** Validates everything; returns whether it is valid and focuses the first field with an error. */
   export function validate(): boolean {
-    for (const ruta of hojas(schema)) {
-      tocados[ruta.join(".")] = true;
-      validarCampo(ruta);
+    for (const path of leaves(schema)) {
+      touched[path.join(".")] = true;
+      validateField(path);
     }
-    // El primero en el orden del formulario, no en el que aparecieron los errores.
-    const primero = hojas(schema)
+    // The first in form order, not in the order the errors appeared.
+    const first = leaves(schema)
       .map((r) => r.join("."))
-      .find((k) => errores[k]);
-    if (primero) {
-      const caja = [...(formulario?.querySelectorAll<HTMLElement>("[data-campo]") ?? [])].find(
-        (e) => e.dataset.campo === primero
+      .find((k) => errors[k]);
+    if (first) {
+      const box = [...(formEl?.querySelectorAll<HTMLElement>("[data-field]") ?? [])].find(
+        (e) => e.dataset.field === first
       );
-      caja?.querySelector<HTMLElement>("input:not([type=hidden]), select, textarea, button")?.focus();
+      box?.querySelector<HTMLElement>("input:not([type=hidden]), select, textarea, button")?.focus();
     }
-    return !primero;
+    return !first;
   }
 
-  // En fase de captura, antes que cualquier otro oyente del <form>: el `enhance` de
-  // SvelteKit no mira defaultPrevented, así que un envío no válido hay que pararlo aquí.
-  function enviar(e: SubmitEvent) {
+  // In the capture phase, before any other listener on the <form>: SvelteKit's `enhance`
+  // does not check defaultPrevented, so an invalid submission has to be stopped here.
+  function handleSubmit(e: SubmitEvent) {
     if (!validate()) {
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -199,154 +199,154 @@
     if (onsubmit) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      onsubmit($state.snapshot(value) as Valor);
+      onsubmit($state.snapshot(value) as FormValue);
     }
   }
 
-  const nombreDe = (ruta: string[]) => (name ? [name, ...ruta].join(".") : undefined);
-  const salir = (ruta: string[], e?: FocusEvent) => {
-    // Si el foco va al botón de enviar, el envío valida. Validar aquí pintaría el error,
-    // el botón bajaría entre el mousedown y el mouseup y el clic se perdería.
-    const siguiente = e?.relatedTarget;
-    if (siguiente instanceof HTMLElement && siguiente.matches("[type=submit]") && formulario?.contains(siguiente)) return;
-    tocados[ruta.join(".")] = true;
-    validarCampo(ruta);
+  const nameOf = (path: string[]) => (name ? [name, ...path].join(".") : undefined);
+  const leave = (path: string[], e?: FocusEvent) => {
+    // If focus goes to the submit button, the submission validates. Validating here would render the error,
+    // the button would move down between mousedown and mouseup and the click would be lost.
+    const next = e?.relatedTarget;
+    if (next instanceof HTMLElement && next.matches("[type=submit]") && formEl?.contains(next)) return;
+    touched[path.join(".")] = true;
+    validateField(path);
   };
 </script>
 
-{#snippet campo(s: JsonSchema, ruta: string[], obligatorio: boolean)}
-  {@const clave = ruta.join(".")}
-  {@const cid = `${id}-${clave}`}
-  {@const etiqueta = s.title ?? ruta.at(-1) ?? ""}
-  {@const ayuda = descriptions && s.description ? `${cid}-ayuda` : undefined}
-  {@const error = tocados[clave] ? errores[clave] : undefined}
+{#snippet field(s: JsonSchema, path: string[], isRequired: boolean)}
+  {@const key = path.join(".")}
+  {@const cid = `${id}-${key}`}
+  {@const fieldLabel = s.title ?? path.at(-1) ?? ""}
+  {@const helpId = descriptions && s.description ? `${cid}-help` : undefined}
+  {@const error = touched[key] ? errors[key] : undefined}
   {#if s.type === "object"}
-    <fieldset class="ta-schema-grupo">
-      <legend>{etiqueta}</legend>
-      {#if ayuda}<p class="ta-schema-ayuda" id={ayuda}>{s.description}</p>{/if}
-      {#each Object.entries(s.properties ?? {}) as [k, hijo] (k)}
-        {@render campo(hijo, [...ruta, k], !!s.required?.includes(k))}
+    <fieldset class="ta-schema-group">
+      <legend>{fieldLabel}</legend>
+      {#if helpId}<p class="ta-schema-help" id={helpId}>{s.description}</p>{/if}
+      {#each Object.entries(s.properties ?? {}) as [k, child] (k)}
+        {@render field(child, [...path, k], !!s.required?.includes(k))}
       {/each}
     </fieldset>
   {:else if s.type === "boolean"}
-    <div class="ta-schema-campo" data-campo={clave}>
+    <div class="ta-schema-field" data-field={key}>
       {#if s["x-widget"] === "checkbox"}
-        <Checkbox id={cid} label={etiqueta} {disabled} name={nombreDe(ruta)} checked={!!leer(ruta)} aria-describedby={ayuda} onchange={(e: Event) => escribir(ruta, (e.currentTarget as HTMLInputElement).checked)} />
+        <Checkbox id={cid} label={fieldLabel} {disabled} name={nameOf(path)} checked={!!read(path)} aria-describedby={helpId} onchange={(e: Event) => write(path, (e.currentTarget as HTMLInputElement).checked)} />
       {:else}
-        <Switch label={etiqueta} {disabled} name={nombreDe(ruta)} value="true" checked={!!leer(ruta)} onchange={(v) => escribir(ruta, v)} />
+        <Switch label={fieldLabel} {disabled} name={nameOf(path)} value="true" checked={!!read(path)} onchange={(v) => write(path, v)} />
       {/if}
-      {#if ayuda}<p class="ta-schema-ayuda" id={ayuda}>{s.description}</p>{/if}
+      {#if helpId}<p class="ta-schema-help" id={helpId}>{s.description}</p>{/if}
     </div>
   {:else if (s.enum || s.oneOf) && s["x-widget"] === "radio"}
-    <div class="ta-schema-campo" data-campo={clave}>
+    <div class="ta-schema-field" data-field={key}>
       <RadioGroup
-        legend={etiqueta}
-        options={opcionesDe(s)}
-        value={String(leer(ruta) ?? "")}
-        name={nombreDe(ruta)}
-        required={obligatorio}
+        legend={fieldLabel}
+        options={optionsOf(s)}
+        value={String(read(path) ?? "")}
+        name={nameOf(path)}
+        required={isRequired}
         onchange={(v) => {
-          escribir(ruta, v);
-          salir(ruta);
+          write(path, v);
+          leave(path);
         }}
       />
       {#if error}<span class="ta-schema-error" role="alert">{error}</span>{/if}
     </div>
   {:else}
-    <div class="ta-schema-campo" data-campo={clave}>
-      <Field label={etiqueta} required={obligatorio} {error}>
+    <div class="ta-schema-field" data-field={key}>
+      <Field label={fieldLabel} required={isRequired} {error}>
         {#if s.type === "array" && s.items && (s.items.enum || s.items.oneOf)}
           <Combobox
             multiple
-            name={nombreDe(ruta)}
-            options={opcionesDe(s.items)}
-            values={(leer(ruta) as string[]) ?? []}
+            name={nameOf(path)}
+            options={optionsOf(s.items)}
+            values={(read(path) as string[]) ?? []}
             {disabled}
-            onValuesChange={(v) => escribir(ruta, v)}
+            onValuesChange={(v) => write(path, v)}
           />
         {:else if s.enum || s.oneOf}
           <Select
             id={cid}
-            name={nombreDe(ruta)}
-            options={opcionesDe(s)}
-            placeholder={obligatorio ? undefined : "—"}
-            value={String(leer(ruta) ?? "")}
+            name={nameOf(path)}
+            options={optionsOf(s)}
+            placeholder={isRequired ? undefined : "—"}
+            value={String(read(path) ?? "")}
             {disabled}
-            aria-describedby={ayuda}
+            aria-describedby={helpId}
             aria-invalid={error ? "true" : undefined}
             onchange={(e: Event) => {
-              escribir(ruta, (e.currentTarget as HTMLSelectElement).value);
-              salir(ruta);
+              write(path, (e.currentTarget as HTMLSelectElement).value);
+              leave(path);
             }}
           />
         {:else if s.type === "number" || s.type === "integer"}
           <Input
             id={cid}
             type="number"
-            name={nombreDe(ruta)}
+            name={nameOf(path)}
             min={s.minimum}
             max={s.maximum}
             step={s.type === "integer" ? 1 : "any"}
-            value={leer(ruta) == null ? "" : String(leer(ruta))}
+            value={read(path) == null ? "" : String(read(path))}
             {disabled}
-            aria-describedby={ayuda}
+            aria-describedby={helpId}
             aria-invalid={error ? "true" : undefined}
             oninput={(e: Event) => {
               const t = (e.currentTarget as HTMLInputElement).value;
-              escribir(ruta, t === "" ? null : Number(t));
+              write(path, t === "" ? null : Number(t));
             }}
-            onblur={(e: FocusEvent) => salir(ruta, e)}
+            onblur={(e: FocusEvent) => leave(path, e)}
           />
         {:else if s.format === "date"}
-          <DatePicker name={nombreDe(ruta)} value={(leer(ruta) as string) || null} {disabled} onchange={(v) => { escribir(ruta, v ?? ""); salir(ruta); }} />
+          <DatePicker name={nameOf(path)} value={(read(path) as string) || null} {disabled} onchange={(v) => { write(path, v ?? ""); leave(path); }} />
         {:else if s["x-widget"] === "textarea"}
           <Textarea
             id={cid}
-            name={nombreDe(ruta)}
-            value={String(leer(ruta) ?? "")}
+            name={nameOf(path)}
+            value={String(read(path) ?? "")}
             maxlength={s.maxLength}
             {disabled}
-            aria-describedby={ayuda}
+            aria-describedby={helpId}
             aria-invalid={error ? "true" : undefined}
-            oninput={(e: Event) => escribir(ruta, (e.currentTarget as HTMLTextAreaElement).value)}
-            onblur={(e: FocusEvent) => salir(ruta, e)}
+            oninput={(e: Event) => write(path, (e.currentTarget as HTMLTextAreaElement).value)}
+            onblur={(e: FocusEvent) => leave(path, e)}
           />
         {:else}
           <Input
             id={cid}
             type={s.format === "email" ? "email" : s.format === "uri" ? "url" : "text"}
-            name={nombreDe(ruta)}
-            value={String(leer(ruta) ?? "")}
+            name={nameOf(path)}
+            value={String(read(path) ?? "")}
             maxlength={s.maxLength}
             {disabled}
-            aria-describedby={ayuda}
+            aria-describedby={helpId}
             aria-invalid={error ? "true" : undefined}
-            oninput={(e: Event) => escribir(ruta, (e.currentTarget as HTMLInputElement).value)}
-            onblur={(e: FocusEvent) => salir(ruta, e)}
+            oninput={(e: Event) => write(path, (e.currentTarget as HTMLInputElement).value)}
+            onblur={(e: FocusEvent) => leave(path, e)}
           />
         {/if}
       </Field>
-      {#if ayuda}<p class="ta-schema-ayuda" id={ayuda}>{s.description}</p>{/if}
+      {#if helpId}<p class="ta-schema-help" id={helpId}>{s.description}</p>{/if}
     </div>
   {/if}
 {/snippet}
 
-<form {...rest} class={cn("ta-schema", className)} novalidate onsubmitcapture={enviar} bind:this={formulario}>
+<form {...rest} class={cn("ta-schema", className)} novalidate onsubmitcapture={handleSubmit} bind:this={formEl}>
   {#if schema.type === "object"}
     {#each Object.entries(schema.properties ?? {}) as [k, s] (k)}
-      {@render campo(s, [k], !!schema.required?.includes(k))}
+      {@render field(s, [k], !!schema.required?.includes(k))}
     {/each}
   {/if}
   {@render children?.()}
   {#if showSubmit}
-    <div class="ta-schema-acciones"><Button type="submit" {disabled}>{submitLabel}</Button></div>
+    <div class="ta-schema-actions"><Button type="submit" {disabled}>{submitLabel}</Button></div>
   {/if}
 </form>
 
 <style>
   .ta-schema { display: flex; flex-direction: column; gap: 1rem; }
-  .ta-schema-campo { display: flex; flex-direction: column; gap: 0.25rem; }
-  .ta-schema-grupo {
+  .ta-schema-field { display: flex; flex-direction: column; gap: 0.25rem; }
+  .ta-schema-group {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -355,8 +355,8 @@
     border: 1px solid rgb(var(--ta-border));
     border-radius: var(--ta-radius-lg);
   }
-  .ta-schema-grupo legend { padding: 0 0.25rem; font-size: 0.8125rem; font-weight: 600; }
-  .ta-schema-ayuda { margin: 0; font-size: 0.75rem; color: rgb(var(--ta-text-dim)); }
+  .ta-schema-group legend { padding: 0 0.25rem; font-size: 0.8125rem; font-weight: 600; }
+  .ta-schema-help { margin: 0; font-size: 0.75rem; color: rgb(var(--ta-text-dim)); }
   .ta-schema-error { font-size: 0.75rem; color: rgb(var(--ta-danger)); }
-  .ta-schema-acciones { display: flex; justify-content: flex-end; }
+  .ta-schema-actions { display: flex; justify-content: flex-end; }
 </style>

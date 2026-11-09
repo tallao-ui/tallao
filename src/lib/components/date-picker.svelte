@@ -1,10 +1,10 @@
 <!--
   tallao — DatePicker
-  Campo de fecha: se escribe (ISO «YYYY-MM-DD») o se elige en un Calendar que se abre
-  junto al campo. El calendario es un panel no modal: Escape o un clic fuera lo
-  cierran y el foco vuelve al botón. Con `name`, un input oculto envía el valor en
-  un formulario nativo. Una fecha escrita que no existe deja el campo marcado
-  (aria-invalid) y no cambia el valor.
+  Date field: typed (ISO "YYYY-MM-DD") or picked in a Calendar that opens next to
+  the field. The calendar is a non-modal panel: Escape or a click outside close it
+  and focus returns to the button. With `name`, a hidden input submits the value in
+  a native form. A typed date that does not exist marks the field
+  (aria-invalid) and does not change the value.
 -->
 <script lang="ts">
   import { tick } from "svelte";
@@ -12,7 +12,7 @@
   import { useLabels } from "$lib/i18n";
   import { cn } from "$lib/utils";
   import { parseISO, type ISODate } from "$lib/internal/dates";
-  import { devolverFoco } from "$lib/internal/focus";
+  import { restoreFocus } from "$lib/internal/focus";
   import { pushLayer } from "$lib/internal/layers";
   import { anchor } from "$lib/internal/position";
 
@@ -45,7 +45,7 @@
     required?: boolean;
     disabled?: boolean;
     placeholder?: string;
-    /** Nombre accesible del campo si no va dentro de un Field. */
+    /** Accessible name of the field when it is not inside a Field. */
     ariaLabel?: string;
     buttonLabel?: string;
     class?: string;
@@ -53,104 +53,104 @@
   } = $props();
 
   const id = $props.id();
-  let caja: HTMLElement | undefined = $state();
-  let boton: HTMLButtonElement | undefined = $state();
+  let wrapper: HTMLElement | undefined = $state();
+  let button: HTMLButtonElement | undefined = $state();
   let panel: HTMLElement | undefined = $state();
-  let abierto = $state(false);
-  let texto = $state("");
-  let invalido = $state(false);
+  let open = $state(false);
+  let text = $state("");
+  let invalid = $state(false);
 
-  // El texto sigue al valor cuando cambia desde fuera (o al elegir en el calendario).
+  // The text follows the value when it changes from outside (or when picking in the calendar).
   $effect(() => {
-    texto = value ?? "";
-    invalido = false;
+    text = value ?? "";
+    invalid = false;
   });
 
-  const fueraDeRango = (iso: ISODate) => (min != null && iso < min) || (max != null && iso > max) || !!isDisabled?.(iso);
+  const isOutOfRange = (iso: ISODate) => (min != null && iso < min) || (max != null && iso > max) || !!isDisabled?.(iso);
 
-  function poner(iso: ISODate | null) {
+  function setValue(iso: ISODate | null) {
     value = iso;
     onchange?.(iso);
   }
 
-  function alSalir() {
-    const t = texto.trim();
+  function commitText() {
+    const t = text.trim();
     if (t === "") {
-      invalido = false;
-      if (value !== null) poner(null);
+      invalid = false;
+      if (value !== null) setValue(null);
       return;
     }
-    const ok = parseISO(t) && !fueraDeRango(t);
-    invalido = !ok;
-    if (ok && t !== value) poner(t);
+    const ok = parseISO(t) && !isOutOfRange(t);
+    invalid = !ok;
+    if (ok && t !== value) setValue(t);
   }
 
-  async function elegido(iso: ISODate) {
-    poner(iso);
-    abierto = false;
+  async function onPicked(iso: ISODate) {
+    setValue(iso);
+    open = false;
     await tick();
-    boton?.focus();
+    button?.focus();
   }
 
   $effect(() => {
     const p = panel;
-    const c = caja;
-    if (!abierto || !p || !c) return;
-    const soltar = anchor(c, p, { placement: "bottom-start", gap: 4 });
-    const quitar = pushLayer({
-      inside: () => [p, boton],
-      dismiss: (motivo) => {
-        abierto = false;
-        if (motivo === "escape") devolverFoco(boton ?? null);
+    const c = wrapper;
+    if (!open || !p || !c) return;
+    const release = anchor(c, p, { placement: "bottom-start", gap: 4 });
+    const remove = pushLayer({
+      inside: () => [p, button],
+      dismiss: (reason) => {
+        open = false;
+        if (reason === "escape") restoreFocus(button ?? null);
       },
     });
-    // El foco entra al día elegido (o a hoy).
-    tick().then(() => p.querySelector<HTMLElement>('.ta-calendar-dia[tabindex="0"]')?.focus());
+    // Focus goes to the selected day (or to today).
+    tick().then(() => p.querySelector<HTMLElement>('.ta-calendar-day[tabindex="0"]')?.focus());
     return () => {
-      quitar();
-      soltar();
+      remove();
+      release();
     };
   });
 </script>
 
-<div class={cn("ta-datepicker", className)} bind:this={caja}>
+<div class={cn("ta-datepicker", className)} bind:this={wrapper}>
   {#if name}<input type="hidden" {name} value={value ?? ""} />{/if}
   <input
     type="text"
     inputmode="numeric"
-    class="ta-datepicker-campo"
-    bind:value={texto}
+    class="ta-datepicker-field"
+    bind:value={text}
     {placeholder}
     {disabled}
     aria-label={ariaLabel}
-    aria-invalid={invalido || undefined}
+    aria-invalid={invalid || undefined}
     aria-required={required || undefined}
-    onblur={alSalir}
+    onblur={commitText}
     onkeydown={(e) => {
-      if (e.key === "Enter") alSalir();
+      if (e.key === "Enter") commitText();
       if (e.key === "ArrowDown" && e.altKey) {
         e.preventDefault();
-        abierto = true;
+        open = true;
       }
     }}
   />
   <button
     type="button"
-    class="ta-datepicker-boton"
-    bind:this={boton}
+    class="ta-datepicker-button"
+    bind:this={button}
     aria-label={buttonLabel}
     aria-haspopup="dialog"
-    aria-expanded={abierto}
-    aria-controls={abierto ? `${id}-panel` : undefined}
+    aria-expanded={open}
+    aria-controls={open ? `${id}-panel` : undefined}
     {disabled}
-    onclick={() => (abierto = !abierto)}
+    onclick={() => (open = !open)}
   >
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
   </button>
 
-  {#if abierto}
+  {#if open}
     <div bind:this={panel} id={`${id}-panel`} role="dialog" aria-label={buttonLabel} popover="manual" class="ta-datepicker-panel">
-      <Calendar {value} {min} {max} {locale} {weekStartsOn} {isDisabled} onselect={elegido} />
+      <Calendar {value} {min} {max} {locale} {weekStartsOn} {isDisabled} onselect={onPicked} />
     </div>
   {/if}
 </div>
@@ -162,7 +162,7 @@
     width: 100%;
   }
 
-  .ta-datepicker-campo {
+  .ta-datepicker-field {
     flex: 1;
     min-width: 0;
     padding: 0.5rem 0.75rem;
@@ -176,13 +176,13 @@
     border-radius: var(--ta-radius) 0 0 var(--ta-radius);
     outline: none;
   }
-  .ta-datepicker-campo:focus {
+  .ta-datepicker-field:focus {
     border-color: rgb(var(--ta-accent) / 0.5);
     box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15);
   }
-  .ta-datepicker-campo[aria-invalid="true"] { border-color: rgb(var(--ta-danger) / 0.7); }
+  .ta-datepicker-field[aria-invalid="true"] { border-color: rgb(var(--ta-danger) / 0.7); }
 
-  .ta-datepicker-boton {
+  .ta-datepicker-button {
     display: flex;
     align-items: center;
     padding: 0 0.625rem;
@@ -192,9 +192,9 @@
     border-radius: 0 var(--ta-radius) var(--ta-radius) 0;
     cursor: pointer;
   }
-  .ta-datepicker-boton:hover:not(:disabled) { color: rgb(var(--ta-text)); }
-  .ta-datepicker-boton:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 2px; }
-  .ta-datepicker-boton:disabled, .ta-datepicker-campo:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ta-datepicker-button:hover:not(:disabled) { color: rgb(var(--ta-text)); }
+  .ta-datepicker-button:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 2px; }
+  .ta-datepicker-button:disabled, .ta-datepicker-field:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .ta-datepicker-panel {
     position: fixed;
@@ -209,5 +209,10 @@
     box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
     font: inherit;
     overflow: visible;
+  }
+
+  /* On touch screens: the field button reaches 44px. */
+  @media (pointer: coarse) {
+    .ta-datepicker-button { min-height: 2.75rem; }
   }
 </style>

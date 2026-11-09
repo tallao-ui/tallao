@@ -1,14 +1,14 @@
 <!--
   tallao — Field
-  Etiqueta + control + error. El <label> envuelve el control, así que la
-  asociación es implícita y no hace falta inventar ids.
+  Label + control + error. The <label> wraps the control, so the
+  association is implicit and there is no need to make up ids.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
 
   interface Props {
     label: string;
-    /** Mensaje de error bajo el control; también marca el campo. */
+    /** Error message under the control; it also marks the field. */
     error?: string;
     required?: boolean;
     class?: string;
@@ -19,8 +19,8 @@
 </script>
 
 <label class={cn("ta-field", error && "ta-field--error", className)}>
-  <span class="ta-field-etiqueta">
-    {label}{#if required}<span class="ta-field-obligatorio" aria-hidden="true"> *</span>{/if}
+  <span class="ta-field-label">
+    {label}{#if required}<span class="ta-field-required" aria-hidden="true"> *</span>{/if}
   </span>
   {@render children()}
   {#if error}
@@ -36,13 +36,13 @@
     min-width: 0;
   }
 
-  .ta-field-etiqueta {
+  .ta-field-label {
     font-size: 0.75rem;
     font-weight: 500;
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-field-obligatorio {
+  .ta-field-required {
     color: rgb(var(--ta-danger));
   }
 

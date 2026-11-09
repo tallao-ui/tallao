@@ -1,29 +1,29 @@
 <!--
   tallao — DragBoard
-  Mover elementos entre zonas (filas de una tier list, columnas de un tablero…)
-  con el ratón Y con el teclado. Envuelve DropZone y DragItem:
+  Move items between zones (rows of a tier list, columns of a board…)
+  with the mouse AND with the keyboard. Wraps DropZone and DragItem:
 
-    <DragBoard bind:selected onMove={(item, zone) => mover(item, zone)}>
-      {#each filas as f (f.id)}
-        <DropZone id={f.id} label={f.nombre}>
-          {#each f.cosas as c (c.id)}
-            <DragItem id={c.id} label={c.nombre} zone={f.id}>{c.nombre}</DragItem>
+    <DragBoard bind:selected onMove={(item, zone) => move(item, zone)}>
+      {#each rows as r (r.id)}
+        <DropZone id={r.id} label={r.name}>
+          {#each r.things as t (t.id)}
+            <DragItem id={t.id} label={t.name} zone={r.id}>{t.name}</DragItem>
           {/each}
         </DropZone>
       {/each}
     </DragBoard>
 
-  - Ratón: arrastrar un elemento a otra zona.
-  - Clic: elige el elemento (`selected`); quien usa el tablero decide qué hace
-    con él (p. ej. un botón por zona que lo coloca ahí, o «borrar»).
-  - Teclado: Enter o Espacio lo coge, ↑ ↓ (o ← →) recorren las zonas en el
-    orden en que se ven, Enter o Espacio lo deja y Escape cancela. Cada paso se
-    anuncia en una región `aria-live`; las instrucciones van en un texto oculto
-    que cada elemento enlaza con `aria-describedby`.
+  - Mouse: drag an item to another zone.
+  - Click: selects the item (`selected`); whoever uses the board decides what to
+    do with it (e.g. a button per zone that places it there, or "delete").
+  - Keyboard: Enter or Space picks it up, ↑ ↓ (or ← →) go through the zones in
+    the order they appear, Enter or Space drops it and Escape cancels. Each step
+    is announced in an `aria-live` region; the instructions are in hidden text
+    that each item links with `aria-describedby`.
 
-  `onMove` solo llega cuando la zona cambia. El tablero no reordena nada: pinta
-  quien lo usa, con sus datos. Tras moverlo con el teclado, el foco sigue al
-  elemento a su nueva zona.
+  `onMove` only fires when the zone changes. The board reorders nothing: whoever
+  uses it renders, with their own data. After moving it with the keyboard, focus
+  follows the item to its new zone.
 -->
 <script lang="ts" module>
   export interface DragAnnouncements {
@@ -41,19 +41,19 @@
   import { cn } from "$lib/utils";
 
   interface Props {
-    /** Elemento elegido; null si no hay ninguno. */
+    /** Selected item; null if there is none. */
     selected?: string | null;
-    /** El elemento `item` pasa a la zona `zone` (distinta de la suya). */
+    /** Item `item` moves to zone `zone` (different from its own). */
     onMove: (item: string, zone: string) => void | Promise<void>;
-    /** Instrucciones de teclado que oye un lector de pantalla al llegar a un elemento. */
+    /** Keyboard instructions a screen reader hears on reaching an item. */
     instructions?: string;
-    /** Avisos de cada paso; los que falten van en inglés. */
+    /** Announcements for each step; missing ones are in English. */
     announcements?: Partial<DragAnnouncements>;
     class?: string;
     children?: import("svelte").Snippet;
   }
 
-  const defecto: DragAnnouncements = {
+  const defaults: DragAnnouncements = {
     picked: (item, zone) => `Picked up ${item}, in ${zone}.`,
     over: (item, zone) => `${item} over ${zone}.`,
     moved: (item, zone) => `${item} moved to ${zone}.`,
@@ -70,60 +70,60 @@
   }: Props = $props();
 
   const id = $props.id();
-  const textos = $derived({ ...defecto, ...announcements });
+  const messages = $derived({ ...defaults, ...announcements });
 
-  let raiz: HTMLElement | undefined = $state();
-  let destino = $state<string | null>(null);
-  let arrastrando = $state<DragRef | null>(null);
-  let aviso = $state("");
-  /** El último elemento elegido, para nombrarlo al cancelar. */
-  let elegido: DragRef | null = null;
+  let root: HTMLElement | undefined = $state();
+  let targetZone = $state<string | null>(null);
+  let draggedItem = $state<DragRef | null>(null);
+  let announcement = $state("");
+  /** The last selected item, to name it when cancelling. */
+  let chosen: DragRef | null = null;
 
-  /** Las zonas de ESTE tablero (no las de uno anidado), en orden de documento. */
-  function zonas(): { id: string; label: string }[] {
-    if (!raiz) return [];
-    return [...raiz.querySelectorAll<HTMLElement>("[data-ta-drop-zone]")]
-      .filter((el) => el.closest("[data-ta-drag-board]") === raiz)
+  /** The zones of THIS board (not those of a nested one), in document order. */
+  function zones(): { id: string; label: string }[] {
+    if (!root) return [];
+    return [...root.querySelectorAll<HTMLElement>("[data-ta-drop-zone]")]
+      .filter((el) => el.closest("[data-ta-drag-board]") === root)
       .map((el) => ({ id: el.dataset.taDropZone ?? "", label: el.getAttribute("aria-label") ?? "" }));
   }
 
-  const nombreDeZona = (zona: string) => zonas().find((z) => z.id === zona)?.label ?? zona;
+  const zoneName = (zone: string) => zones().find((z) => z.id === zone)?.label ?? zone;
 
-  function avisar(texto: string) {
-    // Vaciar antes: el mismo texto dos veces seguidas no se volvería a leer.
-    aviso = "";
-    queueMicrotask(() => (aviso = texto));
+  function announce(text: string) {
+    // Clear first: the same text twice in a row would not be read again.
+    announcement = "";
+    queueMicrotask(() => (announcement = text));
   }
 
-  function coger(item: DragRef) {
+  function pickUp(item: DragRef) {
     selected = item.id;
-    elegido = item;
-    destino = item.zone;
-    avisar(textos.picked(item.label, nombreDeZona(item.zone)));
+    chosen = item;
+    targetZone = item.zone;
+    announce(messages.picked(item.label, zoneName(item.zone)));
   }
 
-  async function llevar(item: DragRef, zona: string) {
+  async function moveTo(item: DragRef, zone: string) {
     selected = null;
-    destino = null;
-    elegido = null;
-    const hecho = onMove(item.id, zona);
-    avisar(textos.moved(item.label, nombreDeZona(zona)));
-    // El elemento se pinta en otra zona (otro nodo): el foco va tras él.
+    targetZone = null;
+    chosen = null;
+    const done = onMove(item.id, zone);
+    announce(messages.moved(item.label, zoneName(zone)));
+    // The item is rendered in another zone (another node): focus follows it.
     await tick();
-    const nodo = [...(raiz?.querySelectorAll<HTMLElement>("[data-ta-drag-item]") ?? [])].find(
+    const node = [...(root?.querySelectorAll<HTMLElement>("[data-ta-drag-item]") ?? [])].find(
       (el) => el.dataset.taDragItem === item.id
     );
-    nodo?.focus({ preventScroll: true });
-    await hecho;
+    node?.focus({ preventScroll: true });
+    await done;
   }
 
-  function cancelar(): boolean {
+  function cancel(): boolean {
     if (selected === null) return false;
-    const item = elegido;
+    const item = chosen;
     selected = null;
-    destino = null;
-    elegido = null;
-    if (item) avisar(textos.cancelled(item.label));
+    targetZone = null;
+    chosen = null;
+    if (item) announce(messages.cancelled(item.label));
     return true;
   }
 
@@ -132,71 +132,71 @@
       return selected;
     },
     get target() {
-      // Si quien usa el tablero suelta la elección (`selected = null`), deja de apuntar.
-      return selected === null ? null : destino;
+      // If whoever uses the board clears the selection (`selected = null`), it stops pointing.
+      return selected === null ? null : targetZone;
     },
     get dragging() {
-      return arrastrando;
+      return draggedItem;
     },
-    instructionsId: `${id}-instrucciones`,
+    instructionsId: `${id}-instructions`,
     toggle(item) {
-      destino = null;
+      targetZone = null;
       if (selected === item.id) {
         selected = null;
-        elegido = null;
+        chosen = null;
       } else {
         selected = item.id;
-        elegido = item;
+        chosen = item;
       }
     },
     press(item) {
-      if (selected !== item.id || destino === null) coger(item);
-      else if (destino === item.zone) cancelar();
-      else void llevar(item, destino);
+      if (selected !== item.id || targetZone === null) pickUp(item);
+      else if (targetZone === item.zone) cancel();
+      else void moveTo(item, targetZone);
     },
     step(item, delta) {
-      if (selected !== item.id || destino === null) return false;
-      const lista = zonas();
-      if (!lista.length) return false;
-      const i = lista.findIndex((z) => z.id === destino);
-      const siguiente = lista[(i + delta + lista.length) % lista.length];
-      destino = siguiente.id;
-      avisar(textos.over(item.label, siguiente.label));
+      if (selected !== item.id || targetZone === null) return false;
+      const list = zones();
+      if (!list.length) return false;
+      const i = list.findIndex((z) => z.id === targetZone);
+      const next = list[(i + delta + list.length) % list.length];
+      targetZone = next.id;
+      announce(messages.over(item.label, next.label));
       return true;
     },
-    cancel: cancelar,
+    cancel: cancel,
     leave(item) {
-      if (selected === item.id) destino = null;
+      if (selected === item.id) targetZone = null;
     },
     dragStart(item, event) {
-      arrastrando = item;
+      draggedItem = item;
       selected = item.id;
-      elegido = item;
-      destino = null;
+      chosen = item;
+      targetZone = null;
       if (event.dataTransfer) {
         event.dataTransfer.effectAllowed = "move";
-        // Firefox no empieza el arrastre sin datos, aunque nadie los lea.
+        // Firefox does not start the drag without data, even if nobody reads it.
         event.dataTransfer.setData("text/plain", item.id);
       }
     },
     dragEnd() {
-      arrastrando = null;
+      draggedItem = null;
     },
-    drop(zona) {
-      const item = arrastrando;
-      arrastrando = null;
+    drop(zone) {
+      const item = draggedItem;
+      draggedItem = null;
       if (!item) return;
       selected = null;
-      elegido = null;
-      if (zona !== item.zone) void onMove(item.id, zona);
+      chosen = null;
+      if (zone !== item.zone) void onMove(item.id, zone);
     },
   });
 </script>
 
-<div bind:this={raiz} class={cn("ta-drag-board", className)} data-ta-drag-board>
+<div bind:this={root} class={cn("ta-drag-board", className)} data-ta-drag-board>
   {@render children?.()}
-  <span id={`${id}-instrucciones`} class="ta-drag-board-oculto">{instructions}</span>
-  <span class="ta-drag-board-oculto" aria-live="assertive" aria-atomic="true">{aviso}</span>
+  <span id={`${id}-instructions`} class="ta-drag-board-hidden">{instructions}</span>
+  <span class="ta-drag-board-hidden" aria-live="assertive" aria-atomic="true">{announcement}</span>
 </div>
 
 <style>
@@ -204,7 +204,7 @@
     position: relative;
   }
 
-  .ta-drag-board-oculto {
+  .ta-drag-board-hidden {
     position: absolute;
     width: 1px;
     height: 1px;

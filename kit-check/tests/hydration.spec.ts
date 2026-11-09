@@ -1,70 +1,70 @@
 /**
- * tallao dentro de SvelteKit: el servidor renderiza, el navegador hidrata, y después todo
- * responde. Cualquier aviso de hidratación, error de consola o excepción hace fallar el test.
+ * tallao inside SvelteKit: the server renders, the browser hydrates, and then everything
+ * responds. Any hydration warning, console error or exception fails the test.
  */
 import { expect, test, type Page } from "@playwright/test";
 
-function vigilar(page: Page) {
-  const problemas: string[] = [];
+function watch(page: Page) {
+  const problems: string[] = [];
   page.on("console", (m) => {
     const t = m.text();
-    if (m.type() === "error" || /hydrat/i.test(t)) problemas.push(`${m.type()}: ${t}`);
+    if (m.type() === "error" || /hydrat/i.test(t)) problems.push(`${m.type()}: ${t}`);
   });
-  page.on("pageerror", (e) => problemas.push(`pageerror: ${e.message}`));
-  return problemas;
+  page.on("pageerror", (e) => problems.push(`pageerror: ${e.message}`));
+  return problems;
 }
 
-async function abrir(page: Page, ruta: string) {
-  await page.goto(ruta);
-  // Hidratada: SvelteKit ha cargado su código y no quedan peticiones en vuelo.
+async function open(page: Page, route: string) {
+  await page.goto(route);
+  // Hydrated: SvelteKit has loaded its code and there are no requests in flight.
   await page.waitForLoadState("networkidle");
 }
 
 test("the server's ids are the ones the browser keeps", async ({ page, request }) => {
   const html = await (await request.get("/")).text();
-  const delServidor = [...html.matchAll(/id="(ta-tabs-[^"]+)"/g)].map((m) => m[1]);
-  expect(delServidor.length).toBeGreaterThan(0);
-  const problemas = vigilar(page);
-  await abrir(page, "/");
-  const enElNavegador = await page.locator('[id^="ta-tabs-"]').evaluateAll((els) => els.map((e) => e.id));
-  expect(enElNavegador).toEqual(delServidor);
-  expect(problemas).toEqual([]);
+  const fromServer = [...html.matchAll(/id="(ta-tabs-[^"]+)"/g)].map((m) => m[1]);
+  expect(fromServer.length).toBeGreaterThan(0);
+  const problems = watch(page);
+  await open(page, "/");
+  const inBrowser = await page.locator('[id^="ta-tabs-"]').evaluateAll((els) => els.map((e) => e.id));
+  expect(inBrowser).toEqual(fromServer);
+  expect(problems).toEqual([]);
 });
 
 test("after hydration every component responds", async ({ page }) => {
-  const problemas = vigilar(page);
-  await abrir(page, "/");
+  const problems = watch(page);
+  await open(page, "/");
 
-  await page.getByRole("switch", { name: "Avisos" }).click();
+  await page.getByRole("switch", { name: "Alerts" }).click();
   await expect(page.getByTestId("switch")).toHaveText("true");
 
-  await page.getByRole("tab", { name: /Dos/ }).click();
+  await page.getByRole("tab", { name: /Two/ }).click();
   await expect(page.getByTestId("panel")).toHaveText("Panel b");
 
-  await page.getByRole("button", { name: "Abrir diálogo" }).click();
-  await expect(page.getByRole("dialog", { name: "Diálogo" })).toBeVisible();
-  await expect(page.getByLabel("Dentro")).toBeFocused();
+  await page.getByRole("button", { name: "Open dialog" }).click();
+  await expect(page.getByRole("dialog", { name: "Dialog" })).toBeVisible();
+  await expect(page.getByLabel("Inside")).toBeFocused();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog", { name: "Diálogo" })).toBeHidden();
-  await expect(page.getByRole("button", { name: "Abrir diálogo" })).toBeFocused();
+  await expect(page.getByRole("dialog", { name: "Dialog" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Open dialog" })).toBeFocused();
 
-  await page.getByRole("button", { name: "Acciones" }).click();
-  await expect(page.getByRole("menuitem", { name: "Editar" })).toBeFocused();
+  await page.getByRole("button", { name: "Actions" }).click();
+  await expect(page.getByRole("menuitem", { name: "Edit" })).toBeFocused();
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("Enter");
-  await expect(page.getByTestId("ultima")).toHaveText("borrar");
+  await expect(page.getByTestId("last")).toHaveText("delete");
 
-  const pais = page.getByRole("combobox", { name: "País" });
-  await pais.fill("peru");
-  await pais.press("Enter");
-  await expect(page.getByTestId("pais")).toHaveText("pe");
+  const country = page.getByRole("combobox", { name: "Country" });
+  await country.fill("peru");
+  await country.press("Enter");
+  await expect(page.getByTestId("country")).toHaveText("pe");
 
-  await page.getByRole("button", { name: "Filtros" }).click();
-  await expect(page.getByRole("dialog", { name: "Filtros" })).toBeVisible();
+  await page.getByRole("button", { name: "Filters" }).click();
+  await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
   await page.keyboard.press("Escape");
 
   await page.getByRole("button", { name: "Toast" }).click();
-  await expect(page.getByRole("region", { name: "Notifications" })).toContainText("Guardado");
+  await expect(page.getByRole("region", { name: "Notifications" })).toContainText("Saved");
 
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("combobox", { name: "Command palette" })).toBeFocused();
@@ -75,90 +75,93 @@ test("after hydration every component responds", async ({ page }) => {
   await page.keyboard.press(" ");
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press(" ");
-  await expect(page.getByRole("group", { name: "Zona s" })).toContainText("Ahri");
+  await expect(page.getByRole("group", { name: "Zone s" })).toContainText("Ahri");
 
-  expect(problemas).toEqual([]);
+  expect(problems).toEqual([]);
 });
 
 test("labels follow each page on client navigation, and a server toast never shows", async ({ page }) => {
-  const problemas = vigilar(page);
-  await abrir(page, "/");
-  await expect(page.getByRole("button", { name: "Dismiss" })).toBeVisible();
-  await page.getByRole("link", { name: "Otra" }).click();
-  await expect(page.getByRole("button", { name: "Descartar" })).toBeVisible();
-  await page.getByRole("link", { name: "Inicio" }).click();
-  await expect(page.getByRole("button", { name: "Dismiss" })).toBeVisible();
-  // En el navegador /otra sí llama a toast() al montarse: el aviso es del cliente, no del HTML.
+  const problems = watch(page);
+  // The Alert's own button: /other's client toast also has a "Dismiss" and can still be on
+  // screen when the test comes back to "/" (it lives 5 s), which made an unscoped locator flaky.
+  const alertDismiss = (name: string) => page.locator(".ta-alert").getByRole("button", { name });
+  await open(page, "/");
+  await expect(alertDismiss("Dismiss")).toBeVisible();
+  await page.getByRole("link", { name: "Other" }).click();
+  await expect(alertDismiss("Descartar")).toBeVisible();
+  await page.getByRole("link", { name: "Home" }).click();
+  await expect(alertDismiss("Dismiss")).toBeVisible();
+  // In the browser /other does call toast() when it mounts: the toast belongs to the client, not to the HTML.
   await expect(page.locator("body")).not.toContainText("Descartar");
-  expect(problemas).toEqual([]);
+  expect(problems).toEqual([]);
 });
 
-const ESPERADO = {
-  avisos: ["on"],
-  pais: ["pe"],
-  etiquetas: ["bug", "ux"],
-  fecha: ["2026-11-03"],
+const EXPECTED = {
+  alerts: ["on"],
+  country: ["pe"],
+  tags: ["bug", "ux"],
+  date: ["2026-11-03"],
   "stats[hp]": ["100"],
 };
 
 test.describe("a SvelteKit form action receives every tallao control", () => {
   test("with JavaScript and use:enhance", async ({ page }) => {
-    const problemas = vigilar(page);
-    await abrir(page, "/formulario");
-    await page.getByRole("button", { name: "Enviar" }).click();
-    await expect(page.getByTestId("recibido")).toHaveText(JSON.stringify(ESPERADO));
-    expect(problemas).toEqual([]);
+    const problems = watch(page);
+    await open(page, "/form");
+    await page.getByRole("button", { name: "Send" }).click();
+    await expect(page.getByTestId("received")).toHaveText(JSON.stringify(EXPECTED));
+    expect(problems).toEqual([]);
   });
 
   test.describe("without JavaScript (progressive enhancement)", () => {
     test.use({ javaScriptEnabled: false });
     test("the server-rendered form posts the same values", async ({ page }) => {
-      await page.goto("/formulario");
-      await page.getByRole("button", { name: "Enviar" }).click();
-      await expect(page.getByTestId("recibido")).toHaveText(JSON.stringify(ESPERADO));
+      await page.goto("/form");
+      await page.getByRole("button", { name: "Send" }).click();
+      await expect(page.getByTestId("received")).toHaveText(JSON.stringify(EXPECTED));
     });
   });
 });
 
-const ESPERADO_ESQUEMA = {
-  "post.titulo": ["Hola"],
-  "post.estado": ["live"],
-  "post.nivel": ["3"],
-  "post.publicar": ["2026-11-04"],
-  "post.activo": ["true"],
-  "post.etiquetas": ["guia", "evento"],
-  cuerpo: ["# Notas"],
+const EXPECTED_SCHEMA = {
+  "post.title": ["Hello"],
+  "post.status": ["live"],
+  "post.level": ["3"],
+  "post.publish": ["2026-11-04"],
+  "post.active": ["true"],
+  "post.tags": ["guide", "event"],
+  body: ["# Notes"],
 };
 
 test.describe("SchemaForm as the form of a SvelteKit action", () => {
   test("with JavaScript: posts the schema's fields and the code editor", async ({ page }) => {
-    const problemas = vigilar(page);
-    await abrir(page, "/esquema");
-    await expect(page.locator(".cm-content")).toContainText("# Notas");
-    await page.getByRole("button", { name: "Enviar" }).click();
-    await expect(page.getByTestId("recibido")).toHaveText(JSON.stringify(ESPERADO_ESQUEMA));
-    expect(problemas).toEqual([]);
+    const problems = watch(page);
+    await open(page, "/schema");
+    await expect(page.locator(".cm-content")).toContainText("# Notes");
+    await page.getByRole("button", { name: "Send" }).click();
+    await expect(page.getByTestId("received")).toHaveText(JSON.stringify(EXPECTED_SCHEMA));
+    expect(problems).toEqual([]);
   });
 
   test("with JavaScript: an invalid form never reaches the action", async ({ page }) => {
-    const peticiones: string[] = [];
-    page.on("request", (r) => r.method() === "POST" && peticiones.push(r.url()));
-    await abrir(page, "/esquema");
-    const titulo = page.getByLabel(/Título/);
-    await titulo.fill("ab");
-    await page.getByRole("button", { name: "Enviar" }).click();
-    await expect(titulo).toBeFocused();
-    await expect(titulo).toHaveAttribute("aria-invalid", "true");
-    await expect(page.getByTestId("recibido")).toHaveCount(0);
-    expect(peticiones).toEqual([]);
+    const requests: string[] = [];
+    page.on("request", (r) => r.method() === "POST" && requests.push(r.url()));
+    await open(page, "/schema");
+    const title = page.getByLabel(/Title/);
+    await title.fill("ab");
+    await page.getByRole("button", { name: "Send" }).click();
+    await expect(title).toBeFocused();
+    await expect(title).toHaveAttribute("aria-invalid", "true");
+    await expect(page.getByTestId("received")).toHaveCount(0);
+    expect(requests).toEqual([]);
   });
 
   test.describe("without JavaScript (progressive enhancement)", () => {
     test.use({ javaScriptEnabled: false });
     test("the server-rendered form posts the same values", async ({ page }) => {
-      await page.goto("/esquema");
-      await page.getByRole("button", { name: "Enviar" }).click();
-      await expect(page.getByTestId("recibido")).toHaveText(JSON.stringify(ESPERADO_ESQUEMA));
+      await page.goto("/schema");
+      await page.getByRole("button", { name: "Send" }).click();
+      await expect(page.getByTestId("received")).toHaveText(JSON.stringify(EXPECTED_SCHEMA));
     });
   });
 });

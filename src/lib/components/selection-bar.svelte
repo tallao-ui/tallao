@@ -1,10 +1,10 @@
 <!--
   tallao — SelectionBar
-  Barra de selección para acciones en lote sobre una lista: casilla de «todo»
-  (con estado intermedio cuando solo hay parte marcada), cuántos van marcados y
-  las acciones, que solo aparecen con algo marcado: un botón que no puede hacer
-  nada estorba más que ayuda. Las casillas de cada fila las pone quien llama.
-  El contador se anuncia (aria-live) para quien no ve la lista.
+  Selection bar for bulk actions on a list: a "select all" checkbox
+  (with an indeterminate state when only some are checked), how many are checked, and
+  the actions, which only appear when something is checked: a button that can do
+  nothing gets in the way more than it helps. The caller provides each row's checkboxes.
+  The counter is announced (aria-live) for those who cannot see the list.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -12,19 +12,19 @@
   import { cn } from "$lib/utils";
 
   interface Props {
-    /** Cuántos elementos se pueden marcar (los de la lista visible). */
+    /** How many items can be checked (those in the visible list). */
     total: number;
-    /** Cuántos van marcados. */
+    /** How many are checked. */
     selected: number;
-    /** La casilla de «todo»: `true` marca todos, `false` los desmarca. */
+    /** The "select all" checkbox: `true` checks all, `false` unchecks them. */
     onToggleAll: (checked: boolean) => void;
     selectAllLabel?: string;
-    /** Texto del contador. */
+    /** Text of the counter. */
     countLabel?: (selected: number) => string;
-    /** Nombre del grupo para lectores de pantalla. */
+    /** Name of the group for screen readers. */
     ariaLabel?: string;
     class?: string;
-    /** Las acciones en lote; se pintan solo con algo marcado. */
+    /** The bulk actions; rendered only when something is checked. */
     actions?: Snippet;
   }
 
@@ -39,28 +39,28 @@
     actions,
   }: Props = $props();
 
-  const todos = $derived(total > 0 && selected >= total);
-  const parcial = $derived(selected > 0 && selected < total);
+  const allChecked = $derived(total > 0 && selected >= total);
+  const partial = $derived(selected > 0 && selected < total);
 </script>
 
 <div
-  class={cn("ta-selection-bar", selected > 0 && "ta-selection-bar--activa", className)}
+  class={cn("ta-selection-bar", selected > 0 && "ta-selection-bar--active", className)}
   role="group"
   aria-label={ariaLabel}
 >
-  <label class={cn("ta-selection-bar-todo", total === 0 && "ta-selection-bar-todo--off")}>
+  <label class={cn("ta-selection-bar-all", total === 0 && "ta-selection-bar-all--off")}>
     <input
       type="checkbox"
-      checked={todos}
-      indeterminate={parcial}
+      checked={allChecked}
+      indeterminate={partial}
       disabled={total === 0}
       aria-label={selectAllLabel}
       onchange={(e) => onToggleAll((e.currentTarget as HTMLInputElement).checked)}
     />
-    <span class="ta-selection-bar-cuenta" aria-live="polite">{countLabel(selected)}</span>
+    <span class="ta-selection-bar-count" aria-live="polite">{countLabel(selected)}</span>
   </label>
   {#if selected > 0 && actions}
-    <div class="ta-selection-bar-acciones">{@render actions()}</div>
+    <div class="ta-selection-bar-actions">{@render actions()}</div>
   {/if}
 </div>
 
@@ -78,12 +78,12 @@
     transition: border-color 0.15s;
   }
 
-  .ta-selection-bar--activa {
+  .ta-selection-bar--active {
     border-color: rgb(var(--ta-accent) / 0.6);
     background: rgb(var(--ta-accent) / 0.06);
   }
 
-  .ta-selection-bar-todo {
+  .ta-selection-bar-all {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -93,7 +93,7 @@
     user-select: none;
   }
 
-  .ta-selection-bar-todo input {
+  .ta-selection-bar-all input {
     width: 1rem;
     height: 1rem;
     margin: 0;
@@ -101,20 +101,23 @@
     cursor: inherit;
   }
 
-  .ta-selection-bar-todo input:focus-visible {
+  .ta-selection-bar-all input:focus-visible {
     outline: 2px solid rgb(var(--ta-accent) / 0.6);
     outline-offset: 2px;
   }
 
-  .ta-selection-bar-todo--off {
+  .ta-selection-bar-all--off {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .ta-selection-bar-acciones {
+  .ta-selection-bar-actions {
     display: flex;
     align-items: center;
     gap: 0.375rem;
     flex-wrap: wrap;
+  }
+  @media (pointer: coarse) {
+    .ta-selection-bar-all { min-height: 2.75rem; }
   }
 </style>

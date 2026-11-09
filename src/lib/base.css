@@ -1,6 +1,6 @@
 /**
- * tallao — estilos base
- * Reset mínimo + estilado de elementos raíz usando los tokens.
+ * tallao — base styles
+ * Minimal reset + root element styling using the tokens.
  */
 
 *,
@@ -23,12 +23,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Selección acorde a la marca */
+/* Selection in the brand color */
 ::selection {
   background: rgb(var(--ta-accent) / 0.35);
 }
 
-/* Scrollbars discretas */
+/* Subtle scrollbars */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--ta-muted)) transparent;

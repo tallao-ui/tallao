@@ -1,6 +1,6 @@
 <!--
   tallao — Card
-  Contenedor estilizado para contenido, con partes opcionales.
+  Styled container for content, with optional parts.
 -->
 <script lang="ts" module>
   export interface CardProps {

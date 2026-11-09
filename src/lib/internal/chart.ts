@@ -1,9 +1,9 @@
 /**
- * tallao — lo común de BarChart y LineChart
+ * tallao — what BarChart and LineChart share
  *
- * Escalas con números redondos (0 / 250 / 500…), cifras compactas a partir de 10 000
- * (12K, 4.2M), y los colores de serie por posición fija (nunca reciclados: más de ocho
- * series se agrupan en «Otros» o se parten en varias gráficas).
+ * Scales with round numbers (0 / 250 / 500…), compact figures from 10 000 up
+ * (12K, 4.2M), and series colors by fixed position (never recycled: more than eight
+ * series are grouped into "Other" or split across several charts).
  */
 
 export interface ChartSeries {
@@ -13,27 +13,27 @@ export interface ChartSeries {
 
 export const MAX_SERIES = 8;
 
-/** Color de la serie i (0-based) desde los tokens. */
+/** Color of series i (0-based) from the tokens. */
 export const seriesColor = (i: number) => `rgb(var(--ta-series-${(i % MAX_SERIES) + 1}))`;
 
-/** Un tope «bonito» y sus marcas: el menor 1·2·2.5·5·10 × 10ⁿ que cubre `max`. */
+/** A "nice" maximum and its ticks: the smallest 1·2·2.5·5·10 × 10ⁿ that covers `max`. */
 export function niceScale(max: number, ticks = 4): { max: number; ticks: number[] } {
   if (!(max > 0)) return { max: 1, ticks: [0, 1] };
-  const crudo = max / ticks;
-  const potencia = 10 ** Math.floor(Math.log10(crudo));
-  const paso = [1, 2, 2.5, 5, 10].map((m) => m * potencia).find((p) => p >= crudo) ?? 10 * potencia;
-  const tope = Math.ceil(max / paso) * paso;
-  const marcas: number[] = [];
-  for (let v = 0; v <= tope + paso / 1e6; v += paso) marcas.push(Math.round(v * 1e6) / 1e6);
-  return { max: tope, ticks: marcas };
+  const raw = max / ticks;
+  const power = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * power).find((p) => p >= raw) ?? 10 * power;
+  const top = Math.ceil(max / step) * step;
+  const marks: number[] = [];
+  for (let v = 0; v <= top + step / 1e6; v += step) marks.push(Math.round(v * 1e6) / 1e6);
+  return { max: top, ticks: marks };
 }
 
-/** Cifras de eje: enteras bajo 10 000 (1,250), compactas desde ahí (12K, 3.4M). */
+/** Axis figures: whole numbers below 10 000 (1,250), compact from there on (12K, 3.4M). */
 export function compactNumber(n: number, locale?: string, compact = Math.abs(n) >= 10_000) {
   return new Intl.NumberFormat(locale, compact ? { notation: "compact", maximumFractionDigits: 1 } : { maximumFractionDigits: 2 }).format(n);
 }
 
-/** Valor numérico de una fila para una serie; lo que no es número cuenta como vacío. */
+/** Numeric value of a row for a series; anything that is not a number counts as empty. */
 export function valueOf(row: Record<string, unknown>, key: string): number | null {
   const v = row[key];
   return typeof v === "number" && Number.isFinite(v) ? v : null;

@@ -1,10 +1,10 @@
 <!--
   tallao — DropZone
-  Una zona de un DragBoard donde caen elementos: con el ratón al soltar encima,
-  con el teclado cuando las flechas la eligen. `label` es su nombre accesible y
-  el que se oye en los avisos («Ganyu over S»). Mientras es el destino lleva
-  `data-over`, para que quien la pinta marque toda la zona y no solo un trozo.
-  Solo acepta elementos de su tablero: soltar un archivo encima no hace nada.
+  A zone of a DragBoard where items land: with the mouse when dropped on it,
+  with the keyboard when the arrows choose it. `label` is its accessible name and
+  the one heard in the announcements ("Ganyu over S"). While it is the target it
+  carries `data-over`, so whoever renders it can mark the whole zone and not just part.
+  It only accepts items from its own board: dropping a file on it does nothing.
 -->
 <script lang="ts">
   import { useDragBoard } from "$lib/internal/drag-board";
@@ -12,45 +12,45 @@
 
   interface Props {
     id: string;
-    /** Nombre accesible de la zona. */
+    /** Accessible name of the zone. */
     label: string;
     class?: string;
     children?: import("svelte").Snippet;
-    /** Otros atributos (data-*, style…) van al elemento. */
+    /** Other attributes (data-*, style…) go to the element. */
     [key: string]: unknown;
   }
 
   const { id, label, class: className = "", children, ...rest }: Props = $props();
 
-  const tablero = useDragBoard();
+  const board = useDragBoard();
 
-  /** dragenter/dragleave llegan también al pasar por los hijos: se cuentan. */
-  let dentro = $state(0);
+  /** dragenter/dragleave also fire when passing over children: they are counted. */
+  let enterCount = $state(0);
 
-  const encima = $derived((tablero.dragging !== null && dentro > 0) || tablero.target === id);
+  const isOver = $derived((board.dragging !== null && enterCount > 0) || board.target === id);
 
   $effect(() => {
-    if (tablero.dragging === null) dentro = 0;
+    if (board.dragging === null) enterCount = 0;
   });
 
-  function entrar(e: DragEvent) {
-    if (!tablero.dragging) return;
+  function onDragEnter(e: DragEvent) {
+    if (!board.dragging) return;
     e.preventDefault();
-    dentro++;
+    enterCount++;
   }
 
-  function sobre(e: DragEvent) {
-    if (!tablero.dragging) return;
+  function onDragOver(e: DragEvent) {
+    if (!board.dragging) return;
     e.preventDefault();
     if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
   }
 
-  function soltar(e: DragEvent) {
-    if (!tablero.dragging) return;
+  function onDrop(e: DragEvent) {
+    if (!board.dragging) return;
     e.preventDefault();
     e.stopPropagation();
-    dentro = 0;
-    tablero.drop(id);
+    enterCount = 0;
+    board.drop(id);
   }
 </script>
 
@@ -58,13 +58,13 @@
   {...rest}
   role="group"
   aria-label={label}
-  class={cn("ta-drop-zone", encima && "ta-drop-zone--encima", className)}
+  class={cn("ta-drop-zone", isOver && "ta-drop-zone--over", className)}
   data-ta-drop-zone={id}
-  data-over={encima ? "true" : undefined}
-  ondragenter={entrar}
-  ondragover={sobre}
-  ondragleave={() => (dentro = Math.max(0, dentro - 1))}
-  ondrop={soltar}
+  data-over={isOver ? "true" : undefined}
+  ondragenter={onDragEnter}
+  ondragover={onDragOver}
+  ondragleave={() => (enterCount = Math.max(0, enterCount - 1))}
+  ondrop={onDrop}
 >
   {@render children?.()}
 </div>
@@ -75,7 +75,7 @@
     transition: box-shadow 0.15s;
   }
 
-  .ta-drop-zone--encima {
+  .ta-drop-zone--over {
     box-shadow: inset 0 0 0 2px rgb(var(--ta-accent));
   }
 

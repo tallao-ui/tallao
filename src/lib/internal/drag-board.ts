@@ -1,17 +1,17 @@
 /**
- * tallao — lo común de DragBoard, DropZone y DragItem
+ * tallao — what DragBoard, DropZone and DragItem share
  *
- * El tablero guarda qué elemento está elegido, cuál se arrastra con el ratón y
- * a qué zona apunta el teclado; las zonas y los elementos lo leen por contexto.
- * Las zonas no se registran: el tablero las busca en el DOM, en el orden en
- * que se ven, cuando el teclado las recorre (así un {#each} reordenado no
- * desordena las flechas).
+ * The board keeps which item is selected, which one is being dragged with the mouse
+ * and which zone the keyboard points at; zones and items read it from context.
+ * Zones do not register: the board looks them up in the DOM, in the order they
+ * appear, when the keyboard walks through them (so a reordered {#each} does not
+ * scramble the arrow keys).
  */
 import { getContext, setContext } from "svelte";
 
 const KEY = Symbol("tallao-drag-board");
 
-/** Un elemento del tablero: su id, su nombre (para los avisos) y la zona donde está. */
+/** A board item: its id, its name (for the announcements) and the zone it is in. */
 export interface DragRef {
   id: string;
   label: string;
@@ -19,27 +19,27 @@ export interface DragRef {
 }
 
 export interface DragBoardContext {
-  /** Elemento elegido (clic, teclado o arrastre). */
+  /** Selected item (click, keyboard or drag). */
   readonly selected: string | null;
-  /** Zona a la que apunta el teclado mientras se mueve un elemento; null fuera de ese modo. */
+  /** Zone the keyboard points at while an item is being moved; null outside that mode. */
   readonly target: string | null;
-  /** Elemento que se arrastra con el ratón ahora mismo. */
+  /** Item being dragged with the mouse right now. */
   readonly dragging: DragRef | null;
-  /** Id del texto (oculto) con las instrucciones de teclado. */
+  /** Id of the (hidden) text with the keyboard instructions. */
   readonly instructionsId: string;
-  /** Clic: elige o suelta la elección, sin entrar en el modo de teclado. */
+  /** Click: selects or releases the selection, without entering keyboard mode. */
   toggle(item: DragRef): void;
-  /** Enter o Espacio sobre un elemento: lo coge, lo deja en la zona elegida o cancela. */
+  /** Enter or Space on an item: picks it up, drops it in the chosen zone or cancels. */
   press(item: DragRef): void;
-  /** Flechas: la zona siguiente (1) o la anterior (-1). Devuelve si hizo algo. */
+  /** Arrow keys: the next zone (1) or the previous one (-1). Returns whether it did anything. */
   step(item: DragRef, delta: 1 | -1): boolean;
-  /** Escape: suelta la elección sin mover nada. Devuelve si había algo elegido. */
+  /** Escape: releases the selection without moving anything. Returns whether something was selected. */
   cancel(): boolean;
-  /** El foco sale del elemento: se deja de apuntar con el teclado (la elección sigue). */
+  /** Focus leaves the item: the keyboard stops pointing (the selection stays). */
   leave(item: DragRef): void;
   dragStart(item: DragRef, event: DragEvent): void;
   dragEnd(): void;
-  /** Un elemento arrastrado cae en la zona `zone`. */
+  /** A dragged item is dropped on zone `zone`. */
   drop(zone: string): void;
 }
 
@@ -47,6 +47,6 @@ export const provideDragBoard = (ctx: DragBoardContext) => setContext(KEY, ctx);
 
 export function useDragBoard(): DragBoardContext {
   const ctx = getContext<DragBoardContext | undefined>(KEY);
-  if (!ctx) throw new Error("tallao: DropZone y DragItem van dentro de un DragBoard");
+  if (!ctx) throw new Error("tallao: DropZone and DragItem must be inside a DragBoard");
   return ctx;
 }

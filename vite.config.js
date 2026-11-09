@@ -5,9 +5,9 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [svelte()],
   resolve: {
-    // "$lib" igual que en SvelteKit: los componentes no cambian al portarlos.
+    // "$lib" as in SvelteKit: components need no changes when ported.
     alias: { $lib: path.resolve("./src/lib") },
   },
-  // La demo; el paquete lo construye svelte-package en dist/.
+  // The demo; svelte-package builds the package into dist/.
   build: { outDir: "demo-dist" },
 });

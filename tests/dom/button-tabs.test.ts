@@ -5,31 +5,31 @@ import { createRawSnippet } from "svelte";
 import Button from "$lib/components/button.svelte";
 import Tabs from "$lib/components/tabs.svelte";
 
-const texto = (t: string) => createRawSnippet(() => ({ render: () => `<span>${t}</span>` }));
+const text = (t: string) => createRawSnippet(() => ({ render: () => `<span>${t}</span>` }));
 
 describe("Button", () => {
   it("a disabled link has no href, keeps the link role and ignores clicks", async () => {
     const onclick = vi.fn();
-    render(Button, { href: "/x", disabled: true, onclick, children: texto("Ir") });
-    const enlace = screen.getByRole("link", { name: "Ir" });
-    expect(enlace.hasAttribute("href")).toBe(false);
-    expect(enlace.getAttribute("aria-disabled")).toBe("true");
-    await userEvent.click(enlace);
+    render(Button, { href: "/x", disabled: true, onclick, children: text("Go") });
+    const link = screen.getByRole("link", { name: "Go" });
+    expect(link.hasAttribute("href")).toBe(false);
+    expect(link.getAttribute("aria-disabled")).toBe("true");
+    await userEvent.click(link);
     expect(onclick).not.toHaveBeenCalled();
   });
 
   it("an enabled link navigates and calls onclick", async () => {
     const onclick = vi.fn((e: MouseEvent) => e.preventDefault());
-    render(Button, { href: "/x", onclick, children: texto("Ir") });
-    const enlace = screen.getByRole("link", { name: "Ir" });
-    expect(enlace.getAttribute("href")).toBe("/x");
-    await userEvent.click(enlace);
+    render(Button, { href: "/x", onclick, children: text("Go") });
+    const link = screen.getByRole("link", { name: "Go" });
+    expect(link.getAttribute("href")).toBe("/x");
+    await userEvent.click(link);
     expect(onclick).toHaveBeenCalledOnce();
   });
 
   it("a loading button is disabled and busy", () => {
-    render(Button, { loading: true, children: texto("Guardar") });
-    const b = screen.getByRole("button", { name: "Guardar" }) as HTMLButtonElement;
+    render(Button, { loading: true, children: text("Save") });
+    const b = screen.getByRole("button", { name: "Save" }) as HTMLButtonElement;
     expect(b.disabled).toBe(true);
     expect(b.getAttribute("aria-busy")).toBe("true");
   });
@@ -37,26 +37,26 @@ describe("Button", () => {
 
 describe("Tabs", () => {
   const items = [
-    { id: "a", label: "Uno" },
-    { id: "b", label: "Dos" },
-    { id: "c", label: "Tres" },
+    { id: "a", label: "One" },
+    { id: "b", label: "Two" },
+    { id: "c", label: "Three" },
   ];
 
   it("moves with the arrow keys, Home and End, and wraps", async () => {
-    render(Tabs, { items, ariaLabel: "Secciones" });
-    const [uno, , tres] = screen.getAllByRole("tab");
-    uno.focus();
+    render(Tabs, { items, ariaLabel: "Sections" });
+    const [one, , three] = screen.getAllByRole("tab");
+    one.focus();
     await userEvent.keyboard("{ArrowLeft}");
-    expect(document.activeElement).toBe(tres);
-    expect(tres.getAttribute("aria-selected")).toBe("true");
+    expect(document.activeElement).toBe(three);
+    expect(three.getAttribute("aria-selected")).toBe("true");
     await userEvent.keyboard("{Home}");
-    expect(document.activeElement).toBe(uno);
+    expect(document.activeElement).toBe(one);
     await userEvent.keyboard("{End}");
-    expect(document.activeElement).toBe(tres);
+    expect(document.activeElement).toBe(three);
   });
 
   it("only the active tab is in the Tab order, and it labels the panel", () => {
-    render(Tabs, { items, value: "b", ariaLabel: "Secciones" });
+    render(Tabs, { items, value: "b", ariaLabel: "Sections" });
     const tabs = screen.getAllByRole("tab");
     expect(tabs.map((t) => t.tabIndex)).toEqual([-1, 0, -1]);
     expect(screen.getByRole("tabpanel").getAttribute("aria-labelledby")).toBe(tabs[1].id);

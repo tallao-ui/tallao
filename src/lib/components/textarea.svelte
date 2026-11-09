@@ -1,15 +1,16 @@
 <!--
   tallao — Textarea
-  Texto de varias líneas con los mismos estados que Input.
+  Multi-line text with the same states as Input.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
 
   let {
     value = $bindable(""),
-    /** El elemento nativo (bind:ref), para enfocarlo o medirlo. */
+    /** The native element (bind:ref), to focus or measure it. */
     ref = $bindable(),
     rows = 3,
+    mono = false,
     class: className = "",
     disabled = false,
     ...rest
@@ -17,13 +18,15 @@
     value?: string;
     ref?: HTMLTextAreaElement;
     rows?: number;
+    /** Monospaced font (a card list, code, data). */
+    mono?: boolean;
     class?: string;
     disabled?: boolean;
     [key: string]: unknown;
   } = $props();
 </script>
 
-<textarea bind:this={ref} bind:value {rows} {disabled} class={cn("ta-textarea", className)} {...rest}></textarea>
+<textarea bind:this={ref} bind:value {rows} {disabled} class={cn("ta-textarea", mono && "ta-textarea--mono", className)} {...rest}></textarea>
 
 <style>
   .ta-textarea {
@@ -54,4 +57,12 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  .ta-textarea--mono { font-family: var(--ta-font-mono); font-size: 0.75rem; line-height: 1.625; }
+
+  /* On touch screens: 16px so iOS does not zoom the page on focus, and 44px of height for the finger. */
+  @media (pointer: coarse) {
+    .ta-textarea { font-size: 1rem; min-height: 2.75rem; }
+  }
+
 </style>

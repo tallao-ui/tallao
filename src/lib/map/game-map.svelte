@@ -1,9 +1,9 @@
 <!--
   tallao — GameMap
-  Envoltura fina sobre sveaflet (Leaflet) con el tema del kit:
-  capa oscura por defecto, marcadores con Badge y popups estilados.
-  sveaflet es dependencia del proyecto que usa el componente — este archivo
-  es un punto de partida para copiar, no una reimplementación de Leaflet.
+  Thin wrapper over sveaflet (Leaflet) with the kit's theme:
+  dark layer by default, Badge markers and styled popups.
+  sveaflet is a dependency of the project that uses the component — this file
+  is a starting point to copy, not a reimplementation of Leaflet.
 -->
 <script lang="ts">
   import { useLabels } from "$lib/i18n";
@@ -17,17 +17,17 @@
   }
 
   interface Props {
-    /** Centro inicial [lat, lng]. */
+    /** Initial center [lat, lng]. */
     center?: [number, number];
     zoom?: number;
     markers?: Marker[];
-    /** Capa oscura (Esri Dark Gray) por defecto; false = OpenStreetMap estándar. */
+    /** Dark layer (Esri Dark Gray) by default; false = standard OpenStreetMap. */
     dark?: boolean;
-    /** Alto del mapa (CSS). */
+    /** Map height (CSS). */
     height?: string;
-    /** Atribución obligatoria de los tiles. */
+    /** Required tile attribution. */
     attribution?: string;
-    /** Nombre accesible del mapa. */
+    /** Accessible name of the map. */
     ariaLabel?: string;
     class?: string;
   }
@@ -44,29 +44,29 @@
     class: className = "",
   }: Props = $props();
 
-  // CARTO empezó a pedir API key para dark_all; Esri Dark Gray es libre.
-  const urlTiles = $derived(dark
+  // CARTO started requiring an API key for dark_all; Esri Dark Gray is free.
+  const tileUrl = $derived(dark
     ? "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
     : "https://tile.openstreetmap.org/{z}/{x}/{y}.png");
-  const atribucionFinal = $derived(
+  const finalAttribution = $derived(
     attribution ??
     (dark
       ? 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
       : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>')
   );
 
-  // Leaflet toca `window` al importarse: se carga solo en el navegador, nunca
-  // en el render del servidor (SvelteKit), donde el mapa queda como caja vacía.
-  const cargando =
+  // Leaflet touches `window` on import: it is loaded only in the browser, never
+  // during the server render (SvelteKit), where the map stays an empty box.
+  const loader =
     typeof window === "undefined"
       ? null
       : Promise.all([import("sveaflet"), import("leaflet")]).then(([S, L]) => ({
           S,
-          // Marcador por defecto: un punto con el acento del tema (los iconos PNG
-          // por defecto de Leaflet no resuelven bien con bundlers).
-          icono: new L.DivIcon({
-            className: "ta-mapa-pin-contenedor",
-            html: '<div class="ta-mapa-pin"></div>',
+          // Default marker: a dot in the theme's accent (Leaflet's default PNG
+          // icons do not resolve well with bundlers).
+          icon: new L.DivIcon({
+            className: "ta-map-pin-container",
+            html: '<div class="ta-map-pin"></div>',
             iconSize: [14, 14],
             iconAnchor: [7, 7],
           }),
@@ -74,19 +74,19 @@
 </script>
 
 <div
-  class={cn("ta-mapa", className)}
+  class={cn("ta-map", className)}
   style={`height: ${height}`}
   role="application"
   aria-label={ariaLabel}
 >
-  {#if cargando}
-  {#await cargando then { S, icono }}
+  {#if loader}
+  {#await loader then { S, icon }}
     <S.Map options={{ center, zoom }}>
-      <S.TileLayer url={urlTiles} options={{ attribution: atribucionFinal }} />
+      <S.TileLayer url={tileUrl} options={{ attribution: finalAttribution }} />
       {#each markers as m}
-        <S.Marker latLng={[m.lat, m.lng]} options={{ icon: icono }}>
+        <S.Marker latLng={[m.lat, m.lng]} options={{ icon: icon }}>
           <S.Popup>
-            <div class="ta-mapa-popup">
+            <div class="ta-map-popup">
               <strong>{m.title}</strong>
               {#if m.description}
                 <p>{m.description}</p>
@@ -101,10 +101,10 @@
 </div>
 
 <style>
-  /* Las hojas de estilo de Leaflet vienen del paquete:
-     import "leaflet/dist/leaflet.css" donde montes el mapa. */
+  /* Leaflet's stylesheets come from the package:
+     import "leaflet/dist/leaflet.css" wherever you mount the map. */
 
-  .ta-mapa {
+  .ta-map {
     width: 100%;
     border: 1px solid rgb(var(--ta-border));
     border-radius: var(--ta-radius-lg);
@@ -112,44 +112,47 @@
     background: rgb(var(--ta-surface));
   }
 
-  .ta-mapa :global(.leaflet-container) {
+  .ta-map :global(.leaflet-container) {
     width: 100%;
     height: 100%;
     font-family: var(--ta-font-sans);
   }
 
-  /* Popups acordes al tema */
-  .ta-mapa :global(.leaflet-popup-content-wrapper) {
+  /* Popups matching the theme */
+  .ta-map :global(.leaflet-popup-content-wrapper) {
     background: rgb(var(--ta-surface));
     color: rgb(var(--ta-text));
     border: 1px solid rgb(var(--ta-border));
     border-radius: var(--ta-radius);
     box-shadow: 0 10px 25px rgb(0 0 0 / 0.35);
   }
-  .ta-mapa :global(.leaflet-popup-tip) {
+  .ta-map :global(.leaflet-popup-tip) {
     background: rgb(var(--ta-surface));
     border: 1px solid rgb(var(--ta-border));
   }
-  .ta-mapa-popup strong { display: block; }
-  .ta-mapa-popup p { margin: 0.25rem 0 0; color: rgb(var(--ta-text-dim)); font-size: 0.8125rem; }
+  .ta-map-popup strong { display: block; }
+  .ta-map-popup p { margin: 0.25rem 0 0; color: rgb(var(--ta-text-dim)); font-size: 0.8125rem; }
 
-  /* Controles de zoom con el tema */
-  .ta-mapa :global(.leaflet-bar a) {
+  /* Zoom controls with the theme */
+  .ta-map :global(.leaflet-bar a) {
     background: rgb(var(--ta-surface));
     color: rgb(var(--ta-text));
     border-color: rgb(var(--ta-border));
   }
-  .ta-mapa :global(.leaflet-bar a:hover) {
+  .ta-map :global(.leaflet-bar a:hover) {
     background: rgb(var(--ta-elevated));
   }
 
-  /* Pin por defecto: punto con halo del color de acento */
-  :global(.ta-mapa-pin) {
+  /* Default pin: a dot with a halo in the accent color */
+  :global(.ta-map-pin) {
     width: 14px;
     height: 14px;
     border-radius: 50%;
     background: rgb(var(--ta-accent));
     border: 2px solid rgb(var(--ta-bg));
     box-shadow: 0 0 0 4px rgb(var(--ta-accent) / 0.3);
+  }
+  @media (pointer: coarse) {
+    .ta-map :global(.leaflet-bar a) { width: 2.75rem; height: 2.75rem; line-height: 2.75rem; font-size: 1.25rem; }
   }
 </style>

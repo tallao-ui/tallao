@@ -2,7 +2,7 @@
   "name": "tallao-kit-check",
   "private": true,
   "type": "module",
-  "description": "Una app SvelteKit mínima que usa tallao como lo usaría cualquier proyecto: prerender (SSR) e hidratación",
+  "description": "A minimal SvelteKit app that uses tallao the way any project would: prerender (SSR) and hydration",
   "scripts": {
     "build": "vite build && node check-prerender.mjs",
     "dev": "vite dev --port 4396 --strictPort",

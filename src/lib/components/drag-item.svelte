@@ -1,12 +1,12 @@
 <!--
   tallao — DragItem
-  Un elemento que se mueve entre las DropZone de un DragBoard. Es un botón
-  conmutable (`aria-pressed` = elegido) que además se arrastra:
-    - clic: lo elige o suelta la elección;
-    - arrastrar: lo lleva a otra zona;
-    - Enter o Espacio: lo coge; ↑ ↓ ← → eligen la zona; Enter o Espacio lo deja;
-      Escape cancela.
-  Mientras se mueve con el teclado lleva `data-grabbed`.
+  An item that moves between the DropZones of a DragBoard. It is a toggle
+  button (`aria-pressed` = selected) that can also be dragged:
+    - click: selects it or clears the selection;
+    - drag: moves it to another zone;
+    - Enter or Space: picks it up; ↑ ↓ ← → choose the zone; Enter or Space drops it;
+      Escape cancels.
+  While it is moved with the keyboard it carries `data-grabbed`.
 -->
 <script lang="ts">
   import { useDragBoard } from "$lib/internal/drag-board";
@@ -14,15 +14,15 @@
 
   interface Props {
     id: string;
-    /** Nombre del elemento en los avisos del tablero. */
+    /** Name of the item in the board's announcements. */
     label: string;
-    /** Id de la DropZone en la que está ahora. */
+    /** Id of the DropZone it is in now. */
     zone: string;
     disabled?: boolean;
     title?: string;
     class?: string;
     children?: import("svelte").Snippet;
-    /** Otros atributos (data-*, aria-label…) van al elemento. */
+    /** Other attributes (data-*, aria-label…) go to the element. */
     [key: string]: unknown;
   }
 
@@ -37,23 +37,23 @@
     ...rest
   }: Props = $props();
 
-  const tablero = useDragBoard();
+  const board = useDragBoard();
   const ref = $derived({ id, label, zone });
-  const elegido = $derived(tablero.selected === id);
-  const cogido = $derived(elegido && tablero.target !== null);
+  const isSelected = $derived(board.selected === id);
+  const grabbed = $derived(isSelected && board.target !== null);
 
-  function teclas(e: KeyboardEvent) {
+  function onKey(e: KeyboardEvent) {
     if (disabled) return;
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      tablero.press(ref);
+      board.press(ref);
     } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-      if (tablero.step(ref, 1)) e.preventDefault();
+      if (board.step(ref, 1)) e.preventDefault();
     } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-      if (tablero.step(ref, -1)) e.preventDefault();
+      if (board.step(ref, -1)) e.preventDefault();
     } else if (e.key === "Escape") {
-      // Solo se lo queda si había algo que cancelar: si no, Escape sigue su camino.
-      if (elegido && tablero.cancel()) {
+      // It only keeps it if there was something to cancel: otherwise, Escape goes on its way.
+      if (isSelected && board.cancel()) {
         e.preventDefault();
         e.stopPropagation();
       }
@@ -65,19 +65,19 @@
   {...rest}
   role="button"
   tabindex={disabled ? -1 : 0}
-  aria-pressed={elegido}
+  aria-pressed={isSelected}
   aria-disabled={disabled ? "true" : undefined}
-  aria-describedby={tablero.instructionsId}
+  aria-describedby={board.instructionsId}
   draggable={!disabled}
   {title}
-  class={cn("ta-drag-item", elegido && "ta-drag-item--elegido", className)}
+  class={cn("ta-drag-item", isSelected && "ta-drag-item--grabbed", className)}
   data-ta-drag-item={id}
-  data-grabbed={cogido ? "true" : undefined}
-  onclick={() => !disabled && tablero.toggle(ref)}
-  onkeydown={teclas}
-  onblur={() => tablero.leave(ref)}
-  ondragstart={(e) => (disabled ? e.preventDefault() : tablero.dragStart(ref, e))}
-  ondragend={() => tablero.dragEnd()}
+  data-grabbed={grabbed ? "true" : undefined}
+  onclick={() => !disabled && board.toggle(ref)}
+  onkeydown={onKey}
+  onblur={() => board.leave(ref)}
+  ondragstart={(e) => (disabled ? e.preventDefault() : board.dragStart(ref, e))}
+  ondragend={() => board.dragEnd()}
 >
   {@render children?.()}
 </div>
@@ -93,7 +93,7 @@
     box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.6);
   }
 
-  .ta-drag-item--elegido {
+  .ta-drag-item--grabbed {
     box-shadow: 0 0 0 1px rgb(var(--ta-accent));
   }
 
@@ -105,5 +105,8 @@
   .ta-drag-item[aria-disabled="true"] {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+  @media (pointer: coarse) {
+    .ta-drag-item { display: block; min-height: 2.75rem; }
   }
 </style>

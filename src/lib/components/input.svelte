@@ -1,14 +1,17 @@
 <!--
   tallao — Input
-  Campo de texto con estado de foco acorde a los tokens.
-  Acepta cualquier atributo nativo de <input> vía rest props.
+  Text field with a focus state that matches the tokens.
+  Accepts any native <input> attribute through rest props.
+  For numbers use NumberInput: its `value` is typed `number | null` (null when empty).
+  (Here, with `type="number"`, Svelte's bind:value already hands back a number or null at
+  runtime, but the prop is typed as a string.)
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
 
   let {
     value = $bindable(""),
-    /** El elemento nativo (bind:ref), para enfocarlo o medirlo. */
+    /** The native element (bind:ref), to focus or measure it. */
     ref = $bindable(),
     class: className = "",
     type = "text",
@@ -60,7 +63,7 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
-  /* Selector de color: sin relleno de texto, alto de campo y muestra a todo el ancho. */
+  /* Colour picker: no text padding, field height and a full-width swatch. */
   .ta-input[type="color"] {
     height: 2.375rem;
     padding: 0.25rem;
@@ -76,5 +79,10 @@
   .ta-input[type="color"]::-moz-color-swatch {
     border: none;
     border-radius: var(--ta-radius-sm);
+  }
+
+  /* On touch screens: 16px so iOS does not zoom the page on focus, and 44px tall for the finger. */
+  @media (pointer: coarse) {
+    .ta-input:not([type="color"]) { font-size: 1rem; min-height: 2.75rem; }
   }
 </style>

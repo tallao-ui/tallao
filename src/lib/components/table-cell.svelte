@@ -2,10 +2,10 @@
   import { cn } from "$lib/utils";
   interface Props {
     class?: string;
-    /** Para una fila que ocupa toda la tabla (p. ej. «sin resultados»). */
+    /** For a row that spans the whole table (e.g. "no results"). */
     colspan?: number;
     children?: import("svelte").Snippet;
-    /** Cualquier otro atributo (title, data-*, headers…) va al <td>. */
+    /** Any other attribute (title, data-*, headers…) goes to the <td>. */
     [key: string]: unknown;
   }
   const { class: className = "", colspan, children, ...rest }: Props = $props();

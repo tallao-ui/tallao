@@ -1,8 +1,8 @@
 <!--
   tallao — MenuItem
-  Una opción de DropdownMenu. Al elegirla (clic, Enter o Espacio) llama a
-  `onSelect` y cierra el menú; con `closeOnSelect={false}` lo deja abierto.
-  Una opción desactivada se anuncia y se salta al navegar, pero no se oculta.
+  An option of a DropdownMenu. Choosing it (click, Enter or Space) calls
+  `onSelect` and closes the menu; with `closeOnSelect={false}` it stays open.
+  A disabled option is announced and skipped while navigating, but not hidden.
 -->
 <script lang="ts">
   import { useMenu } from "$lib/internal/menu";
@@ -28,7 +28,7 @@
 
   const menu = useMenu();
 
-  function elegir() {
+  function choose() {
     if (disabled) return;
     onSelect?.();
     if (closeOnSelect) menu?.close();
@@ -41,7 +41,7 @@
   tabindex="-1"
   aria-disabled={disabled ? "true" : undefined}
   class={cn("ta-menu-item", `ta-menu-item--${variant}`, className)}
-  onclick={elegir}
+  onclick={choose}
 >
   {@render children()}
 </button>
@@ -77,5 +77,10 @@
   .ta-menu-item[aria-disabled="true"] {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  /* On touch screens: 44px items for the finger. */
+  @media (pointer: coarse) {
+    .ta-menu-item { min-height: 2.75rem; }
   }
 </style>

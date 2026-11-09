@@ -1,14 +1,14 @@
 <!--
   tallao — Popover
-  Panel flotante anclado a un disparador: filtros, ajustes rápidos, un
-  formulario corto. No es modal: el resto de la página sigue usable; Escape o un
-  clic fuera lo cierran y el foco vuelve al disparador.
+  Floating panel anchored to a trigger: filters, quick settings, a short
+  form. It is not modal: the rest of the page stays usable; Escape or a
+  click outside closes it and focus returns to the trigger.
 
-  El disparador lo pone quien lo usa, con las props que recibe el snippet:
+  The consumer provides the trigger, with the props the snippet receives:
 
-    <Popover title="Filtros">
-      {#snippet trigger(props)}<Button {...props}>Filtros</Button>{/snippet}
-      …contenido…
+    <Popover title="Filters">
+      {#snippet trigger(props)}<Button {...props}>Filters</Button>{/snippet}
+      …content…
     </Popover>
 -->
 <script lang="ts" module>
@@ -20,16 +20,16 @@
   import { createAttachmentKey } from "svelte/attachments";
 
   import { cn } from "$lib/utils";
-  import { devolverFoco, elementoActivo, tabulables } from "$lib/internal/focus";
+  import { restoreFocus, getActiveElement, tabbables } from "$lib/internal/focus";
   import { pushLayer } from "$lib/internal/layers";
   import { anchor, type Placement } from "$lib/internal/position";
 
   interface Props {
     open?: boolean;
     placement?: Placement;
-    /** Título del panel: también es su nombre accesible. */
+    /** Panel title: it is also its accessible name. */
     title?: string;
-    /** Nombre accesible si no hay `title`. */
+    /** Accessible name when there is no `title`. */
     ariaLabel?: string;
     class?: string;
     onOpenChange?: (open: boolean) => void;
@@ -49,48 +49,48 @@
   }: Props = $props();
 
   const id = $props.id();
-  let disparador: HTMLElement | null = $state(null);
+  let triggerEl: HTMLElement | null = $state(null);
   let panel: HTMLElement | undefined = $state();
 
-  function poner(valor: boolean) {
-    if (open === valor) return;
-    open = valor;
-    onOpenChange?.(valor);
+  function setOpen(value: boolean) {
+    if (open === value) return;
+    open = value;
+    onOpenChange?.(value);
   }
 
   const triggerProps = $derived({
     "aria-haspopup": "dialog",
     "aria-expanded": open,
     "aria-controls": open ? `${id}-panel` : undefined,
-    onclick: () => poner(!open),
-    [createAttachmentKey()]: (nodo: HTMLElement) => {
-      disparador = nodo;
+    onclick: () => setOpen(!open),
+    [createAttachmentKey()]: (node: HTMLElement) => {
+      triggerEl = node;
       return () => {
-        if (disparador === nodo) disparador = null;
+        if (triggerEl === node) triggerEl = null;
       };
     },
   });
 
   $effect(() => {
     const p = panel;
-    const a = disparador;
+    const a = triggerEl;
     if (!open || !p || !a) return;
-    const previo = elementoActivo();
-    const soltar = anchor(a, p, { placement });
-    const quitar = pushLayer({
+    const previous = getActiveElement();
+    const release = anchor(a, p, { placement });
+    const removeLayer = pushLayer({
       inside: () => [p, a],
-      dismiss: (motivo) => {
-        poner(false);
-        if (motivo === "escape") devolverFoco(a);
+      dismiss: (reason) => {
+        setOpen(false);
+        if (reason === "escape") restoreFocus(a);
       },
     });
-    // El foco entra al primer control del panel (o al panel), sin seguir dependencias.
-    untrack(() => (tabulables(p)[0] ?? p).focus({ preventScroll: true }));
+    // Focus moves into the panel's first control (or the panel), without tracking dependencies.
+    untrack(() => (tabbables(p)[0] ?? p).focus({ preventScroll: true }));
     return () => {
-      quitar();
-      soltar();
-      // Si el foco seguía dentro, vuelve al disparador; si el usuario ya se fue a otro sitio, no.
-      if (p.contains(elementoActivo())) devolverFoco(previo === a ? a : previo);
+      removeLayer();
+      release();
+      // If focus was still inside, it returns to the trigger; if the user already moved elsewhere, it does not.
+      if (p.contains(getActiveElement())) restoreFocus(previous === a ? a : previous);
     };
   });
 </script>
@@ -104,11 +104,11 @@
     popover="manual"
     role="dialog"
     tabindex="-1"
-    aria-labelledby={title ? `${id}-titulo` : undefined}
+    aria-labelledby={title ? `${id}-title` : undefined}
     aria-label={title ? undefined : ariaLabel}
     class={cn("ta-popover", className)}
   >
-    {#if title}<p class="ta-popover-titulo" id={`${id}-titulo`}>{title}</p>{/if}
+    {#if title}<p class="ta-popover-title" id={`${id}-title`}>{title}</p>{/if}
     {@render children?.()}
   </div>
 {/if}
@@ -130,16 +130,16 @@
     box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
     font: inherit;
     outline: none;
-    animation: ta-popover-aparece 0.12s ease-out;
+    animation: ta-popover-enter 0.12s ease-out;
   }
 
-  .ta-popover-titulo {
+  .ta-popover-title {
     margin: 0 0 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
   }
 
-  @keyframes ta-popover-aparece {
+  @keyframes ta-popover-enter {
     from { opacity: 0; transform: translateY(-2px); }
     to { opacity: 1; transform: none; }
   }

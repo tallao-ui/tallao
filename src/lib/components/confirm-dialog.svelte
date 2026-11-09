@@ -1,9 +1,9 @@
 <!--
   tallao — ConfirmDialog
-  Confirmación sobre Dialog. `onConfirm` puede ser asíncrono: el botón queda
-  cargando y el diálogo solo se cierra si termina bien (si lanza, sigue abierto
-  y el error lo pinta quien llama). Los hijos van entre el texto y los botones
-  (p. ej. a dónde mover lo que se borra).
+  A confirmation built on Dialog. `onConfirm` can be async: the button shows
+  loading and the dialog only closes if it succeeds (if it throws, it stays open
+  and the caller renders the error). Children go between the text and the buttons
+  (e.g. where to move what is being deleted).
 -->
 <script lang="ts">
   import { useLabels } from "$lib/i18n";
@@ -20,7 +20,7 @@
     closeLabel?: string;
     variant?: "primary" | "danger";
     onConfirm: () => void | Promise<void>;
-    /** Se cerró sin confirmar: Cancelar, Escape, la X o un clic fuera. */
+    /** Closed without confirming: Cancel, Escape, the X or a click outside. */
     onCancel?: () => void;
     onOpenChange?: (open: boolean) => void;
     children?: import("svelte").Snippet;
@@ -41,46 +41,46 @@
     children,
   }: Props = $props();
 
-  let ocupado = $state(false);
-  // Un solo aviso por apertura: el botón Cancelar y el cierre del Dialog pueden llegar los dos.
-  let avisado = false;
+  let busy = $state(false);
+  // A single notice per opening: the Cancel button and the Dialog closing can both arrive.
+  let notified = false;
   $effect(() => {
-    if (open) avisado = false;
+    if (open) notified = false;
   });
 
-  function avisarCancelacion() {
-    if (avisado) return;
-    avisado = true;
+  function notifyCancel() {
+    if (notified) return;
+    notified = true;
     onOpenChange?.(false);
     onCancel?.();
   }
 
-  async function confirmar() {
-    ocupado = true;
+  async function confirm() {
+    busy = true;
     try {
       await onConfirm();
-      avisado = true;
+      notified = true;
       open = false;
       onOpenChange?.(false);
     } catch {
-      // Quien llama ya muestra el error; el diálogo sigue abierto para reintentar.
+      // The caller already shows the error; the dialog stays open to retry.
     } finally {
-      ocupado = false;
+      busy = false;
     }
   }
 
-  function cancelar() {
+  function cancel() {
     open = false;
-    avisarCancelacion();
+    notifyCancel();
   }
 </script>
 
-<!-- Dialog avisa con onClose solo cuando lo cierra el usuario (Escape, la X, el fondo):
-     eso es cancelar. Cerrarlo por haber confirmado no pasa por ahí. -->
-<Dialog bind:open {title} {description} {closeLabel} size="sm" onClose={avisarCancelacion}>
+<!-- Dialog calls onClose only when the user closes it (Escape, the X, the backdrop):
+     that is cancelling. Closing it after confirming does not go through there. -->
+<Dialog bind:open {title} {description} {closeLabel} size="sm" onClose={notifyCancel}>
   {@render children?.()}
   {#snippet footer()}
-    <Button variant="ghost" onclick={cancelar} disabled={ocupado}>{cancelLabel}</Button>
-    <Button {variant} loading={ocupado} onclick={confirmar}>{confirmLabel}</Button>
+    <Button variant="ghost" onclick={cancel} disabled={busy}>{cancelLabel}</Button>
+    <Button {variant} loading={busy} onclick={confirm}>{confirmLabel}</Button>
   {/snippet}
 </Dialog>

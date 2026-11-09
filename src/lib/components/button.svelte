@@ -1,25 +1,27 @@
 <!--
   tallao — Button
-  Extraído del admin de Kitsuden y desacoplado de Tailwind.
+  Extracted from the Kitsuden admin and decoupled from Tailwind.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
 
   interface Props {
-    variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
+    /** `danger-ghost`: the quiet destructive action (red text, no fill until hover),
+        for a row or a bar where a filled red button would weigh too much. */
+    variant?: "primary" | "secondary" | "danger" | "danger-ghost" | "ghost" | "outline" | "soft";
     size?: "sm" | "md" | "lg" | "icon";
     type?: "button" | "submit" | "reset";
     disabled?: boolean;
     loading?: boolean;
     class?: string;
     href?: string;
-    /** Nombre accesible: imprescindible en un botón que solo lleva icono. */
+    /** Accessible name: essential on an icon-only button. */
     ariaLabel?: string;
     title?: string;
     children?: import("svelte").Snippet;
     onclick?: (e: MouseEvent) => void;
-    /** Cualquier otro atributo (aria-*, data-*, eventos) y adjuntos ({@attach}) van al elemento:
-        así un Popover, un Menu o un Tooltip pueden usar el botón como disparador. */
+    /** Any other attribute (aria-*, data-*, events) and attachments ({@attach}) go to the element:
+        that way a Popover, a Menu or a Tooltip can use the button as its trigger. */
     [key: string | symbol]: unknown;
   }
 
@@ -39,16 +41,16 @@
   }: Props = $props();
 </script>
 
-{#snippet cuerpo()}
+{#snippet content()}
   {#if loading}
-    <span class="ta-spinner" aria-hidden="true"></span>
+    <span class="ta-btn-spinner" aria-hidden="true"></span>
   {/if}
   {@render children?.()}
 {/snippet}
 
 {#if href}
-  <!-- Un enlace desactivado pierde el href (deja de navegar y de recibir Tab),
-       como recomienda la APG: role="link" + aria-disabled lo sigue anunciando. -->
+  <!-- A disabled link loses its href (it stops navigating and receiving Tab),
+       as the APG recommends: role="link" + aria-disabled still announce it. -->
   <a
     {...rest}
     href={disabled || loading ? undefined : href}
@@ -60,7 +62,7 @@
     {title}
     onclick={disabled || loading ? undefined : onclick}
   >
-    {@render cuerpo()}
+    {@render content()}
   </a>
 {:else}
   <button
@@ -73,7 +75,7 @@
     {title}
     aria-busy={loading || undefined}
   >
-    {@render cuerpo()}
+    {@render content()}
   </button>
 {/if}
 
@@ -107,16 +109,16 @@
     cursor: not-allowed;
   }
 
-  /* — Tamaños — */
+  /* — Sizes — */
   .ta-btn--sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; gap: 0.375rem; }
   .ta-btn--md { padding: 0.5rem 1rem; font-size: 0.875rem; }
   .ta-btn--lg { padding: 0.75rem 1.5rem; font-size: 1rem; }
   .ta-btn--icon { padding: 0.5rem; }
 
-  /* — Variantes — */
+  /* — Variants — */
   .ta-btn--primary {
     background: rgb(var(--ta-accent));
-    color: white;
+    color: rgb(var(--ta-on-accent));
   }
   .ta-btn--primary:hover:not(:disabled) {
     background: rgb(var(--ta-accent-hover));
@@ -142,6 +144,17 @@
     background: rgb(var(--ta-accent-2));
   }
 
+  .ta-btn--danger-ghost {
+    background: transparent;
+    color: rgb(var(--ta-danger));
+  }
+  .ta-btn--danger-ghost:hover:not(:disabled) {
+    background: rgb(var(--ta-danger) / 0.12);
+  }
+  .ta-btn--danger-ghost:focus-visible {
+    box-shadow: 0 0 0 2px rgb(var(--ta-bg)), 0 0 0 4px rgb(var(--ta-danger) / 0.6);
+  }
+
   .ta-btn--ghost {
     background: transparent;
     color: rgb(var(--ta-text-dim));
@@ -149,6 +162,17 @@
   .ta-btn--ghost:hover:not(:disabled) {
     color: rgb(var(--ta-text));
     background: rgb(var(--ta-elevated) / 0.5);
+  }
+
+  /* Accent tint: a highlighted action that is not the primary one. */
+  .ta-btn--soft {
+    background: rgb(var(--ta-accent) / 0.12);
+    border-color: rgb(var(--ta-accent) / 0.35);
+    color: rgb(var(--ta-accent));
+  }
+  .ta-btn--soft:hover:not(:disabled) {
+    background: rgb(var(--ta-accent) / 0.2);
+    border-color: rgb(var(--ta-accent) / 0.55);
   }
 
   .ta-btn--outline {
@@ -160,17 +184,23 @@
     background: rgb(var(--ta-elevated));
   }
 
-  .ta-spinner {
+  .ta-btn-spinner {
     width: 1em;
     height: 1em;
     border: 2px solid currentColor;
     border-right-color: transparent;
     border-radius: 50%;
-    animation: ta-girar 0.7s linear infinite;
+    animation: ta-spin 0.7s linear infinite;
     flex-shrink: 0;
   }
 
-  @keyframes ta-girar {
+  @keyframes ta-spin {
     to { transform: rotate(360deg); }
+  }
+
+  /* On touch screens: sm and md reach the 44px of WCAG 2.5.5 (icon-only, 44×44). */
+  @media (pointer: coarse) {
+    .ta-btn { min-height: 2.75rem; }
+    .ta-btn--icon { min-width: 2.75rem; }
   }
 </style>

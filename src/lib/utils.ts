@@ -1,10 +1,10 @@
 /**
- * tallao — utilidades comunes
+ * tallao — common utilities
  */
 
-type Clase = string | false | null | undefined;
+type ClassValue = string | false | null | undefined;
 
-/** Une clases CSS ignorando valores vacíos. */
-export function cn(...clases: Clase[]): string {
-  return clases.filter(Boolean).join(" ");
+/** Joins CSS classes, skipping empty values. */
+export function cn(...classes: ClassValue[]): string {
+  return classes.filter(Boolean).join(" ");
 }

@@ -1,23 +1,23 @@
 <!--
-  CopyButton: un texto que se copia al portapapeles con un clic.
+  CopyButton: a piece of text copied to the clipboard with one click.
 
-  Para URLs, claves o comandos que alguien pega en otro sitio. Muestra el texto (o `label`) en
-  monoespaciada y, al copiar, avisa con `copiedLabel` en una región `aria-live` durante
-  `resetAfter` ms. Sin API de portapapeles (contexto no seguro) no hace nada y no lo finge.
+  For URLs, keys or commands someone pastes elsewhere. It shows the text (or `label`) in
+  monospace and, on copy, announces `copiedLabel` in an `aria-live` region for
+  `resetAfter` ms. Without the clipboard API (insecure context) it does nothing and does not fake it.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
 
   interface Props {
-    /** Lo que se copia. */
+    /** What gets copied. */
     text: string;
-    /** Lo que se ve; por defecto, el propio texto. */
+    /** What is shown; by default, the text itself. */
     label?: string;
-    /** Nombre accesible y título del botón. */
+    /** Accessible name and title of the button. */
     copyLabel?: string;
-    /** Aviso tras copiar. */
+    /** Notice after copying. */
     copiedLabel?: string;
-    /** Cuánto dura el aviso, en ms. */
+    /** How long the notice lasts, in ms. */
     resetAfter?: number;
     disabled?: boolean;
     class?: string;
@@ -35,36 +35,36 @@
     onCopy,
   }: Props = $props();
 
-  let copiado = $state(false);
-  let temporizador: ReturnType<typeof setTimeout> | undefined;
+  let copied = $state(false);
+  let timer: ReturnType<typeof setTimeout> | undefined;
 
-  // Si el componente se desmonta con el aviso puesto, el temporizador no queda vivo.
-  $effect(() => () => clearTimeout(temporizador));
+  // If the component unmounts while the notice is shown, the timer does not stay alive.
+  $effect(() => () => clearTimeout(timer));
 
-  async function copiar() {
+  async function copy() {
     if (disabled || !navigator.clipboard) return;
     try {
       await navigator.clipboard.writeText(text);
     } catch {
       return;
     }
-    copiado = true;
+    copied = true;
     onCopy?.(text);
-    clearTimeout(temporizador);
-    temporizador = setTimeout(() => (copiado = false), resetAfter);
+    clearTimeout(timer);
+    timer = setTimeout(() => (copied = false), resetAfter);
   }
 </script>
 
 <button
   type="button"
-  class={cn("ta-copy", copiado && "ta-copy--hecho", className)}
+  class={cn("ta-copy", copied && "ta-copy--done", className)}
   title={copyLabel}
   aria-label={`${copyLabel}: ${label ?? text}`}
   {disabled}
-  onclick={copiar}
+  onclick={copy}
 >
-  <span class="ta-copy-texto">{label ?? text}</span>
-  <span class="ta-copy-estado" aria-live="polite">{copiado ? copiedLabel : ""}</span>
+  <span class="ta-copy-text">{label ?? text}</span>
+  <span class="ta-copy-status" aria-live="polite">{copied ? copiedLabel : ""}</span>
 </button>
 
 <style>
@@ -99,23 +99,27 @@
     cursor: not-allowed;
   }
 
-  .ta-copy-texto {
+  .ta-copy-text {
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
-  .ta-copy-estado {
+  .ta-copy-status {
     flex-shrink: 0;
     font-family: var(--ta-font-sans);
     color: rgb(var(--ta-success));
   }
 
-  /* La región viva sigue en el DOM aunque esté vacía: si apareciera de golpe, no se anunciaría. */
-  .ta-copy-estado:not(:empty) {
+  /* The live region stays in the DOM even when empty: if it appeared suddenly, it would not be announced. */
+  .ta-copy-status:not(:empty) {
     margin-left: 0.5rem;
   }
 
-  .ta-copy--hecho {
+  .ta-copy--done {
     border-color: rgb(var(--ta-success) / 0.5);
+  }
+  @media (pointer: coarse) {
+    .ta-copy { position: relative; }
+    .ta-copy::after { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); transform: translate(-50%, -50%); }
   }
 </style>

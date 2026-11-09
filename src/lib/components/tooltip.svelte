@@ -1,12 +1,12 @@
 <!--
   tallao — Tooltip
-  Texto breve que describe un control, al pasar el ratón o al enfocarlo con el
-  teclado (WCAG 1.4.13: se puede descartar con Escape, no tapa sin querer y no
-  desaparece al pasar el ratón por encima). No lleva controles dentro: para eso
-  está Popover. El texto queda enlazado al disparador con aria-describedby.
+  Short text that describes a control, on hover or when it gets keyboard focus
+  (WCAG 1.4.13: it can be dismissed with Escape, does not cover things by accident
+  and does not disappear when the pointer moves over it). It holds no controls:
+  that is what Popover is for. The text is linked to the trigger with aria-describedby.
 
-    <Tooltip text="Copiar enlace">
-      {#snippet trigger(props)}<Button {...props} size="icon" ariaLabel="Copiar">⧉</Button>{/snippet}
+    <Tooltip text="Copy link">
+      {#snippet trigger(props)}<Button {...props} size="icon" ariaLabel="Copy">⧉</Button>{/snippet}
     </Tooltip>
 -->
 <script lang="ts">
@@ -20,7 +20,7 @@
   interface Props {
     text: string;
     placement?: Placement;
-    /** Espera antes de mostrarse al pasar el ratón, en ms (el foco lo muestra al momento). */
+    /** Wait before showing on hover, in ms (focus shows it immediately). */
     delay?: number;
     trigger: import("svelte").Snippet<[TriggerProps]>;
   }
@@ -29,65 +29,65 @@
 
   const id = $props.id();
   let open = $state(false);
-  let disparador: HTMLElement | null = $state(null);
-  let burbuja: HTMLElement | undefined = $state();
-  let espera: ReturnType<typeof setTimeout> | undefined;
-  let cierre: ReturnType<typeof setTimeout> | undefined;
+  let triggerEl: HTMLElement | null = $state(null);
+  let bubble: HTMLElement | undefined = $state();
+  let showTimer: ReturnType<typeof setTimeout> | undefined;
+  let hideTimer: ReturnType<typeof setTimeout> | undefined;
 
-  function mostrar(retraso: number) {
-    clearTimeout(cierre);
-    clearTimeout(espera);
-    espera = setTimeout(() => (open = true), retraso);
+  function show(wait: number) {
+    clearTimeout(hideTimer);
+    clearTimeout(showTimer);
+    showTimer = setTimeout(() => (open = true), wait);
   }
 
-  // Un margen corto para poder pasar el ratón del disparador a la burbuja.
-  function ocultar() {
-    clearTimeout(espera);
-    cierre = setTimeout(() => (open = false), 100);
+  // A short grace period so the pointer can move from the trigger to the bubble.
+  function hide() {
+    clearTimeout(showTimer);
+    hideTimer = setTimeout(() => (open = false), 100);
   }
 
   const triggerProps = $derived({
     "aria-describedby": `${id}-tooltip`,
-    onpointerenter: () => mostrar(delay),
-    onpointerleave: ocultar,
-    onfocus: () => mostrar(0),
-    onblur: ocultar,
-    [createAttachmentKey()]: (nodo: HTMLElement) => {
-      disparador = nodo;
+    onpointerenter: () => show(delay),
+    onpointerleave: hide,
+    onfocus: () => show(0),
+    onblur: hide,
+    [createAttachmentKey()]: (node: HTMLElement) => {
+      triggerEl = node;
       return () => {
-        if (disparador === nodo) disparador = null;
-        clearTimeout(espera);
-        clearTimeout(cierre);
+        if (triggerEl === node) triggerEl = null;
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
       };
     },
   });
 
   $effect(() => {
-    const b = burbuja;
-    const a = disparador;
+    const b = bubble;
+    const a = triggerEl;
     if (!open || !b || !a) return;
-    const soltar = anchor(a, b, { placement, gap: 8 });
-    // Escape la descarta; un clic fuera no la toca (no es una capa interactiva).
-    const quitar = pushLayer({ inside: () => [a, b], dismiss: () => (open = false), escapeOnly: true });
+    const release = anchor(a, b, { placement, gap: 8 });
+    // Escape dismisses it; a click outside leaves it alone (it is not an interactive layer).
+    const remove = pushLayer({ inside: () => [a, b], dismiss: () => (open = false), escapeOnly: true });
     return () => {
-      quitar();
-      soltar();
+      remove();
+      release();
     };
   });
 </script>
 
 {@render trigger(triggerProps)}
 
-<!-- Siempre en el DOM (oculta) para que aria-describedby apunte a algo real. -->
+<!-- Always in the DOM (hidden) so aria-describedby points at something real. -->
 <div
-  bind:this={burbuja}
+  bind:this={bubble}
   id={`${id}-tooltip`}
   role="tooltip"
   popover="manual"
   class="ta-tooltip"
-  class:ta-tooltip--abierto={open}
-  onpointerenter={() => clearTimeout(cierre)}
-  onpointerleave={ocultar}
+  class:ta-tooltip--open={open}
+  onpointerenter={() => clearTimeout(hideTimer)}
+  onpointerleave={hide}
 >
   {text}
 </div>
@@ -112,7 +112,7 @@
     overflow: visible;
   }
 
-  .ta-tooltip--abierto {
+  .ta-tooltip--open {
     display: block;
   }
 </style>

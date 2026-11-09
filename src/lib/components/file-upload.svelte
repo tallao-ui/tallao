@@ -1,10 +1,10 @@
 <!--
   tallao — FileUpload
-  Elegir archivos con el botón o soltándolos en la zona. Debajo hay un
-  <input type="file"> de verdad (oculto a la vista, no al teclado): Tab llega a él,
-  Enter o Espacio abren el selector del sistema, y con `name` los archivos se
-  envían en un <form> nativo, también los que se sueltan (se copian al input).
-  Lo que no cumple `accept`, `maxSize` o `maxFiles` no entra: se dice por qué.
+  Choose files with the button or by dropping them on the zone. Underneath there is
+  a real <input type="file"> (hidden from view, not from the keyboard): Tab reaches it,
+  Enter or Space open the system picker, and with `name` the files are submitted
+  in a native <form>, including dropped ones (they are copied to the input).
+  Whatever does not meet `accept`, `maxSize` or `maxFiles` is left out, with the reason.
 -->
 <script lang="ts" module>
   export interface FileRejection {
@@ -12,17 +12,17 @@
     reason: "type" | "size" | "count";
   }
 
-  /** «1.4 MB». */
+  /** "1.4 MB". */
   export function formatBytes(n: number) {
     if (n < 1024) return `${n} B`;
-    const unidades = ["KB", "MB", "GB"];
+    const units = ["KB", "MB", "GB"];
     let v = n / 1024;
     let i = 0;
-    while (v >= 1024 && i < unidades.length - 1) {
+    while (v >= 1024 && i < units.length - 1) {
       v /= 1024;
       i++;
     }
-    return `${v.toFixed(v < 10 ? 1 : 0)} ${unidades[i]}`;
+    return `${v.toFixed(v < 10 ? 1 : 0)} ${units[i]}`;
   }
 </script>
 
@@ -36,14 +36,14 @@
     name,
     accept,
     multiple = false,
-    /** Tamaño máximo por archivo, en bytes. */
+    /** Maximum size per file, in bytes. */
     maxSize,
     maxFiles,
     disabled = false,
     required = false,
     chooseLabel = L.chooseFiles,
     dropLabel = L.dropFiles,
-    removeLabel = (nombre: string) => `${L.remove} ${nombre}`,
+    removeLabel = (fileName: string) => `${L.remove} ${fileName}`,
     rejectionText = (r: FileRejection) =>
       r.reason === "type"
         ? `${r.file.name}: type not allowed`
@@ -56,7 +56,7 @@
   }: {
     files?: File[];
     name?: string;
-    /** Como el atributo nativo: «image/*,.pdf». */
+    /** Like the native attribute: "image/*,.pdf". */
     accept?: string;
     multiple?: boolean;
     maxSize?: number;
@@ -73,12 +73,12 @@
   } = $props();
 
   const id = $props.id();
-  let entrada: HTMLInputElement | undefined = $state();
-  let encima = $state(false);
-  let rechazados = $state<FileRejection[]>([]);
+  let inputEl: HTMLInputElement | undefined = $state();
+  let isOver = $state(false);
+  let rejected = $state<FileRejection[]>([]);
 
-  /** ¿Cumple `accept`? Tipos («image/png»), familias («image/*») o extensiones («.pdf»). */
-  function aceptado(f: File) {
+  /** Does it meet `accept`? Types ("image/png"), families ("image/*") or extensions (".pdf"). */
+  function isAccepted(f: File) {
     if (!accept) return true;
     return accept
       .split(",")
@@ -93,65 +93,65 @@
       );
   }
 
-  /** El input nativo refleja la lista, para que un formulario envíe también lo soltado. */
-  function reflejar(lista: File[]) {
-    if (!entrada || typeof DataTransfer === "undefined") return;
+  /** The native input mirrors the list, so a form also submits what was dropped. */
+  function syncInput(list: File[]) {
+    if (!inputEl || typeof DataTransfer === "undefined") return;
     try {
       const dt = new DataTransfer();
-      for (const f of lista) dt.items.add(f);
-      entrada.files = dt.files;
+      for (const f of list) dt.items.add(f);
+      inputEl.files = dt.files;
     } catch {
-      // Navegador sin DataTransfer construible: lo soltado no viaja en el form nativo.
+      // Browser without a constructible DataTransfer: dropped files do not travel in the native form.
     }
   }
 
-  function anadir(nuevos: File[]) {
+  function addFiles(incoming: File[]) {
     if (disabled) return;
-    const fuera: FileRejection[] = [];
+    const rejections: FileRejection[] = [];
     let base = multiple ? [...files] : [];
-    for (const f of nuevos) {
-      if (!aceptado(f)) fuera.push({ file: f, reason: "type" });
-      else if (maxSize != null && f.size > maxSize) fuera.push({ file: f, reason: "size" });
-      else if (maxFiles != null && base.length >= maxFiles) fuera.push({ file: f, reason: "count" });
+    for (const f of incoming) {
+      if (!isAccepted(f)) rejections.push({ file: f, reason: "type" });
+      else if (maxSize != null && f.size > maxSize) rejections.push({ file: f, reason: "size" });
+      else if (maxFiles != null && base.length >= maxFiles) rejections.push({ file: f, reason: "count" });
       else if (multiple) base.push(f);
       else base = [f];
     }
-    rechazados = fuera;
-    if (fuera.length) onreject?.(fuera);
+    rejected = rejections;
+    if (rejections.length) onreject?.(rejections);
     files = base;
-    reflejar(base);
+    syncInput(base);
     onfiles?.(base);
   }
 
-  function quitar(i: number) {
+  function removeAt(i: number) {
     files = files.filter((_, j) => j !== i);
-    reflejar(files);
+    syncInput(files);
     onfiles?.(files);
-    entrada?.focus();
+    inputEl?.focus();
   }
 
-  function soltar(e: DragEvent) {
+  function onDrop(e: DragEvent) {
     e.preventDefault();
-    encima = false;
-    anadir([...(e.dataTransfer?.files ?? [])]);
+    isOver = false;
+    addFiles([...(e.dataTransfer?.files ?? [])]);
   }
 </script>
 
 <div class={cn("ta-upload", className)}>
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
-    class="ta-upload-zona"
-    class:ta-upload-zona--encima={encima}
-    class:ta-upload-zona--off={disabled}
+    class="ta-upload-zone"
+    class:ta-upload-zone--over={isOver}
+    class:ta-upload-zone--off={disabled}
     ondragover={(e) => {
       e.preventDefault();
-      if (!disabled) encima = true;
+      if (!disabled) isOver = true;
     }}
-    ondragleave={() => (encima = false)}
-    ondrop={soltar}
+    ondragleave={() => (isOver = false)}
+    ondrop={onDrop}
   >
     <input
-      bind:this={entrada}
+      bind:this={inputEl}
       id={`${id}-input`}
       type="file"
       class="ta-upload-input"
@@ -160,27 +160,27 @@
       {multiple}
       {disabled}
       {required}
-      aria-describedby={rechazados.length ? `${id}-rechazos` : undefined}
-      onchange={(e) => anadir([...((e.currentTarget as HTMLInputElement).files ?? [])])}
+      aria-describedby={rejected.length ? `${id}-rejections` : undefined}
+      onchange={(e) => addFiles([...((e.currentTarget as HTMLInputElement).files ?? [])])}
     />
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5" /><path d="M12 3v12" /></svg>
-    <label for={`${id}-input`} class="ta-upload-elegir">{chooseLabel}</label>
-    <span class="ta-upload-soltar" aria-hidden="true">{dropLabel}</span>
+    <label for={`${id}-input`} class="ta-upload-choose">{chooseLabel}</label>
+    <span class="ta-upload-drop" aria-hidden="true">{dropLabel}</span>
   </div>
 
-  {#if rechazados.length}
-    <ul class="ta-upload-rechazos" id={`${id}-rechazos`} role="alert">
-      {#each rechazados as r, i (i)}<li>{rejectionText(r)}</li>{/each}
+  {#if rejected.length}
+    <ul class="ta-upload-rejections" id={`${id}-rejections`} role="alert">
+      {#each rejected as r, i (i)}<li>{rejectionText(r)}</li>{/each}
     </ul>
   {/if}
 
   {#if files.length}
-    <ul class="ta-upload-lista">
+    <ul class="ta-upload-list">
       {#each files as f, i (`${f.name}-${f.size}-${i}`)}
-        <li class="ta-upload-archivo">
-          <span class="ta-upload-nombre">{f.name}</span>
-          <span class="ta-upload-tamano">{formatBytes(f.size)}</span>
-          <button type="button" class="ta-upload-quitar" aria-label={removeLabel(f.name)} {disabled} onclick={() => quitar(i)}>×</button>
+        <li class="ta-upload-file">
+          <span class="ta-upload-name">{f.name}</span>
+          <span class="ta-upload-size">{formatBytes(f.size)}</span>
+          <button type="button" class="ta-upload-remove" aria-label={removeLabel(f.name)} {disabled} onclick={() => removeAt(i)}>×</button>
         </li>
       {/each}
     </ul>
@@ -190,7 +190,7 @@
 <style>
   .ta-upload { display: flex; flex-direction: column; gap: 0.5rem; }
 
-  .ta-upload-zona {
+  .ta-upload-zone {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -203,17 +203,17 @@
     border-radius: var(--ta-radius-lg);
     transition: border-color 0.15s, background-color 0.15s;
   }
-  .ta-upload-zona--encima {
+  .ta-upload-zone--over {
     border-color: rgb(var(--ta-accent));
     background: rgb(var(--ta-accent) / 0.08);
   }
-  .ta-upload-zona:focus-within {
+  .ta-upload-zone:focus-within {
     border-color: rgb(var(--ta-accent) / 0.7);
     box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15);
   }
-  .ta-upload-zona--off { opacity: 0.5; }
+  .ta-upload-zone--off { opacity: 0.5; }
 
-  /* Oculto a la vista, no al teclado ni a los lectores: el control real es este. */
+  /* Hidden from view, not from the keyboard or screen readers: this is the real control. */
   .ta-upload-input {
     position: absolute;
     width: 1px;
@@ -222,26 +222,26 @@
     overflow: hidden;
   }
 
-  .ta-upload-elegir {
+  .ta-upload-choose {
     font-size: 0.875rem;
     font-weight: 600;
     color: rgb(var(--ta-accent-hover));
     cursor: pointer;
   }
-  .ta-upload-zona--off .ta-upload-elegir { cursor: not-allowed; }
+  .ta-upload-zone--off .ta-upload-choose { cursor: not-allowed; }
 
-  .ta-upload-soltar { font-size: 0.75rem; }
+  .ta-upload-drop { font-size: 0.75rem; }
 
-  .ta-upload-rechazos {
+  .ta-upload-rejections {
     margin: 0;
     padding-left: 1rem;
     font-size: 0.75rem;
     color: rgb(var(--ta-danger));
   }
 
-  .ta-upload-lista { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+  .ta-upload-list { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
 
-  .ta-upload-archivo {
+  .ta-upload-file {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -251,9 +251,9 @@
     border: 1px solid rgb(var(--ta-border));
     border-radius: var(--ta-radius);
   }
-  .ta-upload-nombre { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .ta-upload-tamano { color: rgb(var(--ta-text-dim)); font-variant-numeric: tabular-nums; }
-  .ta-upload-quitar {
+  .ta-upload-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ta-upload-size { color: rgb(var(--ta-text-dim)); font-variant-numeric: tabular-nums; }
+  .ta-upload-remove {
     padding: 0 0.35rem;
     font: inherit;
     color: rgb(var(--ta-text-dim));
@@ -262,6 +262,13 @@
     border-radius: var(--ta-radius-sm);
     cursor: pointer;
   }
-  .ta-upload-quitar:hover { color: rgb(var(--ta-danger)); }
-  .ta-upload-quitar:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); }
+  .ta-upload-remove:hover { color: rgb(var(--ta-danger)); }
+  .ta-upload-remove:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); }
+  @media (pointer: coarse) {
+    .ta-upload-choose { display: inline-block; }
+    .ta-upload-choose { position: relative; }
+    .ta-upload-choose::after { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); transform: translate(-50%, -50%); }
+    .ta-upload-remove { position: relative; }
+    .ta-upload-remove::after { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); transform: translate(-50%, -50%); }
+  }
 </style>

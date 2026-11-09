@@ -1,7 +1,7 @@
 <script lang="ts">
   import { cn } from "$lib/utils";
   interface Props {
-    /** Nivel del encabezado: el que toque en la página que lo usa (por defecto h3). */
+    /** Heading level: whichever fits the page that uses it (h3 by default). */
     level?: 1 | 2 | 3 | 4 | 5 | 6;
     class?: string;
     children?: import("svelte").Snippet;

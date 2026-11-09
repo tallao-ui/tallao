@@ -1,14 +1,14 @@
 <!--
   tallao — CodeEditor (tallao/code)
-  Editor de código sobre CodeMirror 6 con el tema del kit: números de línea, deshacer,
-  resaltado de Markdown, JSON o JavaScript/TypeScript.
-  - Antes de que cargue CodeMirror (el render del servidor, o sin JavaScript) es un
-    <textarea> de verdad: se lee, se edita y, con `name`, se envía en un <form>.
-    Cuando CodeMirror está listo, el textarea queda oculto pero sigue enviando el valor.
-  - Tab no se queda atrapado: sale del editor como en cualquier campo (CodeMirror no
-    captura Tab por defecto, y aquí no se activa).
-  CodeMirror va en peerDependencies opcionales: instala @codemirror/state, view,
-  commands, language, @lezer/highlight y el lang-* de cada lenguaje que uses.
+  Code editor on CodeMirror 6 with the kit's theme: line numbers, undo,
+  Markdown, JSON or JavaScript/TypeScript highlighting.
+  - Before CodeMirror loads (the server render, or without JavaScript) it is a
+    real <textarea>: it can be read, edited and, with `name`, submitted in a <form>.
+    Once CodeMirror is ready, the textarea is hidden but still submits the value.
+  - Tab does not get trapped: it leaves the editor as in any field (CodeMirror does not
+    capture Tab by default, and it is not enabled here).
+  CodeMirror is in optional peerDependencies: install @codemirror/state, view,
+  commands, language, @lezer/highlight and the lang-* for each language you use.
 -->
 <script lang="ts">
   import { onMount } from "svelte";
@@ -16,7 +16,7 @@
   import { useLabels } from "$lib/i18n";
   import { cn } from "$lib/utils";
 
-  type Lenguaje = "markdown" | "json" | "javascript" | "typescript" | "text";
+  type Language = "markdown" | "json" | "javascript" | "typescript" | "text";
 
   const L = useLabels();
   let {
@@ -32,7 +32,7 @@
     onchange,
   }: {
     value?: string;
-    language?: Lenguaje;
+    language?: Language;
     name?: string;
     readonly?: boolean;
     lineNumbers?: boolean;
@@ -43,35 +43,35 @@
     onchange?: (value: string) => void;
   } = $props();
 
-  let caja: HTMLElement | undefined = $state();
-  let listo = $state(false);
-  // La vista de CodeMirror; sin tipos de CodeMirror en la API pública del componente.
-  let vista: { state: { doc: { toString(): string } }; dispatch(t: unknown): void; destroy(): void } | null = null;
+  let box: HTMLElement | undefined = $state();
+  let ready = $state(false);
+  // The CodeMirror view; no CodeMirror types in the component's public API.
+  let view: { state: { doc: { toString(): string } }; dispatch(t: unknown): void; destroy(): void } | null = null;
 
-  async function cargarLenguaje(lenguaje: Lenguaje) {
+  async function loadLanguage(lang: Language) {
     try {
-      if (lenguaje === "markdown") return (await import("@codemirror/lang-markdown")).markdown();
-      if (lenguaje === "json") return (await import("@codemirror/lang-json")).json();
-      if (lenguaje === "javascript" || lenguaje === "typescript")
-        return (await import("@codemirror/lang-javascript")).javascript({ typescript: lenguaje === "typescript" });
+      if (lang === "markdown") return (await import("@codemirror/lang-markdown")).markdown();
+      if (lang === "json") return (await import("@codemirror/lang-json")).json();
+      if (lang === "javascript" || lang === "typescript")
+        return (await import("@codemirror/lang-javascript")).javascript({ typescript: lang === "typescript" });
     } catch {
-      // Ese lang-* no está instalado: el editor funciona igual, sin resaltado.
+      // That lang-* is not installed: the editor works the same, without highlighting.
     }
     return [];
   }
 
   onMount(() => {
-    let cancelado = false;
+    let cancelled = false;
     (async () => {
-      const [{ EditorState }, cm, comandos, lenguajes, { tags: t }] = await Promise.all([
+      const [{ EditorState }, cm, commands, languages, { tags: t }] = await Promise.all([
         import("@codemirror/state"),
         import("@codemirror/view"),
         import("@codemirror/commands"),
         import("@codemirror/language"),
         import("@lezer/highlight"),
       ]);
-      // Resaltado con los tokens del kit: se lee igual en el tema oscuro y en el claro.
-      const resaltado = lenguajes.HighlightStyle.define([
+      // Highlighting with the kit's tokens: reads the same in the dark and light themes.
+      const highlight = languages.HighlightStyle.define([
         { tag: [t.keyword, t.operatorKeyword, t.modifier], color: "rgb(var(--ta-accent-hover))" },
         { tag: [t.string, t.special(t.string)], color: "rgb(var(--ta-success))" },
         { tag: [t.number, t.bool, t.null, t.atom], color: "rgb(var(--ta-warning))" },
@@ -86,10 +86,10 @@
         { tag: t.monospace, fontFamily: "var(--ta-font-mono)", color: "rgb(var(--ta-info))" },
         { tag: t.invalid, color: "rgb(var(--ta-danger))" },
       ]);
-      const extension = await cargarLenguaje(language);
-      if (cancelado || !caja) return;
-      const { EditorView, keymap, lineNumbers: numeros, highlightActiveLine, drawSelection } = cm;
-      const tema = EditorView.theme({
+      const extension = await loadLanguage(language);
+      if (cancelled || !box) return;
+      const { EditorView, keymap, lineNumbers: lineNumbersExt, highlightActiveLine, drawSelection } = cm;
+      const theme = EditorView.theme({
         "&": {
           color: "rgb(var(--ta-text))",
           backgroundColor: "rgb(var(--ta-bg))",
@@ -111,17 +111,17 @@
           backgroundColor: "rgb(var(--ta-accent) / 0.25)",
         },
       });
-      const estado = EditorState.create({
+      const editorState = EditorState.create({
         doc: value,
         extensions: [
-          lineNumbers ? numeros() : [],
+          lineNumbers ? lineNumbersExt() : [],
           highlightActiveLine(),
           drawSelection(),
-          comandos.history(),
-          keymap.of([...comandos.defaultKeymap, ...comandos.historyKeymap]),
-          lenguajes.syntaxHighlighting(resaltado),
+          commands.history(),
+          keymap.of([...commands.defaultKeymap, ...commands.historyKeymap]),
+          languages.syntaxHighlighting(highlight),
           extension,
-          tema,
+          theme,
           EditorState.readOnly.of(readonly),
           EditorView.editable.of(!readonly),
           EditorView.contentAttributes.of({ "aria-label": ariaLabel, "aria-multiline": "true" }),
@@ -132,39 +132,39 @@
           }),
         ],
       });
-      vista = new EditorView({ state: estado, parent: caja });
-      listo = true;
+      view = new EditorView({ state: editorState, parent: box });
+      ready = true;
     })();
     return () => {
-      cancelado = true;
-      vista?.destroy();
-      vista = null;
+      cancelled = true;
+      view?.destroy();
+      view = null;
     };
   });
 
-  // Un cambio de `value` desde fuera llega al editor (y no se repite el que salió de él).
+  // A change to `value` from outside reaches the editor (and the one that came from it is not repeated).
   $effect(() => {
     const v = value;
-    if (!vista) return;
-    const actual = vista.state.doc.toString();
-    if (v !== actual) vista.dispatch({ changes: { from: 0, to: actual.length, insert: v } });
+    if (!view) return;
+    const current = view.state.doc.toString();
+    if (v !== current) view.dispatch({ changes: { from: 0, to: current.length, insert: v } });
   });
 </script>
 
 <div class={cn("ta-code", className)}>
   <textarea
-    class="ta-code-respaldo"
-    class:ta-code-respaldo--oculto={listo}
+    class="ta-code-fallback"
+    class:ta-code-fallback--hidden={ready}
     {name}
     bind:value
     {readonly}
     aria-label={ariaLabel}
-    aria-hidden={listo ? "true" : undefined}
-    tabindex={listo ? -1 : undefined}
+    aria-hidden={ready ? "true" : undefined}
+    tabindex={ready ? -1 : undefined}
     spellcheck="false"
     style:min-height={minHeight}
   ></textarea>
-  <div class="ta-code-editor" bind:this={caja}></div>
+  <div class="ta-code-editor" bind:this={box}></div>
 </div>
 
 <style>
@@ -178,7 +178,7 @@
     box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15);
   }
 
-  .ta-code-respaldo {
+  .ta-code-fallback {
     display: block;
     width: 100%;
     padding: 0.5rem 0.75rem;
@@ -191,6 +191,12 @@
     outline: none;
     resize: vertical;
   }
-  /* Oculto pero en el formulario: sigue enviando el valor. */
-  .ta-code-respaldo--oculto { display: none; }
+  /* Hidden but in the form: it still submits the value. */
+  .ta-code-fallback--hidden { display: none; }
+  @media (pointer: coarse) {
+    /* 16px text: iOS does not zoom the page when the editor gets focus. */
+    .ta-code-fallback,
+    .ta-code-editor :global(.cm-content) { font-size: 1rem; }
+    .ta-code-fallback { min-height: 2.75rem; }
+  }
 </style>

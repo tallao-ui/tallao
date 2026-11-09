@@ -1,7 +1,7 @@
 <!--
-  Casi todo tallao en una página: el prerender la renderiza en el servidor y el navegador
-  la hidrata. tests/hydration.spec.ts comprueba que no hay desajustes y que, ya hidratada,
-  todo responde.
+  Nearly all of tallao on one page: the prerender renders it on the server and the browser
+  hydrates it. tests/hydration.spec.ts checks that there are no mismatches and that, once
+  hydrated, everything responds.
 -->
 <script lang="ts">
   import {
@@ -49,104 +49,104 @@
     toast,
   } from "tallao";
 
-  let dialogo = $state(false);
-  let confirmar = $state(false);
-  let paleta = $state(false);
-  let activo = $state(false);
+  let dialogOpen = $state(false);
+  let confirmOpen = $state(false);
+  let paletteOpen = $state(false);
+  let enabled = $state(false);
   let plan = $state("pro");
-  let pais = $state<string | null>(null);
-  let ultima = $state("ninguna");
-  let marcadas = $state<string[]>([]);
-  let pares = $state([{ key: "hp", value: "100" }]);
-  let zonas = $state<Record<string, string>>({ Ahri: "pool", Zed: "s" });
-  const filas = ["uno", "dos"];
+  let country = $state<string | null>(null);
+  let last = $state("none");
+  let checked = $state<string[]>([]);
+  let pairs = $state([{ key: "hp", value: "100" }]);
+  let zones = $state<Record<string, string>>({ Ahri: "pool", Zed: "s" });
+  const rows = ["one", "two"];
 </script>
 
 <main>
-  <h1>tallao en SvelteKit</h1>
+  <h1>tallao in SvelteKit</h1>
 
   <section>
-    <h2>Controles</h2>
-    <Button onclick={() => (dialogo = true)}>Abrir diálogo</Button>
-    <Button href="/otra" variant="ghost">Enlace</Button>
+    <h2>Controls</h2>
+    <Button onclick={() => (dialogOpen = true)}>Open dialog</Button>
+    <Button href="/other" variant="ghost">Link</Button>
     <Badge variant="success">ok</Badge>
-    <Field label="Nombre"><Input /></Field>
-    <Field label="Rol"><Select options={[{ value: "a", label: "A" }, { value: "b", label: "B" }]} /></Field>
-    <Field label="Notas"><Textarea /></Field>
-    <Checkbox label="Acepto" />
-    <Switch bind:checked={activo} label="Avisos" />
-    <span data-testid="switch">{activo}</span>
-    <RadioGroup legend="Plan" bind:value={plan} options={[{ value: "free", label: "Gratis" }, { value: "pro", label: "Pro" }]} />
-    <Alert variant="info" title="Aviso" onDismiss={() => {}}>Texto</Alert>
+    <Field label="Name"><Input /></Field>
+    <Field label="Role"><Select options={[{ value: "a", label: "A" }, { value: "b", label: "B" }]} /></Field>
+    <Field label="Notes"><Textarea /></Field>
+    <Checkbox label="I agree" />
+    <Switch bind:checked={enabled} label="Alerts" />
+    <span data-testid="switch">{enabled}</span>
+    <RadioGroup legend="Plan" bind:value={plan} options={[{ value: "free", label: "Free" }, { value: "pro", label: "Pro" }]} />
+    <Alert variant="info" title="Notice" onDismiss={() => {}}>Text</Alert>
   </section>
 
   <section>
-    <h2>Pestañas y tabla</h2>
-    <Tabs items={[{ id: "a", label: "Uno" }, { id: "b", label: "Dos", count: 2 }]} ariaLabel="Secciones">
-      {#snippet children(activa)}<p data-testid="panel">Panel {activa}</p>{/snippet}
+    <h2>Tabs and table</h2>
+    <Tabs items={[{ id: "a", label: "One" }, { id: "b", label: "Two", count: 2 }]} ariaLabel="Sections">
+      {#snippet children(active)}<p data-testid="panel">Panel {active}</p>{/snippet}
     </Tabs>
-    <Tabs items={[{ id: "x", label: "Equis" }, { id: "y", label: "Ye" }]} ariaLabel="Otras" />
+    <Tabs items={[{ id: "x", label: "Ex" }, { id: "y", label: "Wye" }]} ariaLabel="Others" />
     <Table>
       <TableHeader><TableRow><TableHead>Col</TableHead></TableRow></TableHeader>
-      <TableBody><TableRow title="fila" data-fila="1"><TableCell>Valor</TableCell></TableRow></TableBody>
+      <TableBody><TableRow title="row" data-row="1"><TableCell>Value</TableCell></TableRow></TableBody>
     </Table>
-    <Card><CardHeader><CardTitle level={2}>Tarjeta</CardTitle></CardHeader><CardContent><Stat label="Coste" value="$1" /></CardContent></Card>
+    <Card><CardHeader><CardTitle level={2}>Card</CardTitle></CardHeader><CardContent><Stat label="Cost" value="$1" /></CardContent></Card>
   </section>
 
   <section>
-    <h2>Flotantes</h2>
-    <Popover title="Filtros">
-      {#snippet trigger(props)}<Button {...props}>Filtros</Button>{/snippet}
-      <Input aria-label="Buscar" />
+    <h2>Floating</h2>
+    <Popover title="Filters">
+      {#snippet trigger(props)}<Button {...props}>Filters</Button>{/snippet}
+      <Input aria-label="Search" />
     </Popover>
-    <Tooltip text="Copia el enlace">
-      {#snippet trigger(props)}<Button {...props}>Copiar</Button>{/snippet}
+    <Tooltip text="Copies the link">
+      {#snippet trigger(props)}<Button {...props}>Copy</Button>{/snippet}
     </Tooltip>
-    <DropdownMenu label="Acciones">
-      {#snippet trigger(props)}<Button {...props}>Acciones</Button>{/snippet}
-      <MenuItem onSelect={() => (ultima = "editar")}>Editar</MenuItem>
-      <MenuItem onSelect={() => (ultima = "borrar")}>Borrar</MenuItem>
+    <DropdownMenu label="Actions">
+      {#snippet trigger(props)}<Button {...props}>Actions</Button>{/snippet}
+      <MenuItem onSelect={() => (last = "edit")}>Edit</MenuItem>
+      <MenuItem onSelect={() => (last = "delete")}>Delete</MenuItem>
     </DropdownMenu>
-    <span data-testid="ultima">{ultima}</span>
+    <span data-testid="last">{last}</span>
     <Combobox
-      ariaLabel="País"
-      bind:value={pais}
-      options={[{ value: "es", label: "España" }, { value: "pe", label: "Perú" }]}
+      ariaLabel="Country"
+      bind:value={country}
+      options={[{ value: "es", label: "Spain" }, { value: "pe", label: "Peru" }]}
     />
-    <span data-testid="pais">{pais ?? "ninguno"}</span>
-    <Button onclick={() => (paleta = true)}>Paleta</Button>
-    <Command bind:open={paleta} items={[{ id: "n", label: "Nuevo", onSelect: () => (ultima = "nuevo") }]} />
-    <Button onclick={() => toast.success("Guardado")}>Toast</Button>
-    <Button onclick={() => (confirmar = true)}>Confirmar</Button>
-    <ConfirmDialog bind:open={confirmar} title="¿Seguro?" onConfirm={() => {}} />
+    <span data-testid="country">{country ?? "none"}</span>
+    <Button onclick={() => (paletteOpen = true)}>Palette</Button>
+    <Command bind:open={paletteOpen} items={[{ id: "n", label: "New", onSelect: () => (last = "new") }]} />
+    <Button onclick={() => toast.success("Saved")}>Toast</Button>
+    <Button onclick={() => (confirmOpen = true)}>Confirm</Button>
+    <ConfirmDialog bind:open={confirmOpen} title="Are you sure?" onConfirm={() => {}} />
   </section>
 
   <section>
-    <h2>Listas y datos</h2>
-    <SelectionBar total={filas.length} selected={marcadas.length} onToggleAll={(t) => (marcadas = t ? [...filas] : [])} />
-    <KeyValueEditor bind:entries={pares} keyLabel="Stat" valueLabel="Valor" />
+    <h2>Lists and data</h2>
+    <SelectionBar total={rows.length} selected={checked.length} onToggleAll={(t) => (checked = t ? [...rows] : [])} />
+    <KeyValueEditor bind:entries={pairs} keyLabel="Stat" valueLabel="Value" />
     <CopyButton text="https://example.test/obs" />
     <DragBoard
-      onMove={(item, zona) => {
-        zonas[item] = zona;
+      onMove={(item, zone) => {
+        zones[item] = zone;
       }}
     >
       {#each ["pool", "s"] as z (z)}
-        <DropZone id={z} label={`Zona ${z}`}>
-          {#each Object.entries(zonas).filter(([, zz]) => zz === z) as [item] (item)}
+        <DropZone id={z} label={`Zone ${z}`}>
+          {#each Object.entries(zones).filter(([, zz]) => zz === z) as [item] (item)}
             <DragItem id={item} label={item} zone={z}>{item}</DragItem>
           {/each}
         </DropZone>
       {/each}
     </DragBoard>
-    <Accordion single items={[{ id: "a", title: "¿Qué?", content: "Un kit", open: true }, { id: "b", title: "¿Cuánto?", content: "Nada" }]} />
-    <Progress label="Subida" value={40} showValue />
+    <Accordion single items={[{ id: "a", title: "What?", content: "A kit", open: true }, { id: "b", title: "How much?", content: "Nothing" }]} />
+    <Progress label="Upload" value={40} showValue />
     <Skeleton lines={2} />
     <Avatar name="Ana López" />
-    <ChatMessage role="assistant" content="Hola" />
+    <ChatMessage role="assistant" content="Hello" />
   </section>
 
-  <Dialog bind:open={dialogo} title="Diálogo">
-    <Input aria-label="Dentro" />
+  <Dialog bind:open={dialogOpen} title="Dialog">
+    <Input aria-label="Inside" />
   </Dialog>
 </main>

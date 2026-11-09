@@ -1,18 +1,18 @@
 <!--
   tallao — DropdownMenu
-  Menú de acciones de un botón (patrón «menu button» de la WAI-ARIA APG):
-    - Enter, Espacio o ↓ en el disparador lo abren con el foco en la primera
-      opción; ↑ lo abre con el foco en la última.
-    - ↑ ↓ recorren las opciones (dan la vuelta), Inicio y Fin saltan a los
-      extremos, una letra salta a la siguiente opción que empieza por ella.
-    - Escape lo cierra y devuelve el foco al disparador; Tab lo cierra.
-    - Elegir una opción la ejecuta y cierra el menú.
+  Action menu for a button (the WAI-ARIA APG "menu button" pattern):
+    - Enter, Space or ↓ on the trigger open it with focus on the first
+      option; ↑ opens it with focus on the last one.
+    - ↑ ↓ go through the options (wrapping around), Home and End jump to the
+      ends, a letter jumps to the next option that starts with it.
+    - Escape closes it and returns focus to the trigger; Tab closes it.
+    - Choosing an option runs it and closes the menu.
 
-    <DropdownMenu label="Acciones del proyecto">
-      {#snippet trigger(props)}<Button {...props}>Acciones</Button>{/snippet}
-      <MenuItem onSelect={editar}>Editar</MenuItem>
+    <DropdownMenu label="Project actions">
+      {#snippet trigger(props)}<Button {...props}>Actions</Button>{/snippet}
+      <MenuItem onSelect={edit}>Edit</MenuItem>
       <MenuSeparator />
-      <MenuItem variant="danger" onSelect={borrar}>Borrar</MenuItem>
+      <MenuItem variant="danger" onSelect={remove}>Delete</MenuItem>
     </DropdownMenu>
 -->
 <script lang="ts">
@@ -20,7 +20,7 @@
   import { createAttachmentKey } from "svelte/attachments";
 
   import { cn } from "$lib/utils";
-  import { devolverFoco } from "$lib/internal/focus";
+  import { restoreFocus } from "$lib/internal/focus";
   import { pushLayer } from "$lib/internal/layers";
   import { focusItem, menuKeyboard, provideMenu } from "$lib/internal/menu";
   import { anchor, type Placement } from "$lib/internal/position";
@@ -28,7 +28,7 @@
   import type { TriggerProps } from "./popover.svelte";
 
   interface Props {
-    /** Nombre accesible del menú. */
+    /** Accessible name of the menu. */
     label: string;
     open?: boolean;
     placement?: Placement;
@@ -49,63 +49,63 @@
   }: Props = $props();
 
   const id = $props.id();
-  let disparador: HTMLElement | null = $state(null);
-  let lista: HTMLElement | undefined = $state();
+  let triggerEl: HTMLElement | null = $state(null);
+  let menuEl: HTMLElement | undefined = $state();
 
-  function poner(valor: boolean) {
-    if (open === valor) return;
-    open = valor;
-    onOpenChange?.(valor);
+  function setOpen(value: boolean) {
+    if (open === value) return;
+    open = value;
+    onOpenChange?.(value);
   }
 
-  async function abrir(foco: "primera" | "ultima") {
-    poner(true);
+  async function openMenu(focus: "first" | "last") {
+    setOpen(true);
     await tick();
-    // El panel se coloca en un efecto; el foco espera a que exista.
-    focusItem(lista, foco === "primera" ? 0 : -1);
+    // The panel is positioned in an effect; focus waits until it exists.
+    focusItem(menuEl, focus === "first" ? 0 : -1);
   }
 
-  function cerrar() {
-    poner(false);
-    devolverFoco(disparador);
+  function close() {
+    setOpen(false);
+    restoreFocus(triggerEl);
   }
 
-  provideMenu({ close: cerrar });
+  provideMenu({ close: close });
 
   const triggerProps = $derived({
-    id: `${id}-boton`,
+    id: `${id}-button`,
     "aria-haspopup": "menu",
     "aria-expanded": open,
     "aria-controls": open ? `${id}-menu` : undefined,
-    onclick: () => (open ? poner(false) : abrir("primera")),
+    onclick: () => (open ? setOpen(false) : openMenu("first")),
     onkeydown: (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
-        abrir(e.key === "ArrowDown" ? "primera" : "ultima");
+        openMenu(e.key === "ArrowDown" ? "first" : "last");
       }
     },
-    [createAttachmentKey()]: (nodo: HTMLElement) => {
-      disparador = nodo;
+    [createAttachmentKey()]: (node: HTMLElement) => {
+      triggerEl = node;
       return () => {
-        if (disparador === nodo) disparador = null;
+        if (triggerEl === node) triggerEl = null;
       };
     },
   });
 
-  const teclado = menuKeyboard(() => poner(false));
+  const keyboard = menuKeyboard(() => setOpen(false));
 
   $effect(() => {
-    const l = lista;
-    const a = disparador;
+    const l = menuEl;
+    const a = triggerEl;
     if (!open || !l || !a) return;
-    const soltar = anchor(a, l, { placement });
-    const quitar = pushLayer({
+    const release = anchor(a, l, { placement });
+    const remove = pushLayer({
       inside: () => [l, a],
-      dismiss: (motivo) => (motivo === "escape" ? cerrar() : poner(false)),
+      dismiss: (reason) => (reason === "escape" ? close() : setOpen(false)),
     });
     return () => {
-      quitar();
-      soltar();
+      remove();
+      release();
     };
   });
 </script>
@@ -115,13 +115,13 @@
 {#if open}
   <!-- svelte-ignore a11y_interactive_supports_focus -->
   <div
-    bind:this={lista}
+    bind:this={menuEl}
     id={`${id}-menu`}
     role="menu"
     aria-label={label}
     popover="manual"
     class={cn("ta-menu", className)}
-    onkeydown={(e) => teclado(e, lista)}
+    onkeydown={(e) => keyboard(e, menuEl)}
   >
     {@render children?.()}
   </div>
@@ -136,6 +136,7 @@
     min-width: 10rem;
     max-width: min(20rem, calc(100vw - 1rem));
     max-height: min(24rem, calc(100vh - 2rem));
+    max-height: min(24rem, var(--ta-available-height, calc(100dvh - 2rem)));
     overflow-y: auto;
     padding: 0.25rem;
     color: rgb(var(--ta-text));
@@ -144,10 +145,10 @@
     border-radius: var(--ta-radius);
     box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
     font: inherit;
-    animation: ta-menu-aparece 0.1s ease-out;
+    animation: ta-menu-enter 0.1s ease-out;
   }
 
-  @keyframes ta-menu-aparece {
+  @keyframes ta-menu-enter {
     from { opacity: 0; transform: translateY(-2px); }
     to { opacity: 1; transform: none; }
   }

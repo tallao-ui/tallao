@@ -1,13 +1,13 @@
 <!--
   tallao — Calendar
-  Un mes para elegir un día (cuadrícula del patrón «date picker» de la WAI-ARIA APG).
-    - ← → día anterior / siguiente; ↑ ↓ semana anterior / siguiente.
-    - Inicio / Fin: primer / último día de la semana.
-    - RePág / AvPág: mes anterior / siguiente (con Mayús, año).
-    - Enter o Espacio eligen el día.
-  Un solo día recibe el Tab (tabindex itinerante). Hoy lleva aria-current="date";
-  los días fuera de [min, max] o que `isDisabled` rechaza no se pueden elegir.
-  Fechas ISO «YYYY-MM-DD»; nombres de meses y días del idioma (`locale`, Intl).
+  A month to pick a day (grid from the WAI-ARIA APG "date picker" pattern).
+    - ← → previous / next day; ↑ ↓ previous / next week.
+    - Home / End: first / last day of the week.
+    - PageUp / PageDown: previous / next month (with Shift, year).
+    - Enter or Space picks the day.
+  Only one day receives Tab (roving tabindex). Today carries aria-current="date";
+  days outside [min, max] or rejected by `isDisabled` cannot be picked.
+  ISO dates "YYYY-MM-DD"; month and day names from the language (`locale`, Intl).
 -->
 <script lang="ts">
   import { tick, untrack } from "svelte";
@@ -19,6 +19,7 @@
     addMonths,
     clampISO,
     formatDate,
+    capitalizeFirst,
     monthGrid,
     parseISO,
     sameMonth,
@@ -33,7 +34,7 @@
     min,
     max,
     locale,
-    /** Primer día de la semana: 0 domingo, 1 lunes (por defecto). */
+    /** First day of the week: 0 Sunday, 1 Monday (default). */
     weekStartsOn = 1,
     isDisabled,
     previousLabel = L.previousMonth,
@@ -54,105 +55,106 @@
   } = $props();
 
   const id = $props.id();
-  // «Hoy» se calcula en el navegador: el servidor puede estar en otra zona horaria y su
-  // «hoy» ser otro día, y la marca no casaría al hidratar.
-  let hoy = $state<ISODate | null>(null);
+  // "Today" is computed in the browser: the server may be in another time zone and its
+  // "today" be a different day, and the mark would not match on hydration.
+  let today = $state<ISODate | null>(null);
   $effect(() => {
-    hoy = todayISO();
+    today = todayISO();
   });
-  // El día con el foco (y por tanto el mes que se ve); arranca en el valor, o en hoy.
-  let foco = $state<ISODate>(untrack(() => clampISO(parseISO(value) ? value! : todayISO(), min, max)));
-  let rejilla: HTMLElement | undefined = $state();
+  // The focused day (and so the month shown); starts at the value, or at today.
+  let focused = $state<ISODate>(untrack(() => clampISO(parseISO(value) ? value! : todayISO(), min, max)));
+  let grid: HTMLElement | undefined = $state();
 
-  // Si el valor cambia desde fuera, el calendario va a ese mes. Solo sigue al valor: si
-  // dependiera también del día con el foco, pasar de mes con el teclado lo devolvería.
+  // If the value changes from outside, the calendar goes to that month. It only follows the
+  // value: if it also depended on the focused day, changing month with the keyboard would undo it.
   $effect(() => {
     const v = value;
     untrack(() => {
-      if (parseISO(v) && !sameMonth(v!, foco)) foco = v!;
+      if (parseISO(v) && !sameMonth(v!, focused)) focused = v!;
     });
   });
 
-  const semanas = $derived(monthGrid(foco, weekStartsOn));
-  const titulo = $derived(formatDate(foco, locale, { month: "long", year: "numeric" }));
-  const cabeceras = $derived(
-    semanas[0].map((d) => ({
-      corto: formatDate(d, locale, { weekday: "short" }),
-      largo: formatDate(d, locale, { weekday: "long" }),
+  const weeks = $derived(monthGrid(focused, weekStartsOn));
+  // Only the first letter: CSS capitalize produced "Noviembre De 2026"
+  const heading = $derived(capitalizeFirst(formatDate(focused, locale, { month: "long", year: "numeric" })));
+  const headers = $derived(
+    weeks[0].map((d) => ({
+      short: formatDate(d, locale, { weekday: "short" }),
+      long: formatDate(d, locale, { weekday: "long" }),
     }))
   );
 
-  const bloqueado = (iso: ISODate) => (min != null && iso < min) || (max != null && iso > max) || !!isDisabled?.(iso);
+  const isBlocked = (iso: ISODate) => (min != null && iso < min) || (max != null && iso > max) || !!isDisabled?.(iso);
 
-  async function enfocar(iso: ISODate) {
-    foco = clampISO(iso, min, max);
+  async function focusDay(iso: ISODate) {
+    focused = clampISO(iso, min, max);
     await tick();
-    rejilla?.querySelector<HTMLElement>(`[data-dia="${foco}"]`)?.focus();
+    grid?.querySelector<HTMLElement>(`[data-day="${focused}"]`)?.focus();
   }
 
-  function elegir(iso: ISODate) {
-    if (bloqueado(iso)) return;
+  function choose(iso: ISODate) {
+    if (isBlocked(iso)) return;
     value = iso;
-    foco = iso;
+    focused = iso;
     onselect?.(iso);
   }
 
-  function tecla(e: KeyboardEvent, iso: ISODate) {
-    const inicioSemana = addDays(iso, -((weekday(iso) - weekStartsOn + 7) % 7));
-    const destino =
+  function onKey(e: KeyboardEvent, iso: ISODate) {
+    const weekStart = addDays(iso, -((weekday(iso) - weekStartsOn + 7) % 7));
+    const target =
       e.key === "ArrowLeft" ? addDays(iso, -1)
       : e.key === "ArrowRight" ? addDays(iso, 1)
       : e.key === "ArrowUp" ? addDays(iso, -7)
       : e.key === "ArrowDown" ? addDays(iso, 7)
-      : e.key === "Home" ? inicioSemana
-      : e.key === "End" ? addDays(inicioSemana, 6)
+      : e.key === "Home" ? weekStart
+      : e.key === "End" ? addDays(weekStart, 6)
       : e.key === "PageUp" ? addMonths(iso, e.shiftKey ? -12 : -1)
       : e.key === "PageDown" ? addMonths(iso, e.shiftKey ? 12 : 1)
       : null;
-    if (destino) {
+    if (target) {
       e.preventDefault();
-      enfocar(destino);
+      focusDay(target);
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      elegir(iso);
+      choose(iso);
     }
   }
 
-  /** Para que el foco no quede en un botón que ya no se pinta, al cambiar de mes con las flechas. */
-  const mes = (n: number) => enfocar(addMonths(foco, n));
+  /** So focus is not left on a button that is no longer rendered when changing month with the arrows. */
+  const shiftMonth = (n: number) => focusDay(addMonths(focused, n));
 
-  const etiquetaDia = (iso: ISODate) => formatDate(iso, locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const dayLabel = (iso: ISODate) => formatDate(iso, locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 </script>
 
 <div class={cn("ta-calendar", className)}>
-  <div class="ta-calendar-cabecera">
-    <button type="button" class="ta-calendar-mes" aria-label={previousLabel} onclick={() => mes(-1)}>‹</button>
-    <h2 class="ta-calendar-titulo" id={`${id}-titulo`} aria-live="polite">{titulo}</h2>
-    <button type="button" class="ta-calendar-mes" aria-label={nextLabel} onclick={() => mes(1)}>›</button>
+  <div class="ta-calendar-header">
+    <button type="button" class="ta-calendar-month" aria-label={previousLabel} onclick={() => shiftMonth(-1)}>‹</button>
+    <h2 class="ta-calendar-title" id={`${id}-title`} aria-live="polite">{heading}</h2>
+    <button type="button" class="ta-calendar-month" aria-label={nextLabel} onclick={() => shiftMonth(1)}>›</button>
   </div>
-  <table class="ta-calendar-rejilla" role="grid" aria-labelledby={`${id}-titulo`} bind:this={rejilla}>
+  <table class="ta-calendar-grid" role="grid" aria-labelledby={`${id}-title`} bind:this={grid}>
     <thead>
       <tr>
-        {#each cabeceras as c, i (i)}<th scope="col" abbr={c.largo}>{c.corto}</th>{/each}
+        {#each headers as c, i (i)}<th scope="col" abbr={c.long}>{c.short}</th>{/each}
       </tr>
     </thead>
     <tbody>
-      {#each semanas as semana, s (s)}
+      {#each weeks as week, s (s)}
         <tr>
-          {#each semana as dia (dia)}
-            <td role="gridcell" aria-selected={dia === value} class:ta-calendar-fuera={!sameMonth(dia, foco)}>
+          {#each week as day (day)}
+            <td role="gridcell" aria-selected={day === value} class:ta-calendar-outside={!sameMonth(day, focused)}>
               <button
                 type="button"
-                class="ta-calendar-dia"
-                data-dia={dia}
-                tabindex={dia === foco ? 0 : -1}
-                aria-label={etiquetaDia(dia)}
-                aria-current={dia === hoy ? "date" : undefined}
-                aria-disabled={bloqueado(dia) ? "true" : undefined}
-                onclick={() => elegir(dia)}
-                onkeydown={(e) => tecla(e, dia)}
+                class="ta-calendar-day"
+                data-day={day}
+                tabindex={day === focused ? 0 : -1}
+                aria-label={dayLabel(day)}
+                aria-current={day === today ? "date" : undefined}
+                aria-disabled={isBlocked(day) ? "true" : undefined}
+                onclick={() => choose(day)}
+                onkeydown={(e) => onKey(e, day)}
               >
-                {parseISO(dia)!.d}
+                {parseISO(day)!.d}
               </button>
             </td>
           {/each}
@@ -171,21 +173,20 @@
     color: rgb(var(--ta-text));
   }
 
-  .ta-calendar-cabecera {
+  .ta-calendar-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
   }
 
-  .ta-calendar-titulo {
+  .ta-calendar-title {
     margin: 0;
     font-size: 0.875rem;
     font-weight: 600;
-    text-transform: capitalize;
   }
 
-  .ta-calendar-mes {
+  .ta-calendar-month {
     width: 1.75rem;
     height: 1.75rem;
     font: inherit;
@@ -196,11 +197,11 @@
     border-radius: var(--ta-radius-sm);
     cursor: pointer;
   }
-  .ta-calendar-mes:hover { color: rgb(var(--ta-text)); background: rgb(var(--ta-elevated)); }
+  .ta-calendar-month:hover { color: rgb(var(--ta-text)); background: rgb(var(--ta-elevated)); }
 
-  .ta-calendar-rejilla { border-collapse: collapse; }
+  .ta-calendar-grid { border-collapse: collapse; }
 
-  .ta-calendar-rejilla th {
+  .ta-calendar-grid th {
     padding: 0.25rem 0;
     font-size: 0.6875rem;
     font-weight: 500;
@@ -208,9 +209,9 @@
     text-transform: capitalize;
   }
 
-  .ta-calendar-rejilla td { padding: 1px; text-align: center; }
+  .ta-calendar-grid td { padding: 1px; text-align: center; }
 
-  .ta-calendar-dia {
+  .ta-calendar-day {
     width: 2rem;
     height: 2rem;
     font: inherit;
@@ -222,16 +223,22 @@
     border-radius: var(--ta-radius-sm);
     cursor: pointer;
   }
-  .ta-calendar-dia:hover { background: rgb(var(--ta-elevated)); }
-  .ta-calendar-dia:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.7); outline-offset: 1px; }
-  .ta-calendar-dia[aria-current="date"] { border-color: rgb(var(--ta-accent) / 0.6); }
-  .ta-calendar-dia[aria-disabled="true"] { opacity: 0.35; cursor: not-allowed; }
+  .ta-calendar-day:hover { background: rgb(var(--ta-elevated)); }
+  .ta-calendar-day:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.7); outline-offset: 1px; }
+  .ta-calendar-day[aria-current="date"] { border-color: rgb(var(--ta-accent) / 0.6); }
+  .ta-calendar-day[aria-disabled="true"] { opacity: 0.35; cursor: not-allowed; }
 
-  .ta-calendar-fuera .ta-calendar-dia { color: rgb(var(--ta-text-dim) / 0.7); }
+  .ta-calendar-outside .ta-calendar-day { color: rgb(var(--ta-text-dim) / 0.7); }
 
-  td[aria-selected="true"] .ta-calendar-dia {
-    color: white;
+  td[aria-selected="true"] .ta-calendar-day {
+    color: rgb(var(--ta-on-accent));
     background: rgb(var(--ta-accent));
     border-color: rgb(var(--ta-accent));
+  }
+
+  /* On touch screens: 44 × 44px days and month arrows. */
+  @media (pointer: coarse) {
+    .ta-calendar-month { min-width: 2.75rem; min-height: 2.75rem; }
+    .ta-calendar-day { min-width: 2.75rem; min-height: 2.75rem; }
   }
 </style>

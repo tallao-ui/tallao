@@ -1,19 +1,19 @@
 <!--
   tallao — Accordion
-  Secciones plegables sobre <details>/<summary> nativos: teclado, lector de
-  pantalla, búsqueda del navegador (Ctrl+F abre la sección que contiene el
-  texto) y SSR sin JavaScript. Con `single`, abrir una cierra las demás
-  (atributo `name` compartido, «exclusive accordion» del navegador).
+  Collapsible sections on native <details>/<summary>: keyboard, screen
+  reader, browser find (Ctrl+F opens the section that contains the text)
+  and SSR without JavaScript. With `single`, opening one closes the others
+  (shared `name` attribute, the browser's "exclusive accordion").
 
-    <Accordion single items={[{ id: "a", title: "¿Qué es?", content: texto }]} />
-  o con contenido propio:
+    <Accordion single items={[{ id: "a", title: "What is it?", content: text }]} />
+  or with custom content:
     <Accordion items={items}>{#snippet item(it)}…{/snippet}</Accordion>
 -->
 <script lang="ts" module>
   export interface AccordionItem {
     id: string;
     title: string;
-    /** Texto de la sección; para contenido propio, el snippet `item`. */
+    /** Section text; for custom content, the `item` snippet. */
     content?: string;
     open?: boolean;
     disabled?: boolean;
@@ -41,20 +41,20 @@
 <div class={cn("ta-accordion", className)}>
   {#each items as it (it.id)}
     <details
-      class="ta-accordion-seccion"
+      class="ta-accordion-section"
       name={single ? `ta-accordion-${id}` : undefined}
       open={it.open}
       aria-disabled={it.disabled ? "true" : undefined}
       ontoggle={(e) => {
-        // Una sección desactivada no se abre (details no tiene `disabled`).
+        // A disabled section does not open (details has no `disabled`).
         if (it.disabled && (e.currentTarget as HTMLDetailsElement).open) (e.currentTarget as HTMLDetailsElement).open = false;
       }}
     >
-      <summary class="ta-accordion-titulo" tabindex={it.disabled ? -1 : undefined}>
+      <summary class="ta-accordion-title" tabindex={it.disabled ? -1 : undefined}>
         <span>{it.title}</span>
-        <svg class="ta-accordion-flecha" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+        <svg class="ta-accordion-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </summary>
-      <div class="ta-accordion-contenido">
+      <div class="ta-accordion-content">
         {#if item}{@render item(it)}{:else}{it.content}{/if}
       </div>
     </details>
@@ -68,11 +68,11 @@
     overflow: hidden;
   }
 
-  .ta-accordion-seccion + .ta-accordion-seccion {
+  .ta-accordion-section + .ta-accordion-section {
     border-top: 1px solid rgb(var(--ta-border));
   }
 
-  .ta-accordion-titulo {
+  .ta-accordion-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -84,29 +84,34 @@
     cursor: pointer;
     list-style: none;
   }
-  .ta-accordion-titulo::-webkit-details-marker { display: none; }
-  .ta-accordion-titulo:hover { background: rgb(var(--ta-elevated) / 0.4); }
-  .ta-accordion-titulo:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: -2px; }
+  .ta-accordion-title::-webkit-details-marker { display: none; }
+  .ta-accordion-title:hover { background: rgb(var(--ta-elevated) / 0.4); }
+  .ta-accordion-title:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: -2px; }
 
-  .ta-accordion-flecha {
+  .ta-accordion-chevron {
     flex-shrink: 0;
     color: rgb(var(--ta-text-dim));
     transition: transform 0.15s;
   }
-  details[open] > .ta-accordion-titulo .ta-accordion-flecha { transform: rotate(180deg); }
+  details[open] > .ta-accordion-title .ta-accordion-chevron { transform: rotate(180deg); }
 
-  .ta-accordion-contenido {
+  .ta-accordion-content {
     padding: 0 1rem 0.875rem;
     font-size: 0.875rem;
     color: rgb(var(--ta-text-dim));
   }
 
-  details[aria-disabled="true"] > .ta-accordion-titulo {
+  details[aria-disabled="true"] > .ta-accordion-title {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ta-accordion-flecha { transition: none; }
+    .ta-accordion-chevron { transition: none; }
+  }
+
+  /* On touch screens: a 44px header for the finger. */
+  @media (pointer: coarse) {
+    .ta-accordion-title { min-height: 2.75rem; }
   }
 </style>

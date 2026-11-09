@@ -1,7 +1,7 @@
 <!--
   tallao — Select
-  Lista desplegable nativa con los tokens del kit. Las opciones van por prop
-  (`options`) o como hijos <option>/<optgroup>; se pueden mezclar.
+  Native drop-down list with the kit's tokens. Options come as a prop
+  (`options`) or as <option>/<optgroup> children; they can be mixed.
 -->
 <script lang="ts" module>
   export interface SelectOption {
@@ -16,11 +16,12 @@
 
   let {
     value = $bindable(""),
-    /** El elemento nativo (bind:ref), para enfocarlo o medirlo. */
+    /** The native element (bind:ref), to focus or measure it. */
     ref = $bindable(),
     options = [],
     placeholder,
     size = "md",
+    width = "full",
     class: className = "",
     disabled = false,
     children,
@@ -29,9 +30,11 @@
     value?: string;
     ref?: HTMLSelectElement;
     options?: SelectOption[];
-    /** Primera opción vacía (valor ""). */
+    /** Empty first option (value ""). */
     placeholder?: string;
     size?: "sm" | "md";
+    /** `auto`: as wide as its longest option, for a row of filters. */
+    width?: "full" | "auto";
     class?: string;
     disabled?: boolean;
     children?: import("svelte").Snippet;
@@ -39,7 +42,7 @@
   } = $props();
 </script>
 
-<select bind:this={ref} bind:value {disabled} class={cn("ta-select", `ta-select--${size}`, className)} {...rest}>
+<select bind:this={ref} bind:value {disabled} class={cn("ta-select", `ta-select--${size}`, width === "auto" && "ta-select--auto", className)} {...rest}>
   {#if placeholder !== undefined}
     <option value="">{placeholder}</option>
   {/if}
@@ -52,7 +55,7 @@
 <style>
   .ta-select {
     width: 100%;
-    /* En una celda de tabla estrecha no se encoge hasta dejar solo la flecha. */
+    /* In a narrow table cell it does not shrink down to just the arrow. */
     min-width: 7rem;
     font-family: inherit;
     color: rgb(var(--ta-text));
@@ -62,7 +65,7 @@
     outline: none;
     cursor: pointer;
     appearance: none;
-    /* Flecha propia: la nativa no sigue el tema. */
+    /* Custom arrow: the native one does not follow the theme. */
     background-image: linear-gradient(45deg, transparent 50%, rgb(var(--ta-text-dim)) 50%),
       linear-gradient(135deg, rgb(var(--ta-text-dim)) 50%, transparent 50%);
     background-position:
@@ -89,5 +92,11 @@
   .ta-select :global(option) {
     background: rgb(var(--ta-surface));
     color: rgb(var(--ta-text));
+  }
+  .ta-select.ta-select--auto { width: auto; min-width: 0; max-width: 100%; }
+
+  /* On touch screens: 16px so iOS does not zoom the page on focus, and 44px tall for a finger. */
+  @media (pointer: coarse) {
+    .ta-select { font-size: 1rem; min-height: 2.75rem; }
   }
 </style>

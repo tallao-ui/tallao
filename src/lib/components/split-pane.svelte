@@ -1,10 +1,10 @@
 <!--
   tallao — SplitPane
-  Dos paneles con un separador que se arrastra (editor y vista previa, lista y
-  detalle). El separador es accesible (role="separator" del patrón «window
-  splitter» de la WAI-ARIA APG): recibe el foco, las flechas mueven `step`, Inicio
-  y Fin van al mínimo y al máximo, y Enter alterna entre plegar el primer panel y
-  su último tamaño. `size` es el porcentaje del primer panel.
+  Two panels with a draggable separator (editor and preview, list and detail).
+  The separator is accessible (role="separator" from the WAI-ARIA APG "window
+  splitter" pattern): it takes focus, the arrows move by `step`, Home and End go
+  to the minimum and maximum, and Enter toggles between collapsing the first panel
+  and its last size. `size` is the first panel's percentage.
 -->
 <script lang="ts">
   import { useLabels } from "$lib/i18n";
@@ -27,9 +27,9 @@
     min?: number;
     max?: number;
     step?: number;
-    /** horizontal: paneles lado a lado; vertical: uno encima del otro. */
+    /** horizontal: panels side by side; vertical: one above the other. */
     orientation?: "horizontal" | "vertical";
-    /** Nombre accesible del separador. */
+    /** Accessible name of the separator. */
     label?: string;
     class?: string;
     first: import("svelte").Snippet;
@@ -38,70 +38,70 @@
   } = $props();
 
   const id = $props.id();
-  let caja: HTMLElement | undefined = $state();
-  let anterior = 50;
+  let container: HTMLElement | undefined = $state();
+  let previous = 50;
 
-  function poner(v: number) {
+  function setSize(v: number) {
     const n = Math.round(Math.min(max, Math.max(min, v)) * 10) / 10;
     if (n === size) return;
     size = n;
     onresize?.(n);
   }
 
-  function tecla(e: KeyboardEvent) {
-    const menos = orientation === "horizontal" ? "ArrowLeft" : "ArrowUp";
-    const mas = orientation === "horizontal" ? "ArrowRight" : "ArrowDown";
-    if (e.key === menos) poner(size - step);
-    else if (e.key === mas) poner(size + step);
-    else if (e.key === "Home") poner(min);
-    else if (e.key === "End") poner(max);
+  function onKey(e: KeyboardEvent) {
+    const decrease = orientation === "horizontal" ? "ArrowLeft" : "ArrowUp";
+    const increase = orientation === "horizontal" ? "ArrowRight" : "ArrowDown";
+    if (e.key === decrease) setSize(size - step);
+    else if (e.key === increase) setSize(size + step);
+    else if (e.key === "Home") setSize(min);
+    else if (e.key === "End") setSize(max);
     else if (e.key === "Enter") {
       if (size > min) {
-        anterior = size;
-        poner(min);
-      } else poner(anterior);
+        previous = size;
+        setSize(min);
+      } else setSize(previous);
     } else return;
     e.preventDefault();
   }
 
-  function arrastrar(e: PointerEvent) {
-    if (!caja || e.button !== 0) return;
-    const separador = e.currentTarget as HTMLElement;
-    separador.setPointerCapture?.(e.pointerId);
-    const r = caja.getBoundingClientRect();
-    const mover = (ev: PointerEvent) => {
+  function drag(e: PointerEvent) {
+    if (!container || e.button !== 0) return;
+    const separator = e.currentTarget as HTMLElement;
+    separator.setPointerCapture?.(e.pointerId);
+    const r = container.getBoundingClientRect();
+    const move = (ev: PointerEvent) => {
       const pct =
         orientation === "horizontal" ? ((ev.clientX - r.left) / r.width) * 100 : ((ev.clientY - r.top) / r.height) * 100;
-      if (Number.isFinite(pct)) poner(pct);
+      if (Number.isFinite(pct)) setSize(pct);
     };
-    const soltar = () => {
-      separador.removeEventListener("pointermove", mover);
-      separador.removeEventListener("pointerup", soltar);
+    const release = () => {
+      separator.removeEventListener("pointermove", move);
+      separator.removeEventListener("pointerup", release);
     };
-    separador.addEventListener("pointermove", mover);
-    separador.addEventListener("pointerup", soltar);
+    separator.addEventListener("pointermove", move);
+    separator.addEventListener("pointerup", release);
   }
 </script>
 
 <div
-  bind:this={caja}
+  bind:this={container}
   class={cn("ta-split", `ta-split--${orientation}`, className)}
   style:--ta-split-size={`${size}%`}
 >
-  <div class="ta-split-panel" id={`${id}-primero`}>{@render first()}</div>
+  <div class="ta-split-panel" id={`${id}-first`}>{@render first()}</div>
   <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
   <div
-    class="ta-split-separador"
+    class="ta-split-separator"
     role="separator"
     tabindex="0"
     aria-label={label}
     aria-orientation={orientation === "horizontal" ? "vertical" : "horizontal"}
-    aria-controls={`${id}-primero`}
+    aria-controls={`${id}-first`}
     aria-valuenow={size}
     aria-valuemin={min}
     aria-valuemax={max}
-    onkeydown={tecla}
-    onpointerdown={arrastrar}
+    onkeydown={onKey}
+    onpointerdown={drag}
   ></div>
   <div class="ta-split-panel">{@render second()}</div>
 </div>
@@ -118,27 +118,32 @@
 
   .ta-split-panel { min-width: 0; min-height: 0; overflow: auto; }
 
-  .ta-split-separador {
+  .ta-split-separator {
     position: relative;
     background: transparent;
     touch-action: none;
     outline: none;
   }
-  .ta-split--horizontal .ta-split-separador { cursor: col-resize; }
-  .ta-split--vertical .ta-split-separador { cursor: row-resize; }
+  .ta-split--horizontal .ta-split-separator { cursor: col-resize; }
+  .ta-split--vertical .ta-split-separator { cursor: row-resize; }
 
-  /* La línea visible es fina; la zona que se agarra, los 6px. */
-  .ta-split-separador::after {
+  /* The visible line is thin; the grab area is the full 6px. */
+  .ta-split-separator::after {
     content: "";
     position: absolute;
     background: rgb(var(--ta-border));
     transition: background-color 0.15s;
   }
-  .ta-split--horizontal .ta-split-separador::after { top: 0; bottom: 0; left: 2.5px; width: 1px; }
-  .ta-split--vertical .ta-split-separador::after { left: 0; right: 0; top: 2.5px; height: 1px; }
+  .ta-split--horizontal .ta-split-separator::after { top: 0; bottom: 0; left: 2.5px; width: 1px; }
+  .ta-split--vertical .ta-split-separator::after { left: 0; right: 0; top: 2.5px; height: 1px; }
 
-  .ta-split-separador:hover::after,
-  .ta-split-separador:focus-visible::after { background: rgb(var(--ta-accent)); }
-  .ta-split--horizontal .ta-split-separador:focus-visible::after { left: 1.5px; width: 3px; }
-  .ta-split--vertical .ta-split-separador:focus-visible::after { top: 1.5px; height: 3px; }
+  .ta-split-separator:hover::after,
+  .ta-split-separator:focus-visible::after { background: rgb(var(--ta-accent)); }
+  .ta-split--horizontal .ta-split-separator:focus-visible::after { left: 1.5px; width: 3px; }
+  .ta-split--vertical .ta-split-separator:focus-visible::after { top: 1.5px; height: 3px; }
+  @media (pointer: coarse) {
+    .ta-split-separator::before { content: ""; position: absolute; }
+    .ta-split--horizontal .ta-split-separator::before { top: 0; bottom: 0; left: 50%; width: 2.75rem; transform: translateX(-50%); }
+    .ta-split--vertical .ta-split-separator::before { left: 0; right: 0; top: 50%; height: 2.75rem; transform: translateY(-50%); }
+  }
 </style>

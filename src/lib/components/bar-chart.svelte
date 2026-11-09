@@ -1,14 +1,14 @@
 <!--
   tallao — BarChart
-  Columnas por categoría, una o varias series agrupadas. Sigue las reglas de marca del
-  kit: columnas de 24px como mucho, extremo de datos redondeado (4px) y base recta, 2px
-  de aire entre columnas vecinas, rejilla y ejes finos y discretos, una sola escala.
-  - Con dos o más series hay leyenda; con una, el título dice qué se mide.
-  - Pasar el ratón o recorrer con ← → (la gráfica recibe el foco) muestra la categoría
-    con el valor de cada serie; un lector de pantalla lo oye.
-  - «Ver datos» abre la tabla con todos los valores: nada queda solo en el color.
-  `data` son filas: `{ mes: "Ene", visitas: 120, altas: 30 }`, `x="mes"`,
-  `series=[{ key: "visitas", label: "Visitas" }, …]`.
+  Columns per category, one or several grouped series. Follows the kit's brand rules:
+  columns 24px wide at most, rounded data end (4px) and a straight base, 2px of space
+  between neighbouring columns, thin and discreet grid and axes, a single scale.
+  - With two or more series there is a legend; with one, the title says what is measured.
+  - Hovering or stepping with ← → (the chart takes focus) shows the category with
+    each series' value; a screen reader hears it.
+  - "Show data" opens the table with every value: nothing is conveyed by color alone.
+  `data` is rows: `{ month: "Jan", visits: 120, signups: 30 }`, `x="month"`,
+  `series=[{ key: "visits", label: "Visits" }, …]`.
 -->
 <script lang="ts">
   import { useLabels } from "$lib/i18n";
@@ -28,7 +28,7 @@
     x,
     series,
     title,
-    /** Cabecera de la primera columna de la tabla de datos (por defecto, `x`). */
+    /** Header of the first column of the data table (defaults to `x`). */
     xLabel,
     height = 240,
     locale,
@@ -40,12 +40,12 @@
     data: Record<string, unknown>[];
     x: string;
     series: ChartSeries[];
-    /** Qué muestra la gráfica: su nombre accesible y el pie de la figura. */
+    /** What the chart shows: its accessible name and the figure caption. */
     title: string;
     xLabel?: string;
     height?: number;
     locale?: string;
-    /** Formato de los valores en ejes, tooltip y tabla. */
+    /** Format of the values on axes, tooltip and table. */
     format?: (n: number) => string;
     showDataLabel?: string;
     hideDataLabel?: string;
@@ -53,122 +53,122 @@
   } = $props();
 
   const id = $props.id();
-  let ancho = $state(640);
-  let activa = $state<number | null>(null);
-  let tabla = $state(false);
-  let lienzo: HTMLElement | undefined = $state();
+  let chartWidth = $state(640);
+  let active = $state<number | null>(null);
+  let showTable = $state(false);
+  let canvas: HTMLElement | undefined = $state();
 
   const M = { top: 12, right: 8, bottom: 26, left: 48 };
-  const dentroAncho = $derived(Math.max(40, ancho - M.left - M.right));
-  const dentroAlto = $derived(Math.max(40, height - M.top - M.bottom));
+  const plotWidth = $derived(Math.max(40, chartWidth - M.left - M.right));
+  const plotHeight = $derived(Math.max(40, height - M.top - M.bottom));
 
-  const maximo = $derived(Math.max(0, ...data.flatMap((d) => series.map((s) => valueOf(d, s.key) ?? 0))));
-  const escala = $derived(niceScale(maximo));
-  const yDe = (v: number) => M.top + dentroAlto - (v / escala.max) * dentroAlto;
+  const maxValue = $derived(Math.max(0, ...data.flatMap((d) => series.map((s) => valueOf(d, s.key) ?? 0))));
+  const scale = $derived(niceScale(maxValue));
+  const yOf = (v: number) => M.top + plotHeight - (v / scale.max) * plotHeight;
 
-  const banda = $derived(dentroAncho / Math.max(1, data.length));
-  const grosor = $derived(Math.min(24, Math.max(2, (banda * 0.7 - (series.length - 1) * 2) / series.length)));
-  const grupo = $derived(series.length * grosor + (series.length - 1) * 2);
-  // Con muchas categorías, solo se rotula una de cada `salto` en el eje.
-  const salto = $derived(Math.max(1, Math.ceil(data.length / Math.max(1, Math.floor(dentroAncho / 56)))));
+  const band = $derived(plotWidth / Math.max(1, data.length));
+  const barWidth = $derived(Math.min(24, Math.max(2, (band * 0.7 - (series.length - 1) * 2) / series.length)));
+  const groupWidth = $derived(series.length * barWidth + (series.length - 1) * 2);
+  // With many categories, only one in every `labelStep` is labelled on the axis.
+  const labelStep = $derived(Math.max(1, Math.ceil(data.length / Math.max(1, Math.floor(plotWidth / 56)))));
 
-  /** Columna con el extremo de datos redondeado y la base recta. */
-  function columna(xi: number, v: number) {
-    const y0 = yDe(0);
-    const y = yDe(v);
-    const alto = y0 - y;
-    if (alto <= 0) return "";
-    const r = Math.min(4, alto, grosor / 2);
-    return `M${xi},${y0}V${y + r}Q${xi},${y} ${xi + r},${y}H${xi + grosor - r}Q${xi + grosor},${y} ${xi + grosor},${y + r}V${y0}Z`;
+  /** Column with a rounded data end and a straight base. */
+  function column(xi: number, v: number) {
+    const y0 = yOf(0);
+    const y = yOf(v);
+    const barHeight = y0 - y;
+    if (barHeight <= 0) return "";
+    const r = Math.min(4, barHeight, barWidth / 2);
+    return `M${xi},${y0}V${y + r}Q${xi},${y} ${xi + r},${y}H${xi + barWidth - r}Q${xi + barWidth},${y} ${xi + barWidth},${y + r}V${y0}Z`;
   }
 
-  const xDe = (i: number, s: number) => M.left + banda * i + (banda - grupo) / 2 + s * (grosor + 2);
+  const xOf = (i: number, s: number) => M.left + band * i + (band - groupWidth) / 2 + s * (barWidth + 2);
 
-  const lectura = $derived(
-    activa == null
+  const readout = $derived(
+    active == null
       ? ""
-      : `${String(data[activa]?.[x] ?? "")}: ${series.map((s) => `${s.label} ${fmt(valueOf(data[activa!], s.key))}`).join(", ")}`
+      : `${String(data[active]?.[x] ?? "")}: ${series.map((s) => `${s.label} ${fmt(valueOf(data[active!], s.key))}`).join(", ")}`
   );
   const fmt = (v: number | null) => (v == null ? "—" : format(v));
 
-  // La zona que responde al ratón es la banda entera de cada categoría, no solo la columna.
-  function alMover(e: PointerEvent) {
-    if (!lienzo || data.length === 0) return;
-    const r = lienzo.getBoundingClientRect();
-    const px = ((e.clientX - r.left) / r.width) * ancho - M.left;
-    activa = Math.min(data.length - 1, Math.max(0, Math.floor(px / banda)));
+  // The area that responds to the pointer is each category's whole band, not just the column.
+  function onMove(e: PointerEvent) {
+    if (!canvas || data.length === 0) return;
+    const r = canvas.getBoundingClientRect();
+    const px = ((e.clientX - r.left) / r.width) * chartWidth - M.left;
+    active = Math.min(data.length - 1, Math.max(0, Math.floor(px / band)));
   }
 
-  function tecla(e: KeyboardEvent) {
+  function onKey(e: KeyboardEvent) {
     if (!data.length) return;
-    if (e.key === "ArrowRight") activa = activa == null ? 0 : Math.min(data.length - 1, activa + 1);
-    else if (e.key === "ArrowLeft") activa = activa == null ? data.length - 1 : Math.max(0, activa - 1);
-    else if (e.key === "Home") activa = 0;
-    else if (e.key === "End") activa = data.length - 1;
-    else if (e.key === "Escape") activa = null;
+    if (e.key === "ArrowRight") active = active == null ? 0 : Math.min(data.length - 1, active + 1);
+    else if (e.key === "ArrowLeft") active = active == null ? data.length - 1 : Math.max(0, active - 1);
+    else if (e.key === "Home") active = 0;
+    else if (e.key === "End") active = data.length - 1;
+    else if (e.key === "Escape") active = null;
     else return;
     e.preventDefault();
   }
 </script>
 
 <figure class={cn("ta-chart", className)}>
-  <figcaption class="ta-chart-titulo">{title}</figcaption>
+  <figcaption class="ta-chart-title">{title}</figcaption>
   {#if series.length > 1}
-    <ul class="ta-chart-leyenda">
+    <ul class="ta-chart-legend">
       {#each series as s, i (s.key)}
-        <li><span class="ta-chart-muestra" style:background={seriesColor(i)} aria-hidden="true"></span>{s.label}</li>
+        <li><span class="ta-chart-swatch" style:background={seriesColor(i)} aria-hidden="true"></span>{s.label}</li>
       {/each}
     </ul>
   {/if}
 
-  <!-- Un deslizador sobre las categorías: ← → recorren los datos y aria-valuetext los lee. -->
+  <!-- A slider over the categories: ← → step through the data and aria-valuetext reads it. -->
   <div
-    class="ta-chart-lienzo"
-    bind:clientWidth={ancho}
-    bind:this={lienzo}
+    class="ta-chart-canvas"
+    bind:clientWidth={chartWidth}
+    bind:this={canvas}
     role="slider"
     tabindex="0"
     aria-label={title}
     aria-valuemin={0}
     aria-valuemax={Math.max(0, data.length - 1)}
-    aria-valuenow={activa ?? 0}
-    aria-valuetext={lectura || title}
-    onkeydown={tecla}
-    onfocus={() => (activa ??= data.length ? 0 : null)}
-    onblur={() => (activa = null)}
-    onpointermove={alMover}
-    onpointerleave={() => (activa = null)}
+    aria-valuenow={active ?? 0}
+    aria-valuetext={readout || title}
+    onkeydown={onKey}
+    onfocus={() => (active ??= data.length ? 0 : null)}
+    onblur={() => (active = null)}
+    onpointermove={onMove}
+    onpointerleave={() => (active = null)}
   >
-    <svg width="100%" {height} viewBox={`0 0 ${ancho} ${height}`} class="ta-chart-svg" aria-hidden="true">
-      {#each escala.ticks as t (t)}
-        <line x1={M.left} x2={M.left + dentroAncho} y1={yDe(t)} y2={yDe(t)} class={t === 0 ? "ta-chart-base" : "ta-chart-rejilla"} />
-        <text x={M.left - 8} y={yDe(t)} class="ta-chart-eje" text-anchor="end" dominant-baseline="middle">{format(t)}</text>
+    <svg width="100%" {height} viewBox={`0 0 ${chartWidth} ${height}`} class="ta-chart-svg" aria-hidden="true">
+      {#each scale.ticks as t (t)}
+        <line x1={M.left} x2={M.left + plotWidth} y1={yOf(t)} y2={yOf(t)} class={t === 0 ? "ta-chart-base" : "ta-chart-grid"} />
+        <text x={M.left - 8} y={yOf(t)} class="ta-chart-axis" text-anchor="end" dominant-baseline="middle">{format(t)}</text>
       {/each}
 
       {#each data as d, i (i)}
-        <g class="ta-chart-grupo" class:ta-chart-grupo--activo={activa === i}>
+        <g class="ta-chart-group" class:ta-chart-group--active={active === i}>
           {#each series as s, si (s.key)}
             {@const v = valueOf(d, s.key)}
-            {#if v != null && v > 0}<path d={columna(xDe(i, si), v)} fill={seriesColor(si)} />{/if}
+            {#if v != null && v > 0}<path d={column(xOf(i, si), v)} fill={seriesColor(si)} />{/if}
           {/each}
-          {#if i % salto === 0}
-            <text x={M.left + banda * i + banda / 2} y={height - 8} class="ta-chart-eje" text-anchor="middle">{String(d[x] ?? "")}</text>
+          {#if i % labelStep === 0}
+            <text x={M.left + band * i + band / 2} y={height - 8} class="ta-chart-axis" text-anchor="middle">{String(d[x] ?? "")}</text>
           {/if}
         </g>
       {/each}
     </svg>
 
-    {#if activa != null && data[activa]}
+    {#if active != null && data[active]}
       <div
         class="ta-chart-tooltip"
-        style:left={`${Math.min(ancho - 160, Math.max(0, M.left + banda * activa + banda / 2 - 80))}px`}
+        style:left={`${Math.min(chartWidth - 160, Math.max(0, M.left + band * active + band / 2 - 80))}px`}
         aria-hidden="true"
       >
-        <span class="ta-chart-tooltip-x">{String(data[activa][x] ?? "")}</span>
+        <span class="ta-chart-tooltip-x">{String(data[active][x] ?? "")}</span>
         {#each series as s, si (s.key)}
-          <span class="ta-chart-tooltip-fila">
-            <span class="ta-chart-clave" style:background={seriesColor(si)}></span>
-            <strong>{fmt(valueOf(data[activa], s.key))}</strong>
+          <span class="ta-chart-tooltip-row">
+            <span class="ta-chart-key" style:background={seriesColor(si)}></span>
+            <strong>{fmt(valueOf(data[active], s.key))}</strong>
             <span>{s.label}</span>
           </span>
         {/each}
@@ -176,13 +176,13 @@
     {/if}
   </div>
 
-  <button type="button" class="ta-chart-datos" aria-expanded={tabla} aria-controls={`${id}-tabla`} onclick={() => (tabla = !tabla)}>
-    {tabla ? hideDataLabel : showDataLabel}
+  <button type="button" class="ta-chart-data" aria-expanded={showTable} aria-controls={`${id}-table`} onclick={() => (showTable = !showTable)}>
+    {showTable ? hideDataLabel : showDataLabel}
   </button>
-  {#if tabla}
-    <div id={`${id}-tabla`}>
+  {#if showTable}
+    <div id={`${id}-table`}>
       <Table>
-        <caption class="ta-oculto">{title}</caption>
+        <caption class="ta-hidden">{title}</caption>
         <TableHeader>
           <TableRow>
             <TableHead>{xLabel ?? x}</TableHead>
@@ -204,21 +204,21 @@
 
 <style>
   .ta-chart { margin: 0; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; color: rgb(var(--ta-text)); }
-  .ta-chart-titulo { font-size: 0.875rem; font-weight: 600; }
+  .ta-chart-title { font-size: 0.875rem; font-weight: 600; }
 
-  .ta-chart-leyenda { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 0; padding: 0; list-style: none; font-size: 0.75rem; color: rgb(var(--ta-text-dim)); }
-  .ta-chart-leyenda li { display: inline-flex; align-items: center; gap: 0.375rem; }
-  .ta-chart-muestra { width: 0.625rem; height: 0.625rem; border-radius: 2px; }
+  .ta-chart-legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 0; padding: 0; list-style: none; font-size: 0.75rem; color: rgb(var(--ta-text-dim)); }
+  .ta-chart-legend li { display: inline-flex; align-items: center; gap: 0.375rem; }
+  .ta-chart-swatch { width: 0.625rem; height: 0.625rem; border-radius: 2px; }
 
-  .ta-chart-lienzo { position: relative; width: 100%; outline: none; border-radius: var(--ta-radius-sm); }
-  .ta-chart-lienzo:focus-visible { box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.6); }
+  .ta-chart-canvas { position: relative; width: 100%; outline: none; border-radius: var(--ta-radius-sm); }
+  .ta-chart-canvas:focus-visible { box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.6); }
   .ta-chart-svg { display: block; overflow: visible; }
 
-  .ta-chart-rejilla { stroke: rgb(var(--ta-border)); stroke-width: 1; shape-rendering: crispEdges; }
+  .ta-chart-grid { stroke: rgb(var(--ta-border)); stroke-width: 1; shape-rendering: crispEdges; }
   .ta-chart-base { stroke: rgb(var(--ta-muted)); stroke-width: 1; shape-rendering: crispEdges; }
-  .ta-chart-eje { fill: rgb(var(--ta-text-dim)); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .ta-chart-axis { fill: rgb(var(--ta-text-dim)); font-size: 11px; font-variant-numeric: tabular-nums; }
 
-  .ta-chart-grupo--activo path { filter: brightness(1.15); }
+  .ta-chart-group--active path { filter: brightness(1.15); }
 
   .ta-chart-tooltip {
     position: absolute;
@@ -237,12 +237,12 @@
     pointer-events: none;
   }
   .ta-chart-tooltip-x { color: rgb(var(--ta-text-dim)); }
-  .ta-chart-tooltip-fila { display: flex; align-items: center; gap: 0.375rem; }
-  .ta-chart-tooltip-fila strong { font-variant-numeric: tabular-nums; }
-  .ta-chart-tooltip-fila span:last-child { color: rgb(var(--ta-text-dim)); }
-  .ta-chart-clave { width: 0.625rem; height: 0.625rem; border-radius: 2px; flex-shrink: 0; }
+  .ta-chart-tooltip-row { display: flex; align-items: center; gap: 0.375rem; }
+  .ta-chart-tooltip-row strong { font-variant-numeric: tabular-nums; }
+  .ta-chart-tooltip-row span:last-child { color: rgb(var(--ta-text-dim)); }
+  .ta-chart-key { width: 0.625rem; height: 0.625rem; border-radius: 2px; flex-shrink: 0; }
 
-  .ta-chart-datos {
+  .ta-chart-data {
     align-self: flex-start;
     padding: 0.125rem 0;
     font: inherit;
@@ -252,8 +252,12 @@
     border: none;
     cursor: pointer;
   }
-  .ta-chart-datos:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 2px; }
+  .ta-chart-data:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 2px; }
   .ta-chart :global(.ta-chart-num) { text-align: right; font-variant-numeric: tabular-nums; }
 
-  .ta-oculto { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .ta-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  @media (pointer: coarse) {
+    .ta-chart-data { position: relative; }
+    .ta-chart-data::after { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); transform: translate(-50%, -50%); }
+  }
 </style>

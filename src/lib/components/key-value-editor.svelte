@@ -1,13 +1,13 @@
 <!--
   tallao — KeyValueEditor
-  Lista de pares clave → valor con su botón de quitar y una fila para añadir
-  otro (variables, cabeceras, mapas de columnas a campos…). La clave se
-  escribe o, con `keyOptions`, se elige de una lista. Los pares son una
-  lista y no un objeto: así se conserva el orden y, con `unique={false}`,
-  se admiten claves repetidas.
+  List of key → value pairs, each with a remove button, plus a row to add
+  another (variables, headers, column-to-field maps…). The key is typed
+  or, with `keyOptions`, picked from a list. The pairs are a list, not an
+  object: that keeps their order and, with `unique={false}`, allows
+  repeated keys.
 
-  Los valores van siempre como texto; con `valueType="number"` solo se
-  añade un número finito y quien lo usa lo convierte con Number().
+  Values are always text; with `valueType="number"` only a finite number
+  is added, and the consumer converts it with Number().
 -->
 <script lang="ts" module>
   export interface KeyValueEntry {
@@ -44,68 +44,68 @@
     onchange,
   }: {
     entries?: KeyValueEntry[];
-    /** La clave se elige de esta lista en vez de escribirse. */
+    /** The key is picked from this list instead of typed. */
     keyOptions?: string[];
     keyPlaceholder?: string;
     valuePlaceholder?: string;
     valueType?: "text" | "number";
-    /** Lo que se pinta entre clave y valor en cada fila («=», «→», «:»…). */
+    /** What is drawn between key and value in each row ("=", "→", ":"…). */
     separator?: string;
-    /** Con `true`, añadir una clave que ya está cambia su valor en vez de repetirla. */
+    /** With `true`, adding a key that already exists changes its value instead of repeating it. */
     unique?: boolean;
-    /** Nombres accesibles de los dos campos de la fila de añadir. */
+    /** Accessible names of the two fields in the add row. */
     keyLabel?: string;
     valueLabel?: string;
     addLabel?: string;
-    /** Texto del botón de quitar; su nombre accesible le añade la clave. */
+    /** Text of the remove button; its accessible name appends the key. */
     removeLabel?: string;
-    /** Lo que se ve cuando no hay pares: la lista no desaparece. */
+    /** What shows when there are no pairs: the list does not disappear. */
     emptyText?: string;
     disabled?: boolean;
-    /** Nombre en un formulario: cada par se envía como `name[clave]=valor`. */
+    /** Name in a form: each pair is submitted as `name[key]=value`. */
     name?: string;
     class?: string;
     onchange?: (entries: KeyValueEntry[]) => void;
   } = $props();
 
-  // La clave elegida de la lista arranca en la primera opción, como un <select> sin vacío.
-  let nuevaClave = $state("");
-  let nuevoValor = $state("");
+  // A key picked from the list starts at the first option, like a <select> with no empty option.
+  let newKey = $state("");
+  let newValue = $state("");
 
-  // Con lista, una clave que ya no está en ella vuelve a la primera opción.
-  const claveElegida = $derived(
-    keyOptions ? (keyOptions.includes(nuevaClave) ? nuevaClave : (keyOptions[0] ?? "")) : nuevaClave.trim()
+  // With a list, a key that is no longer in it falls back to the first option.
+  const chosenKey = $derived(
+    keyOptions ? (keyOptions.includes(newKey) ? newKey : (keyOptions[0] ?? "")) : newKey.trim()
   );
-  // Un <input type="number"> devuelve número o null: se normaliza a texto.
-  const valorEscrito = $derived(String(nuevoValor ?? "").trim());
-  const valorValido = $derived(
-    valorEscrito !== "" && (valueType !== "number" || Number.isFinite(Number(valorEscrito)))
+  // An <input type="number"> returns a number or null: normalize it to text.
+  const typedValue = $derived(String(newValue ?? "").trim());
+  const valueIsValid = $derived(
+    typedValue !== "" && (valueType !== "number" || Number.isFinite(Number(typedValue)))
   );
-  const sePuedeAnadir = $derived(!disabled && claveElegida !== "" && valorValido);
+  const canAdd = $derived(!disabled && chosenKey !== "" && valueIsValid);
 
-  function cambiar(siguientes: KeyValueEntry[]) {
-    entries = siguientes;
-    onchange?.(siguientes);
+  function update(next: KeyValueEntry[]) {
+    entries = next;
+    onchange?.(next);
   }
 
-  function anadir() {
-    if (!sePuedeAnadir) return;
-    const par = { key: claveElegida, value: valorEscrito };
-    const i = unique ? entries.findIndex((e) => e.key === par.key) : -1;
-    cambiar(i >= 0 ? entries.map((e, j) => (j === i ? par : e)) : [...entries, par]);
-    if (!keyOptions) nuevaClave = "";
-    nuevoValor = "";
+  function add() {
+    if (!canAdd) return;
+    const pair = { key: chosenKey, value: typedValue };
+    const i = unique ? entries.findIndex((e) => e.key === pair.key) : -1;
+    update(i >= 0 ? entries.map((e, j) => (j === i ? pair : e)) : [...entries, pair]);
+    if (!keyOptions) newKey = "";
+    newValue = "";
   }
 
-  function quitar(indice: number) {
-    cambiar(entries.filter((_, j) => j !== indice));
+  function remove(index: number) {
+    update(entries.filter((_, j) => j !== index));
   }
 
-  // Intro en cualquiera de los dos campos añade el par, como el botón.
-  function tecla(e: KeyboardEvent) {
+  // Enter in either field adds the pair, like the button.
+  function onKey(e: KeyboardEvent) {
     if (e.key !== "Enter") return;
     e.preventDefault();
-    anadir();
+    add();
   }
 </script>
 
@@ -114,20 +114,20 @@
     {#each entries as e, i (i)}<input type="hidden" name={`${name}[${e.key}]`} value={e.value} />{/each}
   {/if}
   {#if entries.length}
-    <ul class="ta-kv-lista">
-      {#each entries as par, i (`${i}:${par.key}`)}
-        <li class="ta-kv-fila">
-          <span class="ta-kv-par">
-            <span class="ta-kv-clave">{par.key}</span>
-            <span class="ta-kv-separador" aria-hidden="true">{separator}</span>
-            <span class="ta-kv-valor">{par.value}</span>
+    <ul class="ta-kv-list">
+      {#each entries as pair, i (`${i}:${pair.key}`)}
+        <li class="ta-kv-row">
+          <span class="ta-kv-pair">
+            <span class="ta-kv-key">{pair.key}</span>
+            <span class="ta-kv-separator" aria-hidden="true">{separator}</span>
+            <span class="ta-kv-value">{pair.value}</span>
           </span>
           <Button
             variant="ghost"
             size="sm"
             {disabled}
-            ariaLabel={`${removeLabel} ${par.key}`}
-            onclick={() => quitar(i)}
+            ariaLabel={`${removeLabel} ${pair.key}`}
+            onclick={() => remove(i)}
           >
             {removeLabel}
           </Button>
@@ -135,44 +135,44 @@
       {/each}
     </ul>
   {:else}
-    <p class="ta-kv-vacio">{emptyText}</p>
+    <p class="ta-kv-empty">{emptyText}</p>
   {/if}
 
-  <div class="ta-kv-nuevo">
-    <div class="ta-kv-campo-clave">
+  <div class="ta-kv-new">
+    <div class="ta-kv-key-field">
       {#if keyOptions}
         <Select
-          value={claveElegida}
-          onchange={(e: Event) => (nuevaClave = (e.currentTarget as HTMLSelectElement).value)}
+          value={chosenKey}
+          onchange={(e: Event) => (newKey = (e.currentTarget as HTMLSelectElement).value)}
           options={keyOptions.map((o) => ({ value: o, label: o }))}
           disabled={disabled || keyOptions.length === 0}
           aria-label={keyLabel}
-          onkeydown={tecla}
+          onkeydown={onKey}
         />
       {:else}
         <Input
-          bind:value={nuevaClave}
+          bind:value={newKey}
           placeholder={keyPlaceholder}
           {disabled}
           aria-label={keyLabel}
           autocomplete="off"
           spellcheck="false"
-          onkeydown={tecla}
+          onkeydown={onKey}
         />
       {/if}
     </div>
-    <div class="ta-kv-campo-valor">
+    <div class="ta-kv-value-field">
       <Input
-        bind:value={nuevoValor}
+        bind:value={newValue}
         type={valueType}
         placeholder={valuePlaceholder}
         {disabled}
         aria-label={valueLabel}
         autocomplete="off"
-        onkeydown={tecla}
+        onkeydown={onKey}
       />
     </div>
-    <Button variant="secondary" size="sm" disabled={!sePuedeAnadir} onclick={anadir}>
+    <Button variant="secondary" size="sm" disabled={!canAdd} onclick={add}>
       {addLabel}
     </Button>
   </div>
@@ -186,7 +186,7 @@
     min-width: 0;
   }
 
-  .ta-kv-lista {
+  .ta-kv-list {
     display: flex;
     flex-direction: column;
     margin: 0;
@@ -196,7 +196,7 @@
     border-radius: var(--ta-radius);
   }
 
-  .ta-kv-fila {
+  .ta-kv-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -205,11 +205,11 @@
     font-size: 0.875rem;
   }
 
-  .ta-kv-fila + .ta-kv-fila {
+  .ta-kv-row + .ta-kv-row {
     border-top: 1px solid rgb(var(--ta-border));
   }
 
-  .ta-kv-par {
+  .ta-kv-pair {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -217,42 +217,42 @@
     min-width: 0;
   }
 
-  .ta-kv-clave {
+  .ta-kv-key {
     font-family: var(--ta-font-mono);
     color: rgb(var(--ta-text));
     overflow-wrap: anywhere;
   }
 
-  .ta-kv-separador {
+  .ta-kv-separator {
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-kv-valor {
+  .ta-kv-value {
     font-family: var(--ta-font-mono);
     color: rgb(var(--ta-text-dim));
     overflow-wrap: anywhere;
   }
 
-  .ta-kv-vacio {
+  .ta-kv-empty {
     margin: 0;
     padding: 0.5rem 0;
     font-size: 0.875rem;
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-kv-nuevo {
+  .ta-kv-new {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
   }
 
-  .ta-kv-campo-clave {
+  .ta-kv-key-field {
     flex: 0 1 12rem;
     min-width: 8rem;
   }
 
-  .ta-kv-campo-valor {
+  .ta-kv-value-field {
     flex: 1 1 12rem;
     min-width: 8rem;
   }

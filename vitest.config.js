@@ -1,8 +1,8 @@
 /**
- * Dos proyectos de tests:
- *   dom: componentes montados en jsdom (comportamiento, teclado, axe).
- *   ssr: los mismos componentes compilados para servidor y renderizados con
- *        svelte/server en Node, sin `window`, como en SvelteKit.
+ * Two test projects:
+ *   dom: components mounted in jsdom (behaviour, keyboard, axe).
+ *   ssr: the same components compiled for the server and rendered with
+ *        svelte/server in Node, without `window`, as in SvelteKit.
  */
 import path from "node:path";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
@@ -23,7 +23,7 @@ export default defineConfig({
           globals: true,
           include: ["tests/dom/**/*.test.ts"],
           setupFiles: ["tests/setup.ts"],
-          // jsdom es más lento que happy-dom: las pruebas con teclado y axe pasan de los 5 s.
+          // jsdom is slower than happy-dom: the keyboard and axe tests take longer than 5 s.
           testTimeout: 30_000,
         },
       },

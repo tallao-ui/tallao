@@ -1,15 +1,26 @@
+<p align="center">
+  <img src="assets/readme/hero.svg" width="100%" alt="tallao: a Svelte 5 UI kit for generative interfaces. Plain CSS on tokens, keyboard and screen reader ready, SSR-ready. Install with pnpm add github:tallao-ui/tallao. Components by family: actions and feedback (Button, Badge, Spinner, Alert, Progress, Skeleton, Toaster, CopyButton, Stat, Icon, Avatar), forms (Input, Textarea, Select, Checkbox, Label, Field, SearchInput, NumberInput, Slider, Switch, Toggle, ToggleGroup, RadioGroup, Rating, InputOTP, Combobox, KeyValueEditor, FileUpload, Calendar, DatePicker, SchemaForm, CodeEditor), overlays and menus (Dialog, Sheet, ConfirmDialog, Popover, Tooltip, DropdownMenu, ContextMenu, Command), navigation and layout (Card, Tabs, Accordion, Breadcrumb, Pagination, Sidebar, NavMenu, MegaMenu, BottomNav, SplitPane, Carousel, ThemeScope), data (Table, DataTable, BarChart, LineChart, MonthView, CompareSlider, SelectionBar, DragBoard, GameMap) and generative UI (PromptInput, ToolCallCard, ChatMessage, Steps, SuggestionChips, CodeBlock, Sources, UsageMeter).">
+</p>
+
+<p align="center">
+  <a href="https://github.com/tallao-ui/tallao/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/tallao-ui/tallao/ci.yml?branch=main&label=CI"></a>
+  <img alt="Version 0.7.0" src="https://img.shields.io/badge/version-0.7.0-orange">
+  <img alt="Svelte 5.29 or later" src="https://img.shields.io/badge/svelte-%E2%89%A55.29-ff3e00">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
+</p>
+
 # tallao ⛏️
 
-UI kit en **Svelte 5** para interfaces generativas, extraído del admin de
-Kitsuden y desacoplado de Tailwind, stores y APIs. CSS puro sobre tokens,
-accesible por teclado y lector de pantalla, y compatible con SSR (SvelteKit).
+A **Svelte 5** UI kit for generative interfaces, extracted from the Kitsuden admin and
+decoupled from Tailwind, stores and APIs. Plain CSS on top of tokens, accessible by keyboard
+and screen reader, and SSR-ready (SvelteKit).
 
-## Instalar
+## Install and first use
 
-Como paquete (compila al instalar con `prepare`):
+As a package (it builds on install through `prepare`):
 
 ```bash
-pnpm add github:Kitsuden/tallao
+pnpm add github:tallao-ui/tallao
 ```
 
 ```svelte
@@ -20,115 +31,167 @@ pnpm add github:Kitsuden/tallao
 </script>
 ```
 
-El mapa va aparte porque arrastra Leaflet: `import { GameMap } from "tallao/map"`
-(instala `leaflet` y `sveaflet`). El editor de código también, por CodeMirror:
-`import { CodeEditor } from "tallao/code"` (instala `@codemirror/state`, `view`,
-`commands`, `language`, `@lezer/highlight` y el `lang-*` de cada lenguaje).
+The map lives apart because it pulls in Leaflet: `import { GameMap } from "tallao/map"`
+(install `leaflet` and `sveaflet`). So does the code editor, because of CodeMirror:
+`import { CodeEditor } from "tallao/code"` (install `@codemirror/state`, `view`,
+`commands`, `language`, `@lezer/highlight` and the `lang-*` package for each language).
 
-También se puede **copiar** un componente al proyecto, como en shadcn: copia
-`src/lib/components/<componente>.svelte`, los que importe, `src/lib/internal/`,
-`src/lib/utils.ts` y los dos CSS.
+You can also **copy** a component into your project, as with shadcn: copy
+`src/lib/components/<component>.svelte`, the components it imports, `src/lib/internal/`,
+`src/lib/utils.ts` and the two CSS files.
 
-Requiere Svelte 5.29 o superior.
+Requires Svelte 5.29 or later.
 
-## Componentes
+## Components
 
-| Componente | Qué es |
+| Component | What it is |
 |---|---|
-| Button | 5 variantes × 4 tamaños, `loading`, `href`; pasa al elemento cualquier atributo y adjunto |
-| Badge | 7 variantes × 2 tallas |
-| Input · Textarea · Select · Checkbox | controles nativos con los tokens del kit |
-| Field | etiqueta + control + error, marca de obligatorio |
-| Card | contenedor + header / title (`level`) / content / footer |
-| Table | contenedor con scroll + header / body / row / head / cell (`colspan`) |
-| Tabs | tablist accesible: flechas, Inicio y Fin, contador, ids estables en SSR |
-| Alert | 4 variantes, título, cerrar |
-| Stat | cifra + etiqueta |
-| Switch | interruptor (`role="switch"`) para ajustes que se aplican al momento |
-| RadioGroup | radios nativos en `<fieldset>` con su `<legend>`; detalle por opción |
-| Dialog | `<dialog>` nativo con `showModal()`: foco contenido, Escape solo el de arriba, scroll bloqueado, foco de vuelta; centrado o pegado a un borde |
-| Sheet | panel lateral modal (un Dialog pegado a un borde) |
-| ConfirmDialog | sobre Dialog; `onConfirm` asíncrono, sigue abierto si falla |
-| Toaster · `toast()` | avisos efímeros en una región `aria-live`; la cuenta atrás se pausa con ratón o foco; acción opcional |
-| Command | paleta de órdenes (Ctrl+K / ⌘K) con grupos, palabras clave y atajos |
-| ContextMenu | menú de clic derecho (o tecla Menú / Mayús+F10) con las piezas de DropdownMenu |
-| Accordion | secciones plegables sobre `<details>` nativo; `single` exclusivo |
-| Progress | barra con valor o indeterminada |
-| Skeleton | hueco de carga (rect, círculo o líneas de texto) |
-| Avatar | foto con iniciales de respaldo, color estable por nombre, insignia |
-| SelectionBar | «seleccionar todo» (con estado parcial) y acciones por lotes que aparecen al marcar |
-| KeyValueEditor | lista de pares clave → valor editable; clave libre o de una lista, valor texto o número |
-| CopyButton | copia un texto al portapapeles y lo anuncia |
-| DragBoard · DropZone · DragItem | arrastrar entre zonas con ratón **y con teclado** (Espacio coge, flechas, Espacio suelta, Escape cancela), con avisos para lector de pantalla |
-| ChatMessage | un mensaje de una conversación (usuario, asistente o sistema), con estado «escribiendo» |
-| DataTable | tabla de datos: orden por columna (`aria-sort`), paginación, selección con «seleccionar todo», carga; en el navegador o contra la API (`manual`) |
-| Pagination | Anterior / números con «…» / Siguiente, `aria-current="page"` |
-| Calendar · DatePicker | elegir un día con el teclado (patrón APG), fechas ISO, `min`/`max`, nombres del idioma; el DatePicker además se escribe |
-| FileUpload | elegir o soltar archivos sobre un `<input type="file">` real; `accept`, `maxSize`, `maxFiles` con el motivo de cada rechazo |
-| Breadcrumb | ruta de navegación en `<nav>` + `<ol>`; la última es `aria-current="page"` |
-| Icon | iconos propios por nombre (`check`, `search`, `bot`…) o un dibujo propio; decorativo salvo que lleve `label` |
-| Sidebar | navegación lateral con grupos, insignias y ramas desplegables; marca la página actual y abre su rama; se pliega a iconos |
-| SplitPane | dos paneles con separador accesible (patrón APG «window splitter»): flechas, Inicio/Fin, Intro pliega |
-| BarChart · LineChart | gráficas de columnas y de líneas con los colores de serie del kit: leyenda con dos o más series, tooltip al pasar el ratón **o recorrer con el teclado**, tabla con todos los datos |
-| SchemaForm | formulario a partir de un JSON Schema: valida al enviar, enfoca el primer error, sirve como `<form>` de una acción de SvelteKit |
-| Popover | panel no modal anclado a su disparador |
-| Tooltip | descripción al pasar o enfocar; Escape la oculta (WCAG 1.4.13) |
-| DropdownMenu · MenuItem · MenuSeparator · MenuLabel | menú de acciones: flechas, Inicio/Fin, búsqueda por letra |
-| Combobox | campo con lista filtrable (ARIA 1.2, `aria-activedescendant`), sin mayúsculas ni acentos |
-| ThemeScope | tokens en un contenedor: Shadow DOM y puente con `--kitsuden-*` |
-| PromptInput · ToolCallCard | entrada de chat y llamada a herramienta con aprobar / rechazar |
-| GameMap (`tallao/map`) | Leaflet con el tema del kit |
-| CodeEditor (`tallao/code`) | CodeMirror 6 con el tema del kit (Markdown, JSON, JS/TS); antes de cargar, y sin JavaScript, es un `<textarea>` que se envía con el formulario |
+| Button | 7 variants (including `soft`, tinted with the accent, and `danger-ghost`, the quiet destructive action: red text, no fill) × 4 sizes, `loading`, `href`; passes any attribute and attachment to the element |
+| Badge | 9 variants (including `accent` and `accent-2`, the second accent) × 2 sizes; `tone="solid"` fills with the colour and uses contrasting text ("LIVE" over an image); `dot` adds a leading status dot in the variant's colour and `pulse` makes it pulse (live, running; still under reduced motion); passes any attribute to the `<span>` |
+| Spinner | a standalone loading indicator: `role="status"` with hidden text (`label`, by default the kit's "Loading" text), `size` sm / md / lg or in pixels, text colour; with reduced motion it pulses instead of spinning |
+| Input · Textarea · Select · Checkbox | native controls styled with the kit's tokens (for a number bound as `number \| null`, use NumberInput) |
+| Label | a standalone `<label>`: `for`, `required` (a visible "*" plus a hidden "Required" for screen readers), `disabled` styling; passes any attribute |
+| Field | label + control + error, required marker |
+| Card | container + header / title (`level`) / content / footer |
+| Table | scrolling container + header / body / row / head / cell (`colspan`); `density="compact"` (less padding and smaller text, headers without uppercase) and `stickyFirstColumn` (first column fixed while scrolling, background from `--ta-table-sticky-bg`) for matrices with many columns; every part passes any attribute to its element |
+| Tabs | accessible tablist: arrows, Home and End, counter, stable ids in SSR; `panels={false}` renders only the tablist, with `controls` (and `tabId`) per tab pointing at the panels the page renders |
+| Alert | 4 variants, title, close |
+| Stat | figure + label |
+| SearchInput | search field with a magnifier and a clear button (Escape clears too); always has an accessible name |
+| Slider | a value between two bounds on a native `<input type="range">`: label with the value, `valueText` for screen readers, marks under the track |
+| Toggle · ToggleGroup | pressable buttons (`aria-pressed`): a single one, or a named group with single or multiple selection and `name` for forms; as pills, segmented or frameless (`variant="bare"`, for icon-only facets: a ring when pressed and the others dimmed), tinted or solid when pressed; each option with its own `ariaLabel`, `title`, `color` (`--ta-toggle-accent`), `class` and `style` |
+| NumberInput | a real number (`bind:value` is `number \| null`, null when empty), with optional − / + buttons that respect `min`, `max` and `step`; clamps to the bounds on blur |
+| InputOTP | a one-time code field: `length` slots over one real `<input>` (`autocomplete="one-time-code"`, so SMS autofill and pasting fill it at once), digits or alphanumeric, `groupSize` separator, `oncomplete`, `invalid`, `name` for forms; a screen reader hears one named field and "Digit 2 of 6" |
+| Rating | star rating on native radios: named group, arrows, `name` for forms; `readonly` to display a score |
+| Carousel | a row of cards with scroll-snap (APG "carousel" pattern): Previous / Next disabled at the ends, ← → Home End with the focus inside, "3 of 8" on each slide; `autoplay` that pauses on hover, on focus, in a hidden tab or with reduced motion, with a button to stop it |
+| CompareSlider | before / after with a draggable divider: `role="slider"` with arrows, PageUp/PageDown and Home/End, pointer capture on the box, images that cannot be dragged; `bind:value` 0–100 |
+| Switch | a switch (`role="switch"`) for settings that apply immediately |
+| RadioGroup | native radios in a `<fieldset>` with its `<legend>`; a description per option |
+| Dialog | native `<dialog>` with `showModal()`: contained focus, Escape closes only the top one, locked scroll, focus restored; centred or attached to an edge |
+| Sheet | a modal side panel (a Dialog attached to an edge) |
+| ConfirmDialog | built on Dialog; async `onConfirm`, stays open if it fails |
+| Toaster · `toast()` | short-lived notifications in an `aria-live` region; the countdown pauses on hover or focus; optional action |
+| Command | a command palette (Ctrl+K / ⌘K) with groups, keywords and shortcuts; or a search box with results from the page (`filter={false}`, `bind:query`, `loading`), results that are links (`href`) with `description` and `badge`, the snippets `empty`, `leading` and `trailing`, and `inline` (no dialog, inside the page's own overlay) |
+| ContextMenu | a right-click menu (or the Menu key / Shift+F10) built from the DropdownMenu parts |
+| Accordion | collapsible sections on native `<details>`; `single` makes them exclusive |
+| Progress | a bar with a value, or indeterminate |
+| Skeleton | a loading placeholder (rectangle, circle or text lines) |
+| Avatar | a photo with fallback initials (`initials={1}` for one letter), a stable colour per name, a badge; an explicit `aria-label` replaces the name and other attributes go to the root |
+| SelectionBar | "select all" (with a partial state) and bulk actions that appear when something is selected |
+| KeyValueEditor | an editable list of key → value pairs; free keys or keys from a list, text or number values |
+| CopyButton | copies a text to the clipboard and announces it |
+| DragBoard · DropZone · DragItem | drag between zones with the mouse **and the keyboard** (Space picks up, arrows move, Space drops, Escape cancels), with screen-reader announcements |
+| ChatMessage | a message in a conversation (user, assistant or system), with a "typing" state |
+| DataTable | a data table: sorting by column (`aria-sort`), pagination, selection with "select all", loading; an optional filter row (per column `filter`: `"text"` ignoring case and accents, `"select"`, `"range"` or your own snippet; AND together, back to page 1 on change, `bind:filters`, "Clear filters"); in the browser or against the API (`manual`, which hands over the filters with `onFiltersChange`) |
+| Pagination | Previous / numbers with "…" / Next, `aria-current="page"` |
+| Calendar · DatePicker | pick a day with the keyboard (APG pattern), ISO dates, `min`/`max`, localized names; the DatePicker can also be typed into |
+| MonthView | a month to look at (agenda, events): the `day` snippet with what goes in each day (`date`, `day`, `weekday`, `today`, `outside`), ‹ › and PageUp/PageDown (Shift: year) to change month, `bind:month`, today with `aria-current="date"`; unlike Calendar, a day's content can hold links and buttons |
+| FileUpload | choose or drop files on a real `<input type="file">`; `accept`, `maxSize`, `maxFiles`, with the reason for each rejection |
+| Breadcrumb | a navigation trail in `<nav>` + `<ol>`; the last item is `aria-current="page"` |
+| Icon | the kit's own icons by name (`check`, `search`, `bot`…) or your own drawing; decorative unless it has a `label` |
+| Sidebar | side navigation with groups, badges and expandable branches; marks the current page and opens its branch; collapses to icons with a Tooltip per item; your own icons (`icon` snippet), tinted and pulsing badges, `persistKey` to remember the collapsed state, a `footer(collapsed)` for the current user |
+| NavMenu | a disclosure menu for a site header: a trigger opens a panel of grouped links (icon, label, one-line description, badge, "coming soon" entries) in 1–3 columns; native `<details>`, so it works with no JavaScript; with JavaScript, Escape and a click outside close it and the panel stays inside the viewport |
+| MegaMenu | a wide header menu: a featured tile (art, title, one line and a call to action) next to columns of grouped links with an icon, label and one-line description, and an optional footer link; same contract as NavMenu (native `<details>`, works with no JavaScript, opens on click or tap, never on hover), a list of links rather than an ARIA `menu` |
+| BottomNav | a mobile tab bar fixed to the bottom, above the safe area: up to 5 links with icon and visible label, the current one marked, badges, an optional raised central `action`; `hideAbove` keeps desktop untouched; works with no JavaScript |
+| SplitPane | two panes with an accessible separator (APG "window splitter" pattern): arrows, Home/End, Enter collapses |
+| BarChart · LineChart | column and line charts with the kit's series colours: a legend with two or more series, a tooltip on hover **or when stepping through with the keyboard**, a table with all the data |
+| SchemaForm | a form built from a JSON Schema: validates on submit, focuses the first error, works as the `<form>` of a SvelteKit action |
+| Popover | a non-modal panel anchored to its trigger |
+| Tooltip | a description on hover or focus; Escape hides it (WCAG 1.4.13) |
+| DropdownMenu · MenuItem · MenuSeparator · MenuLabel | an action menu: arrows, Home/End, type-ahead by letter |
+| Combobox | a field with a filterable list (ARIA 1.2, `aria-activedescendant`), ignoring case and accents |
+| ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
+| PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
+| Steps · SuggestionChips · CodeBlock · Sources · UsageMeter | an agent's plan step by step, single-use suggestions, code with a copy button, cited sources and quota usage |
+| GameMap (`tallao/map`) | Leaflet with the kit's theme |
+| CodeEditor (`tallao/code`) | CodeMirror 6 with the kit's theme (Markdown, JSON, JS/TS); before it loads, and without JavaScript, it is a `<textarea>` submitted with the form |
 
-## Idioma de los textos
+## How an app uses it
 
-Los textos que pone el kit (botones de cerrar, «sin resultados», estados de una
-herramienta…) están en inglés por defecto; el español viene incluido. Para toda
-la aplicación, en el componente raíz:
+<p align="center">
+  <img src="assets/readme/how-it-is-used.svg" width="100%" alt="How an app uses tallao. The package exports tallao (components, toast, setLabels), tallao/map (GameMap, with leaflet and sveaflet), tallao/code (CodeEditor, with CodeMirror 6), tallao/tokens.css (every --ta-* variable) and tallao/base.css. An app installs it with pnpm add github:tallao-ui/tallao, or copies a component with internal/, utils.ts and the two CSS files. It needs Svelte 5.29 or later. It runs in SvelteKit (server rendering and hydration, stable ids from $props.id(), controls that submit with name), in Astro islands (setDefaultLabels; NavMenu and BottomNav need no hydration) and in Kitsuden kon views (custom elements in a Shadow DOM, wrapped in ThemeScope, which maps --kitsuden-* to --ta-*).">
+</p>
+
+The sections below explain each path in the diagram: texts, server-rendered navigation, the
+floating layer, SvelteKit, touch, Shadow DOM and themes.
+
+## Language of the texts
+
+The texts the kit adds on its own (close buttons, "no results", tool call states…) are in
+English by default; Spanish is included. For the whole application, in the root component:
 
 ```svelte
 <script>
   import { setLabels, es } from "tallao";
-  setLabels(es); // o setLabels({ ...es, close: "Salir" })
+  setLabels(es); // or setLabels({ ...es, close: "Salir" })
 </script>
 ```
 
-Una prop explícita (`closeLabel`, `emptyText`, `labels` de ToolCallCard…) manda sobre esto.
+An explicit prop (`closeLabel`, `emptyText`, ToolCallCard's `labels`…) takes precedence over this.
 
-### Disparadores
+If there is no common root component (Astro islands: each one is its own root),
+`setDefaultLabels(es)` changes the kit's starting texts everywhere, without context. It is module
+state: on the server every request shares it, so with several languages call it only in the
+browser.
 
-Popover, Tooltip y DropdownMenu reciben su disparador como snippet, con las
-props que debe llevar (`aria-*`, eventos y la referencia del elemento):
+### Triggers
+
+Popover, Tooltip and DropdownMenu take their trigger as a snippet, with the props it must carry
+(`aria-*`, events and the element reference):
 
 ```svelte
-<DropdownMenu label="Acciones del proyecto">
-  {#snippet trigger(props)}<Button {...props}>Acciones</Button>{/snippet}
-  <MenuItem onSelect={editar}>Editar</MenuItem>
+<DropdownMenu label="Project actions">
+  {#snippet trigger(props)}<Button {...props}>Actions</Button>{/snippet}
+  <MenuItem onSelect={edit}>Edit</MenuItem>
   <MenuSeparator />
-  <MenuItem variant="danger" onSelect={borrar}>Borrar</MenuItem>
+  <MenuItem variant="danger" onSelect={remove}>Delete</MenuItem>
 </DropdownMenu>
 ```
 
-## La capa flotante
+## Navigation on server-rendered sites
 
-Popover, Tooltip, DropdownMenu y Combobox comparten `src/lib/internal/`:
+NavMenu and BottomNav are plain markup that works without hydration: render them from an Astro
+page with no `client:` directive. Snippets (your own icon set) cannot come from Astro, so put
+them in a small Svelte wrapper and render that:
 
-- **Capa superior del navegador** (Popover API, `popover="manual"`): el panel
-  queda por encima de cualquier `z-index` u `overflow: hidden` sin moverse en el
-  DOM, así que hereda los tokens y funciona dentro de un Shadow DOM.
-- **Posición** con [Floating UI](https://floating-ui.com): voltea y se desplaza
-  en los bordes, y se recoloca al hacer scroll o redimensionar.
-- **Pila de capas**: Escape cierra solo la de arriba (y no el `<dialog>` que la
-  contiene); un clic fuera cierra las que no lo contienen.
+```svelte
+<!-- GamesMenu.svelte -->
+<script>
+  import { NavMenu } from "tallao";
+  import { Gamepad2 } from "lucide-svelte";
+  let { groups } = $props();
+</script>
+
+<NavMenu label="Games" {groups}>
+  {#snippet icon(item)}<Gamepad2 size={18} />{/snippet}
+</NavMenu>
+```
+
+NavMenu is a `<details>`: without JavaScript it opens and closes with its trigger only (Escape
+and a click outside need hydration), and `align="end"` keeps a menu at the right end of a
+header inside the screen. BottomNav leaves a spacer of its own height where it is rendered; to
+pad the page yourself, use `padding-bottom: calc(var(--ta-bottom-nav-height) +
+env(safe-area-inset-bottom))` and `spacer={false}`.
+
+## The floating layer
+
+Popover, Tooltip, DropdownMenu and Combobox share `src/lib/internal/`:
+
+- **The browser's top layer** (Popover API, `popover="manual"`): the panel sits above any
+  `z-index` or `overflow: hidden` without moving in the DOM, so it inherits the tokens and works
+  inside a Shadow DOM.
+- **Positioning** with [Floating UI](https://floating-ui.com): it flips and shifts at the edges,
+  and repositions on scroll or resize.
+- **A layer stack**: Escape closes only the top layer (and not the `<dialog>` that contains it);
+  a click outside closes the layers that do not contain it.
 
 ## SvelteKit
 
-tallao funciona en SvelteKit tal cual (probado con SvelteKit 3; SvelteKit 2 consume
-el mismo formato, pero no se prueba): se publica con `svelte-package`, así que
-SvelteKit compila los componentes para el servidor y para el navegador. Los ids salen de
-`$props.id()` (iguales en los dos lados), nada toca `window` al importarse, los textos de
-`setLabels` van por contexto (por petición) y `toast()` no hace nada en el servidor (allí el
-módulo es uno solo para todas las peticiones).
+tallao works in SvelteKit as is (tested with SvelteKit 3; SvelteKit 2 consumes the same format
+but is not tested): it is published with `svelte-package`, so SvelteKit compiles the components
+for the server and for the browser. Ids come from `$props.id()` (the same on both sides),
+nothing touches `window` on import, the `setLabels` texts travel through context (per request)
+and `toast()` does nothing on the server (there the module is a single one for all requests).
 
 ```svelte
 <!-- src/routes/+layout.svelte -->
@@ -143,13 +206,13 @@ módulo es uno solo para todas las peticiones).
 <Toaster />
 ```
 
-**Formularios de SvelteKit.** Con `name`, cada control se envía en un `<form method="POST">`
-como uno nativo, también sin JavaScript: Switch (como un checkbox), Combobox (uno o varios
-valores), KeyValueEditor (`name[clave]`), DatePicker (ISO), FileUpload (los archivos,
-también los soltados) y CodeEditor.
+**SvelteKit forms.** With `name`, each control is submitted in a `<form method="POST">` like a
+native one, also without JavaScript: Switch (like a checkbox), Combobox (one or several values),
+KeyValueEditor (`name[key]`), DatePicker (ISO), FileUpload (the files, dropped ones included)
+and CodeEditor.
 
-SchemaForm es el propio `<form>`: con `name`, sus campos se envían como `name.campo`, y un
-envío no válido se para antes de que `enhance` lo mande.
+SchemaForm is the `<form>` itself: with `name`, its fields are submitted as `name.field`, and an
+invalid submission stops before `enhance` sends it.
 
 ```svelte
 <script>
@@ -161,40 +224,79 @@ envío no válido se para antes de que `enhance` lo mande.
 <SchemaForm {schema} name="post" method="POST" {@attach fromAction(enhance)} />
 ```
 
-`kit-check/` es una app SvelteKit 3 que usa el paquete como cualquier proyecto y lo prueba
-en la CI: el prerender sale completo y sin estado compartido entre páginas
-(`check-prerender.mjs`), y en Chromium la hidratación no da desajustes, los ids del servidor
-son los que se quedan y todo responde después (`tests/hydration.spec.ts`).
+`kit-check/` is a SvelteKit 3 app that uses the package like any project and tests it in CI: the
+prerender comes out complete and with no state shared between pages (`check-prerender.mjs`), and
+in Chromium hydration gives no mismatches, the server ids are the ones that stay and everything
+responds afterwards (`tests/hydration.spec.ts`).
 
 ```bash
 pnpm kit:check
 ```
 
-## Calidad
+## Touch and phones
+
+Every control the kit draws has a 44px touch target under `@media (pointer: coarse)`: either
+the control grows (fields, list items, buttons) or, where growing would change the drawing
+(an alert's ×, a chip, a copy button, a "show data" toggle), an absolutely positioned `::after`
+widens only the hit area. Fields switch to 16px text so iOS does not zoom on focus.
+`tests/dom/touch-targets.test.ts` compiles every component that renders its own control and
+fails if its CSS has no such rule, so a new component cannot ship without one.
+
+On phones, Dialog (and Sheet, Command, ConfirmDialog) uses `dvh` heights, less padding and a
+footer that wraps; floating lists (Combobox, DropdownMenu, ContextMenu) flip, shift and cap
+their height at the room left on screen, so they stay usable with the on-screen keyboard
+open; the Toaster keeps clear of the safe areas and of a BottomNav, which publishes
+`--ta-bottom-nav-offset` while it is shown.
+
+## Inside a Shadow DOM
+
+`tokens.css` defines the tokens on `:root`, which does not reach inside a Shadow DOM. Wrap the
+view in `<ThemeScope>`: with `source="kitsuden"` (the default) each `--ta-*` takes the
+`--kitsuden-*` variable from the Kitsuden admin, which does cross through inheritance; with
+`source="tallao"` it uses the kit's own values. This is how kon views (custom elements) are
+built with tallao.
+
+## Themes
+
+Every colour is a `--ta-*` variable in `tokens.css`. Dark theme by default;
+`data-tallao-theme="light"` on `<html>` switches to light. Change a variable and the whole kit
+is re-themed.
+
+## For AI agents
+
+[AGENTS.md](AGENTS.md) is the guide for coding agents, both those changing the kit and those
+building an app with it: entry points, the component map by family, the conventions the code
+follows (runes, tokens, labels, SSR, 44px touch targets), commands, tests and the rules a change
+must keep. Claude Code reads it through [CLAUDE.md](CLAUDE.md).
+
+- [`.claude/settings.json`](.claude/settings.json): shared permissions. The check, test and build
+  scripts and read-only git are allowed; reading `.env` files, `git push` and publishing are denied.
+- [`.claude/skills/`](.claude/skills): [`new-component`](.claude/skills/new-component/SKILL.md),
+  [`fix-component`](.claude/skills/fix-component/SKILL.md) and
+  [`release-check`](.claude/skills/release-check/SKILL.md), plain Markdown any agent can follow.
+
+## Development and tests
 
 ```bash
-pnpm test      # vitest: comportamiento, teclado y axe (jsdom) + render en servidor (Node)
+pnpm test      # vitest: behaviour, keyboard and axe (jsdom) + server rendering (Node)
 pnpm check     # svelte-check
-pnpm package   # compila el paquete en dist/ y lo revisa con publint
-pnpm dev       # la demo
+pnpm package   # builds the package into dist/ and checks it with publint
+pnpm dev       # the demo
 ```
 
-La CI (`.github/workflows/ci.yml`) corre las cuatro en cada push.
+CI (`.github/workflows/ci.yml`) runs `check`, `test`, `package` and `build:demo` (the demo's
+production build), then `kit-check/` (the same as `pnpm kit:check`), on every push to `main` and
+every pull request. Setup, what each test enforces and how to add a
+component are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Dentro de un Shadow DOM
+## Contributing, security and licence
 
-`tokens.css` define los tokens en `:root`, que no llega dentro de un Shadow
-DOM. Envuelve la vista en `<ThemeScope>`: con `source="kitsuden"` (por
-defecto) cada `--ta-*` toma la variable `--kitsuden-*` del admin de Kitsuden,
-que sí cruza por herencia; con `source="tallao"` usa los valores del kit.
-Así se hacen las vistas de kon (custom elements) con tallao.
+- [CONTRIBUTING.md](CONTRIBUTING.md): setup, commands, adding a component and the pull request
+  checklist. Open an issue first for a new component (there is a template).
+- [SECURITY.md](SECURITY.md): report vulnerabilities privately through
+  [GitHub private vulnerability reporting](https://github.com/tallao-ui/tallao/security/advisories/new),
+  not in public issues.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+- [CHANGELOG.md](CHANGELOG.md): every prop, text and class change by version.
 
-## Temas
-
-Todos los colores son variables `--ta-*` en `tokens.css`. Tema oscuro por
-defecto; `data-tallao-theme="light"` en `<html>` invierte a claro. Cambia una
-variable y todo el kit se retematiza.
-
-## Licencia
-
-MIT.
+[MIT](LICENSE).

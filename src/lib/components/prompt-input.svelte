@@ -1,7 +1,7 @@
 <!--
   tallao — PromptInput
-  Caja de entrada para conversar con un modelo: Enter envía, Shift+Enter
-  salta de línea, estado de carga, botón de adjuntos opcional.
+  Input box for chatting with a model: Enter sends, Shift+Enter
+  inserts a line break, loading state, optional attachments button.
 -->
 <script lang="ts">
   import { useLabels } from "$lib/i18n";
@@ -10,20 +10,20 @@
   import Button from "./button.svelte";
 
   interface Props {
-    /** Texto actual del prompt (bindable). */
+    /** Current text of the prompt (bindable). */
     value?: string;
     placeholder?: string;
     disabled?: boolean;
     loading?: boolean;
-    /** Muestra el botón de adjuntos y emite onAttach. */
+    /** Shows the attachments button and emits onAttach. */
     attachments?: boolean;
-    /** Envía al pulsar Enter (Shift+Enter = nueva línea). Por defecto true. */
+    /** Sends on Enter (Shift+Enter = new line). Defaults to true. */
     submitOnEnter?: boolean;
-    /** Nombre accesible del campo (por defecto, el placeholder). */
+    /** Accessible name of the field (defaults to the placeholder). */
     ariaLabel?: string;
     sendLabel?: string;
     attachLabel?: string;
-    onSend?: (texto: string) => void;
+    onSend?: (text: string) => void;
     onAttach?: () => void;
     class?: string;
   }
@@ -44,30 +44,30 @@
     class: className = "",
   }: Props = $props();
 
-  const puedeEnviar = $derived(value.trim().length > 0 && !disabled && !loading);
+  const canSend = $derived(value.trim().length > 0 && !disabled && !loading);
 
-  function enviar() {
-    if (!puedeEnviar) return;
+  function send() {
+    if (!canSend) return;
     onSend?.(value.trim());
     value = "";
   }
 
-  function tecla(e: KeyboardEvent) {
+  function onKey(e: KeyboardEvent) {
     if (submitOnEnter && e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      enviar();
+      send();
     }
   }
 </script>
 
 <form
   class={cn("ta-prompt", className)}
-  onsubmit={(e) => { e.preventDefault(); enviar(); }}
+  onsubmit={(e) => { e.preventDefault(); send(); }}
 >
   {#if attachments}
     <button
       type="button"
-      class="ta-prompt-adjunto"
+      class="ta-prompt-attach"
       onclick={onAttach}
       disabled={disabled || loading}
       aria-label={attachLabel}
@@ -81,9 +81,9 @@
     {placeholder}
     disabled={disabled || loading}
     rows="1"
-    class="ta-prompt-texto"
+    class="ta-prompt-text"
     aria-label={ariaLabel ?? placeholder}
-    onkeydown={tecla}
+    onkeydown={onKey}
   ></textarea>
 
   <Button
@@ -91,7 +91,7 @@
     variant="primary"
     size="icon"
     loading={loading}
-    disabled={!puedeEnviar}
+    disabled={!canSend}
     ariaLabel={sendLabel}
   >
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
@@ -115,7 +115,7 @@
     box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15);
   }
 
-  .ta-prompt-texto {
+  .ta-prompt-text {
     flex: 1;
     min-width: 0;
     padding: 0.375rem 0.5rem;
@@ -131,11 +131,11 @@
     field-sizing: content;
   }
 
-  .ta-prompt-texto::placeholder {
+  .ta-prompt-text::placeholder {
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-prompt-adjunto {
+  .ta-prompt-attach {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -147,12 +147,17 @@
     cursor: pointer;
     transition: color 0.2s, background-color 0.2s;
   }
-  .ta-prompt-adjunto:hover:not(:disabled) {
+  .ta-prompt-attach:hover:not(:disabled) {
     color: rgb(var(--ta-text));
     background: rgb(var(--ta-elevated));
   }
-  .ta-prompt-adjunto:disabled {
+  .ta-prompt-attach:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+  @media (pointer: coarse) {
+    .ta-prompt-attach { min-width: 2.75rem; min-height: 2.75rem; }
+    /* 16px text: iOS does not zoom the page when the field gets focus. */
+    .ta-prompt-text { font-size: 1rem; }
   }
 </style>

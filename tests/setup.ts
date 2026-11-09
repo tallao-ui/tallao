@@ -1,21 +1,21 @@
-// La limpieza entre tests la añade el plugin svelteTesting (vitest.config.js).
+// Cleanup between tests is added by the svelteTesting plugin (vitest.config.js).
 //
-// jsdom (elegido porque happy-dom descarta <tr> y <td> dentro de un <template>, y Svelte
-// construye el DOM con plantillas) no implementa el <dialog> modal. Aquí basta lo mínimo
-// para que Dialog abra y cierre: el comportamiento real del navegador (foco contenido,
-// Escape solo el de arriba) se comprueba en Chrome con teclas de verdad.
+// jsdom (chosen because happy-dom drops <tr> and <td> inside a <template>, and Svelte
+// builds the DOM from templates) does not implement the modal <dialog>. The bare minimum
+// here is enough for Dialog to open and close: the real browser behaviour (contained focus,
+// Escape only on the top one) is checked in Chrome with real keys.
 const proto = (globalThis.HTMLDialogElement ?? HTMLElement).prototype as HTMLDialogElement;
 
 if (typeof proto.showModal !== "function") {
-  const esDialogo = (el: Element) => el.tagName === "DIALOG";
+  const isDialog = (el: Element) => el.tagName === "DIALOG";
   Object.defineProperty(proto, "open", {
     configurable: true,
     get(this: HTMLElement) {
-      return esDialogo(this) ? this.hasAttribute("open") : undefined;
+      return isDialog(this) ? this.hasAttribute("open") : undefined;
     },
-    set(this: HTMLElement, valor: boolean) {
-      if (!esDialogo(this)) return;
-      if (valor) this.setAttribute("open", "");
+    set(this: HTMLElement, value: boolean) {
+      if (!isDialog(this)) return;
+      if (value) this.setAttribute("open", "");
       else this.removeAttribute("open");
     },
   });
@@ -30,12 +30,12 @@ if (typeof proto.showModal !== "function") {
   };
 }
 
-// axe pregunta por <canvas> (iconos de fuente); jsdom sin el paquete canvas avisa con un error.
+// axe asks for <canvas> (icon fonts); jsdom without the canvas package warns with an error.
 HTMLCanvasElement.prototype.getContext = (() => null) as unknown as HTMLCanvasElement["getContext"];
 
 export {};
 
-// jsdom no trae ResizeObserver; bind:clientWidth (las gráficas) lo usa. Sin medidas, nunca avisa.
+// jsdom has no ResizeObserver; bind:clientWidth (the charts) uses it. With no measurements, it never fires.
 globalThis.ResizeObserver ??= class {
   observe() {}
   unobserve() {}

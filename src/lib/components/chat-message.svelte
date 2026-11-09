@@ -1,10 +1,10 @@
 <!--
-  ChatMessage: un mensaje de una conversación, con quién lo dijo y su texto.
+  ChatMessage: one message in a conversation, with who said it and its text.
 
-  Para leer conversaciones (un historial, una prueba de un bot) junto a PromptInput y
-  ToolCallCard. El texto respeta saltos de línea y no se interpreta como HTML. `pending` lo marca
-  como «escribiendo» (`aria-busy`) mientras llega la respuesta; `footer` lleva lo que acompaña al
-  mensaje: fuentes, herramientas usadas, una hora.
+  For reading conversations (a history, a bot test) alongside PromptInput and
+  ToolCallCard. The text keeps line breaks and is not interpreted as HTML. `pending` marks it
+  as "typing" (`aria-busy`) while the reply arrives; `footer` holds what accompanies the
+  message: sources, tools used, a time.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
@@ -13,13 +13,13 @@
 
   interface Props {
     role?: Role;
-    /** Quién habla; por defecto, el rol en inglés («You», «Assistant», «System»). */
+    /** Who is speaking; defaults to the role in English ("You", "Assistant", "System"). */
     author?: string;
-    /** El texto del mensaje; `children` lo sustituye si hace falta marcado. */
+    /** The message text; `children` replaces it if markup is needed. */
     content?: string;
-    /** Mientras llega la respuesta: puntos animados y `aria-busy`. */
+    /** While the reply arrives: animated dots and `aria-busy`. */
     pending?: boolean;
-    /** Nombre accesible del indicador de espera. */
+    /** Accessible name of the waiting indicator. */
     pendingLabel?: string;
     class?: string;
     children?: import("svelte").Snippet;
@@ -37,20 +37,20 @@
     footer,
   }: Props = $props();
 
-  const porDefecto: Record<Role, string> = { user: "You", assistant: "Assistant", system: "System" };
-  const quien = $derived(author ?? porDefecto[role]);
+  const defaults: Record<Role, string> = { user: "You", assistant: "Assistant", system: "System" };
+  const speaker = $derived(author ?? defaults[role]);
   const id = $props.id();
 </script>
 
 <article
   class={cn("ta-chatmsg", `ta-chatmsg--${role}`, className)}
-  aria-labelledby={`${id}-autor`}
+  aria-labelledby={`${id}-author`}
   aria-busy={pending || undefined}
 >
-  <header class="ta-chatmsg-autor" id={`${id}-autor`}>{quien}</header>
-  <div class="ta-chatmsg-cuerpo">
+  <header class="ta-chatmsg-author" id={`${id}-author`}>{speaker}</header>
+  <div class="ta-chatmsg-body">
     {#if pending}
-      <span class="ta-chatmsg-espera" role="status" aria-label={pendingLabel}>
+      <span class="ta-chatmsg-typing" role="status" aria-label={pendingLabel}>
         <span></span><span></span><span></span>
       </span>
     {:else if children}
@@ -60,7 +60,7 @@
     {/if}
   </div>
   {#if footer && !pending}
-    <footer class="ta-chatmsg-pie">{@render footer()}</footer>
+    <footer class="ta-chatmsg-footer">{@render footer()}</footer>
   {/if}
 </article>
 
@@ -95,46 +95,46 @@
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-chatmsg-autor {
+  .ta-chatmsg-author {
     font-size: 0.75rem;
     font-weight: 600;
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-chatmsg-cuerpo {
+  .ta-chatmsg-body {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     line-height: 1.5;
   }
 
-  .ta-chatmsg-pie {
+  .ta-chatmsg-footer {
     font-size: 0.75rem;
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-chatmsg-espera {
+  .ta-chatmsg-typing {
     display: inline-flex;
     gap: 0.25rem;
     padding: 0.25rem 0;
   }
 
-  .ta-chatmsg-espera span {
+  .ta-chatmsg-typing span {
     width: 0.375rem;
     height: 0.375rem;
     border-radius: 9999px;
     background: rgb(var(--ta-text-dim));
-    animation: ta-chatmsg-punto 1.2s infinite ease-in-out;
+    animation: ta-chatmsg-dot 1.2s infinite ease-in-out;
   }
 
-  .ta-chatmsg-espera span:nth-child(2) { animation-delay: 0.15s; }
-  .ta-chatmsg-espera span:nth-child(3) { animation-delay: 0.3s; }
+  .ta-chatmsg-typing span:nth-child(2) { animation-delay: 0.15s; }
+  .ta-chatmsg-typing span:nth-child(3) { animation-delay: 0.3s; }
 
-  @keyframes ta-chatmsg-punto {
+  @keyframes ta-chatmsg-dot {
     0%, 80%, 100% { opacity: 0.3; }
     40% { opacity: 1; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ta-chatmsg-espera span { animation: none; }
+    .ta-chatmsg-typing span { animation: none; }
   }
 </style>

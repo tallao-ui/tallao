@@ -1,6 +1,6 @@
-// La hidratación se prueba contra `vite dev`: SvelteKit renderiza cada petición en el servidor
-// y Svelte, en modo desarrollo, avisa en consola de cualquier desajuste (en producción lo
-// arregla en silencio, así que ahí no se vería).
+// Hydration is tested against `vite dev`: SvelteKit renders each request on the server
+// and Svelte, in development mode, warns in the console about any mismatch (in production it
+// fixes it silently, so it would not show there).
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({

@@ -1,12 +1,12 @@
 /**
- * tallao — avisos efímeros (toasts)
+ * tallao — short-lived notifications (toasts)
  *
  *   import { toast } from "tallao";
- *   toast.success("Guardado");
- *   toast.error("No se pudo guardar", { description: "La API devolvió 503" });
- *   const id = toast("Subiendo…", { duration: Infinity });  toast.dismiss(id);
+ *   toast.success("Saved");
+ *   toast.error("Could not save", { description: "The API returned 503" });
+ *   const id = toast("Uploading…", { duration: Infinity });  toast.dismiss(id);
  *
- * Se muestran en el <Toaster /> que haya en la página (uno basta).
+ * They show up in whatever <Toaster /> is on the page (one is enough).
  */
 
 export type ToastVariant = "default" | "success" | "error" | "warning" | "info";
@@ -18,7 +18,7 @@ export interface ToastAction {
 
 export interface ToastOptions {
   description?: string;
-  /** Milisegundos a la vista; Infinity = hasta que se cierre. Por defecto 5 s (8 s un error). */
+  /** Milliseconds on screen; Infinity = until dismissed. Defaults to 5 s (8 s for an error). */
   duration?: number;
   action?: ToastAction;
 }
@@ -31,16 +31,16 @@ export interface Toast extends ToastOptions {
 
 let nextId = 1;
 
-/** Los avisos abiertos; los lee el Toaster. */
+/** The open toasts; the Toaster reads them. */
 export const toasts = $state<Toast[]>([]);
 
-// En el servidor este módulo es uno solo para todas las peticiones (SvelteKit): un aviso
-// guardado aquí durante un render saldría en la página de otro usuario. Un aviso es algo
-// que pasa en el navegador, así que en el servidor toast() no hace nada.
-const enServidor = typeof window === "undefined";
+// On the server this module is shared by every request (SvelteKit): a toast stored here
+// during a render would show up on another user's page. A toast is something that
+// happens in the browser, so on the server toast() does nothing.
+const onServer = typeof window === "undefined";
 
 function show(variant: ToastVariant, message: string, opts: ToastOptions = {}): number {
-  if (enServidor) return 0;
+  if (onServer) return 0;
   const t: Toast = { id: nextId++, message, variant, ...opts };
   t.duration ??= variant === "error" ? 8000 : 5000;
   toasts.push(t);
@@ -60,7 +60,7 @@ type ToastFn = ((message: string, opts?: ToastOptions) => number) & {
   error: (message: string, opts?: ToastOptions) => number;
   warning: (message: string, opts?: ToastOptions) => number;
   info: (message: string, opts?: ToastOptions) => number;
-  /** Cierra uno, o todos sin argumento. */
+  /** Dismisses one, or all with no argument. */
   dismiss: (id?: number) => void;
 };
 

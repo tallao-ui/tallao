@@ -1,9 +1,9 @@
 <!--
   tallao — Switch
-  Interruptor de encendido y apagado (role="switch", WAI-ARIA APG): un botón
-  que anuncia «activado» o «desactivado». Para un ajuste que se aplica al
-  momento; para algo que se envía con un formulario, Checkbox.
-  Sin `label` ni hijos, pasa `ariaLabel`.
+  On/off switch (role="switch", WAI-ARIA APG): a button that announces "on"
+  or "off". For a setting that applies immediately; for something submitted
+  with a form, use Checkbox.
+  Without `label` or children, pass `ariaLabel`.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
@@ -25,7 +25,7 @@
     ariaLabel?: string;
     disabled?: boolean;
     size?: "sm" | "md";
-    /** Nombre en un formulario: encendido envía `name=value`, apagado no envía nada (como un checkbox). */
+    /** Name in a form: on submits `name=value`, off submits nothing (like a checkbox). */
     name?: string;
     value?: string;
     class?: string;
@@ -35,7 +35,7 @@
 
   const id = $props.id();
 
-  function alternar() {
+  function toggle() {
     if (disabled) return;
     checked = !checked;
     onchange?.(checked);
@@ -52,14 +52,14 @@
     aria-label={label || children ? undefined : ariaLabel}
     aria-labelledby={label || children ? `${id}-label` : undefined}
     {disabled}
-    class="ta-switch-pista"
-    onclick={alternar}
+    class="ta-switch-track"
+    onclick={toggle}
   >
-    <span class="ta-switch-bola" aria-hidden="true"></span>
+    <span class="ta-switch-thumb" aria-hidden="true"></span>
   </button>
   {#if label || children}
     <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-    <span class="ta-switch-etiqueta" id={`${id}-label`} onclick={alternar}>
+    <span class="ta-switch-label" id={`${id}-label`} onclick={toggle}>
       {label}{@render children?.()}
     </span>
   {/if}
@@ -74,7 +74,7 @@
     color: rgb(var(--ta-text));
   }
 
-  .ta-switch-pista {
+  .ta-switch-track {
     position: relative;
     flex-shrink: 0;
     padding: 0;
@@ -85,20 +85,20 @@
     transition: background-color 0.15s, border-color 0.15s;
   }
 
-  .ta-switch--md .ta-switch-pista { width: 2.25rem; height: 1.25rem; }
-  .ta-switch--sm .ta-switch-pista { width: 1.75rem; height: 1rem; }
+  .ta-switch--md .ta-switch-track { width: 2.25rem; height: 1.25rem; }
+  .ta-switch--sm .ta-switch-track { width: 1.75rem; height: 1rem; }
 
-  .ta-switch-pista[aria-checked="true"] {
+  .ta-switch-track[aria-checked="true"] {
     background: rgb(var(--ta-accent));
     border-color: rgb(var(--ta-accent));
   }
 
-  .ta-switch-pista:focus-visible {
+  .ta-switch-track:focus-visible {
     outline: 2px solid rgb(var(--ta-accent) / 0.6);
     outline-offset: 2px;
   }
 
-  .ta-switch-bola {
+  .ta-switch-thumb {
     position: absolute;
     top: 50%;
     left: 0.125rem;
@@ -109,13 +109,13 @@
     transition: transform 0.15s;
   }
 
-  .ta-switch--md .ta-switch-bola { width: 0.875rem; height: 0.875rem; }
-  .ta-switch--sm .ta-switch-bola { width: 0.625rem; height: 0.625rem; }
+  .ta-switch--md .ta-switch-thumb { width: 0.875rem; height: 0.875rem; }
+  .ta-switch--sm .ta-switch-thumb { width: 0.625rem; height: 0.625rem; }
 
-  .ta-switch--md .ta-switch-pista[aria-checked="true"] .ta-switch-bola { transform: translate(1rem, -50%); }
-  .ta-switch--sm .ta-switch-pista[aria-checked="true"] .ta-switch-bola { transform: translate(0.75rem, -50%); }
+  .ta-switch--md .ta-switch-track[aria-checked="true"] .ta-switch-thumb { transform: translate(1rem, -50%); }
+  .ta-switch--sm .ta-switch-track[aria-checked="true"] .ta-switch-thumb { transform: translate(0.75rem, -50%); }
 
-  .ta-switch-etiqueta {
+  .ta-switch-label {
     cursor: pointer;
     user-select: none;
   }
@@ -123,13 +123,18 @@
   .ta-switch--off {
     opacity: 0.5;
   }
-  .ta-switch--off .ta-switch-pista,
-  .ta-switch--off .ta-switch-etiqueta {
+  .ta-switch--off .ta-switch-track,
+  .ta-switch--off .ta-switch-label {
     cursor: not-allowed;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ta-switch-pista,
-    .ta-switch-bola { transition: none; }
+    .ta-switch-track,
+    .ta-switch-thumb { transition: none; }
+  }
+
+  /* On touch screens: the whole label is the 44px hit area; the track keeps its size. */
+  @media (pointer: coarse) {
+    .ta-switch { min-height: 2.75rem; }
   }
 </style>

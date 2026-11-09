@@ -2,3 +2,10 @@ node_modules/
 dist/
 demo-dist/
 .svelte-kit/
+
+# Presentation material kept locally, not part of the kit
+landing.html
+generate-landing.mjs
+demo.html
+public-tallao-logo.png
+src/HyperFramesDemo.svelte

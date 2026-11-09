@@ -1,6 +1,6 @@
 <!--
   tallao — demo
-  Muestra todos los componentes del v0.1 con sus variantes y estados.
+  Shows every v0.1 component with its variants and states.
 -->
 <script lang="ts">
   import {
@@ -46,6 +46,7 @@
     Progress,
     Skeleton,
     Avatar,
+    Label,
     SelectionBar,
     KeyValueEditor,
     CopyButton,
@@ -57,226 +58,311 @@
     Pagination,
     DatePicker,
     Calendar,
+    MonthView,
+    Spinner,
     FileUpload,
     Breadcrumb,
     Icon,
     SplitPane,
     Sidebar,
+    BottomNav,
+    NavMenu,
     BarChart,
     LineChart,
     SchemaForm,
+    Slider,
+    SearchInput,
+    Toggle,
+    ToggleGroup,
+    NumberInput,
+    Rating,
+    Carousel,
+    CompareSlider,
+    Steps,
+    SuggestionChips,
+    CodeBlock,
+    Sources,
+    UsageMeter,
+    InputOTP,
+    type DataFilters,
     type JsonSchema,
   } from "$lib/components";
   import { CodeEditor } from "$lib/code";
   import { GameMap } from "$lib/map";
-  import { es, setLabels } from "$lib/i18n";
   import { toast } from "$lib/toast.svelte";
 
-  // La demo está en español: los textos del kit también.
-  setLabels(es);
+  // The demo is in English, so it keeps the kit's default `en` labels.
 
-  let tema = $state<"dark" | "light">("dark");
-  let dialogoAbierto = $state(false);
-  let busqueda = $state("");
-  let cargando = $state(false);
+  let theme = $state<"dark" | "light">("dark");
+  let dialogOpen = $state(false);
+  let search = $state("");
+  let loading = $state(false);
 
-  // ——— Formularios y administración ———
-  let rol = $state("member");
-  let notas = $state("");
-  let esAgente = $state(true);
-  let pestana = $state("miembros");
-  let confirmarAbierto = $state(false);
-  let avisoVisible = $state(true);
+  // ——— Forms and administration ———
+  let role = $state("member");
+  let notes = $state("");
+  let isAgent = $state(true);
+  let tab = $state("members");
+  let adminTab = $state("drafts");
+  let confirmOpen = $state(false);
+  let noticeVisible = $state(true);
 
-  // ——— Capa flotante ———
-  let filtroPopover = $state("");
-  let ultimaAccion = $state("ninguna");
-  let juegoElegido = $state<string | null>(null);
+  // ——— Floating layer ———
+  let popoverFilter = $state("");
+  let lastAction = $state("none");
+  let chosenGame = $state<string | null>(null);
 
   // ——— 0.6 ———
-  const juegosTabla = [
-    { id: "aniimo", nombre: "Aniimo", visitas: 4120, estado: "Publicado" },
-    { id: "cardback", nombre: "Cardback", visitas: 2875, estado: "Revisión" },
-    { id: "cozy", nombre: "Cozy Games", visitas: 640, estado: "Borrador" },
-    { id: "d4", nombre: "Diablo IV", visitas: 9810, estado: "Publicado" },
-    { id: "er", nombre: "Elden Ring", visitas: 7302, estado: "Publicado" },
-    { id: "gd", nombre: "Grim Dawn", visitas: 1203, estado: "Borrador" },
+  const tableGames = [
+    { id: "aniimo", name: "Aniimo", visits: 4120, status: "Published" },
+    { id: "cardback", name: "Cardback", visits: 2875, status: "In review" },
+    { id: "cozy", name: "Cozy Games", visits: 640, status: "Draft" },
+    { id: "d4", name: "Diablo IV", visits: 9810, status: "Published" },
+    { id: "er", name: "Elden Ring", visits: 7302, status: "Published" },
+    { id: "gd", name: "Grim Dawn", visits: 1203, status: "Draft" },
   ];
-  let seleccionTabla = $state<string[]>([]);
-  let fechaDemo = $state<string | null>("2026-11-03");
-  let paginaDemo = $state(3);
-  let etiquetasDemo = $state<string[]>(["bug"]);
-  const buscarJuegos = (q: string) =>
+  let tableSelection = $state<string[]>([]);
+  let demoDate = $state<string | null>("2026-11-03");
+  let demoPage = $state(3);
+  let demoOtp = $state("");
+  let demoFilters = $state<DataFilters>({});
+  let demoTags = $state<string[]>(["bug"]);
+  const searchGames = (q: string) =>
     new Promise<{ value: string; label: string }[]>((r) =>
-      setTimeout(() => r(juegosTabla.filter((j) => j.nombre.toLowerCase().includes(q.toLowerCase())).map((j) => ({ value: j.id, label: j.nombre }))), 300)
+      setTimeout(() => r(tableGames.filter((g) => g.name.toLowerCase().includes(q.toLowerCase())).map((g) => ({ value: g.id, label: g.name }))), 300)
     );
 
   // ——— 0.5 ———
-  const filasDemo = ["Comentario de ana", "Comentario de luis", "Comentario de eva"];
-  let marcadasDemo = $state<string[]>([]);
-  let statsDemo = $state([{ key: "hp", value: "1200" }, { key: "atk", value: "85" }]);
-  let tiersDemo = $state<Record<string, string>>({ Nahida: "pool", Raiden: "pool", Furina: "s" });
+  const demoRows = ["Comment by ana", "Comment by luis", "Comment by eva"];
+  let demoChecked = $state<string[]>([]);
+  let demoStats = $state([{ key: "hp", value: "1200" }, { key: "atk", value: "85" }]);
+  let demoTiers = $state<Record<string, string>>({ Nahida: "pool", Raiden: "pool", Furina: "s" });
 
   // ——— 0.4 ———
-  let avisosActivos = $state(true);
+  let emailNotices = $state(true);
   let plan = $state("pro");
-  let lateral = $state(false);
-  let paleta = $state(false);
-  let ultimaOrden = $state("ninguna");
-  const ordenes = [
-    { id: "nuevo", label: "Nuevo proyecto", group: "Proyectos", shortcut: "N", onSelect: () => (ultimaOrden = "nuevo proyecto") },
-    { id: "abrir", label: "Abrir Aniimo", group: "Proyectos", keywords: ["juego"], onSelect: () => (ultimaOrden = "abrir Aniimo") },
-    { id: "tema", label: "Cambiar tema", group: "Ajustes", keywords: ["oscuro", "claro"], onSelect: () => alternarTema() },
-    { id: "salir", label: "Cerrar sesión", group: "Ajustes", disabled: true, onSelect: () => {} },
+  let sidePanel = $state(false);
+  let palette = $state(false);
+  let lastCommand = $state("none");
+  const commands = [
+    { id: "new", label: "New project", group: "Projects", shortcut: "N", onSelect: () => (lastCommand = "new project") },
+    { id: "open", label: "Open Aniimo", group: "Projects", keywords: ["game"], onSelect: () => (lastCommand = "open Aniimo") },
+    { id: "theme", label: "Toggle theme", group: "Settings", keywords: ["dark", "light"], onSelect: () => toggleTheme() },
+    { id: "logout", label: "Log out", group: "Settings", disabled: true, onSelect: () => {} },
   ];
-  const juegosCombo = [
+  const comboGames = [
     "Aniimo", "Cardback", "Cozy Games", "Diablo IV", "Elden Ring", "Grim Dawn", "Last Epoch",
     "Monster Hunter Wilds", "Palworld", "Path of Exile 2", "Pokémon TCG Pocket", "Star Rail",
   ].map((n) => ({ value: n.toLowerCase().replaceAll(" ", "-"), label: n }));
-
+  // Palette with results from the page (like the sites' search): unfiltered, with a delay and links.
+  let remotePalette = $state(false);
+  let remoteQuery = $state("");
+  let remoteLoading = $state(false);
+  let remoteResults = $state<{ id: string; label: string; description: string; href: string; group: string; badge: string }[]>([]);
   $effect(() => {
-    document.documentElement.dataset.tallaoTheme = tema;
+    const q = remoteQuery.trim().toLowerCase();
+    if (q.length < 2) {
+      remoteResults = [];
+      remoteLoading = false;
+      return;
+    }
+    remoteLoading = true;
+    const wait = setTimeout(() => {
+      remoteResults = comboGames
+        .filter((g) => g.label.toLowerCase().includes(q))
+        .slice(0, 5)
+        .map((g) => ({ id: g.value, label: g.label, description: "Simulated API response", href: `#${g.value}`, group: "Games", badge: "Game" }));
+      remoteLoading = false;
+    }, 500);
+    return () => clearTimeout(wait);
   });
 
-  const juegos = [
-    { nombre: "World of Warcraft: Forever", estado: "Publicado", plataformas: 2, popularidad: 98 },
-    { nombre: "Aniimo", estado: "Borrador", plataformas: 3, popularidad: 41 },
-    { nombre: "Riftbound", estado: "Revisión", plataformas: 1, popularidad: 77 },
-    { nombre: "Dressmaker", estado: "Publicado", plataformas: 2, popularidad: 86 },
+  $effect(() => {
+    document.documentElement.dataset.tallaoTheme = theme;
+  });
+
+  const games = [
+    { name: "World of Warcraft: Forever", status: "Published", platforms: 2, popularity: 98 },
+    { name: "Aniimo", status: "Draft", platforms: 3, popularity: 41 },
+    { name: "Riftbound", status: "In review", platforms: 1, popularity: 77 },
+    { name: "Dressmaker", status: "Published", platforms: 2, popularity: 86 },
   ];
 
-  function alternarTema() {
-    tema = tema === "dark" ? "light" : "dark";
+  function toggleTheme() {
+    theme = theme === "dark" ? "light" : "dark";
   }
 
-  function simularCarga() {
-    cargando = true;
-    setTimeout(() => (cargando = false), 1600);
+  function simulateLoading() {
+    loading = true;
+    setTimeout(() => (loading = false), 1600);
   }
 
-  // ——— Capa generativa: mini-chat de demostración ———
-  type Mensaje =
-    | { tipo: "usuario"; texto: string }
-    | { tipo: "herramienta"; nombre: string; args: Record<string, unknown>; estado: "pending" | "executing" | "executed" | "rejected" };
+  // ——— Generative layer: demo mini-chat ———
+  type Message =
+    | { kind: "user"; text: string }
+    | { kind: "tool"; name: string; args: Record<string, unknown>; status: "pending" | "executing" | "executed" | "rejected" };
 
-  let mensajes = $state<Mensaje[]>([]);
-  let pensando = $state(false);
+  let messages = $state<Message[]>([]);
+  let thinking = $state(false);
 
-  function enviarPrompt(texto: string) {
-    mensajes = [...mensajes, { tipo: "usuario", texto }];
-    pensando = true;
+  function sendPrompt(text: string) {
+    messages = [...messages, { kind: "user", text }];
+    thinking = true;
     setTimeout(() => {
-      pensando = false;
-      mensajes = [
-        ...mensajes,
+      thinking = false;
+      messages = [
+        ...messages,
         {
-          tipo: "herramienta",
-          nombre: "publish_post",
-          args: { sitio: "valhalla", titulo: texto, seccion: "noticias" },
-          estado: "pending",
+          kind: "tool",
+          name: "publish_post",
+          args: { site: "valhalla", title: text, section: "news" },
+          status: "pending",
         },
       ];
     }, 900);
   }
 
-  function decidir(i: number, aprobado: boolean) {
-    const m = mensajes[i];
-    if (m.tipo !== "herramienta") return;
-    m.estado = aprobado ? "executing" : "rejected";
-    if (aprobado) {
-      setTimeout(() => { m.estado = "executed"; }, 1200);
+  function decide(i: number, approved: boolean) {
+    const m = messages[i];
+    if (m.kind !== "tool") return;
+    m.status = approved ? "executing" : "rejected";
+    if (approved) {
+      setTimeout(() => { m.status = "executed"; }, 1200);
     }
   }
 
-  // ——— Mapa ———
-  const marcadoresDemo = [
-    { lat: 40.4168, lng: -3.7038, title: "Madrid", description: "Sede del gremio · 12 miembros" },
-    { lat: 41.3874, lng: 2.1686, title: "Barcelona", description: "Torneo regional · sábado 18:00" },
-    { lat: 37.3891, lng: -5.9845, title: "Sevilla", description: "Quedada de la comunidad" },
+  // ——— Map ———
+  const demoMarkers = [
+    { lat: 40.4168, lng: -3.7038, title: "Madrid", description: "Guild headquarters · 12 members" },
+    { lat: 41.3874, lng: 2.1686, title: "Barcelona", description: "Regional tournament · Saturday 18:00" },
+    { lat: 37.3891, lng: -5.9845, title: "Seville", description: "Community meetup" },
   ];
 
   // ——— 0.7 ———
-  let anchoLista = $state(35);
-  let barraPlegada = $state(false);
-  const visitasMes = [
-    { mes: "Jun", visitas: 4200, altas: 310 },
-    { mes: "Jul", visitas: 5100, altas: 380 },
-    { mes: "Ago", visitas: 4800, altas: 290 },
-    { mes: "Sep", visitas: 6900, altas: 520 },
-    { mes: "Oct", visitas: 8300, altas: 610 },
-    { mes: "Nov", visitas: 7600, altas: 570 },
+  let listWidth = $state(35);
+  let sidebarCollapsed = $state(false);
+  const monthlyVisits = [
+    { month: "Jun", visits: 4200, signups: 310 },
+    { month: "Jul", visits: 5100, signups: 380 },
+    { month: "Aug", visits: 4800, signups: 290 },
+    { month: "Sep", visits: 6900, signups: 520 },
+    { month: "Oct", visits: 8300, signups: 610 },
+    { month: "Nov", visits: 7600, signups: 570 },
   ];
-  const esquemaDemo: JsonSchema = {
+  const demoSchema: JsonSchema = {
     type: "object",
-    required: ["titulo", "estado"],
+    required: ["title", "status"],
     properties: {
-      titulo: { type: "string", title: "Título", minLength: 3 },
-      estado: {
+      title: { type: "string", title: "Title", minLength: 3 },
+      status: {
         type: "string",
-        title: "Estado",
+        title: "Status",
         oneOf: [
-          { const: "draft", title: "Borrador" },
-          { const: "live", title: "Publicado" },
+          { const: "draft", title: "Draft" },
+          { const: "live", title: "Published" },
         ],
       },
-      prioridad: { type: "integer", title: "Prioridad", minimum: 1, maximum: 5, default: 3 },
-      publicar: { type: "string", title: "Publicar el", format: "date" },
-      destacado: { type: "boolean", title: "Destacado" },
-      etiquetas: { type: "array", title: "Etiquetas", items: { enum: ["guía", "parche", "evento"] } },
+      priority: { type: "integer", title: "Priority", minimum: 1, maximum: 5, default: 3 },
+      publishOn: { type: "string", title: "Publish on", format: "date" },
+      featured: { type: "boolean", title: "Featured" },
+      tags: { type: "array", title: "Tags", items: { enum: ["guide", "patch", "event"] } },
     },
   };
-  let valorEsquema = $state<Record<string, unknown>>({});
-  let codigoDemo = $state(["# Notas del parche", "", "- Nuevo **mapa**", "- Arreglos varios", ""].join("\n"));
+  let schemaValue = $state<Record<string, unknown>>({});
+  let demoCode = $state(["# Patch notes", "", "- New **map**", "- Various fixes", ""].join("\n"));
+
+  // ——— Site controls ———
+  let demoLevel = $state(30);
+  let demoSearch = $state("");
+  let favoritesOnly = $state(false);
+  let demoRarity = $state("all");
+  let demoTypes = $state<string[]>(["fire"]);
+  let demoFacets = $state<string[]>([]);
+  let demoCopies = $state<number | null>(2);
+  let demoRating = $state(4);
+
+  // ——— Carousel · CompareSlider ———
+  const demoCards = [
+    { id: "aniimo", name: "Aniimo", genre: "Creature collecting", score: "8.6" },
+    { id: "d4", name: "Diablo IV", genre: "ARPG", score: "8.1" },
+    { id: "er", name: "Elden Ring", genre: "Soulslike", score: "9.5" },
+    { id: "gd", name: "Grim Dawn", genre: "ARPG", score: "8.4" },
+    { id: "le", name: "Last Epoch", genre: "ARPG", score: "8.0" },
+    { id: "pal", name: "Palworld", genre: "Survival", score: "7.9" },
+    { id: "sr", name: "Star Rail", genre: "Turn-based gacha", score: "8.3" },
+  ];
+  let demoAutoplay = $state(false);
+  let demoComparison = $state(50);
+  // Two images drawn right here: the demo does not depend on files.
+  const demoImage = (background: string, text: string) =>
+    `data:image/svg+xml,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900"><defs><linearGradient id="g" x2="1" y2="1"><stop offset="0" stop-color="${background}"/><stop offset="1" stop-color="#111"/></linearGradient></defs><rect width="1600" height="900" fill="url(#g)"/><text x="800" y="480" font-family="sans-serif" font-size="120" fill="#fff" text-anchor="middle">${text}</text></svg>`
+    )}`;
+  const demoBefore = demoImage("#7c3aed", "v1.0");
+  const demoAfter = demoImage("#059669", "v2.0");
+
+  // ——— Compact Table · MonthView · Spinner ———
+  const matrixTypes = ["Fire", "Water", "Grass", "Electric", "Ice", "Rock", "Wind", "Light", "Shadow"];
+  const demoMatrix = matrixTypes.map((_, i) => matrixTypes.map((_, j) => (j === (i + 1) % 9 ? 0.5 : j === (i + 8) % 9 ? 2 : 1)));
+  let chosenType = $state(0);
+  let demoMonth = $state("2026-11-01");
+  const demoEvents = [
+    { id: "e1", date: "2026-11-03", title: "Patch 1.2" },
+    { id: "e2", date: "2026-11-14", title: "Regional tournament" },
+    { id: "e3", date: "2026-11-14", title: "Team livestream" },
+    { id: "e4", date: "2026-11-27", title: "End of season" },
+  ];
+  let chosenEvent = $state("none");
 </script>
 
 <svelte:head>
-  <title>tallao — componentes v0.1</title>
+  <title>tallao — v0.1 components</title>
 </svelte:head>
 
 <div class="demo">
-  <header class="demo-cabecera">
+  <header class="demo-header">
     <div>
       <h1>⛏️ tallao</h1>
-      <p class="demo-subtitulo">
-        UI kit en Svelte 5 extraído del admin de Kitsuden — v0.1 ·
+      <p class="demo-subtitle">
+        Svelte 5 UI kit extracted from the Kitsuden admin — v0.1 ·
         Button · Card · Dialog · Table · Input · Badge
       </p>
     </div>
-    <Button variant="secondary" size="md" onclick={alternarTema}>
-      {tema === "dark" ? "☀️ Tema claro" : "🌙 Tema oscuro"}
+    <Button variant="secondary" size="md" onclick={toggleTheme}>
+      {theme === "dark" ? "☀️ Light theme" : "🌙 Dark theme"}
     </Button>
   </header>
 
   <!-- ——— BUTTON ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>Button</h2>
-    <div class="fila">
-      {#each ["primary", "secondary", "danger", "ghost", "outline"] as v}
+    <div class="row">
+      {#each ["primary", "secondary", "danger", "danger-ghost", "ghost", "outline"] as v}
         <Button variant={v as any}>{v}</Button>
       {/each}
     </div>
-    <div class="fila">
-      <Button size="sm">Pequeño</Button>
-      <Button size="md">Mediano</Button>
-      <Button size="lg">Grande</Button>
-      <Button size="icon" ariaLabel="Cerrar">
+    <div class="row">
+      <Button size="sm">Small</Button>
+      <Button size="md">Medium</Button>
+      <Button size="lg">Large</Button>
+      <Button size="icon" ariaLabel="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </Button>
     </div>
-    <div class="fila">
-      <Button loading={true}>Cargando…</Button>
-      <Button disabled={true}>Deshabilitado</Button>
-      <Button variant="outline" loading={cargando} onclick={simularCarga}>
-        {cargando ? "Simulando…" : "Simular carga"}
+    <div class="row">
+      <Button loading={true}>Loading…</Button>
+      <Button disabled={true}>Disabled</Button>
+      <Button variant="outline" loading={loading} onclick={simulateLoading}>
+        {loading ? "Simulating…" : "Simulate loading"}
       </Button>
-      <Button href="https://svelte.dev" variant="ghost">Soy un enlace ↗</Button>
+      <Button href="https://svelte.dev" variant="ghost">I am a link ↗</Button>
     </div>
   </section>
 
   <!-- ——— BADGE ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>Badge</h2>
-    <div class="fila">
+    <div class="row">
       <Badge>default</Badge>
       <Badge variant="secondary">secondary</Badge>
       <Badge variant="success">success</Badge>
@@ -284,77 +370,92 @@
       <Badge variant="error">error</Badge>
       <Badge variant="info">info</Badge>
       <Badge variant="purple">purple</Badge>
-      <Badge size="md">talla md</Badge>
+      <Badge variant="accent-2">accent-2</Badge>
+      <Badge size="md">size md</Badge>
+    </div>
+    <div class="row">
+      {#each ["success", "warning", "error", "info", "accent", "accent-2"] as v}
+        <Badge variant={v as any} tone="solid">{v}</Badge>
+      {/each}
+      <Badge variant="accent-2" tone="solid" title="Broadcast in progress">LIVE</Badge>
+    </div>
+    <div class="row">
+      <Badge variant="success" dot>Published</Badge>
+      <Badge variant="info" pulse>Running</Badge>
+      <Badge variant="warning" dot>Pending review</Badge>
+      <Badge variant="error" dot>Failed</Badge>
+      <Badge dot>Draft</Badge>
+      <Badge variant="accent-2" tone="solid" pulse>LIVE</Badge>
     </div>
   </section>
 
   <!-- ——— INPUT ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>Input</h2>
-    <div class="cuadricula">
-      <label class="campo">
-        <span class="campo-etiqueta">Normal</span>
-        <Input placeholder="Escribe algo…" />
+    <div class="grid">
+      <label class="field">
+        <span class="field-label">Normal</span>
+        <Input placeholder="Type something…" />
       </label>
-      <label class="campo">
-        <span class="campo-etiqueta">Con valor ({busqueda.length} caracteres)</span>
-        <Input placeholder="Busca un juego…" bind:value={busqueda} />
+      <label class="field">
+        <span class="field-label">With value ({search.length} characters)</span>
+        <Input placeholder="Search for a game…" bind:value={search} />
       </label>
-      <label class="campo">
-        <span class="campo-etiqueta">Deshabilitado</span>
-        <Input placeholder="No puedes escribir aquí" disabled={true} />
+      <label class="field">
+        <span class="field-label">Disabled</span>
+        <Input placeholder="You cannot type here" disabled={true} />
       </label>
     </div>
   </section>
 
   <!-- ——— DIALOG ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>Dialog</h2>
-    <div class="fila">
-      <Button onclick={() => (dialogoAbierto = true)}>Abrir diálogo</Button>
+    <div class="row">
+      <Button onclick={() => (dialogOpen = true)}>Open dialog</Button>
     </div>
     <Dialog
-      bind:open={dialogoAbierto}
-      title="Publicar cambios"
-      description="Se desplegarán en las 4 webs de la red."
+      bind:open={dialogOpen}
+      title="Publish changes"
+      description="They will be deployed to the 4 sites in the network."
       size="md"
     >
-      <p class="dialogo-texto">
-        Estás a punto de publicar. Esta acción reconstruye Valhalla, TodoGachas,
-        Cardback y Cozy con los últimos contenidos del CMS.
+      <p class="dialog-text">
+        You are about to publish. This action rebuilds Valhalla, TodoGachas,
+        Cardback and Cozy with the latest CMS content.
       </p>
       {#snippet footer()}
-        <Button variant="ghost" onclick={() => (dialogoAbierto = false)}>Cancelar</Button>
-        <Button onclick={() => (dialogoAbierto = false)}>Publicar ahora</Button>
+        <Button variant="ghost" onclick={() => (dialogOpen = false)}>Cancel</Button>
+        <Button onclick={() => (dialogOpen = false)}>Publish now</Button>
       {/snippet}
     </Dialog>
   </section>
 
   <!-- ——— CARD ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>Card</h2>
-    <div class="cuadricula-2">
+    <div class="grid-2">
       <Card>
         <CardHeader>
-          <CardTitle>Card con partes</CardTitle>
-          <Badge variant="purple">nuevo</Badge>
+          <CardTitle>Card with parts</CardTitle>
+          <Badge variant="purple">new</Badge>
         </CardHeader>
         <CardContent>
-          <p class="card-texto">
-            CardHeader, CardTitle, CardContent y CardFooter componen el contenedor
-            completo, igual que en el dashboard del admin.
+          <p class="card-text">
+            CardHeader, CardTitle, CardContent and CardFooter make up the full
+            container, just like in the admin dashboard.
           </p>
         </CardContent>
         <CardFooter>
-          <Button variant="ghost" size="sm">Descartar</Button>
-          <Button size="sm">Aceptar</Button>
+          <Button variant="ghost" size="sm">Discard</Button>
+          <Button size="sm">Accept</Button>
         </CardFooter>
       </Card>
       <Card>
         <CardContent>
-          <p class="card-texto">
-            Card a pelo: solo el contenedor y su contenido. Útil para paneles y
-            widgets del dashboard.
+          <p class="card-text">
+            Bare Card: just the container and its content. Useful for dashboard
+            panels and widgets.
           </p>
         </CardContent>
       </Card>
@@ -362,146 +463,284 @@
   </section>
 
   <!-- ——— TABLE ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>Table</h2>
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Juego</TableHead>
-          <TableHead>Estado</TableHead>
-          <TableHead>Plataformas</TableHead>
-          <TableHead>Popularidad</TableHead>
+          <TableHead>Game</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Platforms</TableHead>
+          <TableHead>Popularity</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {#each juegos as j}
+        {#each games as g}
           <TableRow>
-            <TableCell><strong>{j.nombre}</strong></TableCell>
+            <TableCell><strong>{g.name}</strong></TableCell>
             <TableCell>
               <Badge
-                variant={j.estado === "Publicado" ? "success" : j.estado === "Revisión" ? "warning" : "default"}
-              >{j.estado}</Badge>
+                variant={g.status === "Published" ? "success" : g.status === "In review" ? "warning" : "default"}
+              >{g.status}</Badge>
             </TableCell>
-            <TableCell>{j.plataformas}</TableCell>
-            <TableCell>{j.popularidad} %</TableCell>
+            <TableCell>{g.platforms}</TableCell>
+            <TableCell>{g.popularity} %</TableCell>
+          </TableRow>
+        {/each}
+      </TableBody>
+    </Table>
+    <p class="card-text">Compact, with a sticky first column: a type matrix.</p>
+    <Table density="compact" stickyFirstColumn aria-label="Multiplier by attacker and defender">
+      <TableHeader>
+        <TableRow>
+          <TableHead>Attacks ↓ · Defends →</TableHead>
+          {#each matrixTypes as d (d)}<TableHead style="text-align: center">{d}</TableHead>{/each}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {#each matrixTypes as a, i (a)}
+          <TableRow>
+            <TableHead scope="row">
+              <Button variant={i === chosenType ? "soft" : "ghost"} size="sm" aria-pressed={i === chosenType} onclick={() => (chosenType = i)}>{a}</Button>
+            </TableHead>
+            {#each matrixTypes as d, j (d)}
+              <TableCell style="text-align: center; font-family: var(--ta-font-mono)" title={`${a} → ${d}: ×${demoMatrix[i][j]}`}>×{demoMatrix[i][j]}</TableCell>
+            {/each}
           </TableRow>
         {/each}
       </TableBody>
     </Table>
   </section>
 
-  <!-- ——— FORMULARIOS ——— -->
-  <section class="seccion">
+  <!-- ——— FORMS ——— -->
+  <section class="section">
     <h2>Field · Select · Textarea · Checkbox</h2>
-    <div class="cuadricula">
-      <Field label="Rol" required>
+    <div class="grid">
+      <Field label="Role" required>
         <Select
-          bind:value={rol}
+          bind:value={role}
           options={[
-            { value: "owner", label: "Propietario" },
-            { value: "member", label: "Miembro" },
-            { value: "viewer", label: "Lector" },
+            { value: "owner", label: "Owner" },
+            { value: "member", label: "Member" },
+            { value: "viewer", label: "Viewer" },
           ]}
         />
       </Field>
-      <Field label="Notas" error={notas.length > 40 ? "Máximo 40 caracteres" : undefined}>
-        <Textarea bind:value={notas} rows={2} placeholder="Para el siguiente…" />
+      <Field label="Notes" error={notes.length > 40 ? "40 characters maximum" : undefined}>
+        <Textarea bind:value={notes} rows={2} placeholder="For whoever comes next…" />
       </Field>
-      <div class="fila">
-        <Checkbox bind:checked={esAgente} label="Es un agente" />
+      <div class="row">
+        <Checkbox bind:checked={isAgent} label="Is an agent" />
       </div>
+      <div class="stack">
+        <Label for="demo-slug" required>Slug</Label>
+        <Input id="demo-slug" required placeholder="my-first-post" />
+      </div>
+    </div>
+    <div style="margin-top: 1rem">
+      <Tabs
+        ariaLabel="Post states"
+        panels={false}
+        bind:value={adminTab}
+        items={[
+          { id: "drafts", label: "Drafts", controls: "demo-panel-drafts", tabId: "demo-tab-drafts" },
+          { id: "published", label: "Published", controls: "demo-panel-published", tabId: "demo-tab-published" },
+        ]}
+      />
+      <p class="note">Tabs with <code>panels=&#123;false&#125;</code>: the page renders each panel where it wants.</p>
+      <div id="demo-panel-drafts" role="tabpanel" aria-labelledby="demo-tab-drafts" hidden={adminTab !== "drafts"}>3 drafts waiting.</div>
+      <div id="demo-panel-published" role="tabpanel" aria-labelledby="demo-tab-published" hidden={adminTab !== "published"}>12 posts published.</div>
     </div>
   </section>
 
-  <!-- ——— ADMINISTRACIÓN ——— -->
-  <section class="seccion">
+  <!-- ——— ADMINISTRATION ——— -->
+  <section class="section">
     <h2>Tabs · Alert · Stat · ConfirmDialog</h2>
     <Tabs
-      bind:value={pestana}
-      ariaLabel="Secciones del proyecto"
+      bind:value={tab}
+      ariaLabel="Project sections"
       items={[
-        { id: "miembros", label: "Miembros", count: 4 },
+        { id: "members", label: "Members", count: 4 },
         { id: "intakes", label: "Intakes", count: 2 },
-        { id: "coste", label: "Coste" },
+        { id: "cost", label: "Cost" },
       ]}
     >
-      {#snippet children(activa)}
-        {#if activa === "miembros"}
-          {#if avisoVisible}
-            <Alert variant="success" title="Miembro añadido" onDismiss={() => (avisoVisible = false)}>
-              agent-dev-a entra como miembro.
+      {#snippet children(active)}
+        {#if active === "members"}
+          {#if noticeVisible}
+            <Alert variant="success" title="Member added" onDismiss={() => (noticeVisible = false)}>
+              agent-dev-a joins as a member.
             </Alert>
           {/if}
-          <div class="fila" style="margin-top: 0.75rem">
-            <Button variant="danger" onclick={() => (confirmarAbierto = true)}>Quitar miembro</Button>
+          <div class="row" style="margin-top: 0.75rem">
+            <Button variant="danger" onclick={() => (confirmOpen = true)}>Remove member</Button>
           </div>
-        {:else if activa === "intakes"}
-          <Alert variant="warning" title="2 pendientes">Esperan decisión de una persona.</Alert>
+        {:else if active === "intakes"}
+          <Alert variant="warning" title="2 pending">Waiting for a person to decide.</Alert>
         {:else}
-          <div class="cuadricula">
-            <Stat label="Trabajos hechos" value={18} variant="success" />
-            <Stat label="Fallidos" value={2} variant="error" />
-            <Stat label="Coste" value="$0.42" />
+          <div class="grid">
+            <Stat label="Jobs done" value={18} variant="success" />
+            <Stat label="Failed" value={2} variant="error" />
+            <Stat label="Cost" value="$0.42" />
           </div>
         {/if}
       {/snippet}
     </Tabs>
     <ConfirmDialog
-      bind:open={confirmarAbierto}
-      title="¿Quitar a agent-dev-a?"
-      description="Deja de ver el proyecto y su cola de trabajo."
-      confirmLabel="Quitar"
+      bind:open={confirmOpen}
+      title="Remove agent-dev-a?"
+      description="They will no longer see the project or its work queue."
+      confirmLabel="Remove"
       onConfirm={() => new Promise((r) => setTimeout(r, 800))}
     />
   </section>
 
-  <!-- ——— CAPA FLOTANTE ——— -->
-  <section class="seccion">
+  <!-- ——— FLOATING LAYER ——— -->
+  <section class="section">
     <h2>Popover · Tooltip · DropdownMenu · Combobox</h2>
-    <div class="fila">
-      <Popover title="Filtros">
-        {#snippet trigger(props)}<Button variant="secondary" {...props}>Filtros</Button>{/snippet}
-        <Field label="Nombre contiene"><Input bind:value={filtroPopover} placeholder="Escribe…" /></Field>
+    <div class="row">
+      <Popover title="Filters">
+        {#snippet trigger(props)}<Button variant="secondary" {...props}>Filters</Button>{/snippet}
+        <Field label="Name contains"><Input bind:value={popoverFilter} placeholder="Type…" /></Field>
       </Popover>
 
-      <Tooltip text="Copia el enlace al portapapeles">
-        {#snippet trigger(props)}<Button variant="outline" {...props}>Copiar enlace</Button>{/snippet}
+      <Tooltip text="Copies the link to the clipboard">
+        {#snippet trigger(props)}<Button variant="outline" {...props}>Copy link</Button>{/snippet}
       </Tooltip>
 
-      <DropdownMenu label="Acciones del proyecto">
-        {#snippet trigger(props)}<Button variant="secondary" {...props}>Acciones ▾</Button>{/snippet}
-        <MenuLabel>Proyecto</MenuLabel>
-        <MenuItem onSelect={() => (ultimaAccion = "editar")}>Editar</MenuItem>
-        <MenuItem onSelect={() => (ultimaAccion = "duplicar")} disabled>Duplicar</MenuItem>
-        <MenuItem onSelect={() => (ultimaAccion = "archivar")}>Archivar</MenuItem>
+      <DropdownMenu label="Project actions">
+        {#snippet trigger(props)}<Button variant="secondary" {...props}>Actions ▾</Button>{/snippet}
+        <MenuLabel>Project</MenuLabel>
+        <MenuItem onSelect={() => (lastAction = "edit")}>Edit</MenuItem>
+        <MenuItem onSelect={() => (lastAction = "duplicate")} disabled>Duplicate</MenuItem>
+        <MenuItem onSelect={() => (lastAction = "archive")}>Archive</MenuItem>
         <MenuSeparator />
-        <MenuItem variant="danger" onSelect={() => (ultimaAccion = "borrar")}>Borrar</MenuItem>
+        <MenuItem variant="danger" onSelect={() => (lastAction = "delete")}>Delete</MenuItem>
       </DropdownMenu>
-      <span class="nota">Última acción: {ultimaAccion}</span>
+      <span class="note">Last action: {lastAction}</span>
     </div>
-    <div class="cuadricula">
-      <Field label="Juego">
-        <Combobox options={juegosCombo} bind:value={juegoElegido} placeholder="Busca un juego…" />
+    <div class="grid">
+      <Field label="Game">
+        <Combobox options={comboGames} bind:value={chosenGame} placeholder="Search for a game…" />
       </Field>
-      <p class="nota">Elegido: {juegoElegido ?? "ninguno"}</p>
+      <p class="note">Chosen: {chosenGame ?? "none"}</p>
+    </div>
+  </section>
+
+  <!-- ——— Site controls ——— -->
+  <section class="section">
+    <h2>Slider · SearchInput · Toggle · ToggleGroup · NumberInput · Rating · InputOTP</h2>
+    <div class="grid-2">
+      <Slider
+        label="Level"
+        bind:value={demoLevel}
+        min={1}
+        max={60}
+        valueText={(v) => `Lv. ${v}`}
+        marks={[{ value: 1, label: "Lv. 1" }, { value: 30, label: "Lv. 30" }, { value: 60, label: "Lv. 60" }]}
+      />
+      <SearchInput bind:value={demoSearch} placeholder="Search species…" />
+    </div>
+    <div class="row" style="margin-top: 1rem">
+      <Toggle bind:pressed={favoritesOnly}>Favorites only</Toggle>
+      <ToggleGroup
+        label="Rarity"
+        bind:value={demoRarity}
+        required
+        options={[{ value: "all", label: "All" }, { value: "rare", label: "Rare", count: 12 }, { value: "epic", label: "Epic", count: 3 }]}
+      />
+      <ToggleGroup label="Types" type="multiple" bind:values={demoTypes} options={[{ value: "fire", label: "Fire" }, { value: "water", label: "Water" }, { value: "grass", label: "Grass" }]} />
+    </div>
+    <div class="row" style="margin-top: 1rem; align-items: flex-end">
+      <NumberInput bind:value={demoCopies} min={0} max={3} stepper width="auto" ariaLabel="Copies" />
+      <Rating bind:value={demoRating} label="What did you think?" />
+      <Rating value={4} label="Average rating" readonly />
+      <InputOTP bind:value={demoOtp} groupSize={3} oncomplete={(c) => toast.success(`Code ${c} sent`)} />
+      <ToggleGroup ariaLabel="View" variant="segmented" tone="solid" value="month" options={[{ value: "day", label: "Day" }, { value: "month", label: "Month" }, { value: "year", label: "Year" }]} />
+    </div>
+    <div class="row" style="margin-top: 1rem">
+      <ToggleGroup
+        label="Element"
+        hideLabel={false}
+        type="multiple"
+        variant="bare"
+        bind:values={demoFacets}
+        options={[
+          { value: "fire", label: "Fire", ariaLabel: "Fire", title: "Fire", color: "#e4572e" },
+          { value: "water", label: "Water", ariaLabel: "Water", title: "Water", color: "#3a86ff" },
+          { value: "grass", label: "Grass", ariaLabel: "Grass", title: "Grass", color: "#2a9d8f" },
+          { value: "lightning", label: "Lightning", ariaLabel: "Lightning", title: "Lightning", color: "#f4c542" },
+          { value: "ice", label: "Ice", ariaLabel: "Ice (no data)", title: "Ice (no data)", color: "#8ecae6", disabled: true },
+        ]}
+      >
+        {#snippet item(o)}
+          <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill={o.color} /><text x="15" y="20" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">{o.label[0]}</text></svg>
+        {/snippet}
+      </ToggleGroup>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Carousel · CompareSlider</h2>
+    <div class="row" style="margin-bottom: 0.75rem">
+      <Switch bind:checked={demoAutoplay} label="Autoplay" />
+    </div>
+    <Carousel label="Featured games" items={demoCards} key={(g) => g.id} autoplay={demoAutoplay} interval={4000}>
+      {#snippet slide(g)}
+        <Card>
+          <CardHeader><CardTitle level={3}>{g.name}</CardTitle></CardHeader>
+          <CardContent>
+            <p class="card-text">{g.genre}</p>
+            <Badge>{g.score}/10</Badge>
+          </CardContent>
+        </Card>
+      {/snippet}
+    </Carousel>
+    <div style="margin-top: 1.5rem; max-width: 40rem">
+      <CompareSlider bind:value={demoComparison} beforeSrc={demoBefore} afterSrc={demoAfter} label="Compare the map" />
+      <p class="note">Divider at {Math.round(demoComparison)} %</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>MonthView · Spinner</h2>
+    <MonthView bind:month={demoMonth} locale="en-US" headingLevel={3}>
+      {#snippet day(d)}
+        {#each demoEvents.filter((e) => e.date === d.date) as e (e.id)}
+          <Button variant="soft" size="sm" title={e.title} onclick={() => (chosenEvent = e.title)}>{e.title}</Button>
+        {/each}
+      {/snippet}
+    </MonthView>
+    <p class="note">Month: {demoMonth} · event: {chosenEvent}</p>
+    <div class="row">
+      <Spinner size="sm" />
+      <Spinner />
+      <Spinner size="lg" label="Loading the month" style="color: rgb(var(--ta-accent))" />
     </div>
   </section>
 
   <!-- ——— 0.7 ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>Breadcrumb · Icon · SplitPane · Sidebar</h2>
-    <Breadcrumb items={[{ label: "Inicio", href: "#" }, { label: "Kons", href: "#" }, { label: "Agile" }]} />
-    <div class="iconos">
+    <Breadcrumb items={[{ label: "Home", href: "#" }, { label: "Kons", href: "#" }, { label: "Agile" }]} />
+    <div class="icons">
       {#each ["check", "plus", "search", "home", "user", "trash", "edit", "copy", "calendar", "settings", "bot"] as const as n (n)}
         <Icon name={n} size={18} />
       {/each}
     </div>
-    <div class="marco-split">
+    <div class="split-frame">
       <Sidebar
-        bind:collapsed={barraPlegada}
+        bind:collapsed={sidebarCollapsed}
         current="agile"
+        persistKey="tallao-demo-sidebar"
         groups={[
-          { items: [{ id: "inicio", label: "Inicio", icon: "home" }, { id: "usuarios", label: "Usuarios", icon: "user", badge: 4 }] },
+          {
+            items: [
+              { id: "home", label: "Home", icon: "home" },
+              { id: "users", label: "Users", icon: "user", badge: 4 },
+              { id: "approvals", label: "Approvals", icon: "check", badge: 2, badgeVariant: "warning", badgePulse: true },
+            ],
+          },
           {
             label: "Kons",
             items: [
@@ -509,255 +748,368 @@
             ],
           },
         ]}
-      />
-      <SplitPane bind:size={anchoLista} label="Ancho de la lista">
-        {#snippet first()}<div class="panel-demo">Lista ({anchoLista}%)</div>{/snippet}
-        {#snippet second()}<div class="panel-demo">Detalle</div>{/snippet}
+      >
+        {#snippet footer(isCollapsed)}
+          {#if isCollapsed}
+            <Avatar name="Ana López" size="sm" title="Ana López" />
+          {:else}
+            <div class="row" style="gap: 0.5rem"><Avatar name="Ana López" size="sm" decorative /> Ana López</div>
+          {/if}
+        {/snippet}
+      </Sidebar>
+      <SplitPane bind:size={listWidth} label="List width">
+        {#snippet first()}<div class="demo-panel">List ({listWidth}%)</div>{/snippet}
+        {#snippet second()}<div class="demo-panel">Detail</div>{/snippet}
       </SplitPane>
     </div>
   </section>
 
-  <section class="seccion">
+  <section class="section">
+    <h2>NavMenu · BottomNav</h2>
+    <div class="row">
+      <NavMenu
+        label="Games"
+        name="demo-menus"
+        groups={[
+          {
+            label: "Gacha",
+            items: [
+              { label: "Genshin Impact", href: "#genshin", description: "Tier list, builds and team planner", icon: "bot", badge: "New" },
+              { label: "Star Rail", href: "#star-rail", description: "Teams and relics", icon: "user" },
+            ],
+          },
+          {
+            label: "Card games",
+            items: [
+              { label: "Riftbound", href: "#riftbound", description: "Decks and meta", icon: "copy" },
+              { label: "Aion 2", description: "Wiki in progress", icon: "clock", soon: true },
+            ],
+          },
+        ]}
+      />
+      <NavMenu
+        label="Tools"
+        name="demo-menus"
+        columns={1}
+        groups={[{ items: [{ label: "Calculators", href: "#tools", description: "Damage and stats", icon: "settings" }, { label: "Maps", href: "#maps", description: "Interactive maps", icon: "search" }] }]}
+      />
+    </div>
+    <p class="note">On a phone-sized window a BottomNav sits at the bottom of this page (<code>hideAbove=&#123;767&#125;</code>).</p>
+    <BottomNav
+      ariaLabel="Demo sections"
+      current="home"
+      hideAbove={767}
+      items={[
+        { id: "home", label: "Home", href: "#", icon: "home" },
+        { id: "news", label: "News", href: "#news", icon: "info", badge: 3 },
+        { id: "search", label: "Search", href: "#search", icon: "search" },
+        { id: "me", label: "Profile", href: "#me", icon: "user" },
+      ]}
+    >
+      {#snippet action()}<a href="#new" aria-label="New post"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></a>{/snippet}
+    </BottomNav>
+  </section>
+
+  <section class="section">
     <h2>BarChart · LineChart</h2>
-    <div class="cuadricula-2">
-      <BarChart title="Visitas y altas por mes" data={visitasMes} x="mes" series={[{ key: "visitas", label: "Visitas" }, { key: "altas", label: "Altas" }]} locale="es" />
-      <LineChart title="Visitas por mes" data={visitasMes} x="mes" series={[{ key: "visitas", label: "Visitas" }]} area locale="es" />
+    <div class="grid-2">
+      <BarChart title="Visits and sign-ups per month" data={monthlyVisits} x="month" series={[{ key: "visits", label: "Visits" }, { key: "signups", label: "Sign-ups" }]} locale="en" />
+      <LineChart title="Visits per month" data={monthlyVisits} x="month" series={[{ key: "visits", label: "Visits" }]} area locale="en" />
     </div>
   </section>
 
-  <section class="seccion">
+  <section class="section">
     <h2>SchemaForm · CodeEditor</h2>
-    <div class="cuadricula-2">
-      <SchemaForm schema={esquemaDemo} bind:value={valorEsquema} onsubmit={(v) => toast.success("Guardado", { description: JSON.stringify(v) })} />
-      <CodeEditor bind:value={codigoDemo} language="markdown" />
+    <div class="grid-2">
+      <SchemaForm schema={demoSchema} bind:value={schemaValue} onsubmit={(v) => toast.success("Saved", { description: JSON.stringify(v) })} />
+      <CodeEditor bind:value={demoCode} language="markdown" />
     </div>
   </section>
 
   <!-- ——— 0.6 ——— -->
-  <section class="seccion">
-    <h2>DataTable · Pagination · Combobox remoto y múltiple · DatePicker · FileUpload</h2>
+  <section class="section">
+    <h2>DataTable with column filters · Pagination · remote and multiple Combobox · DatePicker · FileUpload</h2>
     <DataTable
-      caption="Juegos"
-      rows={juegosTabla}
+      caption="Games"
+      rows={tableGames}
       rowKey="id"
-      rowLabel={(r) => r.nombre}
+      rowLabel={(r) => r.name}
       columns={[
-        { key: "nombre", header: "Juego", sortable: true },
-        { key: "visitas", header: "Visitas", sortable: true, align: "right" },
-        { key: "estado", header: "Estado" },
+        { key: "name", header: "Game", sortable: true, filter: "text" },
+        { key: "visits", header: "Visits", sortable: true, align: "right", filter: "range" },
+        { key: "status", header: "Status", filter: "select" },
       ]}
       pageSize={4}
       selectable
-      bind:selected={seleccionTabla}
+      bind:selected={tableSelection}
+      bind:filters={demoFilters}
     >
       {#snippet cell(row, col)}
-        {#if col.key === "estado"}<Badge variant={row.estado === "Publicado" ? "success" : "default"}>{row.estado}</Badge>{:else}{row[col.key as keyof typeof row]}{/if}
+        {#if col.key === "status"}<Badge variant={row.status === "Published" ? "success" : "default"}>{row.status}</Badge>{:else}{row[col.key as keyof typeof row]}{/if}
       {/snippet}
     </DataTable>
-    <div class="cuadricula">
-      <Field label="Juego (búsqueda remota)"><Combobox loadOptions={buscarJuegos} placeholder="Escribe…" /></Field>
-      <Field label="Etiquetas">
-        <Combobox multiple bind:values={etiquetasDemo} options={[{ value: "bug", label: "Bug" }, { value: "ux", label: "UX" }, { value: "api", label: "API" }]} />
+    <div class="grid">
+      <Field label="Game (remote search)"><Combobox loadOptions={searchGames} placeholder="Type…" /></Field>
+      <Field label="Tags">
+        <Combobox multiple bind:values={demoTags} options={[{ value: "bug", label: "Bug" }, { value: "ux", label: "UX" }, { value: "api", label: "API" }]} />
       </Field>
-      <Field label="Publicación"><DatePicker bind:value={fechaDemo} /></Field>
+      <Field label="Publication date"><DatePicker bind:value={demoDate} /></Field>
     </div>
-    <div class="cuadricula-2">
-      <Calendar bind:value={fechaDemo} />
+    <div class="grid-2">
+      <Calendar bind:value={demoDate} />
       <FileUpload multiple accept="image/*" maxSize={2_000_000} />
     </div>
-    <Pagination bind:page={paginaDemo} pageCount={12} />
+    <Pagination bind:page={demoPage} pageCount={12} />
   </section>
 
   <!-- ——— 0.5 ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>SelectionBar · KeyValueEditor · CopyButton · DragBoard · ChatMessage</h2>
-    <div class="cuadricula-2">
-      <div class="pila">
+    <div class="grid-2">
+      <div class="stack">
         <SelectionBar
-          total={filasDemo.length}
-          selected={marcadasDemo.length}
-          onToggleAll={(todo) => (marcadasDemo = todo ? [...filasDemo] : [])}
+          total={demoRows.length}
+          selected={demoChecked.length}
+          onToggleAll={(all) => (demoChecked = all ? [...demoRows] : [])}
         >
-          {#snippet actions()}<Button size="sm" variant="secondary">Ocultar</Button>{/snippet}
+          {#snippet actions()}<Button size="sm" variant="secondary">Hide</Button>{/snippet}
         </SelectionBar>
-        {#each filasDemo as f (f)}
+        {#each demoRows as r (r)}
           <Checkbox
-            label={f}
-            checked={marcadasDemo.includes(f)}
+            label={r}
+            checked={demoChecked.includes(r)}
             onchange={(e: Event) =>
-              (marcadasDemo = (e.currentTarget as HTMLInputElement).checked
-                ? [...marcadasDemo, f]
-                : marcadasDemo.filter((m) => m !== f))}
+              (demoChecked = (e.currentTarget as HTMLInputElement).checked
+                ? [...demoChecked, r]
+                : demoChecked.filter((m) => m !== r))}
           />
         {/each}
         <CopyButton text="https://valhalla-legion.com/obs/marcador" />
       </div>
-      <KeyValueEditor bind:entries={statsDemo} keyLabel="Estadística" valueLabel="Valor" valueType="number" />
+      <KeyValueEditor bind:entries={demoStats} keyLabel="Stat" valueLabel="Value" valueType="number" />
     </div>
     <DragBoard
-      onMove={(item, zona) => {
-        tiersDemo[item] = zona;
+      onMove={(item, zone) => {
+        demoTiers[item] = zone;
       }}
     >
-      <div class="cuadricula">
+      <div class="grid">
         {#each ["pool", "s", "a"] as z (z)}
-          <DropZone id={z} label={z === "pool" ? "Sin clasificar" : `Tier ${z.toUpperCase()}`} class="zona-demo">
-            <strong>{z === "pool" ? "Sin clasificar" : `Tier ${z.toUpperCase()}`}</strong>
-            {#each Object.entries(tiersDemo).filter(([, zz]) => zz === z) as [item] (item)}
+          <DropZone id={z} label={z === "pool" ? "Unranked" : `Tier ${z.toUpperCase()}`} class="demo-zone">
+            <strong>{z === "pool" ? "Unranked" : `Tier ${z.toUpperCase()}`}</strong>
+            {#each Object.entries(demoTiers).filter(([, zz]) => zz === z) as [item] (item)}
               <DragItem id={item} label={item} zone={z}>{item}</DragItem>
             {/each}
           </DropZone>
         {/each}
       </div>
     </DragBoard>
-    <div class="pila">
-      <ChatMessage role="user" content="¿Qué build recomiendas para Nahida?" />
-      <ChatMessage role="assistant" author="Asistente de Valhalla" content="Dendro catalizador con maestría elemental alta." />
+    <div class="stack">
+      <ChatMessage role="user" content="Which build do you recommend for Nahida?" />
+      <ChatMessage role="assistant" author="Valhalla assistant" content="Dendro catalyst with high elemental mastery." />
       <ChatMessage role="assistant" pending />
     </div>
   </section>
 
   <!-- ——— 0.4 ——— -->
-  <section class="seccion">
+  <section class="section">
     <h2>Switch · RadioGroup · Sheet · Toast · Command · ContextMenu</h2>
-    <div class="cuadricula">
-      <Switch bind:checked={avisosActivos} label="Avisos por correo" />
+    <div class="grid">
+      <Switch bind:checked={emailNotices} label="Email notifications" />
       <RadioGroup
         legend="Plan"
         bind:value={plan}
         orientation="horizontal"
         options={[
-          { value: "free", label: "Gratis" },
-          { value: "pro", label: "Pro", description: "Con soporte" },
-          { value: "team", label: "Equipo", disabled: true },
+          { value: "free", label: "Free" },
+          { value: "pro", label: "Pro", description: "With support" },
+          { value: "team", label: "Team", disabled: true },
         ]}
       />
     </div>
-    <div class="fila">
-      <Button variant="secondary" onclick={() => (lateral = true)}>Ver detalle</Button>
-      <Button variant="secondary" onclick={() => toast.success("Guardado", { description: "Los cambios ya están en las 4 webs" })}>Toast</Button>
-      <Button variant="secondary" onclick={() => toast.error("No se pudo publicar", { action: { label: "Reintentar", onClick: () => toast("Reintentando…") } })}>Toast de error</Button>
-      <Button variant="outline" onclick={() => (paleta = true)}>Paleta (Ctrl+K)</Button>
-      <span class="nota">Última orden: {ultimaOrden}</span>
+    <div class="row">
+      <Button variant="secondary" onclick={() => (sidePanel = true)}>View details</Button>
+      <Button variant="secondary" onclick={() => toast.success("Saved", { description: "The changes are now live on all 4 sites" })}>Toast</Button>
+      <Button variant="secondary" onclick={() => toast.error("Could not publish", { action: { label: "Retry", onClick: () => toast("Retrying…") } })}>Error toast</Button>
+      <Button variant="outline" onclick={() => (palette = true)}>Palette (Ctrl+K)</Button>
+      <Button variant="outline" onclick={() => (remotePalette = true)}>Search (API results)</Button>
+      <span class="note">Last command: {lastCommand}</span>
     </div>
-    <ContextMenu label="Acciones de la fila">
-      {#snippet target(props)}<div {...props} class="zona-contexto">Clic derecho aquí (o Mayús+F10)</div>{/snippet}
-      <MenuItem onSelect={() => toast("Abrir")}>Abrir</MenuItem>
-      <MenuItem onSelect={() => toast("Duplicar")}>Duplicar</MenuItem>
+    <ContextMenu label="Row actions">
+      {#snippet target(props)}<div {...props} class="context-zone">Right-click here (or Shift+F10)</div>{/snippet}
+      <MenuItem onSelect={() => toast("Open")}>Open</MenuItem>
+      <MenuItem onSelect={() => toast("Duplicate")}>Duplicate</MenuItem>
       <MenuSeparator />
-      <MenuItem variant="danger" onSelect={() => toast.warning("Borrado")}>Borrar</MenuItem>
+      <MenuItem variant="danger" onSelect={() => toast.warning("Deleted")}>Delete</MenuItem>
     </ContextMenu>
-    <Sheet bind:open={lateral} title="Detalle de Aniimo" description="Ficha del juego">
-      <p class="dialogo-texto">Contenido del panel lateral.</p>
-      {#snippet footer()}<Button onclick={() => (lateral = false)}>Listo</Button>{/snippet}
+    <Sheet bind:open={sidePanel} title="Aniimo details" description="Game profile">
+      <p class="dialog-text">Side panel content.</p>
+      {#snippet footer()}<Button onclick={() => (sidePanel = false)}>Done</Button>{/snippet}
     </Sheet>
-    <Command bind:open={paleta} items={ordenes} />
+    <Command bind:open={palette} items={commands} />
+    <Command
+      bind:open={remotePalette}
+      bind:query={remoteQuery}
+      hotkey={false}
+      filter={false}
+      loading={remoteLoading}
+      items={remoteResults}
+      label="Search the site"
+      placeholder="Search games…"
+    >
+      {#snippet empty(q)}
+        {#if q.trim().length >= 2}<p class="note" style="text-align: center">No results for "{q}"</p>
+        {:else}<p class="note" style="text-align: center">Type at least two letters</p>{/if}
+      {/snippet}
+      {#snippet trailing()}<span aria-hidden="true">›</span>{/snippet}
+    </Command>
   </section>
 
-  <section class="seccion">
+  <section class="section">
     <h2>Accordion · Progress · Skeleton · Avatar</h2>
-    <div class="cuadricula-2">
+    <div class="grid-2">
       <Accordion
         single
         items={[
-          { id: "a", title: "¿Qué es tallao?", content: "Un kit de componentes en Svelte 5.", open: true },
-          { id: "b", title: "¿Funciona con SSR?", content: "Sí: los ids son estables y nada toca window en el servidor." },
-          { id: "c", title: "¿Es accesible?", content: "Cada componente pasa axe y se prueba con teclado." },
+          { id: "a", title: "What is tallao?", content: "A component kit for Svelte 5.", open: true },
+          { id: "b", title: "Does it work with SSR?", content: "Yes: ids are stable and nothing touches window on the server." },
+          { id: "c", title: "Is it accessible?", content: "Every component passes axe and is tested with the keyboard." },
         ]}
       />
-      <div class="pila">
-        <Progress label="Subida de imágenes" value={62} showValue />
-        <Progress label="Sincronizando" />
+      <div class="stack">
+        <Progress label="Image upload" value={62} showValue />
+        <Progress label="Syncing" />
         <Skeleton lines={3} />
-        <div class="fila">
+        <div class="row">
           <Avatar name="Ana López" />
-          <Avatar name="Agente Uno" badge="IA" />
-          <Avatar name="Rota" src="/no-existe.png" size="lg" />
+          <Avatar name="Agent One" badge="AI" />
+          <Avatar name="Valhalla Legion" initials={1} aria-label="Team: Valhalla Legion" />
+          <Avatar name="Broken" src="/does-not-exist.png" size="lg" />
         </div>
       </div>
     </div>
   </section>
   <Toaster />
 
-  <!-- ——— CAPA GENERATIVA ——— -->
-  <section class="seccion">
+  <!-- ——— GENERATIVE LAYER ——— -->
+  <section class="section">
     <h2>PromptInput + ToolCallCard</h2>
-    <p class="seccion-nota">
-      Escribe algo y pulsa Enter: el agente simulado responde con una llamada a
-      herramienta que puedes aprobar o rechazar.
+    <p class="section-note">
+      Type something and press Enter: the simulated agent replies with a tool
+      call that you can approve or reject.
     </p>
 
     <div class="chat">
-      {#each mensajes as m, i}
-        {#if m.tipo === "usuario"}
-          <p class="chat-usuario">{m.texto}</p>
+      {#each messages as m, i}
+        {#if m.kind === "user"}
+          <p class="chat-user">{m.text}</p>
         {:else}
           <ToolCallCard
-            name={m.nombre}
+            name={m.name}
             args={m.args}
-            status={m.estado}
-            result={m.estado === "executed" ? "Entrada publicada en valhalla-legion.com/noticias" : undefined}
-            onApprove={m.estado === "pending" ? () => decidir(i, true) : undefined}
-            onReject={m.estado === "pending" ? () => decidir(i, false) : undefined}
+            status={m.status}
+            result={m.status === "executed" ? "Post published at valhalla-legion.com/noticias" : undefined}
+            onApprove={m.status === "pending" ? () => decide(i, true) : undefined}
+            onReject={m.status === "pending" ? () => decide(i, false) : undefined}
           />
         {/if}
       {/each}
-      {#if pensando}
-        <p class="chat-pensando">El agente está pensando…</p>
+      {#if thinking}
+        <p class="chat-thinking">The agent is thinking…</p>
       {/if}
 
       <PromptInput
-        placeholder="Pídele algo al agente… (Enter envía)"
+        placeholder="Ask the agent for something… (Enter sends)"
         attachments={true}
-        loading={pensando}
-        onSend={enviarPrompt}
-        onAttach={() => alert("Adjuntar archivo")}
+        loading={thinking}
+        onSend={sendPrompt}
+        onAttach={() => alert("Attach file")}
       />
     </div>
 
-    <div class="cuadricula-2">
+    <div class="grid-2">
       <ToolCallCard
         name="rebuild_site"
-        args={{ sitio: "cozy", forzar: true }}
+        args={{ site: "cozy", force: true }}
         status="executing"
       />
       <ToolCallCard
         name="publish_post"
-        args={{ sitio: "cardback", titulo: "Resultados del regional" }}
+        args={{ site: "cardback", title: "Regional results" }}
         status="failed"
-        result="La API devolvió 503 tras 3 reintentos"
+        result="The API returned 503 after 3 retries"
       />
     </div>
   </section>
 
-  <!-- ——— MAPA ——— -->
-  <section class="seccion">
+  <!-- ——— GENERATIVE II: plan, suggestions, code, sources, usage ——— -->
+  <section class="section">
+    <h2>Steps · SuggestionChips · CodeBlock · Sources · UsageMeter</h2>
+    <p class="section-note">
+      The rest of the conversation: the step-by-step plan, single-use
+      suggestions, the code the model writes, the sources it cites and the quota spent.
+    </p>
+
+    <div class="grid-2">
+      <Steps
+        steps={[
+          { title: "Review the draft", status: "done" },
+          { title: "Publish the post", status: "running", description: "Valhalla · news section" },
+          { title: "Rebuild the site", status: "pending" },
+          { title: "Announce on Discord", status: "failed", description: "Webhook down" },
+          { title: "Update the sitemap", status: "skipped" },
+        ]}
+      />
+      <div class="demo-col">
+        <SuggestionChips
+          suggestions={["Write the tournament recap", "Publish the results", "Translate into Spanish", "Schedule for tomorrow"]}
+          onSelect={(s) => sendPrompt(s)}
+        />
+        <CodeBlock
+          fileName="src/lib/plan.ts"
+          language="ts"
+          code={"const plan = await agent.plan(goal);\nfor (const step of plan.steps) {\n  await step.run();\n}"}
+        />
+        <UsageMeter used={8100} max={10000} cost="$0.42" />
+      </div>
+    </div>
+
+    <Sources
+      sources={[
+        { url: "https://prydwen.gg/riftbound", title: "Riftbound guide: 2026 rules" },
+        { url: "https://www.game8.co/archives/123", title: "Patch 4.2 notes" },
+        { url: "https://esports.example.com/regional", title: "Regional results" },
+      ]}
+    />
+  </section>
+
+  <section class="section">
     <h2>GameMap</h2>
-    <p class="seccion-nota">
-      Envoltura fina sobre sveaflet (Leaflet) con capa oscura (Esri) y
-      marcadores del color de acento del tema.
+    <p class="section-note">
+      Thin wrapper over sveaflet (Leaflet) with a dark layer (Esri) and
+      markers in the theme's accent color.
     </p>
     <GameMap
       center={[40.4168, -3.7038]}
       zoom={5}
-      markers={marcadoresDemo}
+      markers={demoMarkers}
       height="22rem"
     />
   </section>
 
-  <footer class="demo-pie">
+  <footer class="demo-footer">
     <p>
-      tallao v0.1 — copia los componentes de <code>src/lib/components/</code>,
-      retemadiza con las variables <code>--ta-*</code> en <code>src/lib/tokens.css</code>.
+      tallao v0.1 — copy the components from <code>src/lib/components/</code>,
+      retheme with the <code>--ta-*</code> variables in <code>src/lib/tokens.css</code>.
     </p>
   </footer>
 </div>
 
 <style>
-  .iconos { display: flex; gap: 0.75rem; margin: 1rem 0; color: rgb(var(--ta-text-dim)); }
-  .marco-split { display: flex; height: 16rem; border: 1px solid rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); overflow: hidden; }
-  .marco-split > :global(:last-child) { flex: 1; min-width: 0; }
-  .panel-demo { height: 100%; padding: 1rem; font-size: 0.875rem; color: rgb(var(--ta-text-dim)); }
+  .icons { display: flex; gap: 0.75rem; margin: 1rem 0; color: rgb(var(--ta-text-dim)); }
+  .split-frame { display: flex; height: 16rem; border: 1px solid rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); overflow: hidden; }
+  .split-frame > :global(:last-child) { flex: 1; min-width: 0; }
+  .demo-panel { height: 100%; padding: 1rem; font-size: 0.875rem; color: rgb(var(--ta-text-dim)); }
 
   .demo {
     max-width: 60rem;
@@ -765,7 +1117,7 @@
     padding: 2.5rem 1.5rem 4rem;
   }
 
-  .demo-cabecera {
+  .demo-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -775,29 +1127,29 @@
     border-bottom: 1px solid rgb(var(--ta-border));
   }
 
-  .demo-cabecera h1 {
+  .demo-header h1 {
     margin: 0;
     font-size: 2rem;
     letter-spacing: -0.02em;
   }
 
-  .demo-subtitulo {
+  .demo-subtitle {
     margin: 0.375rem 0 0;
     color: rgb(var(--ta-text-dim));
     max-width: 40rem;
   }
 
-  .seccion {
+  .section {
     margin-top: 2.5rem;
   }
 
-  .seccion h2 {
+  .section h2 {
     margin: 0 0 1rem;
     font-size: 1.125rem;
     font-weight: 600;
   }
 
-  .fila {
+  .row {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -805,21 +1157,21 @@
     margin-bottom: 0.75rem;
   }
 
-  .cuadricula {
+  .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
     gap: 1rem;
   }
 
-  .cuadricula-2 {
+  .grid-2 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
     gap: 1rem;
   }
 
-  .campo { display: flex; flex-direction: column; gap: 0.375rem; }
+  .field { display: flex; flex-direction: column; gap: 0.375rem; }
 
-  .campo-etiqueta {
+  .field-label {
     font-size: 0.75rem;
     font-weight: 500;
     text-transform: uppercase;
@@ -827,17 +1179,18 @@
     color: rgb(var(--ta-text-dim));
   }
 
-  :global(.zona-demo) { display: flex; flex-direction: column; gap: 0.5rem; min-height: 6rem; padding: 0.75rem; border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
-  .pila { display: flex; flex-direction: column; gap: 1rem; }
-  .zona-contexto { margin-top: 0.75rem; padding: 1.25rem; text-align: center; color: rgb(var(--ta-text-dim)); border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
+  :global(.demo-zone) { display: flex; flex-direction: column; gap: 0.5rem; min-height: 6rem; padding: 0.75rem; border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
+  .stack { display: flex; flex-direction: column; gap: 1rem; }
+  .demo-col { display: flex; flex-direction: column; gap: 0.75rem; }
+  .context-zone { margin-top: 0.75rem; padding: 1.25rem; text-align: center; color: rgb(var(--ta-text-dim)); border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
 
-  .nota { color: rgb(var(--ta-text-dim)); font-size: 0.8125rem; }
+  .note { color: rgb(var(--ta-text-dim)); font-size: 0.8125rem; }
 
-  .dialogo-texto { margin: 0; color: rgb(var(--ta-text-dim)); }
+  .dialog-text { margin: 0; color: rgb(var(--ta-text-dim)); }
 
-  .card-texto { margin: 0; color: rgb(var(--ta-text-dim)); }
+  .card-text { margin: 0; color: rgb(var(--ta-text-dim)); }
 
-  .seccion-nota {
+  .section-note {
     margin: 0 0 1rem;
     color: rgb(var(--ta-text-dim));
     font-size: 0.875rem;
@@ -854,7 +1207,7 @@
     margin-bottom: 1rem;
   }
 
-  .chat-usuario {
+  .chat-user {
     align-self: flex-end;
     margin: 0;
     padding: 0.5rem 0.875rem;
@@ -864,14 +1217,14 @@
     max-width: 80%;
   }
 
-  .chat-pensando {
+  .chat-thinking {
     margin: 0;
     color: rgb(var(--ta-text-dim));
     font-size: 0.8125rem;
     font-style: italic;
   }
 
-  .demo-pie {
+  .demo-footer {
     margin-top: 3rem;
     padding-top: 1.5rem;
     border-top: 1px solid rgb(var(--ta-border));
@@ -879,7 +1232,7 @@
     font-size: 0.8125rem;
   }
 
-  .demo-pie code {
+  .demo-footer code {
     font-family: var(--ta-font-mono);
     background: rgb(var(--ta-elevated));
     padding: 0.125rem 0.375rem;

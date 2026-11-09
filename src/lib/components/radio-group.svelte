@@ -1,14 +1,14 @@
 <!--
   tallao — RadioGroup
-  Elegir una opción entre pocas, todas a la vista. Son <input type="radio">
-  nativos dentro de un <fieldset> con su <legend>: el navegador ya da las
-  flechas entre opciones, un solo Tab para el grupo y el anuncio correcto.
+  Choose one option among a few, all visible. They are native <input type="radio">
+  inside a <fieldset> with its <legend>: the browser already provides the
+  arrows between options, a single Tab stop for the group and the right announcement.
 -->
 <script lang="ts" module>
   export interface RadioOption {
     value: string;
     label: string;
-    /** Línea de detalle bajo la etiqueta. */
+    /** Detail line below the label. */
     description?: string;
     disabled?: boolean;
   }
@@ -21,7 +21,7 @@
     options,
     value = $bindable(""),
     legend,
-    /** Oculta la leyenda a la vista (sigue siendo el nombre del grupo para un lector). */
+    /** Hides the legend visually (it is still the group's name for a screen reader). */
     hideLegend = false,
     orientation = "vertical",
     name,
@@ -43,28 +43,28 @@
   } = $props();
 
   const id = $props.id();
-  const grupo = $derived(name ?? `ta-radio-${id}`);
+  const groupName = $derived(name ?? `ta-radio-${id}`);
 </script>
 
 <fieldset class={cn("ta-radio", `ta-radio--${orientation}`, className)} {disabled}>
-  <legend class="ta-radio-leyenda" class:ta-oculto={hideLegend}>{legend}</legend>
+  <legend class="ta-radio-legend" class:ta-hidden={hideLegend}>{legend}</legend>
   {#each options as o (o.value)}
-    <div class="ta-radio-opcion" class:ta-radio-opcion--off={o.disabled || disabled}>
-      <!-- El detalle va fuera de la etiqueta: si no, se suma al nombre de la opción. -->
+    <div class="ta-radio-option" class:ta-radio-option--off={o.disabled || disabled}>
+      <!-- The detail goes outside the label: otherwise it is added to the option's name. -->
       <input
         id={`${id}-${o.value}`}
         type="radio"
-        name={grupo}
+        name={groupName}
         value={o.value}
         bind:group={value}
         disabled={o.disabled}
         {required}
-        aria-describedby={o.description ? `${id}-${o.value}-detalle` : undefined}
+        aria-describedby={o.description ? `${id}-${o.value}-detail` : undefined}
         onchange={() => onchange?.(o.value)}
       />
-      <span class="ta-radio-texto">
+      <span class="ta-radio-text">
         <label for={`${id}-${o.value}`}>{o.label}</label>
-        {#if o.description}<span class="ta-radio-detalle" id={`${id}-${o.value}-detalle`}>{o.description}</span>{/if}
+        {#if o.description}<span class="ta-radio-description" id={`${id}-${o.value}-detail`}>{o.description}</span>{/if}
       </span>
     </div>
   {/each}
@@ -83,7 +83,7 @@
   .ta-radio--vertical { flex-direction: column; }
   .ta-radio--horizontal { flex-direction: row; flex-wrap: wrap; }
 
-  .ta-radio-leyenda {
+  .ta-radio-legend {
     padding: 0;
     margin-bottom: 0.375rem;
     font-size: 0.75rem;
@@ -91,8 +91,8 @@
     color: rgb(var(--ta-text-dim));
   }
 
-  /* Visualmente oculta, accesible para lectores de pantalla. */
-  .ta-oculto {
+  /* Visually hidden, accessible to screen readers. */
+  .ta-hidden {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -104,7 +104,7 @@
     border: 0;
   }
 
-  .ta-radio-opcion {
+  .ta-radio-option {
     display: inline-flex;
     align-items: flex-start;
     gap: 0.5rem;
@@ -112,38 +112,43 @@
     color: rgb(var(--ta-text));
   }
 
-  .ta-radio-opcion label,
-  .ta-radio-opcion input {
+  .ta-radio-option label,
+  .ta-radio-option input {
     cursor: pointer;
   }
 
-  .ta-radio-opcion input {
+  .ta-radio-option input {
     width: 1rem;
     height: 1rem;
     margin: 0.125rem 0 0;
     accent-color: rgb(var(--ta-accent));
   }
 
-  .ta-radio-opcion input:focus-visible {
+  .ta-radio-option input:focus-visible {
     outline: 2px solid rgb(var(--ta-accent) / 0.6);
     outline-offset: 2px;
   }
 
-  .ta-radio-texto {
+  .ta-radio-text {
     display: flex;
     flex-direction: column;
   }
 
-  .ta-radio-detalle {
+  .ta-radio-description {
     font-size: 0.75rem;
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-radio-opcion--off {
+  .ta-radio-option--off {
     opacity: 0.5;
   }
-  .ta-radio-opcion--off label,
-  .ta-radio-opcion--off input {
+  .ta-radio-option--off label,
+  .ta-radio-option--off input {
     cursor: not-allowed;
+  }
+
+  /* On touch screens: each option is 44px tall for the finger. */
+  @media (pointer: coarse) {
+    .ta-radio-option { min-height: 2.75rem; align-items: center; }
   }
 </style>

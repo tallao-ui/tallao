@@ -1,8 +1,8 @@
 /**
- * tallao — utilidades de foco compartidas por diálogos, menús y flotantes.
+ * tallao — focus utilities shared by dialogs, menus and floating panels.
  */
 
-const TABULABLE = [
+const TABBABLE = [
   "a[href]",
   "button:not([disabled])",
   "input:not([disabled]):not([type=hidden])",
@@ -12,25 +12,25 @@ const TABULABLE = [
   "[contenteditable='true']",
 ].join(",");
 
-/** Elementos a los que llega el Tab dentro de `raiz`, en orden de documento. */
-export function tabulables(raiz: ParentNode): HTMLElement[] {
-  return [...raiz.querySelectorAll<HTMLElement>(TABULABLE)].filter(
+/** Elements that Tab reaches inside `root`, in document order. */
+export function tabbables(root: ParentNode): HTMLElement[] {
+  return [...root.querySelectorAll<HTMLElement>(TABBABLE)].filter(
     (el) => !el.closest("[inert]") && el.getAttribute("aria-hidden") !== "true"
   );
 }
 
 /**
- * El elemento con el foco, también dentro de un Shadow DOM: `document.activeElement`
- * se queda en el host y devolver el foco ahí lo pierde.
+ * The focused element, also inside a Shadow DOM: `document.activeElement`
+ * stays on the host, and restoring focus there loses it.
  */
-export function elementoActivo(): HTMLElement | null {
+export function getActiveElement(): HTMLElement | null {
   if (typeof document === "undefined") return null;
-  let activo = document.activeElement as HTMLElement | null;
-  while (activo?.shadowRoot?.activeElement) activo = activo.shadowRoot.activeElement as HTMLElement;
-  return activo;
+  let active = document.activeElement as HTMLElement | null;
+  while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement as HTMLElement;
+  return active;
 }
 
-/** Devuelve el foco a donde estaba, si ese elemento sigue en la página. */
-export function devolverFoco(el: HTMLElement | null) {
+/** Returns focus to where it was, if that element is still on the page. */
+export function restoreFocus(el: HTMLElement | null) {
   if (el && el.isConnected) el.focus({ preventScroll: true });
 }

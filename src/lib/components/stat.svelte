@@ -1,6 +1,6 @@
 <!--
   tallao — Stat
-  Una cifra con su etiqueta, para filas de totales.
+  A figure with its label, for rows of totals.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
@@ -16,8 +16,8 @@
 </script>
 
 <div class={cn("ta-stat", `ta-stat--${variant}`, className)}>
-  <span class="ta-stat-etiqueta">{label}</span>
-  <span class="ta-stat-valor">{value}</span>
+  <span class="ta-stat-label">{label}</span>
+  <span class="ta-stat-value">{value}</span>
 </div>
 
 <style>
@@ -32,12 +32,12 @@
     min-width: 0;
   }
 
-  .ta-stat-etiqueta {
+  .ta-stat-label {
     font-size: 0.75rem;
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-stat-valor {
+  .ta-stat-value {
     font-size: 1.375rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -46,7 +46,7 @@
     text-overflow: ellipsis;
   }
 
-  .ta-stat--success .ta-stat-valor { color: rgb(var(--ta-success)); }
-  .ta-stat--warning .ta-stat-valor { color: rgb(var(--ta-warning)); }
-  .ta-stat--error .ta-stat-valor { color: rgb(var(--ta-danger)); }
+  .ta-stat--success .ta-stat-value { color: rgb(var(--ta-success)); }
+  .ta-stat--warning .ta-stat-value { color: rgb(var(--ta-warning)); }
+  .ta-stat--error .ta-stat-value { color: rgb(var(--ta-danger)); }
 </style>

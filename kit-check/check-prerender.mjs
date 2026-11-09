@@ -1,34 +1,34 @@
 #!/usr/bin/env node
 /**
- * Revisa el HTML que SvelteKit prerenderizó (render en servidor con el tallao empaquetado).
+ * Checks the HTML that SvelteKit prerendered (server render with the packaged tallao).
  *
- * - Las páginas existen y traen el marcado de los componentes (SSR de verdad, no una
- *   página vacía que se pinta en el navegador).
- * - Nada pasa de una petición a otra: /otra fija los textos en español y llama a toast()
- *   al renderizar; la portada sigue en inglés y ninguna página lleva ese aviso.
+ * - The pages exist and carry the components' markup (real SSR, not an empty page
+ *   painted in the browser).
+ * - Nothing carries over from one request to another: /other sets the texts to Spanish and
+ *   calls toast() while rendering; the home page stays in English and no page has that toast.
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const build = join(import.meta.dirname, "build");
 const html = (page) => readFileSync(join(build, page), "utf8");
-const portada = html("index.html");
-const otra = html("otra.html");
+const home = html("index.html");
+const other = html("other.html");
 
-const fallos = [];
-const debe = (cond, msg) => cond || fallos.push(msg);
+const failures = [];
+const must = (cond, msg) => cond || failures.push(msg);
 
-debe(portada.includes("tallao en SvelteKit"), "la portada no se renderizó en el servidor");
-for (const marca of ['role="tablist"', 'role="switch"', 'role="combobox"', 'aria-haspopup="menu"', "<details", 'role="progressbar"', "<table", 'data-fila="1"', "<article"])
-  debe(portada.includes(marca), `falta ${marca} en el HTML de la portada`);
-debe(/id="ta-tabs-[^"]+-a"/.test(portada), "Tabs no tiene ids en el HTML del servidor");
-debe(portada.includes('aria-label="Dismiss"'), "la portada debería salir en inglés");
-debe(!portada.includes("Descartar"), "los textos en español de /otra se pasaron a la portada");
-debe(otra.includes('aria-label="Descartar"'), "/otra no salió en español");
-debe(!portada.includes("aviso-desde-el-servidor") && !otra.includes("aviso-desde-el-servidor"), "un toast() del servidor acabó en el HTML");
+must(home.includes("tallao in SvelteKit"), "the home page was not rendered on the server");
+for (const marker of ['role="tablist"', 'role="switch"', 'role="combobox"', 'aria-haspopup="menu"', "<details", 'role="progressbar"', "<table", 'data-row="1"', "<article"])
+  must(home.includes(marker), `${marker} is missing from the home page HTML`);
+must(/id="ta-tabs-[^"]+-a"/.test(home), "Tabs has no ids in the server HTML");
+must(home.includes('aria-label="Dismiss"'), "the home page should be in English");
+must(!home.includes("Descartar"), "the Spanish texts of /other leaked into the home page");
+must(other.includes('aria-label="Descartar"'), "/other did not come out in Spanish");
+must(!home.includes("toast-from-the-server") && !other.includes("toast-from-the-server"), "a server toast() ended up in the HTML");
 
-if (fallos.length) {
-  console.error(`check-prerender: ${fallos.length} fallo(s)\n- ${fallos.join("\n- ")}`);
+if (failures.length) {
+  console.error(`check-prerender: ${failures.length} failure(s)\n- ${failures.join("\n- ")}`);
   process.exit(1);
 }
-console.log("check-prerender: el HTML del servidor está completo y no comparte estado entre páginas");
+console.log("check-prerender: the server HTML is complete and shares no state between pages");

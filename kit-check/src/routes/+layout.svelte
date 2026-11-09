@@ -6,6 +6,6 @@
   const { children } = $props();
 </script>
 
-<nav><a href="/">Inicio</a> · <a href="/otra">Otra</a></nav>
+<nav><a href="/">Home</a> · <a href="/other">Other</a></nav>
 {@render children()}
 <Toaster />

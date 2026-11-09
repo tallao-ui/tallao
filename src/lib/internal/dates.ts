@@ -1,54 +1,54 @@
 /**
- * tallao — fechas sin hora para Calendar y DatePicker
+ * tallao — dates without time for Calendar and DatePicker
  *
- * Una fecha es un texto ISO «YYYY-MM-DD». Las cuentas se hacen en UTC: con la hora
- * local, un cambio de horario o una zona al oeste de Greenwich movían el día.
+ * A date is an ISO "YYYY-MM-DD" string. Arithmetic is done in UTC: with local time,
+ * a daylight-saving change or a zone west of Greenwich shifted the day.
  */
 
 export type ISODate = string;
 
-/** «2026-11-03» → { y, m, d }, o null si no es una fecha real (31 de febrero no lo es). */
-export function parseISO(texto: string | null | undefined): { y: number; m: number; d: number } | null {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec((texto ?? "").trim());
+/** "2026-11-03" → { y, m, d }, or null if it is not a real date (February 31 is not). */
+export function parseISO(text: string | null | undefined): { y: number; m: number; d: number } | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec((text ?? "").trim());
   if (!m) return null;
   const y = Number(m[1]);
-  const mes = Number(m[2]);
+  const month = Number(m[2]);
   const d = Number(m[3]);
-  const f = new Date(Date.UTC(y, mes - 1, d));
-  if (f.getUTCFullYear() !== y || f.getUTCMonth() !== mes - 1 || f.getUTCDate() !== d) return null;
-  return { y, m: mes, d };
+  const date = new Date(Date.UTC(y, month - 1, d));
+  if (date.getUTCFullYear() !== y || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== d) return null;
+  return { y, m: month, d };
 }
 
 export const toISO = (y: number, m: number, d: number): ISODate =>
   `${String(y).padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
-const aFecha = (iso: ISODate) => {
+const toDate = (iso: ISODate) => {
   const p = parseISO(iso)!;
   return new Date(Date.UTC(p.y, p.m - 1, p.d));
 };
 
-const deFecha = (f: Date): ISODate => toISO(f.getUTCFullYear(), f.getUTCMonth() + 1, f.getUTCDate());
+const fromDate = (date: Date): ISODate => toISO(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
 
 export function addDays(iso: ISODate, n: number): ISODate {
-  const f = aFecha(iso);
-  f.setUTCDate(f.getUTCDate() + n);
-  return deFecha(f);
+  const date = toDate(iso);
+  date.setUTCDate(date.getUTCDate() + n);
+  return fromDate(date);
 }
 
-/** Suma meses sin saltar de mes: 31 de enero + 1 mes = 28 (o 29) de febrero. */
+/** Adds months without overflowing the month: January 31 + 1 month = February 28 (or 29). */
 export function addMonths(iso: ISODate, n: number): ISODate {
   const p = parseISO(iso)!;
-  const destino = new Date(Date.UTC(p.y, p.m - 1 + n, 1));
-  const ultimo = new Date(Date.UTC(destino.getUTCFullYear(), destino.getUTCMonth() + 1, 0)).getUTCDate();
-  return toISO(destino.getUTCFullYear(), destino.getUTCMonth() + 1, Math.min(p.d, ultimo));
+  const target = new Date(Date.UTC(p.y, p.m - 1 + n, 1));
+  const last = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+  return toISO(target.getUTCFullYear(), target.getUTCMonth() + 1, Math.min(p.d, last));
 }
 
-/** Día de la semana: 0 domingo … 6 sábado. */
-export const weekday = (iso: ISODate) => aFecha(iso).getUTCDay();
+/** Day of the week: 0 Sunday … 6 Saturday. */
+export const weekday = (iso: ISODate) => toDate(iso).getUTCDay();
 
 export function todayISO(): ISODate {
-  const f = new Date();
-  return toISO(f.getFullYear(), f.getMonth() + 1, f.getDate());
+  const date = new Date();
+  return toISO(date.getFullYear(), date.getMonth() + 1, date.getDate());
 }
 
 export const sameMonth = (a: ISODate, b: ISODate) => a.slice(0, 7) === b.slice(0, 7);
@@ -56,25 +56,30 @@ export const sameMonth = (a: ISODate, b: ISODate) => a.slice(0, 7) === b.slice(0
 export const clampISO = (iso: ISODate, min?: ISODate | null, max?: ISODate | null) =>
   min && iso < min ? min : max && iso > max ? max : iso;
 
-/** Las semanas (de 7 fechas) que cubren el mes de `iso`, empezando en `weekStartsOn`. */
+/** The weeks (of 7 dates) that cover the month of `iso`, starting on `weekStartsOn`. */
 export function monthGrid(iso: ISODate, weekStartsOn: number): ISODate[][] {
   const p = parseISO(iso)!;
-  const primero = toISO(p.y, p.m, 1);
-  const inicio = addDays(primero, -((weekday(primero) - weekStartsOn + 7) % 7));
-  const semanas: ISODate[][] = [];
-  let dia = inicio;
+  const first = toISO(p.y, p.m, 1);
+  const start = addDays(first, -((weekday(first) - weekStartsOn + 7) % 7));
+  const weeks: ISODate[][] = [];
+  let day = start;
   do {
-    const semana: ISODate[] = [];
+    const week: ISODate[] = [];
     for (let i = 0; i < 7; i++) {
-      semana.push(dia);
-      dia = addDays(dia, 1);
+      week.push(day);
+      day = addDays(day, 1);
     }
-    semanas.push(semana);
-  } while (sameMonth(dia, primero));
-  return semanas;
+    weeks.push(week);
+  } while (sameMonth(day, first));
+  return weeks;
 }
 
-/** Formatos del idioma (Intl) para fechas sin hora: se leen en UTC para no mover el día. */
+/** Locale formats (Intl) for dates without time: read in UTC so the day does not shift. */
 export function formatDate(iso: ISODate, locale: string | undefined, opts: Intl.DateTimeFormatOptions) {
-  return new Intl.DateTimeFormat(locale, { ...opts, timeZone: "UTC" }).format(aFecha(iso));
+  return new Intl.DateTimeFormat(locale, { ...opts, timeZone: "UTC" }).format(toDate(iso));
+}
+
+/** Uppercases the first letter and nothing else ("noviembre de 2026" → "Noviembre de 2026"). */
+export function capitalizeFirst(text: string): string {
+  return text.charAt(0).toLocaleUpperCase() + text.slice(1);
 }

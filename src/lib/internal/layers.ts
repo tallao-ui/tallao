@@ -1,18 +1,18 @@
 /**
- * tallao — pila de capas flotantes
+ * tallao — stack of floating layers
  *
- * Popover, menú, tooltip y combobox se apuntan aquí mientras están abiertos.
- * Escape cierra solo la de arriba; un clic fuera cierra, de arriba abajo, las
- * capas que no contienen el clic (un menú dentro de un popover sobrevive a un
- * clic en el popover). Con `composedPath()` funciona también dentro de un
- * Shadow DOM, donde `event.target` se queda en el host.
+ * Popover, menu, tooltip and combobox register here while they are open.
+ * Escape closes only the top one; a click outside closes, from the top down, the
+ * layers that do not contain the click (a menu inside a popover survives a
+ * click in the popover). With `composedPath()` it also works inside a
+ * Shadow DOM, where `event.target` stays on the host.
  */
 
 export interface Layer {
-  /** Elementos que cuentan como «dentro»: el panel y su disparador. */
+  /** Elements that count as "inside": the panel and its trigger. */
   inside: () => (Element | null | undefined)[];
   dismiss: (reason: "escape" | "outside") => void;
-  /** Solo Escape la cierra; los clics la atraviesan (un tooltip). */
+  /** Only Escape closes it; clicks pass through it (a tooltip). */
   escapeOnly?: boolean;
 }
 
@@ -27,8 +27,8 @@ function onPointerDown(e: PointerEvent) {
   }
 }
 
-// En captura y con preventDefault: si la capa está dentro de un <dialog>, el
-// Escape no debe cerrar también el diálogo.
+// In the capture phase and with preventDefault: if the layer is inside a <dialog>,
+// Escape must not close the dialog too.
 function onKeyDown(e: KeyboardEvent) {
   if (e.key !== "Escape" || stack.length === 0) return;
   e.preventDefault();
@@ -36,7 +36,7 @@ function onKeyDown(e: KeyboardEvent) {
   stack[stack.length - 1].dismiss("escape");
 }
 
-/** Apunta una capa abierta; devuelve la función que la quita. */
+/** Registers an open layer; returns the function that removes it. */
 export function pushLayer(layer: Layer): () => void {
   if (typeof document === "undefined") return () => {};
   if (stack.length === 0) {

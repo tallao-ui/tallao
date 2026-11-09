@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 858" width="1200" height="858" role="img" aria-labelledby="t d">
+<title id="t">tallao</title>
+<desc id="d">tallao, a Svelte 5 UI kit for generative interfaces. Its components, grouped by family: actions and feedback, forms, overlays and menus, navigation and layout, data, and generative UI. GameMap and CodeEditor ship from separate entry points.</desc>
+<style>.s{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif}.m{font-family:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace}</style>
+<rect x="1" y="1" width="1198" height="856" rx="28" fill="#0f1520" stroke="#2a3446" stroke-width="2"/>
+<text class="s" x="56" y="104" font-size="58" font-weight="800" fill="#c084fc">tallao</text>
+<text class="s" x="56" y="150" font-size="24" fill="#a8b3c4">A Svelte 5 UI kit for generative interfaces.</text>
+<text class="s" x="56" y="184" font-size="24" fill="#a8b3c4">Plain CSS on tokens, keyboard and screen reader ready, SSR-ready.</text>
+<rect x="670.3" y="66" width="473.7" height="56" rx="14" fill="#161e2c" stroke="#2a3446" stroke-width="2"/>
+<text class="m" x="692.3" y="101" font-size="21" fill="#f1f5f9"><tspan fill="#c084fc">$</tspan> pnpm add github:tallao-ui/tallao</text>
+<line x1="56" y1="206" x2="1144" y2="206" stroke="#2a3446" stroke-width="2"/>
+<rect x="57.0" y="227" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="105.6" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Button</text>
+<rect x="166.2" y="227" width="86.0" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="209.2" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Badge</text>
+<rect x="264.2" y="227" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="318.4" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Spinner</text>
+<rect x="384.6" y="227" width="86.0" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="427.6" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Alert</text>
+<rect x="482.6" y="227" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="542.4" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Progress</text>
+<rect x="614.2" y="227" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="674.0" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Skeleton</text>
+<rect x="745.8" y="227" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="800.0" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Toaster</text>
+<rect x="866.2" y="227" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="937.2" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">CopyButton</text>
+<rect x="1020.2" y="227" width="74.8" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="1057.6" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Stat</text>
+<rect x="57.0" y="279" width="74.8" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="94.4" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Icon</text>
+<rect x="143.8" y="279" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
+<text class="s" x="192.4" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Avatar</text>
+<rect x="253.0" y="279" width="86.0" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="296.0" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Input</text>
+<rect x="351.0" y="279" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="410.8" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Textarea</text>
+<rect x="482.6" y="279" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="531.2" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Select</text>
+<rect x="591.8" y="279" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="651.6" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Checkbox</text>
+<rect x="723.4" y="279" width="86.0" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="766.4" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Label</text>
+<rect x="821.4" y="279" width="86.0" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="864.4" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Field</text>
+<rect x="919.4" y="279" width="153.2" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="996.0" y="306" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">SearchInput</text>
+<rect x="57.0" y="331" width="153.2" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="133.6" y="358" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">NumberInput</text>
+<rect x="222.2" y="331" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="270.8" y="358" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Slider</text>
+<rect x="331.4" y="331" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="380.0" y="358" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Switch</text>
+<rect x="440.6" y="331" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="489.2" y="358" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Toggle</text>
+<rect x="549.8" y="331" width="153.2" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="626.4" y="358" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">ToggleGroup</text>
+<rect x="715.0" y="331" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="786.0" y="358" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">RadioGroup</text>
+<rect x="869.0" y="331" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="917.6" y="358" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Rating</text>
+<rect x="978.2" y="331" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="1038.0" y="358" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">InputOTP</text>
+<rect x="57.0" y="383" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="116.8" y="410" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Combobox</text>
+<rect x="188.6" y="383" width="186.8" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="282.0" y="410" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">KeyValueEditor</text>
+<rect x="387.4" y="383" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="458.4" y="410" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">FileUpload</text>
+<rect x="541.4" y="383" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="601.2" y="410" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Calendar</text>
+<rect x="673.0" y="383" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="744.0" y="410" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">DatePicker</text>
+<rect x="827.0" y="383" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2"/>
+<text class="s" x="898.0" y="410" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">SchemaForm</text>
+<rect x="981.0" y="383" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#60a5fa" stroke-width="2" stroke-dasharray="7 6"/>
+<text class="s" x="1052.0" y="410" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">CodeEditor</text>
+<rect x="57.0" y="435" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#a78bfa" stroke-width="2"/>
+<text class="s" x="105.6" y="462" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Dialog</text>
+<rect x="166.2" y="435" width="86.0" height="40" rx="11" fill="#161e2c" stroke="#a78bfa" stroke-width="2"/>
+<text class="s" x="209.2" y="462" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Sheet</text>
+<rect x="264.2" y="435" width="175.6" height="40" rx="11" fill="#161e2c" stroke="#a78bfa" stroke-width="2"/>
+<text class="s" x="352.0" y="462" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">ConfirmDialog</text>
+<rect x="451.8" y="435" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#a78bfa" stroke-width="2"/>
+<text class="s" x="506.0" y="462" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Popover</text>
+<rect x="572.2" y="435" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#a78bfa" stroke-width="2"/>
+<text class="s" x="626.4" y="462" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Tooltip</text>
+<rect x="692.6" y="435" width="164.4" height="40" rx="11" fill="#161e2c" stroke="#a78bfa" stroke-width="2"/>
+<text class="s" x="774.8" y="462" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">DropdownMenu</text>
+<rect x="869.0" y="435" width="153.2" height="40" rx="11" fill="#161e2c" stroke="#a78bfa" stroke-width="2"/>
+<text class="s" x="945.6" y="462" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">ContextMenu</text>
+<rect x="1034.2" y="435" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#a78bfa" stroke-width="2"/>
+<text class="s" x="1088.4" y="462" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Command</text>
+<rect x="57.0" y="487" width="74.8" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="94.4" y="514" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Card</text>
+<rect x="143.8" y="487" width="74.8" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="181.2" y="514" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Tabs</text>
+<rect x="230.6" y="487" width="130.8" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="296.0" y="514" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Accordion</text>
+<rect x="373.4" y="487" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="444.4" y="514" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Breadcrumb</text>
+<rect x="527.4" y="487" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="598.4" y="514" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Pagination</text>
+<rect x="681.4" y="487" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="735.6" y="514" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Sidebar</text>
+<rect x="801.8" y="487" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="856.0" y="514" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">NavMenu</text>
+<rect x="922.2" y="487" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="982.0" y="514" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">MegaMenu</text>
+<rect x="57.0" y="539" width="130.8" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="122.4" y="566" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">BottomNav</text>
+<rect x="199.8" y="539" width="130.8" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="265.2" y="566" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">SplitPane</text>
+<rect x="342.6" y="539" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="402.4" y="566" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Carousel</text>
+<rect x="474.2" y="539" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#34d399" stroke-width="2"/>
+<text class="s" x="545.2" y="566" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">ThemeScope</text>
+<rect x="628.2" y="539" width="86.0" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2"/>
+<text class="s" x="671.2" y="566" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Table</text>
+<rect x="726.2" y="539" width="130.8" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2"/>
+<text class="s" x="791.6" y="566" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">DataTable</text>
+<rect x="869.0" y="539" width="119.6" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2"/>
+<text class="s" x="928.8" y="566" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">BarChart</text>
+<rect x="1000.6" y="539" width="130.8" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2"/>
+<text class="s" x="1066.0" y="566" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">LineChart</text>
+<rect x="57.0" y="591" width="130.8" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2"/>
+<text class="s" x="122.4" y="618" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">MonthView</text>
+<rect x="199.8" y="591" width="175.6" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2"/>
+<text class="s" x="287.6" y="618" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">CompareSlider</text>
+<rect x="387.4" y="591" width="164.4" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2"/>
+<text class="s" x="469.6" y="618" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">SelectionBar</text>
+<rect x="563.8" y="591" width="130.8" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2"/>
+<text class="s" x="629.2" y="618" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">DragBoard</text>
+<rect x="706.6" y="591" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 6"/>
+<text class="s" x="760.8" y="618" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">GameMap</text>
+<rect x="827.0" y="591" width="153.2" height="40" rx="11" fill="#161e2c" stroke="#f472b6" stroke-width="2"/>
+<text class="s" x="903.6" y="618" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">PromptInput</text>
+<rect x="57.0" y="643" width="164.4" height="40" rx="11" fill="#161e2c" stroke="#f472b6" stroke-width="2"/>
+<text class="s" x="139.2" y="670" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">ToolCallCard</text>
+<rect x="233.4" y="643" width="153.2" height="40" rx="11" fill="#161e2c" stroke="#f472b6" stroke-width="2"/>
+<text class="s" x="310.0" y="670" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">ChatMessage</text>
+<rect x="398.6" y="643" width="86.0" height="40" rx="11" fill="#161e2c" stroke="#f472b6" stroke-width="2"/>
+<text class="s" x="441.6" y="670" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Steps</text>
+<rect x="496.6" y="643" width="198.0" height="40" rx="11" fill="#161e2c" stroke="#f472b6" stroke-width="2"/>
+<text class="s" x="595.6" y="670" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">SuggestionChips</text>
+<rect x="706.6" y="643" width="130.8" height="40" rx="11" fill="#161e2c" stroke="#f472b6" stroke-width="2"/>
+<text class="s" x="772.0" y="670" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">CodeBlock</text>
+<rect x="849.4" y="643" width="108.4" height="40" rx="11" fill="#161e2c" stroke="#f472b6" stroke-width="2"/>
+<text class="s" x="903.6" y="670" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Sources</text>
+<rect x="969.8" y="643" width="142.0" height="40" rx="11" fill="#161e2c" stroke="#f472b6" stroke-width="2"/>
+<text class="s" x="1040.8" y="670" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">UsageMeter</text>
+<circle cx="64" cy="729" r="8" fill="#ff8a4c"/>
+<text class="s" x="80" y="736" font-size="20" fill="#f1f5f9">Actions and feedback</text>
+<circle cx="342.0" cy="729" r="8" fill="#60a5fa"/>
+<text class="s" x="358.0" y="736" font-size="20" fill="#f1f5f9">Forms</text>
+<circle cx="452.0" cy="729" r="8" fill="#a78bfa"/>
+<text class="s" x="468.0" y="736" font-size="20" fill="#f1f5f9">Overlays and menus</text>
+<circle cx="707.6" cy="729" r="8" fill="#34d399"/>
+<text class="s" x="723.6" y="736" font-size="20" fill="#f1f5f9">Navigation and layout</text>
+<circle cx="996.8000000000001" cy="729" r="8" fill="#fbbf24"/>
+<text class="s" x="1012.8000000000001" y="736" font-size="20" fill="#f1f5f9">Data</text>
+<circle cx="64" cy="767" r="8" fill="#f472b6"/>
+<text class="s" x="80" y="774" font-size="20" fill="#f1f5f9">Generative UI</text>
+<rect x="57" y="801" width="34" height="22" rx="6" fill="none" stroke="#a8b3c4" stroke-width="2" stroke-dasharray="6 5"/>
+<text class="s" x="102" y="818" font-size="20" fill="#f1f5f9">separate entry point: <tspan class="m" fill="#a8b3c4">tallao/map</tspan>, <tspan class="m" fill="#a8b3c4">tallao/code</tspan></text>
+<text class="m" x="1144" y="818" font-size="20" text-anchor="end" fill="#a8b3c4">MIT · v0.7.0 · Svelte 5</text>
+</svg>

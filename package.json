@@ -1,12 +1,12 @@
 {
   "name": "tallao",
   "version": "0.7.0",
-  "description": "UI kit en Svelte 5 para interfaces generativas — extraído del admin de Kitsuden",
+  "description": "Svelte 5 UI kit for generative interfaces, extracted from the Kitsuden admin",
   "license": "MIT",
   "author": "Victor Antinori Broce (https://github.com/vigogami)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kitsuden/tallao.git"
+    "url": "git+https://github.com/tallao-ui/tallao.git"
   },
   "private": true,
   "type": "module",

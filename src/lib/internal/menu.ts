@@ -1,23 +1,23 @@
 /**
- * tallao — lo común de DropdownMenu y ContextMenu
+ * tallao — what DropdownMenu and ContextMenu share
  *
- * El contexto que leen MenuItem y compañía (cerrar el menú al elegir) y el
- * teclado del menú: ↑ ↓ con vuelta, Inicio y Fin, búsqueda por letra y Tab
- * para salir. Las opciones desactivadas se saltan.
+ * The context that MenuItem and friends read (close the menu on selection) and the
+ * menu keyboard: ↑ ↓ with wrap-around, Home and End, type-ahead by letter and Tab
+ * to leave. Disabled items are skipped.
  */
 import { getContext, setContext } from "svelte";
 
 const KEY = Symbol("tallao-menu");
 
 export interface MenuContext {
-  /** Cierra el menú y devuelve el foco a donde estaba. */
+  /** Closes the menu and returns focus to where it was. */
   close: () => void;
 }
 
 export const provideMenu = (ctx: MenuContext) => setContext(KEY, ctx);
 export const useMenu = () => getContext<MenuContext | undefined>(KEY);
 
-/** Opciones elegibles del menú, en orden. */
+/** Selectable menu items, in order. */
 export function menuItems(list: HTMLElement | undefined): HTMLElement[] {
   return list ? [...list.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')] : [];
 }
@@ -27,7 +27,7 @@ export function focusItem(list: HTMLElement | undefined, index: number) {
   if (items.length) items[(index + items.length) % items.length].focus();
 }
 
-/** Teclado dentro del menú; `onTab` cierra sin devolver el foco (el Tab sigue su camino). */
+/** Keyboard inside the menu; `onTab` closes without returning focus (Tab goes on its way). */
 export function menuKeyboard(onTab: () => void) {
   let query = "";
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -43,7 +43,7 @@ export function menuKeyboard(onTab: () => void) {
       onTab();
       return;
     } else if (e.key.length === 1 && /\S/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      // Las letras pulsadas seguidas forman el prefijo que se busca.
+      // Letters typed in quick succession form the prefix being searched for.
       clearTimeout(timer);
       query += e.key.toLowerCase();
       timer = setTimeout(() => (query = ""), 500);

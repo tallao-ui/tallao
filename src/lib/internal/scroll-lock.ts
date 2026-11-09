@@ -1,32 +1,32 @@
 /**
- * tallao — bloqueo del scroll de la página
+ * tallao — page scroll lock
  *
- * Con varios diálogos abiertos a la vez la página sigue bloqueada hasta que se
- * cierra el último: cuenta en vez de un booleano. Compensa el ancho de la
- * barra de scroll para que el contenido no salte al ocultarla.
+ * With several dialogs open at once the page stays locked until the last one
+ * closes: it counts instead of using a boolean. It compensates for the scrollbar
+ * width so the content does not jump when the scrollbar is hidden.
  */
 
-let abiertos = 0;
-let guardado: { overflow: string; paddingRight: string } | null = null;
+let openCount = 0;
+let saved: { overflow: string; paddingRight: string } | null = null;
 
-/** Bloquea el scroll del documento; devuelve la función que lo libera (una sola vez). */
+/** Locks document scrolling; returns the function that releases it (once only). */
 export function lockScroll(): () => void {
   if (typeof document === "undefined") return () => {};
-  const raiz = document.documentElement;
-  if (abiertos++ === 0) {
-    const barra = window.innerWidth - raiz.clientWidth;
-    guardado = { overflow: raiz.style.overflow, paddingRight: raiz.style.paddingRight };
-    raiz.style.overflow = "hidden";
-    if (barra > 0) raiz.style.paddingRight = `${barra}px`;
+  const root = document.documentElement;
+  if (openCount++ === 0) {
+    const scrollbar = window.innerWidth - root.clientWidth;
+    saved = { overflow: root.style.overflow, paddingRight: root.style.paddingRight };
+    root.style.overflow = "hidden";
+    if (scrollbar > 0) root.style.paddingRight = `${scrollbar}px`;
   }
-  let liberado = false;
+  let released = false;
   return () => {
-    if (liberado) return;
-    liberado = true;
-    if (--abiertos === 0 && guardado) {
-      raiz.style.overflow = guardado.overflow;
-      raiz.style.paddingRight = guardado.paddingRight;
-      guardado = null;
+    if (released) return;
+    released = true;
+    if (--openCount === 0 && saved) {
+      root.style.overflow = saved.overflow;
+      root.style.paddingRight = saved.paddingRight;
+      saved = null;
     }
   };
 }

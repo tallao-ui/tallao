@@ -1,9 +1,11 @@
 <!--
   tallao — Avatar
-  Foto de una persona o agente con sus iniciales de respaldo: si no hay `src`
-  o la imagen falla, quedan las iniciales sobre un color estable (sale del
-  nombre, así la misma persona tiene siempre el mismo). `name` es su nombre
-  accesible; con `decorative` se oculta (cuando el nombre ya está al lado).
+  Photo of a person or agent with fallback initials: if there is no `src`
+  or the image fails, the initials remain on a stable color (derived from the
+  name, so the same person always gets the same one). `name` is its accessible
+  name; with `decorative` it is hidden (when the name is already next to it). An explicit
+  `aria-label` replaces the name as accessible name, and any other attribute (`data-testid`,
+  `title`…) goes to the root. `initials={1}` draws one letter instead of two.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
@@ -14,9 +16,12 @@
     size = "md",
     shape = "circle",
     decorative = false,
-    /** Insignia en la esquina (p. ej. «IA» para un agente). */
+    /** Corner badge (e.g. "AI" for an agent). */
     badge,
+    initials = 2,
+    "aria-label": ariaLabel,
     class: className = "",
+    ...rest
   }: {
     name: string;
     src?: string | null;
@@ -24,40 +29,47 @@
     shape?: "circle" | "square";
     decorative?: boolean;
     badge?: string;
+    /** How many initials to draw (default 2). */
+    initials?: 1 | 2;
+    /** Accessible name; defaults to `name`. */
+    "aria-label"?: string;
     class?: string;
+    /** Any other attribute (data-*, title, style…) goes to the root <span>. */
+    [key: string]: unknown;
   } = $props();
 
-  let fallo = $state(false);
-  // Una imagen nueva merece otro intento.
+  let failed = $state(false);
+  // A new image deserves another try.
   $effect(() => {
     void src;
-    fallo = false;
+    failed = false;
   });
 
-  const iniciales = $derived(
+  const letters = $derived(
     name
       .trim()
       .split(/\s+/)
-      .slice(0, 2)
+      .slice(0, initials)
       .map((p) => p[0]?.toUpperCase() ?? "")
       .join("") || "?"
   );
-  const tono = $derived([...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7));
+  const hue = $derived([...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7));
 </script>
 
 <span
+  {...rest}
   class={cn("ta-avatar", `ta-avatar--${size}`, `ta-avatar--${shape}`, className)}
   role={decorative ? undefined : "img"}
-  aria-label={decorative ? undefined : name}
+  aria-label={decorative ? undefined : (ariaLabel ?? name)}
   aria-hidden={decorative ? "true" : undefined}
-  style:--ta-avatar-tono={tono}
+  style:--ta-avatar-tone={hue}
 >
-  {#if src && !fallo}
-    <img {src} alt="" onerror={() => (fallo = true)} />
+  {#if src && !failed}
+    <img {src} alt="" onerror={() => (failed = true)} />
   {:else}
-    <span class="ta-avatar-iniciales" aria-hidden="true">{iniciales}</span>
+    <span class="ta-avatar-initials" aria-hidden="true">{letters}</span>
   {/if}
-  {#if badge}<span class="ta-avatar-insignia" aria-hidden="true">{badge}</span>{/if}
+  {#if badge}<span class="ta-avatar-badge" aria-hidden="true">{badge}</span>{/if}
 </span>
 
 <style>
@@ -68,7 +80,7 @@
     justify-content: center;
     flex-shrink: 0;
     color: white;
-    background: hsl(var(--ta-avatar-tono) 45% 40%);
+    background: hsl(var(--ta-avatar-tone) 45% 40%);
     font-weight: 600;
     user-select: none;
   }
@@ -88,7 +100,7 @@
     object-fit: cover;
   }
 
-  .ta-avatar-insignia {
+  .ta-avatar-badge {
     position: absolute;
     right: -0.25rem;
     bottom: -0.25rem;

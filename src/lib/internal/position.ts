@@ -1,12 +1,12 @@
 /**
- * tallao — colocar un panel junto a su disparador
+ * tallao — placing a panel next to its trigger
  *
- * El panel lleva `popover="manual"` y se muestra con showPopover(): así sube a
- * la capa superior del navegador (por encima de cualquier z-index y de un
- * `overflow: hidden`, también dentro de un Shadow DOM) sin moverlo de sitio en
- * el DOM, de modo que hereda los tokens de su ThemeScope. La posición la
- * calcula Floating UI (volteo y desplazamiento en los bordes) y se recalcula al
- * hacer scroll o cambiar de tamaño. Sin Popover API, el panel queda `fixed`.
+ * The panel has `popover="manual"` and is shown with showPopover(): that lifts it
+ * to the browser's top layer (above any z-index and any `overflow: hidden`, also
+ * inside a Shadow DOM) without moving it in the DOM, so it inherits the tokens of
+ * its ThemeScope. Floating UI computes the position (flipping and shifting at the
+ * edges) and it is recomputed on scroll or resize. Without the Popover API, the
+ * panel stays `fixed`.
  */
 import {
   autoUpdate,
@@ -24,15 +24,15 @@ export type { Placement, VirtualElement };
 
 export interface AnchorOptions {
   placement?: Placement;
-  /** Separación con el disparador, en px. */
+  /** Gap to the trigger, in px. */
   gap?: number;
-  /** Al menos tan ancho como el disparador (listas de un combobox o select). */
+  /** At least as wide as the trigger (combobox or select lists). */
   matchWidth?: boolean;
 }
 
 const hasPopoverApi = () => typeof HTMLElement !== "undefined" && "showPopover" in HTMLElement.prototype;
 
-/** Un punto de la ventana como ancla (un menú contextual se abre donde se pulsó). */
+/** A point in the viewport as anchor (a context menu opens where the user clicked). */
 export function pointAnchor(x: number, y: number, context?: Element): VirtualElement {
   return {
     getBoundingClientRect: () => ({ x, y, left: x, top: y, right: x, bottom: y, width: 0, height: 0 }),
@@ -40,26 +40,31 @@ export function pointAnchor(x: number, y: number, context?: Element): VirtualEle
   };
 }
 
-/** Muestra `panel` anclado a `anchor`; devuelve la función que lo oculta y deja de seguirlo. */
+/** Shows `panel` anchored to `anchor`; returns the function that hides it and stops tracking it. */
 export function anchor(anchorEl: Element | VirtualElement, panel: HTMLElement, opts: AnchorOptions = {}): () => void {
   if (hasPopoverApi() && panel.hasAttribute("popover")) {
     try {
       panel.showPopover();
     } catch {
-      // Ya estaba abierto o el elemento no está en la página: se coloca igual.
+      // It was already open or the element is not on the page: position it anyway.
     }
   }
 
-  const middleware: Middleware[] = [offset(opts.gap ?? 6), flip({ padding: 8 }), shift({ padding: 8 })];
-  if (opts.matchWidth) {
-    middleware.push(
-      size({
-        apply({ rects }) {
-          panel.style.minWidth = `${rects.reference.width}px`;
-        },
-      })
-    );
-  }
+  // `size` publishes the room left on the chosen side as --ta-available-height (lists cap their
+  // height with it, so they stay usable with the on-screen keyboard open) and, with
+  // `matchWidth`, makes the panel at least as wide as its trigger.
+  const middleware: Middleware[] = [
+    offset(opts.gap ?? 6),
+    flip({ padding: 8 }),
+    shift({ padding: 8 }),
+    size({
+      padding: 8,
+      apply({ rects, availableHeight }) {
+        panel.style.setProperty("--ta-available-height", `${Math.max(96, Math.floor(availableHeight))}px`);
+        if (opts.matchWidth) panel.style.minWidth = `${rects.reference.width}px`;
+      },
+    }),
+  ];
 
   const update = () =>
     computePosition(anchorEl, panel, { strategy: "fixed", placement: opts.placement ?? "bottom-start", middleware }).then(
@@ -81,7 +86,7 @@ export function anchor(anchorEl: Element | VirtualElement, panel: HTMLElement, o
       try {
         panel.hidePopover();
       } catch {
-        // Ya estaba cerrado.
+        // It was already closed.
       }
     }
   };

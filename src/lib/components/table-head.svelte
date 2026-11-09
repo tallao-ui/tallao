@@ -3,7 +3,7 @@
   interface Props {
     class?: string;
     children?: import("svelte").Snippet;
-    /** Cualquier otro atributo (aria-sort, style, data-*…) va al <th>. */
+    /** Any other attribute (aria-sort, style, data-*…) goes to the <th>. */
     [key: string]: unknown;
   }
   const { class: className = "", children, ...rest }: Props = $props();

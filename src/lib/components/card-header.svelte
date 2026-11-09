@@ -1,6 +1,6 @@
 <!--
   tallao — CardHeader / CardTitle / CardContent / CardFooter
-  Partes de Card, componibles como snippets o subcomponentes.
+  Parts of Card, composable as snippets or subcomponents.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";

@@ -1,7 +1,7 @@
 <!--
   tallao — Checkbox
-  Casilla nativa con el acento del kit y su etiqueta clicable.
-  Sin `label` ni hijos, pasa `ariaLabel`: una casilla sin nombre no se entiende.
+  Native checkbox with the kit's accent and its clickable label.
+  Without `label` or children, pass `ariaLabel`: an unnamed checkbox makes no sense.
 -->
 <script lang="ts">
   import { cn } from "$lib/utils";
@@ -58,5 +58,10 @@
   .ta-checkbox--off {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  /* On touch screens: the whole label is the 44px hit area; the box stays 16px. */
+  @media (pointer: coarse) {
+    .ta-checkbox { min-height: 2.75rem; align-items: center; }
   }
 </style>

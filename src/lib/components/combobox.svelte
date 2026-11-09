@@ -1,21 +1,21 @@
 <!--
   tallao — Combobox
-  Campo de texto con lista de opciones que se filtra al escribir (patrón
-  combobox de la WAI-ARIA 1.2, con aria-activedescendant: el foco no sale del
-  campo). Para listas largas donde un <select> se queda corto.
-    - ↓ abre la lista o baja; ↑ sube; Enter elige la opción activa.
-    - Escape cierra la lista; con la lista cerrada, borra el texto escrito.
-    - El filtro ignora mayúsculas y acentos ("cancion" encuentra "Canción").
-  `value` es el valor elegido (o null); el texto del campo es solo la búsqueda.
+  Text field with a list of options filtered as you type (WAI-ARIA 1.2
+  combobox pattern, with aria-activedescendant: focus never leaves the
+  field). For long lists where a <select> falls short.
+    - ↓ opens the list or moves down; ↑ moves up; Enter picks the active option.
+    - Escape closes the list; with the list closed, it clears the typed text.
+    - The filter ignores case and accents ("cancion" finds "Canción").
+  `value` is the chosen value (or null); the field's text is only the search.
 
-  Búsqueda remota: con `loadOptions(query, signal)` las opciones vienen de la API al
-  escribir (con espera entre teclas y cancelando la petición anterior); el filtro
-  lo hace el servidor.
-  Varios valores: con `multiple`, `values` es la lista elegida; cada valor es una
-  ficha con su botón de quitar, elegir una opción la añade o la quita y la lista
-  sigue abierta; Retroceso con el campo vacío quita la última.
-  Formularios: con `name` lleva inputs ocultos (uno por valor), así se envía en un
-  <form> nativo, también sin JavaScript tras el render del servidor (SvelteKit).
+  Remote search: with `loadOptions(query, signal)` options come from the API as
+  you type (debounced between keystrokes and cancelling the previous request); the
+  server does the filtering.
+  Multiple values: with `multiple`, `values` is the chosen list; each value is a
+  chip with its remove button, picking an option adds or removes it and the list
+  stays open; Backspace in the empty field removes the last one.
+  Forms: with `name` it renders hidden inputs (one per value), so it submits in a
+  native <form>, even without JavaScript after server rendering (SvelteKit).
 -->
 <script lang="ts" module>
   export interface ComboboxOption {
@@ -24,8 +24,8 @@
     disabled?: boolean;
   }
 
-  /** Minúsculas y sin acentos, para comparar. */
-  export const normalizar = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  /** Lowercase and without accents, for comparing. */
+  export const normalizeText = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 </script>
 
 <script lang="ts">
@@ -37,31 +37,31 @@
   import { anchor } from "$lib/internal/position";
 
   interface Props {
-    /** Opciones locales; con `loadOptions` pueden faltar (vienen de la API). */
+    /** Local options; with `loadOptions` they may be omitted (they come from the API). */
     options?: ComboboxOption[];
     value?: string | null;
-    /** Con `multiple`: los valores elegidos. */
+    /** With `multiple`: the chosen values. */
     values?: string[];
     multiple?: boolean;
-    /** Opciones desde la API para lo escrito; `signal` se aborta si llega otra búsqueda. */
+    /** Options from the API for the typed text; `signal` is aborted if another search arrives. */
     loadOptions?: (query: string, signal: AbortSignal) => Promise<ComboboxOption[]>;
-    /** Espera tras la última tecla antes de buscar en la API, en ms. */
+    /** Wait after the last keystroke before searching the API, in ms. */
     debounce?: number;
-    /** Letras mínimas para buscar en la API. */
+    /** Minimum characters to search the API. */
     minChars?: number;
-    /** Nombre del campo en un formulario (inputs ocultos con el valor o los valores). */
+    /** Field name in a form (hidden inputs with the value or values). */
     name?: string;
     required?: boolean;
     placeholder?: string;
-    /** Nombre accesible si no va dentro de un Field. */
+    /** Accessible name if it is not inside a Field. */
     ariaLabel?: string;
-    /** Texto de la lista cuando nada coincide. */
+    /** List text when nothing matches. */
     emptyText?: string;
     loadingText?: string;
-    /** Nombre del botón que quita una ficha (modo `multiple`). */
+    /** Name of the button that removes a chip (`multiple` mode). */
     removeLabel?: (label: string) => string;
     disabled?: boolean;
-    /** Filtro propio para opciones locales; por defecto, «contiene» sin mayúsculas ni acentos. */
+    /** Custom filter for local options; defaults to "contains", ignoring case and accents. */
     filter?: (option: ComboboxOption, query: string) => boolean;
     class?: string;
     onValueChange?: (value: string | null) => void;
@@ -85,179 +85,179 @@
     loadingText = L.loading,
     removeLabel = (label: string) => `${L.remove} ${label}`,
     disabled = false,
-    filter = (o, q) => normalizar(o.label).includes(normalizar(q)),
+    filter = (o, q) => normalizeText(o.label).includes(normalizeText(q)),
     class: className = "",
     onValueChange,
     onValuesChange,
   }: Props = $props();
 
   const id = $props.id();
-  let campo: HTMLInputElement | undefined = $state();
-  let lista: HTMLElement | undefined = $state();
-  let abierta = $state(false);
-  let activa = $state(-1);
-  // Lo escrito; cuando no se está escribiendo (modo simple), el campo muestra la opción elegida.
-  let texto = $state("");
-  let escribiendo = $state(false);
+  let field: HTMLInputElement | undefined = $state();
+  let list: HTMLElement | undefined = $state();
+  let open = $state(false);
+  let active = $state(-1);
+  // The typed text; when not typing (single mode), the field shows the chosen option.
+  let text = $state("");
+  let typing = $state(false);
 
-  // Remotas: lo último que devolvió la API, y lo que se ha visto, para poner nombre a lo elegido.
-  let remotas = $state<ComboboxOption[]>([]);
-  let cargando = $state(false);
-  let conocidas = $state<Record<string, ComboboxOption>>({});
-  let espera: ReturnType<typeof setTimeout> | undefined;
-  let peticion: AbortController | undefined;
+  // Remote: the last thing the API returned, and what has been seen, to name what was chosen.
+  let remoteOptions = $state<ComboboxOption[]>([]);
+  let loading = $state(false);
+  let known = $state<Record<string, ComboboxOption>>({});
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  let request: AbortController | undefined;
 
   $effect(() => {
     for (const o of options)
-      if (!conocidas[o.value])
+      if (!known[o.value])
         untrack(() => {
-          conocidas[o.value] = o;
+          known[o.value] = o;
         });
   });
 
-  const etiqueta = (v: string) => conocidas[v]?.label ?? options.find((o) => o.value === v)?.label ?? v;
-  const elegida = $derived(value == null ? null : (conocidas[value] ?? options.find((o) => o.value === value) ?? null));
-  const elegidos = $derived(new Set(multiple ? values : value == null ? [] : [value]));
-  const visibles = $derived(
-    loadOptions ? remotas : escribiendo && texto ? options.filter((o) => filter(o, texto)) : options
+  const labelOf = (v: string) => known[v]?.label ?? options.find((o) => o.value === v)?.label ?? v;
+  const selected = $derived(value == null ? null : (known[value] ?? options.find((o) => o.value === value) ?? null));
+  const selectedSet = $derived(new Set(multiple ? values : value == null ? [] : [value]));
+  const visible = $derived(
+    loadOptions ? remoteOptions : typing && text ? options.filter((o) => filter(o, text)) : options
   );
 
-  // Modo simple: si el valor cambia desde fuera, el campo lo refleja.
+  // Single mode: if the value changes from outside, the field reflects it.
   $effect(() => {
-    if (!multiple && !escribiendo) texto = elegida?.label ?? "";
+    if (!multiple && !typing) text = selected?.label ?? "";
   });
 
-  function buscar(q: string, ya = false) {
+  function search(q: string, now = false) {
     if (!loadOptions) return;
-    clearTimeout(espera);
-    peticion?.abort();
+    clearTimeout(debounceTimer);
+    request?.abort();
     if (q.length < minChars) {
-      remotas = [];
-      cargando = false;
+      remoteOptions = [];
+      loading = false;
       return;
     }
-    cargando = true;
-    const lanzar = () => {
-      const control = new AbortController();
-      peticion = control;
-      loadOptions(q, control.signal).then(
+    loading = true;
+    const run = () => {
+      const controller = new AbortController();
+      request = controller;
+      loadOptions(q, controller.signal).then(
         (res) => {
-          if (control.signal.aborted) return;
-          remotas = res;
-          for (const o of res) conocidas[o.value] = o;
-          cargando = false;
-          activa = siguiente(-1, 1);
+          if (controller.signal.aborted) return;
+          remoteOptions = res;
+          for (const o of res) known[o.value] = o;
+          loading = false;
+          active = nextEnabled(-1, 1);
         },
         () => {
-          if (!control.signal.aborted) cargando = false;
+          if (!controller.signal.aborted) loading = false;
         }
       );
     };
-    if (ya) lanzar();
-    else espera = setTimeout(lanzar, debounce);
+    if (now) run();
+    else debounceTimer = setTimeout(run, debounce);
   }
 
-  function abrir() {
+  function openList() {
     if (disabled) return;
-    abierta = true;
-    if (loadOptions && remotas.length === 0) buscar(multiple ? texto : "", true);
-    const i = visibles.findIndex((o) => elegidos.has(o.value));
-    activa = i >= 0 ? i : siguiente(-1, 1);
+    open = true;
+    if (loadOptions && remoteOptions.length === 0) search(multiple ? text : "", true);
+    const i = visible.findIndex((o) => selectedSet.has(o.value));
+    active = i >= 0 ? i : nextEnabled(-1, 1);
   }
 
-  function cerrar() {
-    abierta = false;
-    activa = -1;
-    escribiendo = false;
-    clearTimeout(espera);
-    peticion?.abort();
-    cargando = false;
-    texto = multiple ? "" : (elegida?.label ?? "");
+  function closeList() {
+    open = false;
+    active = -1;
+    typing = false;
+    clearTimeout(debounceTimer);
+    request?.abort();
+    loading = false;
+    text = multiple ? "" : (selected?.label ?? "");
   }
 
-  function elegir(o: ComboboxOption) {
+  function choose(o: ComboboxOption) {
     if (o.disabled) return;
-    conocidas[o.value] = o;
+    known[o.value] = o;
     if (multiple) {
       values = values.includes(o.value) ? values.filter((v) => v !== o.value) : [...values, o.value];
       onValuesChange?.(values);
-      texto = "";
-      escribiendo = false;
-      campo?.focus();
+      text = "";
+      typing = false;
+      field?.focus();
       return;
     }
     value = o.value;
     onValueChange?.(o.value);
-    escribiendo = false;
-    texto = o.label;
-    abierta = false;
-    activa = -1;
+    typing = false;
+    text = o.label;
+    open = false;
+    active = -1;
   }
 
-  function quitar(v: string) {
+  function remove(v: string) {
     values = values.filter((x) => x !== v);
     onValuesChange?.(values);
-    campo?.focus();
+    field?.focus();
   }
 
-  /** La siguiente opción no desactivada en la dirección `paso`, dando la vuelta. */
-  function siguiente(desde: number, paso: 1 | -1) {
-    const n = visibles.length;
+  /** The next non-disabled option in direction `step`, wrapping around. */
+  function nextEnabled(from: number, step: 1 | -1) {
+    const n = visible.length;
     for (let k = 1; k <= n; k++) {
-      const i = (desde + paso * k + n * 2) % n;
-      if (!visibles[i].disabled) return i;
+      const i = (from + step * k + n * 2) % n;
+      if (!visible[i].disabled) return i;
     }
     return -1;
   }
 
-  function tecla(e: KeyboardEvent) {
+  function onKey(e: KeyboardEvent) {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
-      if (!abierta) return abrir();
-      activa = siguiente(activa, e.key === "ArrowDown" ? 1 : -1);
+      if (!open) return openList();
+      active = nextEnabled(active, e.key === "ArrowDown" ? 1 : -1);
     } else if (e.key === "Enter") {
-      if (abierta && activa >= 0 && visibles[activa]) {
+      if (open && active >= 0 && visible[active]) {
         e.preventDefault();
-        elegir(visibles[activa]);
+        choose(visible[active]);
       }
-    } else if (e.key === "Backspace" && multiple && texto === "" && values.length) {
-      quitar(values[values.length - 1]);
-    } else if (e.key === "Escape" && !abierta && texto) {
-      // Con la lista abierta, Escape lo atiende la pila de capas (la cierra).
+    } else if (e.key === "Backspace" && multiple && text === "" && values.length) {
+      remove(values[values.length - 1]);
+    } else if (e.key === "Escape" && !open && text) {
+      // With the list open, Escape is handled by the layer stack (it closes it).
       e.preventDefault();
-      texto = "";
-      escribiendo = true;
+      text = "";
+      typing = true;
     }
   }
 
-  function alEscribir() {
-    escribiendo = true;
-    abierta = true;
-    if (loadOptions) buscar(texto);
-    else activa = siguiente(-1, 1);
+  function onInput() {
+    typing = true;
+    open = true;
+    if (loadOptions) search(text);
+    else active = nextEnabled(-1, 1);
   }
 
-  // La opción activa se ve aunque la lista tenga scroll.
+  // The active option stays visible even when the list scrolls.
   $effect(() => {
-    if (abierta && activa >= 0) lista?.querySelector(`[data-indice="${activa}"]`)?.scrollIntoView?.({ block: "nearest" });
+    if (open && active >= 0) list?.querySelector(`[data-index="${active}"]`)?.scrollIntoView?.({ block: "nearest" });
   });
 
   $effect(() => {
-    const l = lista;
-    const c = campo;
-    if (!abierta || !l || !c) return;
-    const soltar = anchor(c, l, { matchWidth: true, gap: 4 });
-    const quitarCapa = pushLayer({ inside: () => [l, c], dismiss: cerrar });
+    const l = list;
+    const c = field;
+    if (!open || !l || !c) return;
+    const release = anchor(c, l, { matchWidth: true, gap: 4 });
+    const removeLayer = pushLayer({ inside: () => [l, c], dismiss: closeList });
     return () => {
-      quitarCapa();
-      soltar();
+      removeLayer();
+      release();
     };
   });
 
-  // Al desmontar no queda una búsqueda en vuelo.
+  // On unmount no search is left in flight.
   $effect(() => () => {
-    clearTimeout(espera);
-    peticion?.abort();
+    clearTimeout(debounceTimer);
+    request?.abort();
   });
 </script>
 
@@ -270,75 +270,75 @@
     {/if}
   {/if}
 
-  <div class="ta-combobox-caja">
+  <div class="ta-combobox-box">
     {#if multiple}
       {#each values as v (v)}
-        <span class="ta-combobox-ficha">
-          {etiqueta(v)}
+        <span class="ta-combobox-chip">
+          {labelOf(v)}
           <button
             type="button"
-            class="ta-combobox-quitar"
-            aria-label={removeLabel(etiqueta(v))}
+            class="ta-combobox-remove"
+            aria-label={removeLabel(labelOf(v))}
             {disabled}
-            onclick={() => quitar(v)}>×</button
+            onclick={() => remove(v)}>×</button
           >
         </span>
       {/each}
     {/if}
     <input
-      bind:this={campo}
-      bind:value={texto}
+      bind:this={field}
+      bind:value={text}
       type="text"
       role="combobox"
       autocomplete="off"
       aria-autocomplete="list"
-      aria-expanded={abierta}
-      aria-controls={`${id}-lista`}
-      aria-activedescendant={abierta && activa >= 0 ? `${id}-op-${activa}` : undefined}
+      aria-expanded={open}
+      aria-controls={`${id}-list`}
+      aria-activedescendant={open && active >= 0 ? `${id}-op-${active}` : undefined}
       aria-label={ariaLabel}
-      aria-busy={cargando || undefined}
+      aria-busy={loading || undefined}
       aria-required={required || undefined}
       placeholder={multiple && values.length ? undefined : placeholder}
       {disabled}
-      class="ta-combobox-campo"
-      oninput={alEscribir}
-      onkeydown={tecla}
-      onclick={() => (abierta ? null : abrir())}
+      class="ta-combobox-field"
+      oninput={onInput}
+      onkeydown={onKey}
+      onclick={() => (open ? null : openList())}
     />
   </div>
-  <svg class="ta-combobox-flecha" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+  <svg class="ta-combobox-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
 
-  {#if abierta}
+  {#if open}
     <ul
-      bind:this={lista}
-      id={`${id}-lista`}
+      bind:this={list}
+      id={`${id}-list`}
       role="listbox"
       aria-label={ariaLabel}
       aria-multiselectable={multiple || undefined}
-      aria-busy={cargando || undefined}
+      aria-busy={loading || undefined}
       popover="manual"
-      class="ta-combobox-lista"
+      class="ta-combobox-list"
     >
-      {#each visibles as o, i (o.value)}
-        <!-- El ratón elige sin quitar el foco al campo (mousedown con preventDefault). -->
+      {#each visible as o, i (o.value)}
+        <!-- The pointer picks without taking focus from the field (mousedown with preventDefault). -->
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <li
           id={`${id}-op-${i}`}
-          data-indice={i}
+          data-index={i}
           role="option"
-          aria-selected={elegidos.has(o.value)}
+          aria-selected={selectedSet.has(o.value)}
           aria-disabled={o.disabled ? "true" : undefined}
-          class="ta-combobox-opcion"
-          class:ta-combobox-opcion--activa={i === activa}
+          class="ta-combobox-option"
+          class:ta-combobox-option--active={i === active}
           onmousedown={(e) => e.preventDefault()}
-          onpointermove={() => !o.disabled && (activa = i)}
-          onclick={() => elegir(o)}
+          onpointermove={() => !o.disabled && (active = i)}
+          onclick={() => choose(o)}
         >
-          {#if multiple}<span class="ta-combobox-marca" aria-hidden="true">{elegidos.has(o.value) ? "✓" : ""}</span>{/if}
+          {#if multiple}<span class="ta-combobox-check" aria-hidden="true">{selectedSet.has(o.value) ? "✓" : ""}</span>{/if}
           {o.label}
         </li>
       {:else}
-        <li class="ta-combobox-vacio" role="presentation">{cargando ? loadingText : emptyText}</li>
+        <li class="ta-combobox-empty" role="presentation">{loading ? loadingText : emptyText}</li>
       {/each}
     </ul>
   {/if}
@@ -350,25 +350,25 @@
     width: 100%;
   }
 
-  .ta-combobox-caja {
+  .ta-combobox-box {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.25rem;
   }
 
-  .ta-combobox--multiple .ta-combobox-caja {
+  .ta-combobox--multiple .ta-combobox-box {
     padding: 0.25rem 2rem 0.25rem 0.375rem;
     background: rgb(var(--ta-bg));
     border: 1px solid rgb(var(--ta-border));
     border-radius: var(--ta-radius);
   }
-  .ta-combobox--multiple .ta-combobox-caja:focus-within {
+  .ta-combobox--multiple .ta-combobox-box:focus-within {
     border-color: rgb(var(--ta-accent) / 0.5);
     box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15);
   }
 
-  .ta-combobox-campo {
+  .ta-combobox-field {
     width: 100%;
     padding: 0.5rem 2rem 0.5rem 0.75rem;
     font: inherit;
@@ -381,7 +381,7 @@
     transition: border-color 0.2s, box-shadow 0.2s;
   }
 
-  .ta-combobox--multiple .ta-combobox-campo {
+  .ta-combobox--multiple .ta-combobox-field {
     flex: 1;
     min-width: 6rem;
     width: auto;
@@ -390,17 +390,17 @@
     background: transparent;
   }
 
-  .ta-combobox:not(.ta-combobox--multiple) .ta-combobox-campo:focus {
+  .ta-combobox:not(.ta-combobox--multiple) .ta-combobox-field:focus {
     border-color: rgb(var(--ta-accent) / 0.5);
     box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15);
   }
 
-  .ta-combobox-campo:disabled {
+  .ta-combobox-field:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .ta-combobox-ficha {
+  .ta-combobox-chip {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
@@ -411,7 +411,7 @@
     border-radius: 9999px;
   }
 
-  .ta-combobox-quitar {
+  .ta-combobox-remove {
     padding: 0 0.3rem;
     font: inherit;
     line-height: 1.1;
@@ -421,10 +421,10 @@
     border-radius: 9999px;
     cursor: pointer;
   }
-  .ta-combobox-quitar:hover { color: rgb(var(--ta-danger)); }
-  .ta-combobox-quitar:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); }
+  .ta-combobox-remove:hover { color: rgb(var(--ta-danger)); }
+  .ta-combobox-remove:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); }
 
-  .ta-combobox-flecha {
+  .ta-combobox-chevron {
     position: absolute;
     right: 0.75rem;
     top: 50%;
@@ -433,12 +433,12 @@
     pointer-events: none;
   }
 
-  .ta-combobox-lista {
+  .ta-combobox-list {
     position: fixed;
     inset: auto;
     margin: 0;
     z-index: 50;
-    max-height: 16rem;
+    max-height: min(16rem, var(--ta-available-height, 16rem));
     overflow-y: auto;
     padding: 0.25rem;
     list-style: none;
@@ -450,7 +450,7 @@
     font: inherit;
   }
 
-  .ta-combobox-opcion {
+  .ta-combobox-option {
     display: flex;
     align-items: center;
     gap: 0.375rem;
@@ -460,28 +460,33 @@
     cursor: pointer;
   }
 
-  .ta-combobox-marca {
+  .ta-combobox-check {
     width: 0.875rem;
     color: rgb(var(--ta-accent-hover));
   }
 
-  .ta-combobox-opcion--activa {
+  .ta-combobox-option--active {
     background: rgb(var(--ta-elevated));
   }
 
-  .ta-combobox-opcion[aria-selected="true"] {
+  .ta-combobox-option[aria-selected="true"] {
     font-weight: 600;
     color: rgb(var(--ta-accent-hover));
   }
 
-  .ta-combobox-opcion[aria-disabled="true"] {
+  .ta-combobox-option[aria-disabled="true"] {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .ta-combobox-vacio {
+  .ta-combobox-empty {
     padding: 0.5rem 0.6rem;
     font-size: 0.875rem;
     color: rgb(var(--ta-text-dim));
+  }
+
+  /* On touch screens: 44px options for the finger. */
+  @media (pointer: coarse) {
+    .ta-combobox-option { min-height: 2.75rem; }
   }
 </style>

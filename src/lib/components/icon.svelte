@@ -1,13 +1,13 @@
 <!--
   tallao — Icon
-  Iconos de trazo (24×24, color del texto). Un juego pequeño y propio con `name`, o
-  cualquier otro dibujo con el snippet `children` (p. ej. paths de otra colección).
-  Sin `label` es decorativo (aria-hidden); con `label` es una imagen con ese nombre.
-  Un botón que solo lleva icono necesita su propio nombre (Button ariaLabel), no
-  el del icono.
+  Stroke icons (24×24, text colour). A small set of our own with `name`, or
+  any other drawing with the `children` snippet (e.g. paths from another collection).
+  Without `label` it is decorative (aria-hidden); with `label` it is an image with that name.
+  An icon-only button needs its own name (Button ariaLabel), not
+  the icon's.
 -->
 <script lang="ts" module>
-  // Trazos propios, dibujados para este kit (no copiados de otra colección).
+  // Our own strokes, drawn for this kit (not copied from another collection).
   export const ICONS = {
     check: "M5 12.5l4.5 4.5L19 7.5",
     x: "M6 6l12 12M18 6L6 18",
@@ -58,10 +58,10 @@
     name?: IconName;
     size?: number | string;
     strokeWidth?: number;
-    /** Nombre accesible; sin él el icono es decorativo. */
+    /** Accessible name; without it the icon is decorative. */
     label?: string;
     class?: string;
-    /** Dibujo propio dentro del <svg> (viewBox 0 0 24 24). */
+    /** Custom drawing inside the <svg> (viewBox 0 0 24 24). */
     children?: import("svelte").Snippet;
   } = $props();
 </script>
