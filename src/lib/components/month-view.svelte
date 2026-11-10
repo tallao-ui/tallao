@@ -241,7 +241,7 @@
   }
   .ta-monthview-day[aria-current="date"] .ta-monthview-number {
     color: rgb(var(--ta-on-accent));
-    background: rgb(var(--ta-accent));
+    background: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
     font-weight: 600;
   }
   .ta-monthview-outside { opacity: 0.55; }

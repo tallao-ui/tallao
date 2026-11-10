@@ -116,12 +116,15 @@
   .ta-btn--icon { padding: 0.5rem; }
 
   /* — Variants — */
+  /* The accent is light enough to read as text on a dark surface, which leaves it too light
+     under white text (3.96:1). A fill is the same hue darkened until the text on it reaches
+     4.5:1; `--ta-accent-fill` and `--ta-accent-fill-hover` override it. */
   .ta-btn--primary {
-    background: rgb(var(--ta-accent));
+    background: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
     color: rgb(var(--ta-on-accent));
   }
   .ta-btn--primary:hover:not(:disabled) {
-    background: rgb(var(--ta-accent-hover));
+    background: var(--ta-accent-fill-hover, color-mix(in srgb, rgb(var(--ta-accent)) 76%, black));
   }
   .ta-btn--primary:active:not(:disabled) {
     background: rgb(var(--ta-accent-dim));
@@ -136,12 +139,13 @@
     background: rgb(var(--ta-elevated));
   }
 
+  /* Same for the destructive fill: `--ta-danger` is a light tone (2.8:1 under white). */
   .ta-btn--danger {
-    background: rgb(var(--ta-danger));
-    color: white;
+    background: var(--ta-danger-fill, color-mix(in srgb, rgb(var(--ta-danger)) 70%, black));
+    color: rgb(var(--ta-on-danger-fill, 255 255 255));
   }
   .ta-btn--danger:hover:not(:disabled) {
-    background: rgb(var(--ta-accent-2));
+    background: var(--ta-danger-fill-hover, color-mix(in srgb, rgb(var(--ta-danger)) 60%, black));
   }
 
   .ta-btn--danger-ghost {
@@ -168,7 +172,7 @@
   .ta-btn--soft {
     background: rgb(var(--ta-accent) / 0.12);
     border-color: rgb(var(--ta-accent) / 0.35);
-    color: rgb(var(--ta-accent));
+    color: rgb(var(--ta-accent-text, var(--ta-accent)));
   }
   .ta-btn--soft:hover:not(:disabled) {
     background: rgb(var(--ta-accent) / 0.2);

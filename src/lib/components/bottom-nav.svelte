@@ -244,7 +244,7 @@
     margin-top: -1.25rem;
     color: rgb(var(--ta-on-accent));
     text-decoration: none;
-    background: rgb(var(--ta-accent));
+    background: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
     border: 4px solid rgb(var(--ta-bg));
     border-radius: 9999px;
     box-shadow: 0 6px 16px -6px rgb(var(--ta-accent) / 0.6);

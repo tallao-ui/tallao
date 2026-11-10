@@ -117,8 +117,8 @@
 
   .ta-pagination-number[aria-current="page"] {
     color: rgb(var(--ta-on-accent));
-    background: rgb(var(--ta-accent));
-    border-color: rgb(var(--ta-accent));
+    background: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
+    border-color: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
   }
 
   .ta-pagination-gap {

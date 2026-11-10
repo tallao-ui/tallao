@@ -18,6 +18,11 @@
   --ta-accent-2-dim: 214 31 90;
   --ta-on-accent-2: 255 255 255; /* text on the pink fill (--ta-accent-2-dim) */
 
+  /* Fills that carry text are derived in the components: the accent and the danger tone
+     darkened until the text on them reaches 4.5:1. To choose them yourself, set
+     --ta-accent-fill, --ta-accent-fill-hover, --ta-danger-fill, --ta-danger-fill-hover
+     (full colours, e.g. `#7e3ac2`) and --ta-on-danger-fill (channels). */
+
   /* Semantic */
   --ta-success: 52 211 153;
   --ta-warning: 251 191 36;

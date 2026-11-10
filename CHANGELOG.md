@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+**Contrast of filled controls.** The accent and the danger tone are light enough to read as
+text on a dark surface, which left them too light under white text: the primary Button measured
+3.96:1 and the danger Button 3.59:1 inside the Kitsuden admin (WCAG 1.4.3 asks for 4.5:1), and
+the primary hover was lighter still. A fill is now the same hue darkened until its text reaches
+4.5:1, and hover darkens instead of lightening. It applies to Button `primary` and `danger`,
+Badge `accent` with `tone="solid"`, pill Tabs, the solid Toggle and ToggleGroup, the current
+page in Pagination, the selected day in Calendar, today in MonthView, the Avatar badge and the
+BottomNav action. Override with `--ta-accent-fill`, `--ta-accent-fill-hover`, `--ta-danger-fill`,
+`--ta-danger-fill-hover` (colours, not channels) and `--ta-on-danger-fill` (channels). The soft
+Button reads its text colour from `--ta-accent-text` when a theme defines it.
+
 What the site islands (Valhalla, TodoGachas, Cardback, Cozy) needed when they moved from Vue to tallao,
 plus the first components for generative interfaces.
 
