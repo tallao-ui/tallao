@@ -4,6 +4,15 @@
 
 **Flows, calendars, decks and date ranges.**
 
+- **Checkbox**, **DataTable**, **Switch**, **SelectionBar**: 24px targets on a fine pointer. The
+  checkbox label, the sortable header button and the "select all" label are at least 24px tall
+  (they were 16–21px), a checkbox with no text is 24px wide too, and the switch track has a 24px
+  hit area around its 16–20px drawing.
+- **ThemeScope** (`source="kitsuden"`): the text on a solid status fill (`--ta-on-success`,
+  `--ta-on-warning`, `--ta-on-info`, `--ta-on-danger`) follows the admin's `--kitsuden-on-status`,
+  `--ta-info` its `--kitsuden-info` and `--ta-on-accent-2` its `--kitsuden-on-accent`, with the
+  former fixed values as fallbacks: on the admin's light theme a solid badge had dark text on a
+  dark fill.
 - **SankeyChart**: `links` (`SankeyLink[]`: `source`, `target`, `value`), `nodes` (`SankeyNode[]`:
   `id`, `label`, `color`), `title`, `hideTitle`, `unit`, `height`, `width`, `nodePadding`, `align`
   (`justify`, `left`), `locale`, `format`, `fromLabel`, `toLabel`, `valueLabel`, `emptyText`,

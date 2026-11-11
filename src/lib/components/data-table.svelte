@@ -616,6 +616,8 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    /* A 24px target (WCAG 2.5.8) inside the header's own height. */
+    min-height: 1.5rem;
     padding: 0;
     font: inherit;
     letter-spacing: inherit;

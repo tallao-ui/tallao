@@ -39,6 +39,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    /* The label is the target: 24px at least (WCAG 2.5.8), also around a box with no text. */
+    min-width: 1.5rem;
+    min-height: 1.5rem;
     font-size: 0.875rem;
     color: rgb(var(--ta-text));
     cursor: pointer;
