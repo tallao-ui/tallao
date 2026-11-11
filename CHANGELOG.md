@@ -2,6 +2,63 @@
 
 ## Unreleased
 
+**Charts and BI for public pages.** What a dashboard, a report or an infographic needed and the
+kit did not have. Every chart takes plain arrays (the JSON shape is in each header comment),
+formats numbers through `format` / `locale`, shows a labelled empty state (`emptyText`, default
+text `noData`), carries its values in text (a legend, a list or the "Show data" table) and is
+drawn in SVG or HTML with no chart library.
+
+- **BarChart**: `stacked` (one bar per category, with the total in the tooltip, the readout and
+  a `totalLabel` column of the table), `orientation="horizontal"` (category names on the left;
+  ↑ ↓ step through the rows and the slider is `aria-orientation="vertical"`; the height grows
+  with the rows unless `height` is set), `hideTitle` and `emptyText`. ↑ ↓ now also step through
+  columns.
+- **LineChart**: `stacked` (stacked areas), `domain={[min, max]}` for a scale that does not start
+  at zero, `hideTitle`, `emptyText`, `totalLabel`. The last axis label is right-aligned so it is
+  not cut off.
+- **DonutChart**: `data` (`DonutSlice[]`: `label`, `value`, `color`), `title`, `hideTitle`,
+  `innerRadius` (0 draws a pie), `size`, `centerLabel`, `centerValue`, `legend` (`right`,
+  `bottom`, `hidden`), `maxSlices` + `otherLabel`, `format`, `locale`, `emptyText`.
+- **ScatterChart**: `data` (`ScatterPoint[]`: `x`, `y`, `label`, `group`), `title`, `hideTitle`,
+  `xLabel`, `yLabel`, `height`, `xDomain`, `yDomain`, `xRef`, `yRef`, `showLabels`, `format`,
+  `xFormat`, `yFormat`, `labelHeader`, `groupHeader`, `emptyText`, `showDataLabel`,
+  `hideDataLabel`. A colour and a shape per group; a slider over the points like the other charts.
+- **Heatmap**: `data` (`HeatmapCell[]`: `x`, `y`, `value`), `title`, `hideTitle`, `xs`, `ys`,
+  `cornerLabel`, `showValues`, `min`, `max`, `color`, `format`, `locale`, `emptyText`. A real
+  table in a focusable scrolling region; `--ta-heatmap-sticky-bg` sets the background of the
+  fixed row headers.
+- **Funnel**: `data` (`FunnelStep[]`), `title`, `hideTitle`, `align`, `color`, `format`,
+  `locale`, `stepLabel`, `emptyText`.
+- **BarList**: `data` (`BarListItem[]`: `label`, `value`, `href`, `note`, `color`), `title`,
+  `ariaLabel`, `ranked`, `max`, `limit`, `color`, `format`, `locale`, `emptyText`.
+- **Sparkline**: `data` (numbers), `label`, `width`, `height`, `variant` (`line`, `bar`), `area`,
+  `color`, `format`, `locale`, `ariaLabel`.
+- **KpiCard**: `label`, `value`, `unit`, `delta`, `deltaLabel`, `deltaFormat`, `goodWhen` (`up`,
+  `down`, `none`), `trend`, `target`, `targetLabel`, `format`, `locale`, `span`. Stat is unchanged.
+- **Gauge**: `value`, `min`, `max`, `label`, `variant` (`semi`, `ring`), `tone`, `target`,
+  `targetLabel`, `size`, `format`, `locale`.
+- **BigNumber**: `value`, `prefix`, `unit`, `label`, `size`, `align`, `animate`, `duration`,
+  `color`, `format`, `locale`. **IconArray**: `value`, `total`, `label`, `columns`, `shape`,
+  `size`, `color`, `showSummary`, `countLabel` and the `icon` snippet. **Timeline**: `items`
+  (`TimelineItem[]`: `date`, `title`, `description`, `tag`, `tone`, `href`, `current`),
+  `ariaLabel`, `locale`, `dateFormat`, `emptyText`. **ComparisonBar**: `left`, `right`
+  (`ComparisonSide`: `label`, `value`, `color`), `title`, `ariaLabel`, `showShare`, `format`,
+  `locale`.
+- **DashboardGrid** (`columns`, `gap`; container queries: 4 → 2 → 1 columns), **DashboardItem**
+  (`span`) and **ChartCard** (`title`, `description`, `level`, `note`, `source`, `sourceHref`,
+  `sourceLabel`, `span`, and the `toolbar` and `footer` snippets).
+- **ChartLegend**: `items` (`ChartLegendItem[]`: `label`, `value`, `color`, `shape`), `marker`,
+  `orientation`. BarChart and LineChart now draw their legend with it.
+- New label keys, in `en` and `es`: `noData`, `other`, `total`, `source`, `target`, `trendUp`,
+  `trendDown`, `trendFlat`, `better`, `worse`, `countOf`, `trendSummary`, `ofPreviousStep`,
+  `label`, `group`.
+- Internal: BarChart and LineChart share their figure, legend, empty state, data table and
+  drawing styles through `internal/chart-figure.svelte`. Class changes: the legend is
+  `ta-legend` / `ta-legend-item` / `ta-legend-mark` (was `ta-chart-legend` with
+  `ta-chart-swatch` / `ta-chart-line`), and the hidden caption is `ta-chart-hidden` (was
+  `ta-hidden`). The "Show data" link takes the accent mixed with the text colour, so it is
+  readable on the light theme too.
+
 **Contrast of filled controls.** The accent and the danger tone are light enough to read as
 text on a dark surface, which left them too light under white text: the primary Button measured
 3.96:1 and the danger Button 3.59:1 inside the Kitsuden admin (WCAG 1.4.3 asks for 4.5:1), and

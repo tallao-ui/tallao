@@ -1,21 +1,34 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-tallao-theme="dark" data-accent="lilac">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>tallao — Svelte 5 components for the interfaces an agent builds</title>
     <meta
       name="description"
-      content="A Svelte 5 UI kit for generative interfaces: 80 components in plain CSS on tokens, keyboard and screen reader ready, and SSR-ready for SvelteKit. MIT licensed."
+      content="A Svelte 5 UI kit for generative interfaces: 98 components in plain CSS on tokens, keyboard and screen reader ready, and SSR-ready for SvelteKit. MIT licensed."
     />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="tallao — Svelte 5 components for the interfaces an agent builds" />
     <meta
       property="og:description"
-      content="80 components in plain CSS on tokens: chat, tool calls, steps and approvals next to the forms, tables and dialogs every app needs."
+      content="98 components in plain CSS on tokens: chat, tool calls, steps and approvals next to the forms, tables and dialogs every app needs."
     />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="dark light" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+    <script>
+      /* Theme, accent and radius before the first paint. */
+      (function () {
+        var r = document.documentElement;
+        r.classList.add("js");
+        try {
+          var s = JSON.parse(localStorage.getItem("tallao-site") || "{}");
+          if (s.theme === "light" || s.theme === "dark") r.dataset.tallaoTheme = s.theme;
+          if (/^(lilac|orange|green|blue)$/.test(s.accent)) r.dataset.accent = s.accent;
+        } catch (e) {}
+      })();
+    </script>
     <style>
       @font-face {
         font-family: "Inter";
@@ -29,24 +42,106 @@
         font-weight: 100 800;
         font-display: swap;
       }
+
+      /* ——— The kit's tokens (names and structure from src/lib/tokens.css), with this site's brand values ——— */
       :root {
-        --bg: #09090b;
-        --surface: #18181b;
-        --border: #2b2b31;
-        --text: #fafafa;
-        --dim: #a1a1aa;
-        --lilac: #c084fc;
-        --violet: #9333ea;
-        --orange: #fb923c;
-        --fill: #7e22ce;
-        --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-        --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
-        --wrap: 70rem;
-        --gutter: clamp(1rem, 4vw, 2.5rem);
-        /* the playground's own accent */
-        --accent: #9333ea;
-        --accent-text: #c084fc;
-        --radius: 0.5rem;
+        --ta-accent: 147 51 234;
+        --ta-accent-hover: 192 132 252;
+        --ta-on-accent: 255 255 255;
+        --ta-accent-dim: 107 33 168;
+        --ta-accent-2: 251 146 60;
+        --ta-accent-2-dim: 194 65 12;
+        --ta-on-accent-2: 255 255 255;
+        --ta-accent-text: var(--ta-accent-hover);
+        --ta-success: 52 211 153;
+        --ta-warning: 251 191 36;
+        --ta-info: 96 165 250;
+        --ta-danger: 248 113 113;
+        --ta-on-success: 9 9 11;
+        --ta-on-warning: 9 9 11;
+        --ta-on-info: 9 9 11;
+        --ta-on-danger: 9 9 11;
+        --ta-radius-sm: 0.375rem;
+        --ta-radius: 0.5rem;
+        --ta-radius-lg: 0.75rem;
+        --ta-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --ta-font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+        color-scheme: dark;
+        --ta-bg: 9 9 11;
+        --ta-surface: 24 24 27;
+        --ta-elevated: 39 39 42;
+        --ta-border: 39 39 42;
+        --ta-muted: 63 63 70;
+        --ta-subtle: 82 82 91;
+        --ta-text: 250 250 250;
+        --ta-text-dim: 161 161 170;
+        --ta-backdrop: 0 0 0;
+        --ta-series-1: 57 135 229;
+      }
+      :root[data-tallao-theme="light"] {
+        color-scheme: light;
+        --ta-bg: 245 243 238;
+        --ta-surface: 255 254 251;
+        --ta-elevated: 236 233 226;
+        --ta-border: 221 217 208;
+        --ta-muted: 196 191 181;
+        --ta-subtle: 113 113 122;
+        --ta-text: 24 24 27;
+        --ta-text-dim: 82 82 91;
+        --ta-backdrop: 9 9 11;
+        --ta-series-1: 42 120 214;
+        --ta-accent-hover: 126 34 206;
+        --ta-accent-2: 154 52 18;
+        --ta-success: 6 95 70;
+        --ta-warning: 146 64 14;
+        --ta-info: 29 78 216;
+        --ta-danger: 185 28 28;
+        --ta-on-success: 255 255 255;
+        --ta-on-warning: 255 255 255;
+        --ta-on-info: 255 255 255;
+        --ta-on-danger: 255 255 255;
+      }
+      :root[data-accent="orange"] {
+        --ta-accent: 194 65 12;
+        --ta-accent-hover: 251 146 60;
+        --ta-accent-dim: 154 52 18;
+        --ta-accent-2: 192 132 252;
+        --ta-accent-2-dim: 126 34 206;
+      }
+      :root[data-accent="orange"][data-tallao-theme="light"] {
+        --ta-accent-hover: 154 52 18;
+        --ta-accent-2: 126 34 206;
+      }
+      :root[data-accent="green"] {
+        --ta-accent: 4 120 87;
+        --ta-accent-hover: 110 231 183;
+        --ta-accent-dim: 6 95 70;
+      }
+      :root[data-accent="green"][data-tallao-theme="light"] {
+        --ta-accent-hover: 6 95 70;
+      }
+      :root[data-accent="blue"] {
+        --ta-accent: 37 99 235;
+        --ta-accent-hover: 147 197 253;
+        --ta-accent-dim: 30 64 175;
+      }
+      :root[data-accent="blue"][data-tallao-theme="light"] {
+        --ta-accent-hover: 29 78 216;
+      }
+
+      /* ——— The page ——— */
+      :root {
+        --paper: rgb(var(--ta-bg));
+        --ink: rgb(var(--ta-text));
+        --dim: rgb(var(--ta-text-dim));
+        --hair: rgb(var(--ta-text) / 0.13);
+        --tone: rgb(var(--ta-accent-hover));
+        --tone2: rgb(var(--ta-accent-2));
+        --fill: color-mix(in srgb, rgb(var(--ta-accent)) 88%, black);
+        --sans: var(--ta-font-sans);
+        --mono: var(--ta-font-mono);
+        --gut: clamp(1rem, 2.4vw, 2.25rem);
+        --bar: 3.5rem;
       }
       *,
       *::before,
@@ -58,191 +153,387 @@
       }
       html {
         scroll-behavior: smooth;
-        scroll-padding-top: 5rem;
+        scroll-padding-top: 5.5rem;
+        scrollbar-gutter: stable;
         -webkit-text-size-adjust: 100%;
+        background: var(--paper);
       }
       body {
         margin: 0;
-        color: var(--text);
-        font: 400 1.0625rem/1.6 var(--sans);
-        background:
-          radial-gradient(56rem 32rem at 8% -6rem, rgb(147 51 234 / 0.3), transparent 65%),
-          radial-gradient(48rem 30rem at 100% 22rem, rgb(251 146 60 / 0.16), transparent 65%), var(--bg);
-        overflow-x: hidden;
+        color: var(--ink);
+        font: 400 1rem/1.55 var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: clip;
+        scrollbar-width: thin;
+        scrollbar-color: rgb(var(--ta-muted)) transparent;
+      }
+      /* The frame: two hairlines down the page, like the edges of a canvas. */
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--hair);
+        z-index: -1;
+      }
+      body::before {
+        left: calc(var(--gut) / 2);
+      }
+      body::after {
+        right: calc(var(--gut) / 2);
+      }
+      ::selection {
+        background: rgb(var(--ta-accent) / 0.35);
       }
       h1,
       h2,
-      h3 {
-        margin: 0;
-        font-weight: 800;
-        letter-spacing: -0.035em;
-        line-height: 1.05;
-        text-wrap: balance;
-      }
-      h1 {
-        font-size: clamp(2.5rem, 5.4vw, 4.3rem);
-      }
-      h2 {
-        font-size: clamp(1.8rem, 3.1vw, 2.6rem);
-      }
-      h3 {
-        font-size: 1.05rem;
-        letter-spacing: -0.01em;
-        line-height: 1.3;
-      }
+      h3,
       p {
         margin: 0;
-        max-width: 62ch;
       }
       a {
         color: inherit;
         text-underline-offset: 0.2em;
       }
-      a:hover {
-        color: var(--orange);
+      button {
+        font-family: inherit;
+        color: inherit;
       }
       code,
-      pre {
+      pre,
+      kbd {
         font-family: var(--mono);
-        font-size: 0.875em;
       }
       :focus-visible {
-        outline: 3px solid var(--orange);
-        outline-offset: 3px;
-        border-radius: 4px;
+        outline: 2px solid var(--tone);
+        outline-offset: 2px;
       }
       .wrap {
         width: 100%;
-        max-width: var(--wrap);
+        max-width: 104rem;
         margin-inline: auto;
-        padding-inline: var(--gutter);
+        padding-inline: var(--gut);
       }
-      .dim {
+      .mono {
+        font: 500 0.6875rem/1.4 var(--mono);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
         color: var(--dim);
-      }
-      .grad {
-        background: linear-gradient(92deg, var(--lilac), var(--orange));
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
       }
       .skip {
         position: absolute;
         left: -999px;
         top: 0.5rem;
-        background: var(--orange);
-        color: #09090b;
+        z-index: 80;
+        background: var(--ink);
+        color: var(--paper);
         padding: 0.5rem 0.9rem;
-        border-radius: 6px;
-        z-index: 50;
       }
       .skip:focus {
         left: 0.5rem;
       }
-      header.top {
+      .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      /* ——— Top bar + ruler ——— */
+      header.bar {
         position: sticky;
         top: 0;
-        z-index: 20;
-        background: rgb(9 9 11 / 0.82);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid var(--border);
+        z-index: 30;
+        background: rgb(var(--ta-bg) / 0.86);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
-      header.top .wrap {
+      .bar .wrap {
         display: flex;
         align-items: center;
-        gap: 1.4rem;
-        min-height: 3.75rem;
+        gap: 1rem;
+        min-height: var(--bar);
       }
       .brand {
-        margin-right: auto;
-        font: 800 1.35rem/1 var(--sans);
-        letter-spacing: -0.04em;
-        text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.55rem;
+        gap: 0.6rem;
+        font: 800 1.3rem/1 var(--sans);
+        letter-spacing: -0.045em;
+        text-decoration: none;
+        padding: 0.5rem 0;
       }
       .brand i {
-        width: 1.5rem;
-        height: 1.5rem;
-        border-radius: 0.45rem;
-        background: linear-gradient(135deg, var(--violet), var(--orange));
+        width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 0.35rem;
+        background: linear-gradient(135deg, #9333ea, #fb923c);
       }
-      header.top nav {
+      .brand-sub {
+        margin-right: auto;
+        white-space: nowrap;
+      }
+      .bar nav {
         display: flex;
-        gap: 1.4rem;
+        gap: 0.4rem;
+        margin-inline: auto;
+      }
+      .bar nav a {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.4rem;
+        padding: 0.6rem 0.7rem;
         font-size: 0.95rem;
-      }
-      header.top nav a {
+        font-weight: 500;
         text-decoration: none;
-        padding: 0.75rem 0;
+        border-bottom: 1px solid transparent;
       }
-      @media (max-width: 640px) {
-        header.top nav a.wide {
-          display: none;
-        }
+      .bar nav a span {
+        font: 500 0.6875rem var(--mono);
+        color: var(--dim);
       }
-      .btn {
+      .bar nav a:hover,
+      .bar nav a[aria-current="true"] {
+        border-bottom-color: var(--tone);
+      }
+      .bar nav a[aria-current="true"] span {
+        color: var(--tone);
+      }
+      .ctl {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto;
+      }
+      .ic {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        min-height: 3rem;
-        padding: 0.7rem 1.2rem;
-        border-radius: 0.6rem;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        color: var(--text);
-        font: 600 1rem/1.2 var(--sans);
-        text-decoration: none;
+        gap: 0.4rem;
+        min-width: 2.25rem;
+        height: 2.25rem;
+        padding: 0 0.55rem;
+        border: 1px solid var(--hair);
+        border-radius: 99px;
+        background: transparent;
+        font: 500 0.75rem var(--mono);
         cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
       }
-      .btn:hover {
-        border-color: var(--dim);
-        color: var(--text);
+      .ic:hover {
+        border-color: var(--tone);
       }
-      .btn.primary {
-        border-color: transparent;
+      .ic .dot {
+        width: 0.85rem;
+        height: 0.85rem;
+        border-radius: 50%;
+        background: rgb(var(--ta-accent));
+        box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--tone);
+      }
+      .ic.solid {
+        background: var(--ink);
+        color: var(--paper);
+        border-color: var(--ink);
+        font: 600 0.85rem var(--sans);
+        padding: 0 0.95rem;
+      }
+      #menu-btn {
+        display: none;
+      }
+      .ruler {
+        position: relative;
+        height: 0.875rem;
+        border-top: 1px solid var(--hair);
+        border-bottom: 1px solid var(--hair);
+        background:
+          repeating-linear-gradient(90deg, var(--hair) 0 1px, transparent 1px 80px) 0 0 / 100% 100% no-repeat,
+          repeating-linear-gradient(90deg, var(--hair) 0 1px, transparent 1px 8px) 0 100% / 100% 4px no-repeat;
+      }
+      .ruler b {
+        position: absolute;
+        top: -1px;
+        left: 0;
+        height: 0.875rem;
+        min-width: 2.2rem;
+        padding: 0 0.3rem;
+        display: grid;
+        place-items: center;
+        font: 600 0.5625rem/1 var(--mono);
+        background: var(--fill);
         color: #fff;
-        background: linear-gradient(92deg, #7e22ce, #c2410c);
-        box-shadow: 0 12px 34px -14px var(--orange);
+        transform: translateX(-50%);
       }
-      .btn.primary:hover {
-        filter: brightness(1.14);
-      }
+
+      /* ——— Hero ——— */
       .hero {
-        padding-block: clamp(3rem, 7vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
+        padding-block: 1.1rem clamp(2.5rem, 5vw, 4.5rem);
       }
-      .hero p.lede {
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.3rem 2rem;
+      }
+      h1 {
+        margin-top: clamp(3rem, 11vh, 8.5rem);
+        font-weight: 700;
+      }
+      .h1-big {
+        display: block;
+        width: fit-content;
+        font-size: clamp(4.4rem, 13.2vw, 15rem);
+        line-height: 0.86;
+        letter-spacing: -0.068em;
+        padding-bottom: 0.08em;
+      }
+      .grad {
+        background: linear-gradient(96deg, var(--tone) 10%, var(--tone2) 95%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .h1-sub {
+        display: block;
+        width: fit-content;
+        max-width: 19ch;
+        margin-top: clamp(1.9rem, 2.4vw, 2.2rem);
+        font-size: clamp(1.7rem, 4.3vw, 4.4rem);
+        font-weight: 600;
+        line-height: 1.02;
+        letter-spacing: -0.045em;
+      }
+      .js .h1-sub .w {
+        opacity: 0;
+        filter: blur(8px);
+        transition: opacity 0.4s, filter 0.4s;
+      }
+      .js .h1-sub .w.in {
+        opacity: 1;
+        filter: none;
+      }
+      .caret {
+        display: inline-block;
+        width: 0.08em;
+        height: 0.82em;
+        margin-left: 0.06em;
+        vertical-align: -0.06em;
+        background: var(--tone);
+        animation: blink 1s steps(2, jump-none) infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      .legend {
+        display: grid;
+        gap: 0.35rem;
         margin-top: 1.4rem;
-        font-size: 1.2rem;
-        color: var(--dim);
-        max-width: 40rem;
       }
-      .hero p.lede b {
-        color: var(--text);
+      .legend b {
+        color: var(--tone);
+        font-weight: 500;
+      }
+      .hero-mid {
+        position: relative;
+      }
+      .props {
+        width: min(100%, 21rem);
+        margin: 1.6rem 0 0;
+        border: 1px solid var(--hair);
+        background: rgb(var(--ta-surface) / 0.6);
+        font: 500 0.6875rem/1.3 var(--mono);
+      }
+      .props div {
+        display: grid;
+        grid-template-columns: 5.2rem minmax(0, 1fr);
+        gap: 0.5rem;
+        padding: 0.42rem 0.7rem;
+        border-top: 1px solid var(--hair);
+      }
+      .props .hd {
+        display: flex;
+        justify-content: space-between;
+        border-top: 0;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+      .props .hd b {
+        color: var(--tone);
+        font-weight: 500;
+      }
+      .props dt {
+        color: var(--dim);
+      }
+      .props dd {
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .props dd i {
+        display: inline-block;
+        width: 0.6rem;
+        height: 0.6rem;
+        margin-right: 0.4rem;
+        border: 1px solid var(--hair);
+        vertical-align: -1px;
+      }
+      @media (min-width: 68rem) {
+        .props {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          margin: 0;
+        }
+      }
+      .hero-row {
+        display: grid;
+        gap: 2rem;
+        margin-top: clamp(2rem, 4vw, 3.5rem);
+        padding-top: 1.6rem;
+        border-top: 1px solid var(--hair);
+        align-items: end;
+      }
+      @media (min-width: 60rem) {
+        .hero-row {
+          grid-template-columns: minmax(0, 1fr) auto;
+        }
+      }
+      .lede {
+        max-width: 36rem;
+        font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+        line-height: 1.4;
+        color: var(--dim);
+        letter-spacing: -0.01em;
+      }
+      .lede b {
+        color: var(--ink);
         font-weight: 600;
       }
       .cta {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-top: 1.9rem;
+        gap: 1.1rem;
+        align-items: center;
       }
       .fine {
-        margin-top: 1rem;
-        font-size: 0.9rem;
-        color: var(--dim);
+        margin-top: 0.9rem;
       }
       .clip {
         position: relative;
-        margin-top: clamp(2.2rem, 4vw, 3.2rem);
-        border: 1px solid color-mix(in srgb, var(--violet) 45%, var(--border));
-        border-radius: 16px;
-        overflow: hidden;
+        margin-top: clamp(3rem, 6vw, 5rem);
         aspect-ratio: 16 / 9;
         background: #09090b;
-        box-shadow: 0 0 80px -24px var(--violet);
+        border: 1px solid var(--hair);
       }
       .clip video {
         display: block;
@@ -257,347 +548,1746 @@
         min-height: 2.75rem;
         padding: 0.4rem 0.9rem;
         border-radius: 99px;
-        border: 1px solid rgb(255 255 255 / 0.25);
-        background: rgb(9 9 11 / 0.72);
+        border: 1px solid rgb(255 255 255 / 0.3);
+        background: rgb(9 9 11 / 0.78);
         color: #fafafa;
-        font: 600 0.88rem var(--sans);
+        font: 600 0.8rem var(--mono);
         cursor: pointer;
       }
-      section.block {
-        padding-block: clamp(3.5rem, 7vw, 5.5rem);
-        border-top: 1px solid var(--border);
-      }
-      .block > .wrap > h2 + p {
-        margin-top: 1rem;
-        font-size: 1.15rem;
-        color: var(--dim);
-      }
-      .groups {
-        margin-top: 2.2rem;
-        display: grid;
-        gap: 1.6rem 2.5rem;
-      }
-      @media (min-width: 52rem) {
-        .groups {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-      .groups h3 {
-        color: var(--lilac);
-        margin-bottom: 0.6rem;
-      }
-      .groups p {
-        color: var(--dim);
-        font-size: 0.98rem;
-      }
-      .chips {
+      .clip-cap {
         display: flex;
         flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.3rem 2rem;
+        margin-top: 0.7rem;
+      }
+
+      /* ——— Sections ——— */
+      .sec {
+        padding-block: 0 clamp(4rem, 8vw, 7rem);
+      }
+      .sec-meta {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.3rem 2rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid var(--hair);
+      }
+      .sec-meta span:first-child {
+        color: var(--ink);
+      }
+      .sec-head {
+        display: grid;
+        gap: 1rem 4rem;
+        margin-block: clamp(2.5rem, 6vw, 5.5rem) clamp(2rem, 4vw, 3.5rem);
+        align-items: end;
+      }
+      @media (min-width: 60rem) {
+        .sec-head {
+          grid-template-columns: auto minmax(0, 1fr);
+        }
+      }
+      .num {
+        font-size: clamp(4.5rem, 10vw, 9.5rem);
+        font-weight: 600;
+        line-height: 0.8;
+        letter-spacing: -0.06em;
+        white-space: nowrap;
+      }
+      .num span {
+        color: rgb(var(--ta-text) / 0.2);
+        margin-left: 0.04em;
+      }
+      h2 {
+        width: fit-content;
+        max-width: 22ch;
+        font-size: clamp(2rem, 4.2vw, 3.9rem);
+        font-weight: 600;
+        line-height: 1.02;
+        letter-spacing: -0.045em;
+        text-wrap: balance;
+      }
+      .lead {
+        max-width: 44rem;
+        margin-top: 1.1rem;
+        font-size: 1.125rem;
+        color: var(--dim);
+      }
+      .lead code,
+      .facts code,
+      .fam code,
+      .panel code {
+        font-size: 0.875em;
+        color: var(--ink);
+      }
+
+      /* ——— The board of specimens ——— */
+      .board {
+        display: grid;
+        gap: 1px;
+        background: var(--hair);
+        border: 1px solid var(--hair);
+      }
+      .cell {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        background:
+          radial-gradient(rgb(var(--ta-text) / 0.1) 1px, transparent 1.5px) 0 0 / 16px 16px,
+          var(--paper);
+      }
+      .cell-h {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid var(--hair);
+        background: var(--paper);
+      }
+      .cell-h span:first-child {
+        color: var(--ink);
+      }
+      .cell-b {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2.4rem;
+        padding: 2.6rem clamp(1.25rem, 2.4vw, 2.5rem) 2.2rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+      .rowx {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.9rem 1.5rem;
+      }
+      .rowx.tight {
+        gap: 0.75rem;
+      }
+      .note {
+        margin-top: auto;
+        font: 400 0.75rem/1.5 var(--mono);
+        color: var(--dim);
+      }
+      @media (min-width: 62rem) {
+        .board {
+          grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+        .c-chat {
+          grid-column: 1 / 8;
+          grid-row: 1 / 3;
+        }
+        .c-btn,
+        .c-form {
+          grid-column: 8 / 13;
+        }
+        .c-tabs {
+          grid-column: 1 / 7;
+        }
+        .c-over {
+          grid-column: 7 / 13;
+        }
+        .c-data {
+          grid-column: 1 / 13;
+        }
+        .c-data .cell-b {
+          display: grid;
+          grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+          gap: 3rem;
+        }
+      }
+
+      /* ——— Inspector: persistent marks ——— */
+      [data-mark] {
+        position: relative;
+      }
+      .mk {
+        position: absolute;
+        inset: -6px;
+        z-index: 1;
+        border: 1px dashed rgb(var(--ta-text) / 0.34);
+        pointer-events: none;
+        font-style: normal;
+      }
+      .mk::before {
+        content: attr(data-t);
+        position: absolute;
+        left: -1px;
+        bottom: 100%;
+        margin-bottom: 4px;
+        font: 500 0.625rem/1 var(--mono);
+        letter-spacing: 0.04em;
+        text-transform: none;
+        white-space: nowrap;
+        color: var(--dim);
+        -webkit-text-fill-color: var(--dim);
+      }
+      .mk::after {
+        content: "";
+        position: absolute;
+        left: -3px;
+        top: -3px;
+        width: 5px;
+        height: 5px;
+        background: var(--paper);
+        border: 1px solid var(--dim);
+      }
+      .is-sel > .mk,
+      .no-guides .mk {
+        visibility: hidden;
+      }
+      /* ——— Inspector: the live selection ——— */
+      #insp {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      #insp i {
+        position: absolute;
+        display: none;
+      }
+      #insp .g {
+        background: var(--tone);
+        opacity: 0.55;
+      }
+      #insp .gh {
+        left: 0;
+        right: 0;
+        height: 1px;
+      }
+      #insp .gv {
+        top: 0;
+        bottom: 0;
+        width: 1px;
+      }
+      #insp .cross {
+        background: rgb(var(--ta-text) / 0.22);
+      }
+      #insp .pt {
+        width: 9px;
+        height: 9px;
+        margin: -4px 0 0 -4px;
+        background: var(--tone2);
+        border: 1px solid var(--paper);
+      }
+      #insp .xy,
+      #insp .tag {
+        font: 500 0.625rem/1 var(--mono);
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        font-style: normal;
+      }
+      #insp .xy {
+        color: var(--ink);
+        background: rgb(var(--ta-bg) / 0.8);
+        padding: 2px 4px;
+      }
+      #insp .sel {
+        border: 1px solid var(--tone);
+        background: rgb(var(--ta-accent) / 0.07);
+      }
+      #insp .sel b {
+        position: absolute;
+        width: 7px;
+        height: 7px;
+        background: var(--paper);
+        border: 1px solid var(--tone);
+      }
+      #insp .sel b:nth-child(1) {
+        left: -4px;
+        top: -4px;
+      }
+      #insp .sel b:nth-child(2) {
+        right: -4px;
+        top: -4px;
+      }
+      #insp .sel b:nth-child(3) {
+        left: -4px;
+        bottom: -4px;
+      }
+      #insp .sel b:nth-child(4) {
+        right: -4px;
+        bottom: -4px;
+      }
+      #insp .tag {
+        padding: 4px 6px;
+        background: var(--fill);
+        color: #fff;
+      }
+
+      /* ═══ Replicas of tallao components: class names and rules from src/lib/components/*.svelte ═══ */
+      .ta-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.5;
+        border-radius: var(--ta-radius);
+        border: 1px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
+      }
+      .ta-btn:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgb(var(--ta-bg)), 0 0 0 4px rgb(var(--ta-accent-hover));
+      }
+      .ta-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .ta-btn--sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.75rem;
+        gap: 0.375rem;
+      }
+      .ta-btn--md {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
+      .ta-btn--lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+      }
+      .ta-btn--primary {
+        background: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
+        color: rgb(var(--ta-on-accent));
+      }
+      .ta-btn--primary:hover:not(:disabled) {
+        background: var(--ta-accent-fill-hover, color-mix(in srgb, rgb(var(--ta-accent)) 76%, black));
+      }
+      .ta-btn--primary:active:not(:disabled) {
+        background: rgb(var(--ta-accent-dim));
+      }
+      .ta-btn--secondary {
+        background: rgb(var(--ta-surface));
+        color: rgb(var(--ta-text));
+        border-color: rgb(var(--ta-border));
+      }
+      .ta-btn--secondary:hover:not(:disabled) {
+        background: rgb(var(--ta-elevated));
+      }
+      .ta-btn--danger {
+        background: var(--ta-danger-fill, color-mix(in srgb, rgb(var(--ta-danger)) 70%, black));
+        color: rgb(var(--ta-on-danger-fill, 255 255 255));
+      }
+      .ta-btn--danger:hover:not(:disabled) {
+        background: var(--ta-danger-fill-hover, color-mix(in srgb, rgb(var(--ta-danger)) 60%, black));
+      }
+      .ta-btn--danger-ghost {
+        background: transparent;
+        color: rgb(var(--ta-danger));
+      }
+      .ta-btn--danger-ghost:hover:not(:disabled) {
+        background: rgb(var(--ta-danger) / 0.12);
+      }
+      .ta-btn--ghost {
+        background: transparent;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-btn--ghost:hover:not(:disabled) {
+        color: rgb(var(--ta-text));
+        background: rgb(var(--ta-elevated) / 0.5);
+      }
+      .ta-btn--soft {
+        background: rgb(var(--ta-accent) / 0.12);
+        border-color: rgb(var(--ta-accent) / 0.35);
+        color: rgb(var(--ta-accent-text, var(--ta-accent)));
+      }
+      .ta-btn--soft:hover:not(:disabled) {
+        background: rgb(var(--ta-accent) / 0.2);
+        border-color: rgb(var(--ta-accent) / 0.55);
+      }
+      .ta-btn--outline {
+        background: transparent;
+        border-color: rgb(var(--ta-muted));
+        color: rgb(var(--ta-text));
+      }
+      .ta-btn--outline:hover:not(:disabled) {
+        background: rgb(var(--ta-elevated));
+      }
+      .ta-btn-spinner {
+        width: 1em;
+        height: 1em;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: ta-spin 0.7s linear infinite;
+        flex-shrink: 0;
+      }
+      @keyframes ta-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .ta-btn kbd {
+        font-size: 0.6875rem;
+        padding: 0.05rem 0.4rem;
+        color: rgb(var(--ta-text-dim));
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius-sm);
+      }
+
+      .ta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-weight: 500;
+        border-radius: 9999px;
+        border: 1px solid;
+        white-space: nowrap;
+        line-height: 1.5;
+      }
+      .ta-badge--sm {
+        padding: 0.125rem 0.5rem;
+        font-size: 0.75rem;
+      }
+      .ta-badge--md {
+        padding: 0.25rem 0.625rem;
+        font-size: 0.875rem;
+      }
+      .ta-badge--default {
+        background: rgb(var(--ta-surface));
+        color: rgb(var(--ta-text-dim));
+        border-color: rgb(var(--ta-border));
+      }
+      .ta-badge--success {
+        background: rgb(var(--ta-success) / 0.1);
+        color: rgb(var(--ta-success));
+        border-color: rgb(var(--ta-success) / 0.2);
+      }
+      .ta-badge--warning {
+        background: rgb(var(--ta-warning) / 0.1);
+        color: rgb(var(--ta-warning));
+        border-color: rgb(var(--ta-warning) / 0.2);
+      }
+      .ta-badge--error {
+        background: rgb(var(--ta-danger) / 0.1);
+        color: rgb(var(--ta-danger));
+        border-color: rgb(var(--ta-danger) / 0.2);
+      }
+      .ta-badge--info {
+        background: rgb(var(--ta-info) / 0.1);
+        color: rgb(var(--ta-info));
+        border-color: rgb(var(--ta-info) / 0.2);
+      }
+      .ta-badge--accent {
+        background: rgb(var(--ta-accent) / 0.1);
+        color: rgb(var(--ta-accent-hover));
+        border-color: rgb(var(--ta-accent) / 0.2);
+      }
+      .ta-badge--accent-2 {
+        background: rgb(var(--ta-accent-2) / 0.1);
+        color: rgb(var(--ta-accent-2));
+        border-color: rgb(var(--ta-accent-2) / 0.2);
+      }
+      .ta-badge--solid.ta-badge--accent {
+        background: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
+        border-color: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
+        color: rgb(var(--ta-on-accent));
+      }
+      .ta-badge-dot {
+        position: relative;
+        flex-shrink: 0;
+        width: 0.375rem;
+        height: 0.375rem;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .ta-badge-dot--pulse::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: currentColor;
+        animation: ta-badge-pulse 1.6s ease-out infinite;
+      }
+      @keyframes ta-badge-pulse {
+        from {
+          transform: scale(1);
+          opacity: 0.6;
+        }
+        to {
+          transform: scale(2.6);
+          opacity: 0;
+        }
+      }
+
+      .ta-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: rgb(var(--ta-text));
+      }
+      .ta-switch-track {
+        position: relative;
+        flex-shrink: 0;
+        width: 2.25rem;
+        height: 1.25rem;
+        padding: 0;
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: 9999px;
+        background: rgb(var(--ta-muted));
+        cursor: pointer;
+        transition: background-color 0.15s, border-color 0.15s;
+      }
+      .ta-switch-track[aria-checked="true"] {
+        background: rgb(var(--ta-accent));
+        border-color: rgb(var(--ta-accent));
+      }
+      .ta-switch-thumb {
+        position: absolute;
+        top: 50%;
+        left: 0.125rem;
+        width: 0.875rem;
+        height: 0.875rem;
+        border-radius: 9999px;
+        background: white;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+        transform: translateY(-50%);
+        transition: transform 0.15s;
+      }
+      .ta-switch-track[aria-checked="true"] .ta-switch-thumb {
+        transform: translate(1rem, -50%);
+      }
+      .ta-switch-label {
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .ta-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        min-width: 0;
+      }
+      .ta-field-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-field-required,
+      .ta-field-error {
+        color: rgb(var(--ta-danger));
+      }
+      .ta-field-error {
+        font-size: 0.75rem;
+      }
+      .ta-field--error input {
+        border-color: rgb(var(--ta-danger) / 0.6);
+      }
+      .ta-input {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        color: rgb(var(--ta-text));
+        background: rgb(var(--ta-bg));
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius);
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .ta-input::placeholder {
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-input:focus {
+        border-color: rgb(var(--ta-accent) / 0.5);
+        box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15);
+      }
+
+      .ta-tabs-list {
+        display: flex;
+        gap: 0.25rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        box-shadow: inset 0 -1px 0 rgb(var(--ta-border));
+      }
+      .ta-tab {
+        display: inline-flex;
+        align-items: center;
         gap: 0.4rem;
-        margin: 0.7rem 0 0;
+        padding: 0.55rem 0.85rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.5;
+        white-space: nowrap;
+        color: rgb(var(--ta-text-dim));
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .ta-tab:hover {
+        color: rgb(var(--ta-text));
+      }
+      .ta-tab[aria-selected="true"] {
+        color: rgb(var(--ta-text));
+        border-bottom-color: rgb(var(--ta-accent));
+      }
+      .ta-tab:focus-visible {
+        outline: none;
+        box-shadow: inset 0 0 0 2px rgb(var(--ta-accent-hover));
+        border-radius: var(--ta-radius-sm);
+      }
+      .ta-tab-count {
+        min-width: 1.25rem;
+        padding: 0 0.35rem;
+        font-size: 0.6875rem;
+        line-height: 1.25rem;
+        text-align: center;
+        border-radius: 9999px;
+        background: rgb(var(--ta-accent) / 0.15);
+        color: rgb(var(--ta-accent-hover));
+      }
+      .ta-tabs-panel {
+        padding-top: 1rem;
+      }
+
+      .ta-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        padding: 0.75rem 1rem;
+        background: rgb(var(--ta-surface) / 0.5);
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius-lg);
+        min-width: 0;
+      }
+      .ta-stat-label {
+        font-size: 0.75rem;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-stat-value {
+        font-size: 1.375rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        color: rgb(var(--ta-text));
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .ta-chatmsg {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        max-width: min(42rem, 90%);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius-lg);
+        background: rgb(var(--ta-surface));
+        color: rgb(var(--ta-text));
+      }
+      .ta-chatmsg--user {
+        align-self: flex-end;
+        background: color-mix(in srgb, rgb(var(--ta-accent)) 12%, rgb(var(--ta-bg)));
+        border-color: rgb(var(--ta-accent) / 0.3);
+      }
+      .ta-chatmsg--assistant {
+        align-self: flex-start;
+      }
+      .ta-chatmsg-author {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-chatmsg-body {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        line-height: 1.5;
+      }
+      .ta-chatmsg-typing {
+        display: inline-flex;
+        gap: 0.25rem;
+        padding: 0.25rem 0;
+      }
+      .ta-chatmsg-typing span {
+        width: 0.375rem;
+        height: 0.375rem;
+        border-radius: 9999px;
+        background: rgb(var(--ta-text-dim));
+        animation: ta-chatmsg-dot 1.2s infinite ease-in-out;
+      }
+      .ta-chatmsg-typing span:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .ta-chatmsg-typing span:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      @keyframes ta-chatmsg-dot {
+        0%,
+        80%,
+        100% {
+          opacity: 0.3;
+        }
+        40% {
+          opacity: 1;
+        }
+      }
+
+      .ta-steps {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+      }
+      .ta-steps-step {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.625rem;
+        padding: 0.375rem 0;
+      }
+      .ta-steps-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        border: 1px solid rgb(var(--ta-border));
+        background: rgb(var(--ta-surface));
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-steps-step--running .ta-steps-icon {
+        border-color: rgb(var(--ta-accent) / 0.5);
+        color: rgb(var(--ta-accent-hover));
+      }
+      .ta-steps-step--done .ta-steps-icon {
+        border-color: rgb(var(--ta-success) / 0.5);
+        color: rgb(var(--ta-success));
+      }
+      .ta-steps-dot {
+        width: 0.375rem;
+        height: 0.375rem;
+        border-radius: 50%;
+        background: rgb(var(--ta-muted));
+      }
+      .ta-steps-connector {
+        position: absolute;
+        left: 0.71875rem;
+        top: 2rem;
+        bottom: -0.125rem;
+        width: 1px;
+        background: rgb(var(--ta-border));
+      }
+      .ta-steps-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-width: 0;
+        flex: 1;
+      }
+      .ta-steps-title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: rgb(var(--ta-text));
+      }
+      .ta-steps-step--pending .ta-steps-title,
+      .ta-steps-step--skipped .ta-steps-title {
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-steps-step--skipped .ta-steps-title {
+        text-decoration: line-through;
+        text-decoration-color: rgb(var(--ta-muted));
+      }
+      .ta-steps-description {
+        font-size: 0.75rem;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-steps-status {
+        flex-shrink: 0;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: rgb(var(--ta-text-dim));
+        padding-top: 0.1875rem;
+      }
+      .ta-steps-step--running .ta-steps-status {
+        color: rgb(var(--ta-accent-hover));
+      }
+      .ta-steps-step--done .ta-steps-status {
+        color: rgb(var(--ta-success));
+      }
+      .ta-spinner-ring {
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: ta-spin 0.7s linear infinite;
+      }
+
+      .ta-toolcall {
+        background: rgb(var(--ta-bg) / 0.6);
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius);
+        padding: 0.75rem;
+        font-size: 0.8125rem;
+      }
+      .ta-toolcall--executing {
+        border-color: rgb(var(--ta-info) / 0.4);
+      }
+      .ta-toolcall-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .ta-toolcall-icon {
+        display: flex;
+        padding: 0.375rem;
+        border-radius: var(--ta-radius-sm);
+        background: rgb(var(--ta-accent) / 0.1);
+        color: rgb(var(--ta-accent-hover));
+      }
+      .ta-toolcall-name {
+        font-weight: 600;
+        font-family: var(--ta-font-mono);
+        font-size: 0.8125rem;
+        color: rgb(var(--ta-text));
+        overflow-wrap: anywhere;
+      }
+      .ta-toolcall-header .ta-badge {
+        margin-left: auto;
+      }
+      .ta-toolcall-block {
+        margin-top: 0.625rem;
+      }
+      .ta-toolcall-label,
+      .ta-toolcall-collapsible {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: rgb(var(--ta-text-dim));
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+      }
+      .ta-toolcall-json {
+        margin: 0.375rem 0 0;
+        padding: 0.5rem 0.625rem;
+        background: rgb(var(--ta-surface));
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius-sm);
+        font-family: var(--ta-font-mono);
+        font-size: 0.75rem;
+        color: rgb(var(--ta-text-dim));
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .ta-toolcall-json--collapsed {
+        max-height: 2.75rem;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent);
+        mask-image: linear-gradient(to bottom, black 50%, transparent);
+      }
+      .ta-toolcall-result {
+        margin: 0.25rem 0 0;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-toolcall-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding-top: 0.625rem;
+        border-top: 1px solid rgb(var(--ta-border));
+      }
+
+      .ta-dialog-overlay {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        padding: 1rem;
+        border: none;
+        background: transparent;
+        color: inherit;
+        overflow: hidden;
+      }
+      .ta-dialog-overlay[open] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ta-dialog-overlay::backdrop {
+        background: rgb(var(--ta-backdrop, 0 0 0) / 0.7);
+        backdrop-filter: blur(4px);
+      }
+      .ta-dialog {
+        position: relative;
+        width: 100%;
+        max-height: calc(100vh - 2rem);
+        max-height: calc(100dvh - 2rem);
+        display: flex;
+        flex-direction: column;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: rgb(var(--ta-text));
+        background: rgb(var(--ta-surface));
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius-lg);
+        box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+        animation: ta-dialog-enter 0.15s ease-out;
+        outline: none;
+      }
+      @keyframes ta-dialog-enter {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .ta-dialog-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgb(var(--ta-border));
+      }
+      .ta-dialog-title {
+        margin: 0;
+        max-width: none;
+        overflow-wrap: anywhere;
+        font-size: 1.125rem;
+        font-weight: 600;
+        line-height: 1.5;
+        letter-spacing: 0;
+        color: rgb(var(--ta-text));
+      }
+      .ta-dialog-description {
+        margin: 0.25rem 0 0;
+        font-size: 0.875rem;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-dialog-close {
+        display: inline-flex;
+        padding: 0.25rem;
+        background: none;
+        border: none;
+        color: rgb(var(--ta-text-dim));
+        cursor: pointer;
+        border-radius: var(--ta-radius-sm);
+        transition: color 0.2s;
+      }
+      .ta-dialog-close:hover {
+        color: rgb(var(--ta-text));
+      }
+      .ta-dialog-body {
+        padding: 1rem 1.5rem;
+        overflow-y: auto;
+      }
+      .ta-dialog-body > p + * {
+        margin-top: 1rem;
+      }
+      .ta-dialog-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgb(var(--ta-border));
+      }
+      @media (max-width: 480px) {
+        .ta-dialog-overlay {
+          padding: 0.5rem;
+        }
+        .ta-dialog-header,
+        .ta-dialog-body,
+        .ta-dialog-footer {
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        .ta-dialog-footer {
+          flex-wrap: wrap;
+        }
+      }
+
+      .ta-toaster {
+        position: fixed;
+        inset: auto;
+        right: 1rem;
+        bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+        margin: 0;
+        padding: 0;
+        z-index: 70;
+        width: min(24rem, calc(100vw - 2rem));
+        background: transparent;
+        border: none;
+        overflow: visible;
+        color: inherit;
+      }
+      .ta-toaster-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 0;
         padding: 0;
         list-style: none;
       }
-      .chips li {
-        font: 0.84rem var(--mono);
-        border: 1px solid var(--border);
-        border-radius: 0.5rem;
-        padding: 0.28rem 0.6rem;
-        background: var(--surface);
+      .ta-toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem 0.875rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: rgb(var(--ta-text));
+        background: rgb(var(--ta-surface));
+        border: 1px solid rgb(var(--ta-border));
+        border-left-width: 3px;
+        border-radius: var(--ta-radius);
+        box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
+        animation: ta-toast-enter 0.18s ease-out;
       }
-      /* playground */
-      .play {
-        margin-top: 2.2rem;
+      .ta-toast--success {
+        border-left-color: rgb(var(--ta-success));
+      }
+      .ta-toast-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .ta-toast-message {
+        margin: 0;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .ta-toast-detail {
+        margin: 0.125rem 0 0;
+        font-size: 0.8125rem;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-toast-action {
+        padding: 0.25rem 0.5rem;
+        font: inherit;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgb(var(--ta-accent-hover));
+        background: none;
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius-sm);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .ta-toast-close {
+        display: inline-flex;
+        padding: 0.125rem;
+        color: rgb(var(--ta-text-dim));
+        background: none;
+        border: none;
+        border-radius: var(--ta-radius-sm);
+        cursor: pointer;
+      }
+      .ta-toast-close:hover {
+        color: rgb(var(--ta-text));
+      }
+      @keyframes ta-toast-enter {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      ol.inline-toast {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        max-width: 24rem;
+      }
+
+      .ta-command-search {
+        width: 100%;
+        padding: 0.625rem 0.75rem;
+        font: inherit;
+        font-size: 0.9375rem;
+        color: rgb(var(--ta-text));
+        background: rgb(var(--ta-bg));
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius);
+      }
+      .ta-command-search:focus {
+        border-color: rgb(var(--ta-accent) / 0.5);
+        box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15);
+      }
+      .ta-command-list {
+        margin-top: 0.5rem;
+        max-height: min(22rem, 60vh);
+        max-height: min(22rem, 60dvh);
+        overflow-y: auto;
+      }
+      .ta-command-group {
+        padding: 0.5rem 0.5rem 0.25rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-command-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.5rem 0.625rem;
+        font-size: 0.875rem;
+        color: inherit;
+        text-decoration: none;
+        border-radius: var(--ta-radius-sm);
+        cursor: pointer;
+      }
+      .ta-command-item--active {
+        background: rgb(var(--ta-elevated));
+      }
+      .ta-command-text {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .ta-command-title,
+      .ta-command-desc {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ta-command-title {
+        font-weight: 500;
+      }
+      .ta-command-desc {
+        font-size: 0.75rem;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-command-badge {
+        flex-shrink: 0;
+        padding: 0.0625rem 0.5rem;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        color: rgb(var(--ta-text-dim));
+        background: rgb(var(--ta-elevated));
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: 999px;
+      }
+      .ta-command-item--active .ta-command-badge {
+        background: rgb(var(--ta-surface));
+      }
+      .ta-command-empty {
+        margin: 0;
+        padding: 1rem 0.5rem;
+        text-align: center;
+        font-size: 0.875rem;
+        color: rgb(var(--ta-text-dim));
+      }
+
+      .ta-chart {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-width: 0;
+        color: rgb(var(--ta-text));
+      }
+      .ta-chart-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+      .ta-chart-canvas {
+        position: relative;
+        width: 100%;
+        outline: none;
+        border-radius: var(--ta-radius-sm);
+      }
+      .ta-chart-canvas:focus-visible {
+        box-shadow: 0 0 0 2px rgb(var(--ta-accent-hover));
+      }
+      .ta-chart-svg {
+        display: block;
+        overflow: visible;
+      }
+      .ta-chart-grid {
+        stroke: rgb(var(--ta-border));
+        stroke-width: 1;
+        shape-rendering: crispEdges;
+      }
+      .ta-chart-base {
+        stroke: rgb(var(--ta-muted));
+        stroke-width: 1;
+        shape-rendering: crispEdges;
+      }
+      .ta-chart-axis {
+        fill: rgb(var(--ta-text-dim));
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+      }
+      .ta-chart-group--active path {
+        filter: brightness(1.15);
+      }
+      .ta-chart-tooltip {
+        position: absolute;
+        top: 0;
+        width: 160px;
+        padding: 0.5rem 0.625rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        color: rgb(var(--ta-text));
+        background: rgb(var(--ta-surface));
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius);
+        box-shadow: 0 8px 24px -8px rgb(0 0 0 / 0.5);
+        pointer-events: none;
+      }
+      .ta-chart-tooltip-x {
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-chart-tooltip-row {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+      }
+      .ta-chart-tooltip-row span:last-child {
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-chart-key {
+        width: 0.625rem;
+        height: 0.625rem;
+        border-radius: 2px;
+        flex-shrink: 0;
+        background: rgb(var(--ta-series-1));
+      }
+      .ta-chart-data {
+        position: relative;
+        align-self: flex-start;
+        padding: 0.125rem 0;
+        font: inherit;
+        font-size: 0.75rem;
+        color: rgb(var(--ta-accent-hover));
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      .ta-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8125rem;
+      }
+      .ta-table th,
+      .ta-table td {
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid rgb(var(--ta-border));
+      }
+      .ta-table th {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: rgb(var(--ta-text-dim));
+      }
+      .ta-table .ta-chart-num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* The 44px touch targets the kit gives every control (README, "Touch and phones"). */
+      @media (pointer: coarse) {
+        .ta-btn,
+        .ta-tab,
+        .ta-switch,
+        .ta-command-item,
+        .ta-toast-action {
+          min-height: 2.75rem;
+        }
+        .ta-input,
+        .ta-command-search {
+          font-size: 1rem;
+          min-height: 2.75rem;
+        }
+        .ta-dialog-close,
+        .ic {
+          min-width: 2.75rem;
+          min-height: 2.75rem;
+          align-items: center;
+          justify-content: center;
+        }
+        .chips li,
+        .chips a,
+        .foot-links a,
+        .brand {
+          min-height: 2.75rem;
+        }
+        .foot-links a {
+          display: inline-flex;
+          align-items: center;
+        }
+        .ta-toolcall-collapsible,
+        .ta-toast-close,
+        .ta-chart-data {
+          position: relative;
+        }
+        .ta-toolcall-collapsible::after,
+        .ta-toast-close::after,
+        .ta-chart-data::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: max(100%, 2.75rem);
+          height: max(100%, 2.75rem);
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      /* ——— Specimen layouts ——— */
+      .chat {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+      .stats {
         display: grid;
-        gap: 1.5rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2rem 1.5rem;
+        align-content: start;
       }
-      @media (min-width: 56rem) {
-        .play {
-          grid-template-columns: 19rem 1fr;
+      pre.code {
+        margin: 0;
+        padding: 0.9rem 1rem;
+        font-size: 0.78rem;
+        line-height: 1.65;
+        color: rgb(var(--ta-text));
+        background: rgb(var(--ta-surface));
+        border: 1px solid rgb(var(--ta-border));
+        border-radius: var(--ta-radius);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        tab-size: 2;
+      }
+      pre.code i {
+        font-style: normal;
+        color: var(--tone);
+      }
+
+      /* ——— Tokens ——— */
+      .tok {
+        display: grid;
+        gap: 1px;
+        background: var(--hair);
+        border: 1px solid var(--hair);
+      }
+      .tok > * {
+        background: var(--paper);
+        padding: clamp(1.25rem, 2.4vw, 2.25rem);
+        min-width: 0;
+      }
+      @media (min-width: 62rem) {
+        .tok {
+          grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
         }
       }
       .knobs {
         display: grid;
-        gap: 1.2rem;
+        gap: 1.6rem;
         align-content: start;
       }
       .knobs fieldset {
         border: 0;
         padding: 0;
         margin: 0;
+        min-width: 0;
       }
-      .knobs legend {
-        font-weight: 600;
-        font-size: 0.95rem;
-        margin-bottom: 0.5rem;
+      .knobs legend,
+      .knob-l {
+        display: block;
         padding: 0;
+        margin-bottom: 0.6rem;
+      }
+      .knob-l output {
+        color: var(--ink);
       }
       .swatches {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.6rem;
         flex-wrap: wrap;
       }
       .swatches button {
-        width: 2.75rem;
-        height: 2.75rem;
-        border-radius: 50%;
-        border: 3px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 2.75rem;
+        padding: 0 0.85rem 0 0.6rem;
+        border: 1px solid var(--hair);
+        border-radius: var(--ta-radius);
+        background: transparent;
+        font: 500 0.8rem var(--mono);
         cursor: pointer;
+      }
+      .swatches button i {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
         background: var(--c);
       }
       .swatches button[aria-pressed="true"] {
-        border-color: var(--text);
-        box-shadow: 0 0 0 3px var(--bg) inset;
+        border-color: var(--tone);
+        box-shadow: inset 0 0 0 1px var(--tone);
       }
       .knobs input[type="range"] {
         width: 100%;
         height: 2.75rem;
-        accent-color: var(--accent);
-      }
-      .knobs pre {
         margin: 0;
-        padding: 0.9rem 1rem;
-        border: 1px solid var(--border);
-        border-radius: 0.7rem;
-        background: var(--surface);
-        font-size: 0.8rem;
-        line-height: 1.7;
+        accent-color: rgb(var(--ta-accent-hover));
       }
-      .stage {
-        border: 1px solid var(--border);
-        border-radius: 1rem;
-        background: var(--surface);
-        padding: 1.3rem;
+      .sheet {
         display: grid;
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+        gap: 0.5rem 1.5rem;
+        margin: 1rem 0 0;
+        padding: 0;
+        list-style: none;
       }
-      .msg {
-        border: 1px solid var(--border);
-        border-radius: calc(var(--radius) * 1.5);
-        padding: 0.9rem 1rem;
-        background: var(--bg);
-      }
-      .msg small {
-        color: var(--accent-text);
-        font-weight: 600;
-        display: block;
-        margin-bottom: 0.3rem;
-      }
-      .tool {
-        border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
-        border-radius: calc(var(--radius) * 1.5);
-        padding: 0.9rem 1rem;
-        background: color-mix(in srgb, var(--accent) 8%, var(--bg));
-      }
-      .tool code {
-        display: block;
-        color: var(--dim);
-        margin-top: 0.3rem;
-      }
-      .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
+      .sheet li {
+        display: grid;
+        grid-template-columns: 1.6rem 1fr;
+        gap: 0 0.7rem;
         align-items: center;
+        padding: 0.45rem 0;
+        border-bottom: 1px solid var(--hair);
+        font: 400 0.75rem/1.35 var(--mono);
       }
-      .ta-btn {
-        min-height: 2.75rem;
-        padding: 0.5rem 1rem;
-        border-radius: var(--radius);
-        border: 1px solid transparent;
-        font: 600 0.92rem var(--sans);
-        cursor: pointer;
-        color: #fff;
-        background: color-mix(in srgb, var(--accent) 88%, black);
-      }
-      .ta-btn.soft {
-        background: color-mix(in srgb, var(--accent) 14%, transparent);
-        border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-        color: var(--accent-text);
-      }
-      .ta-btn.outline {
-        background: transparent;
-        border-color: var(--border);
-        color: var(--text);
-      }
-      .ta-badge {
-        font: 600 0.78rem var(--sans);
-        padding: 0.25rem 0.6rem;
-        border-radius: 99px;
-        color: var(--accent-text);
-        background: color-mix(in srgb, var(--accent) 14%, transparent);
-        border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-      }
-      .ta-switch {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.6rem;
-        font-size: 0.95rem;
-        cursor: pointer;
-      }
-      .ta-switch input {
-        appearance: none;
-        width: 2.75rem;
+      .sheet i {
+        grid-row: span 2;
+        width: 1.6rem;
         height: 1.6rem;
-        border-radius: 99px;
-        background: var(--border);
-        position: relative;
-        cursor: pointer;
-        transition: background 0.2s;
-        margin: 0;
+        border: 1px solid var(--hair);
+        border-radius: var(--ta-radius-sm);
       }
-      .ta-switch input::after {
-        content: "";
-        position: absolute;
-        top: 0.2rem;
-        left: 0.2rem;
-        width: 1.2rem;
-        height: 1.2rem;
-        border-radius: 50%;
-        background: #fff;
-        transition: translate 0.2s;
+      .sheet span {
+        color: var(--dim);
       }
-      .ta-switch input:checked {
-        background: color-mix(in srgb, var(--accent) 88%, black);
-      }
-      .ta-switch input:checked::after {
-        translate: 1.15rem 0;
-      }
-      /* facts */
       .facts {
-        margin: 2.2rem 0 0;
+        margin: clamp(2.5rem, 5vw, 4rem) 0 0;
         display: grid;
-        border-top: 1px solid var(--border);
+        border-top: 1px solid var(--hair);
       }
       .facts div {
         display: grid;
         gap: 0.3rem 2rem;
         padding: 1.1rem 0;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--hair);
       }
       @media (min-width: 52rem) {
         .facts div {
-          grid-template-columns: 18rem 1fr;
+          grid-template-columns: 3rem 19rem 1fr;
+          align-items: baseline;
         }
       }
       .facts dt {
-        font-weight: 700;
-        font-size: 1.1rem;
+        font-weight: 600;
+        font-size: 1.15rem;
+        letter-spacing: -0.02em;
       }
       .facts dd {
         margin: 0;
         color: var(--dim);
-        max-width: 60ch;
+        max-width: 64ch;
       }
-      .tabs {
+
+      /* ——— Kit ——— */
+      .fams {
+        display: grid;
+        gap: 1px;
+        background: var(--hair);
+        border: 1px solid var(--hair);
+      }
+      @media (min-width: 46rem) {
+        .fams {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (min-width: 80rem) {
+        .fams {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+      .fam {
+        background: var(--paper);
+        padding: 1.4rem clamp(1.1rem, 2vw, 1.75rem) 1.75rem;
+        min-width: 0;
+      }
+      .fam h3 {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1rem;
+        font-size: 1.35rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+      .fam h3 span {
+        font: 500 0.75rem var(--mono);
+        letter-spacing: 0.04em;
+        color: var(--tone);
+      }
+      .fam p {
+        margin-top: 0.4rem;
+        color: var(--dim);
+        font-size: 0.95rem;
+      }
+      .chips {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.35rem;
-        border-bottom: 1px solid var(--border);
-        margin-top: 2rem;
+        gap: 0.4rem;
+        margin: 1rem 0 0;
+        padding: 0;
+        list-style: none;
       }
-      .tabs button {
-        min-height: 2.75rem;
-        padding: 0.5rem 0.9rem;
-        border: 0;
-        border-bottom: 3px solid transparent;
-        margin-bottom: -1px;
-        background: none;
-        color: var(--dim);
-        font: 600 0.95rem var(--sans);
-        cursor: pointer;
+      .chips li {
+        font: 400 0.78rem/1.4 var(--mono);
+        border: 1px solid var(--hair);
+        border-radius: var(--ta-radius-sm);
       }
-      .tabs button[aria-selected="true"] {
-        color: var(--text);
-        border-bottom-color: var(--orange);
+      .chips li,
+      .chips a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
       }
-      .panel {
-        padding-top: 1.2rem;
-        max-width: 48rem;
+      .chips li:not(:has(a)),
+      .chips a {
+        padding: 0.3rem 0.6rem;
+      }
+      .chips a {
+        text-decoration: none;
+        border-radius: inherit;
+      }
+      .chips a::before {
+        content: "";
+        width: 0.4rem;
+        height: 0.4rem;
+        background: var(--tone);
+      }
+      .chips li:has(a) {
+        border-color: rgb(var(--ta-accent-hover) / 0.5);
+      }
+      .chips a:hover {
+        background: rgb(var(--ta-accent) / 0.14);
+      }
+      .kit-note {
+        margin-top: 1rem;
+      }
+      .kit-note i {
+        display: inline-block;
+        width: 0.4rem;
+        height: 0.4rem;
+        margin-right: 0.4rem;
+        background: var(--tone);
+      }
+
+      /* ——— Install ——— */
+      .install {
+        max-width: 54rem;
       }
       .panel > p {
         color: var(--dim);
         margin-bottom: 0.9rem;
+        max-width: 62ch;
       }
       .copy {
         position: relative;
       }
-      .copy pre {
-        margin: 0;
-        padding: 1rem 6rem 1rem 1.1rem;
-        border: 1px solid var(--border);
-        border-radius: 0.8rem;
-        background: var(--surface);
-        line-height: 1.65;
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
+      .copy + .copy {
+        margin-top: 0.9rem;
       }
-      .copy .btn {
+      .copy pre.code {
+        padding-right: 5.5rem;
+        font-size: 0.85rem;
+      }
+      .copy .ta-btn {
         position: absolute;
-        top: 0.55rem;
-        right: 0.55rem;
-        min-height: 2.5rem;
-        padding: 0.4rem 0.8rem;
-        font-size: 0.88rem;
+        top: 0.5rem;
+        right: 0.5rem;
       }
+
       footer {
-        border-top: 1px solid var(--border);
-        padding-block: 2.2rem 3rem;
-        color: var(--dim);
-        font-size: 0.95rem;
+        border-top: 1px solid var(--hair);
+        padding-block: 1.5rem 2.5rem;
+        overflow: hidden;
       }
-      footer .wrap {
+      .foot-links {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.6rem 1.6rem;
+        gap: 0.4rem 1.6rem;
         align-items: center;
       }
-      footer span {
+      .foot-links span {
         margin-right: auto;
       }
-      footer a {
+      .foot-links a {
         padding: 0.6rem 0;
+        color: var(--ink);
+      }
+      .wordmark {
+        margin-top: 1.5rem;
+        font-size: clamp(5rem, 27vw, 30rem);
+        font-weight: 800;
+        line-height: 0.8;
+        letter-spacing: -0.07em;
+        width: fit-content;
+        padding: 0 0.08em 0.12em 0;
+        background: linear-gradient(96deg, var(--tone) 5%, var(--tone2) 95%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        user-select: none;
+      }
+
+      /* ——— Small screens: the canvas simplifies ——— */
+      @media (max-width: 61.99rem) {
+        .bar nav,
+        .brand-sub,
+        #cmd-btn {
+          display: none;
+        }
+        #menu-btn {
+          display: inline-flex;
+        }
+      }
+      @media (max-width: 47.5rem) {
+        body::before,
+        body::after {
+          display: none;
+        }
+        .ctl .solid {
+          display: none;
+        }
+        .mk {
+          inset: -5px;
+        }
+        .mk::before {
+          font-size: 0.5625rem;
+          letter-spacing: 0;
+        }
+        .h1-big {
+          line-height: 0.9;
+        }
+        .cell-h span + span {
+          display: none;
+        }
       }
       @media (prefers-reduced-motion: reduce) {
         html {
           scroll-behavior: auto;
         }
-        * {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
           transition: none !important;
+        }
+        .caret {
+          display: none;
         }
       }
     </style>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <header class="top">
+
+    <header class="bar">
       <div class="wrap">
         <a class="brand" href="#top"><i aria-hidden="true"></i>tallao</a>
+        <span class="mono brand-sub">/ Svelte 5 UI kit</span>
         <nav aria-label="Sections">
-          <a class="wide" href="#kit">Components</a>
-          <a class="wide" href="#tokens">Theming</a>
-          <a class="wide" href="#install">Install</a>
-          <a href="https://github.com/tallao-ui/tallao">GitHub</a>
+          <a href="#specimens"><span>01</span>Specimens</a>
+          <a href="#tokens"><span>02</span>Tokens</a>
+          <a href="#kit"><span>03</span>Components</a>
+          <a href="#install"><span>04</span>Install</a>
         </nav>
+        <div class="ctl">
+          <button class="ic" type="button" id="theme-btn" aria-label="Switch to the light theme">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" /></svg>
+          </button>
+          <button class="ic" type="button" id="accent-btn" aria-label="Accent: lilac. Switch to the next accent"><span class="dot" aria-hidden="true"></span></button>
+          <button class="ic" type="button" id="cmd-btn" aria-label="Open the command palette" aria-haspopup="dialog"><span id="cmd-kbd">Ctrl K</span></button>
+          <button class="ic" type="button" id="menu-btn" aria-haspopup="dialog">Menu</button>
+          <a class="ic solid" href="https://github.com/tallao-ui/tallao">GitHub</a>
+        </div>
       </div>
+      <div class="ruler" aria-hidden="true"><b id="ruler-pos">0%</b></div>
     </header>
 
     <main id="main">
+      <!-- ═════════ Hero ═════════ -->
       <section class="hero" id="top">
         <div class="wrap">
-          <h1>Svelte 5 components for <span class="grad">the interfaces an agent builds.</span></h1>
-          <p class="lede">
-            tallao is a UI kit with the parts a generative interface needs — streamed messages, tool calls, steps and
-            approvals — next to the forms, tables and dialogs every app needs.
-            <b>80 components, plain CSS on tokens, ready for SvelteKit.</b>
-          </p>
-          <div class="cta">
-            <button class="btn primary" type="button" data-copy="pnpm add github:tallao-ui/tallao"><span>Copy the install command</span></button>
-            <a class="btn" href="https://github.com/tallao-ui/tallao#components">See every component</a>
+          <div class="hero-meta mono">
+            <span>tallao · Svelte 5 UI kit for generative interfaces</span>
+            <span>Plain CSS on --ta-* tokens</span>
+            <span>v0.7.0 · MIT</span>
           </div>
-          <p class="fine">MIT licensed. Version 0.7. Needs Svelte 5.29 or later.</p>
 
-          <div class="clip">
+          <h1 aria-label="UI for agents. Svelte 5 components for the interfaces an agent builds.">
+            <span class="h1-big" data-i="H1" data-mark aria-hidden="true">UI for <span class="grad">agents.</span></span>
+            <span class="h1-sub" id="h1-sub" data-i="H1.stream" data-mark aria-hidden="true">Svelte 5 components for the interfaces an agent builds.</span>
+          </h1>
+          <div class="hero-mid" aria-hidden="true">
+            <div class="legend mono">
+              <span><b>&#9632;</b> H1 · set in Inter</span>
+              <span id="h1-legend"><b>&#9670;</b> H1.stream · streamed word by word, like a ChatMessage</span>
+              <span><b>&#9650;</b> Inspector · point at anything: the guides snap to it and measure it</span>
+            </div>
+            <dl class="props" id="props">
+              <div class="hd"><span>Inspector</span><b>&#9679; live</b></div>
+              <div><dt>node</dt><dd></dd></div>
+              <div><dt>size</dt><dd></dd></div>
+              <div><dt>position</dt><dd></dd></div>
+              <div><dt>radius</dt><dd></dd></div>
+              <div><dt>type</dt><dd></dd></div>
+              <div><dt>fill</dt><dd></dd></div>
+            </dl>
+          </div>
+
+          <div class="hero-row">
+            <p class="lede" data-i="P.lede">
+              tallao is a UI kit with the parts a generative interface needs — streamed messages, tool calls, steps and
+              approvals — next to the forms, tables and dialogs every app needs.
+              <b>98 components, plain CSS on tokens, ready for SvelteKit.</b>
+            </p>
+            <div>
+              <div class="cta">
+                <button class="ta-btn ta-btn--primary ta-btn--lg" type="button" data-i="Button" data-mark data-copy="pnpm add github:tallao-ui/tallao"><span>Copy the install command</span></button>
+                <a class="ta-btn ta-btn--outline ta-btn--lg" data-i="Button" href="https://github.com/tallao-ui/tallao#components">See every component</a>
+              </div>
+              <p class="fine mono">MIT licensed · Version 0.7 · Needs Svelte 5.29 or later</p>
+            </div>
+          </div>
+
+          <div class="clip" data-i="Video" data-mark>
             <video
               autoplay
               loop
@@ -613,166 +2303,448 @@
             </video>
             <button class="clip-toggle" type="button" aria-pressed="false">Pause</button>
           </div>
+          <div class="clip-cap mono">
+            <span>media/reel.mp4 · 1280×720</span>
+            <span>A streamed answer, a plan, a tool call, an approval</span>
+          </div>
         </div>
       </section>
 
-      <section class="block" id="kit">
+      <!-- ═════════ 01 Specimens ═════════ -->
+      <section class="sec" id="specimens">
         <div class="wrap">
-          <h2>What's in the kit</h2>
-          <p>One import, one look. Every component works with a keyboard and a screen reader, and renders on the server.</p>
-          <div class="groups">
+          <div class="sec-meta mono"><span>[01] Specimens</span><span>Hover, tap or Tab: measured from the DOM</span></div>
+          <div class="sec-head">
+            <p class="num" aria-hidden="true">01<span>/04</span></p>
             <div>
-              <h3>For agents</h3>
-              <p>Show what a model is doing, and let a person decide.</p>
-              <ul class="chips">
-                <li>ChatMessage</li>
-                <li>PromptInput</li>
-                <li>ToolCallCard</li>
-                <li>Steps</li>
-                <li>Sources</li>
-                <li>SuggestionChips</li>
-                <li>UsageMeter</li>
-                <li>CodeBlock</li>
-                <li>ConfirmDialog</li>
-              </ul>
+              <h2 data-i="H2">Point at a component. The inspector measures it.</h2>
+              <p class="lead">
+                This page has no build step, so the specimens below are HTML and CSS replicas of the real Svelte
+                components: same class names, same <code>--ta-*</code> tokens, same keyboard behaviour. Change the
+                accent, the radius or the theme and every one of them re-renders.
+              </p>
             </div>
-            <div>
-              <h3>Forms</h3>
-              <p>Native controls, with <code>name</code> so SvelteKit form actions work without JavaScript.</p>
-              <ul class="chips">
-                <li>Input</li>
-                <li>Select</li>
-                <li>Combobox</li>
-                <li>Switch</li>
-                <li>DatePicker</li>
-                <li>NumberInput</li>
-                <li>InputOTP</li>
-                <li>FileUpload</li>
-                <li>SchemaForm</li>
-              </ul>
+          </div>
+
+          <div class="board">
+            <!-- Conversation -->
+            <div class="cell c-chat">
+              <div class="cell-h mono"><span>A · Generative UI</span><span>chat-message · steps · tool-call-card</span></div>
+              <div class="cell-b">
+                <div class="chat">
+                  <article class="ta-chatmsg ta-chatmsg--user" aria-labelledby="cm-u" data-i="ChatMessage">
+                    <header class="ta-chatmsg-author" id="cm-u">You</header>
+                    <div class="ta-chatmsg-body">Which orders are late, and what can we do about them?</div>
+                  </article>
+                  <article class="ta-chatmsg ta-chatmsg--assistant" id="s-msg" aria-labelledby="cm-a" data-i="ChatMessage" data-mark tabindex="-1">
+                    <header class="ta-chatmsg-author" id="cm-a">Assistant</header>
+                    <div class="ta-chatmsg-body" id="msg-body">Three orders are late. I can email the customers and open a ticket with the carrier.</div>
+                  </article>
+                  <div id="s-steps" data-i="Steps" data-mark tabindex="-1"><ol class="ta-steps ta-steps--vertical" id="steps" aria-label="Plan steps" data-l-aria="planSteps"></ol></div>
+                  <div class="ta-toolcall" id="s-tool" data-i="ToolCallCard" data-mark tabindex="-1"></div>
+                </div>
+                <div class="rowx tight">
+                  <button class="ta-btn ta-btn--ghost ta-btn--sm" type="button" id="replay" data-i="Button">Replay the run</button>
+                </div>
+                <p class="note">ChatMessage streams with aria-busy · Steps marks the running one with aria-current="step" · ToolCallCard waits for a person</p>
+              </div>
             </div>
-            <div>
-              <h3>Overlays and menus</h3>
-              <p>Built on the native <code>&lt;dialog&gt;</code> and the Popover API: focus is contained and restored.</p>
-              <ul class="chips">
-                <li>Dialog</li>
-                <li>Sheet</li>
-                <li>Popover</li>
-                <li>Tooltip</li>
-                <li>DropdownMenu</li>
-                <li>ContextMenu</li>
-                <li>Command</li>
-                <li>Toaster</li>
-              </ul>
+
+            <!-- Buttons -->
+            <div class="cell c-btn">
+              <div class="cell-h mono"><span>B · Button</span><span>button.svelte</span></div>
+              <div class="cell-b">
+                <div class="rowx">
+                  <button class="ta-btn ta-btn--primary ta-btn--md" type="button" id="s-button" data-i="Button" data-mark>Primary</button>
+                  <button class="ta-btn ta-btn--secondary ta-btn--md" type="button" data-i="Button">Secondary</button>
+                  <button class="ta-btn ta-btn--soft ta-btn--md" type="button" data-i="Button">Soft</button>
+                  <button class="ta-btn ta-btn--outline ta-btn--md" type="button" data-i="Button">Outline</button>
+                  <button class="ta-btn ta-btn--ghost ta-btn--md" type="button" data-i="Button">Ghost</button>
+                  <button class="ta-btn ta-btn--danger ta-btn--md" type="button" data-i="Button">Danger</button>
+                  <button class="ta-btn ta-btn--danger-ghost ta-btn--md" type="button" data-i="Button">Danger ghost</button>
+                </div>
+                <div class="rowx">
+                  <button class="ta-btn ta-btn--primary ta-btn--sm" type="button" data-i="Button" data-mark>Small</button>
+                  <button class="ta-btn ta-btn--primary ta-btn--lg" type="button" data-i="Button">Large</button>
+                  <button class="ta-btn ta-btn--primary ta-btn--md" type="button" data-i="Button" disabled aria-busy="true"><span class="ta-btn-spinner" aria-hidden="true"></span>Loading</button>
+                </div>
+                <p class="note">7 variants × 4 sizes, loading, href</p>
+              </div>
             </div>
-            <div>
-              <h3>Data and layout</h3>
-              <p>Tables with sorting and filters, charts with a legend and a data table, and the app shell.</p>
-              <ul class="chips">
-                <li>DataTable</li>
-                <li>Pagination</li>
-                <li>BarChart</li>
-                <li>LineChart</li>
-                <li>Calendar</li>
-                <li>Tabs</li>
-                <li>Sidebar</li>
-                <li>SplitPane</li>
-                <li>Carousel</li>
-              </ul>
+
+            <!-- Forms -->
+            <div class="cell c-form">
+              <div class="cell-h mono"><span>C · Field · Input · Switch · Badge</span><span>forms</span></div>
+              <div class="cell-b">
+                <label class="ta-field ta-field--error" id="s-field" data-i="Field" data-mark>
+                  <span class="ta-field-label">Email<span class="ta-field-required" aria-hidden="true"> *</span></span>
+                  <input class="ta-input" id="f-email" type="email" name="email" value="ada@" autocomplete="off" required aria-invalid="true" aria-describedby="f-email-e" data-i="Input" />
+                  <span class="ta-field-error" role="alert" id="f-email-e">Enter a complete email address.</span>
+                </label>
+                <div class="rowx">
+                  <span class="ta-switch ta-switch--md" id="s-switch" data-i="Switch" data-mark>
+                    <button type="button" role="switch" class="ta-switch-track" aria-checked="true" aria-labelledby="sw-g" data-sw="guides"><span class="ta-switch-thumb" aria-hidden="true"></span></button>
+                    <span class="ta-switch-label" id="sw-g">Inspector guides</span>
+                  </span>
+                  <span class="ta-switch ta-switch--md" data-i="Switch">
+                    <button type="button" role="switch" class="ta-switch-track" aria-checked="false" aria-labelledby="sw-e" data-sw="es"><span class="ta-switch-thumb" aria-hidden="true"></span></button>
+                    <span class="ta-switch-label" id="sw-e">Spanish labels</span>
+                  </span>
+                </div>
+                <div class="rowx">
+                  <span class="ta-badge ta-badge--success ta-badge--sm" id="s-badge" data-i="Badge" data-mark><span class="ta-badge-dot ta-badge-dot--pulse" aria-hidden="true"></span>Live</span>
+                  <span class="ta-badge ta-badge--warning ta-badge--sm" data-i="Badge" data-l="pending">Pending</span>
+                  <span class="ta-badge ta-badge--info ta-badge--sm" data-i="Badge" data-l="running">Running…</span>
+                  <span class="ta-badge ta-badge--error ta-badge--sm" data-i="Badge" data-l="failed">Failed</span>
+                  <span class="ta-badge ta-badge--accent ta-badge--sm" data-i="Badge">Accent</span>
+                  <span class="ta-badge ta-badge--accent-2 ta-badge--sm" data-i="Badge">Accent 2</span>
+                  <span class="ta-badge ta-badge--accent ta-badge--solid ta-badge--sm" data-i="Badge">Solid</span>
+                </div>
+                <p class="note">"Spanish labels" swaps the texts the kit adds on its own, as setLabels(es) does</p>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="cell c-tabs">
+              <div class="cell-h mono"><span>D · Tabs</span><span>tabs.svelte</span></div>
+              <div class="cell-b">
+                <div class="ta-tabs" id="s-tabs" data-i="Tabs" data-mark>
+                  <div class="ta-tabs-list" role="tablist" aria-label="How each specimen is written in Svelte">
+                    <button type="button" role="tab" class="ta-tab" id="u-t1" aria-controls="u-p1" aria-selected="true">ToolCallCard</button>
+                    <button type="button" role="tab" class="ta-tab" id="u-t2" aria-controls="u-p2" aria-selected="false" tabindex="-1">Steps</button>
+                    <button type="button" role="tab" class="ta-tab" id="u-t3" aria-controls="u-p3" aria-selected="false" tabindex="-1">ConfirmDialog</button>
+                    <button type="button" role="tab" class="ta-tab" id="u-t4" aria-controls="u-p4" aria-selected="false" tabindex="-1">toast()</button>
+                  </div>
+                  <div class="ta-tabs-panel" role="tabpanel" id="u-p1" aria-labelledby="u-t1" tabindex="-1">
+<pre class="code"><code>&lt;<i>ToolCallCard</i>
+  name="carrier.open_ticket"
+  args={{ orders: [1042, 1047, 1051], reason: "late" }}
+  status="pending"
+  onApprove={approve}
+  onReject={reject}
+/&gt;</code></pre>
+                  </div>
+                  <div class="ta-tabs-panel" role="tabpanel" id="u-p2" aria-labelledby="u-t2" tabindex="-1" hidden>
+<pre class="code"><code>&lt;<i>Steps</i>
+  steps={[
+    { title: "Find the late orders", status: "done" },
+    { title: "Draft the customer emails", status: "running" },
+    { title: "Open a ticket with the carrier" },
+  ]}
+/&gt;</code></pre>
+                  </div>
+                  <div class="ta-tabs-panel" role="tabpanel" id="u-p3" aria-labelledby="u-t3" tabindex="-1" hidden>
+<pre class="code"><code>&lt;<i>ConfirmDialog</i>
+  bind:open
+  title="Delete this draft?"
+  description="This cannot be undone."
+  onConfirm={remove}
+/&gt;</code></pre>
+                  </div>
+                  <div class="ta-tabs-panel" role="tabpanel" id="u-p4" aria-labelledby="u-t4" tabindex="-1" hidden>
+<pre class="code"><code>import { <i>toast</i> } from "tallao";
+
+toast.success("Saved");
+toast.error("Could not save", { description: "The API returned 503" });</code></pre>
+                  </div>
+                </div>
+                <p class="note">Arrows, Home and End move between tabs; Tab goes into the panel</p>
+              </div>
+            </div>
+
+            <!-- Overlays -->
+            <div class="cell c-over">
+              <div class="cell-h mono"><span>E · Dialog · ConfirmDialog · Toaster · Command</span><span>overlays</span></div>
+              <div class="cell-b">
+                <div class="rowx">
+                  <button class="ta-btn ta-btn--secondary ta-btn--md" type="button" id="s-dialog" data-i="Button" data-open="dlg">Open a Dialog</button>
+                  <button class="ta-btn ta-btn--danger ta-btn--md" type="button" data-i="Button" data-open="cfm">Delete draft…</button>
+                  <button class="ta-btn ta-btn--secondary ta-btn--md" type="button" id="s-command" data-i="Button" data-palette aria-haspopup="dialog">Command <kbd class="k">Ctrl K</kbd></button>
+                </div>
+                <ol class="inline-toast" id="toast-spec">
+                  <li class="ta-toast ta-toast--success" id="s-toast" data-i="Toast" data-mark tabindex="-1">
+                    <div class="ta-toast-body">
+                      <p class="ta-toast-message">Saved</p>
+                      <p class="ta-toast-detail">The countdown pauses on hover or focus.</p>
+                    </div>
+                    <button type="button" class="ta-toast-action" id="toast-fire">Fire one</button>
+                    <button type="button" class="ta-toast-close" id="toast-x" aria-label="Dismiss" data-l-aria="dismiss">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                    </button>
+                  </li>
+                </ol>
+                <p class="note">Native &lt;dialog&gt; with showModal(): contained focus, Escape closes the top one, focus restored · toasts live in an aria-live region</p>
+              </div>
+            </div>
+
+            <!-- Data -->
+            <div class="cell c-data">
+              <div class="cell-h mono"><span>F · Stat · BarChart</span><span>stat.svelte · bar-chart.svelte</span></div>
+              <div class="cell-b">
+                <div class="stats">
+                  <div class="ta-stat" id="s-stat" data-i="Stat" data-mark><span class="ta-stat-label">Components</span><span class="ta-stat-value">98</span></div>
+                  <div class="ta-stat" data-i="Stat"><span class="ta-stat-label">Tests</span><span class="ta-stat-value">240</span></div>
+                  <div class="ta-stat" data-i="Stat"><span class="ta-stat-label">Runtime dependencies</span><span class="ta-stat-value">1</span></div>
+                  <div class="ta-stat" data-i="Stat"><span class="ta-stat-label">Touch target</span><span class="ta-stat-value">44px</span></div>
+                </div>
+                <figure class="ta-chart" id="s-chart" data-i="BarChart" data-mark>
+                  <figcaption class="ta-chart-title">Components per family</figcaption>
+                  <div class="ta-chart-canvas" id="chart" role="slider" tabindex="0" aria-label="Components per family" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="Components per family"></div>
+                  <button type="button" class="ta-chart-data" id="chart-toggle" aria-expanded="false" aria-controls="chart-table">Show data</button>
+                  <div id="chart-table" hidden></div>
+                </figure>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="block" id="tokens">
+      <!-- ═════════ 02 Tokens ═════════ -->
+      <section class="sec" id="tokens">
         <div class="wrap">
-          <h2>Change three variables, and it's yours.</h2>
-          <p>There is no Tailwind and no theme provider: the kit is plain CSS reading <code>--ta-*</code> tokens. Try it.</p>
-          <div class="play">
+          <div class="sec-meta mono"><span>[02] Tokens</span><span>No Tailwind · no theme provider</span></div>
+          <div class="sec-head">
+            <p class="num" aria-hidden="true">02<span>/04</span></p>
+            <div>
+              <h2 data-i="H2">Change three variables, and it's yours.</h2>
+              <p class="lead">
+                The kit is plain CSS reading <code>--ta-*</code> tokens. These controls set them on this page's
+                <code>&lt;html&gt;</code>: scroll back up and the specimens have changed too.
+              </p>
+            </div>
+          </div>
+
+          <div class="tok">
             <div class="knobs">
               <fieldset>
-                <legend>Accent</legend>
+                <legend class="mono">Accent</legend>
                 <div class="swatches" id="swatches">
-                  <button type="button" style="--c: #9333ea" data-a="147 51 234" data-t="192 132 252" aria-pressed="true" aria-label="Lilac"></button>
-                  <button type="button" style="--c: #ea580c" data-a="234 88 12" data-t="253 186 116" aria-pressed="false" aria-label="Orange"></button>
-                  <button type="button" style="--c: #059669" data-a="5 150 105" data-t="110 231 183" aria-pressed="false" aria-label="Green"></button>
-                  <button type="button" style="--c: #2563eb" data-a="37 99 235" data-t="147 197 253" aria-pressed="false" aria-label="Blue"></button>
+                  <button type="button" data-a="lilac" style="--c: #9333ea" aria-pressed="true"><i aria-hidden="true"></i>Lilac</button>
+                  <button type="button" data-a="orange" style="--c: #c2410c" aria-pressed="false"><i aria-hidden="true"></i>Orange</button>
+                  <button type="button" data-a="green" style="--c: #047857" aria-pressed="false"><i aria-hidden="true"></i>Green</button>
+                  <button type="button" data-a="blue" style="--c: #2563eb" aria-pressed="false"><i aria-hidden="true"></i>Blue</button>
                 </div>
               </fieldset>
               <label>
-                <span style="font-weight: 600; font-size: 0.95rem">Corner radius: <output id="rad-n">0.5rem</output></span>
-                <input type="range" id="rad" min="0" max="1.2" step="0.1" value="0.5" />
+                <span class="mono knob-l">Corner radius · <output id="rad-n">0.5rem</output></span>
+                <input type="range" id="rad" min="0" max="1" step="0.125" value="0.5" />
               </label>
-              <pre id="css" aria-label="The CSS that produces this look"></pre>
+              <div>
+                <span class="mono knob-l">Theme</span>
+                <span class="ta-switch ta-switch--md" data-i="Switch">
+                  <button type="button" role="switch" class="ta-switch-track" aria-checked="false" aria-labelledby="sw-t" data-sw="light"><span class="ta-switch-thumb" aria-hidden="true"></span></button>
+                  <span class="ta-switch-label" id="sw-t">Light theme</span>
+                </span>
+              </div>
+              <div>
+                <span class="mono knob-l">The CSS that produces this look</span>
+                <pre class="code" id="css" data-i="Pre"></pre>
+              </div>
             </div>
-            <div class="stage" id="stage" aria-label="Preview">
-              <div class="msg">
-                <small>Assistant</small>
-                Three orders are late. I can email the customers and open a ticket with the carrier.
-              </div>
-              <div class="tool">
-                <b>carrier.open_ticket</b> <span class="ta-badge">waiting for you</span>
-                <code>{ "orders": [1042, 1047, 1051], "reason": "late" }</code>
-              </div>
-              <div class="row">
-                <button class="ta-btn" type="button">Approve</button>
-                <button class="ta-btn soft" type="button">Edit first</button>
-                <button class="ta-btn outline" type="button">Cancel</button>
-                <label class="ta-switch"><input type="checkbox" role="switch" checked />Ask me every time</label>
-              </div>
+            <div>
+              <span class="mono">Live values · read with getComputedStyle</span>
+              <ul class="sheet" id="sheet"></ul>
             </div>
           </div>
+
           <dl class="facts">
             <div>
+              <span class="mono">F.01</span>
               <dt>Readable by default</dt>
               <dd>Filled controls are derived from your accent and darkened until their text reaches 4.5:1, so a new colour doesn't cost you contrast.</dd>
             </div>
             <div>
+              <span class="mono">F.02</span>
               <dt>Tested like an app</dt>
               <dd>240 tests in a real DOM and on the server, with automated accessibility checks, plus a SvelteKit app that checks hydration.</dd>
             </div>
             <div>
+              <span class="mono">F.03</span>
               <dt>English and Spanish built in</dt>
               <dd>Every label the kit shows comes from one table you can replace or extend for a subtree with <code>setLabels()</code>.</dd>
+            </div>
+            <div>
+              <span class="mono">F.04</span>
+              <dt>44px on touch screens</dt>
+              <dd>Every control the kit draws has a 44px touch target under <code>@media (pointer: coarse)</code>, and a test fails a component that lacks the rule.</dd>
+            </div>
+            <div>
+              <span class="mono">F.05</span>
+              <dt>Renders on the server</dt>
+              <dd>Ids come from <code>$props.id()</code>, nothing touches <code>window</code> on import, and controls with a <code>name</code> submit in a plain form, also without JavaScript.</dd>
             </div>
           </dl>
         </div>
       </section>
 
-      <section class="block" id="install">
+      <!-- ═════════ 03 Kit ═════════ -->
+      <section class="sec" id="kit">
         <div class="wrap">
-          <h2>Install it, or copy what you need</h2>
-          <div class="tabs" role="tablist" aria-label="How to use tallao">
-            <button role="tab" id="t-pkg" aria-controls="p-pkg" aria-selected="true">As a package</button>
-            <button role="tab" id="t-copy" aria-controls="p-copy" aria-selected="false" tabindex="-1">Copy a component</button>
-            <button role="tab" id="t-agent" aria-controls="p-agent" aria-selected="false" tabindex="-1">With my coding agent</button>
-          </div>
-          <div class="panel" role="tabpanel" id="p-pkg" aria-labelledby="t-pkg">
-            <p>It installs from GitHub and builds itself. It isn't on npm yet.</p>
-            <div class="copy">
-              <pre id="c-pkg"><code>pnpm add github:tallao-ui/tallao</code></pre>
-              <button class="btn" type="button" data-copy-from="c-pkg"><span>Copy</span></button>
+          <div class="sec-meta mono"><span>[03] Components</span><span>Six families · one import</span></div>
+          <div class="sec-head">
+            <p class="num" aria-hidden="true">03<span>/04</span></p>
+            <div>
+              <h2 data-i="H2">What's in the kit</h2>
+              <p class="lead">One import, one look. Every component works with a keyboard and a screen reader, and renders on the server.</p>
             </div>
-            <div class="copy" style="margin-top: 0.9rem">
-              <pre id="c-use"><code>&lt;script&gt;
+          </div>
+
+          <div class="fams">
+            <div class="fam">
+              <h3>Generative UI <span>08</span></h3>
+              <p>Show what a model is doing, and let a person decide.</p>
+              <ul class="chips">
+                <li>PromptInput</li>
+                <li><a href="#s-tool">ToolCallCard</a></li>
+                <li><a href="#s-msg">ChatMessage</a></li>
+                <li><a href="#s-steps">Steps</a></li>
+                <li>SuggestionChips</li>
+                <li>CodeBlock</li>
+                <li>Sources</li>
+                <li>UsageMeter</li>
+              </ul>
+            </div>
+            <div class="fam">
+              <h3>Actions and feedback <span>11</span></h3>
+              <p>Buttons, status and loading states, and notifications in an <code>aria-live</code> region.</p>
+              <ul class="chips">
+                <li><a href="#s-button">Button</a></li>
+                <li><a href="#s-badge">Badge</a></li>
+                <li>Spinner</li>
+                <li>Alert</li>
+                <li>Progress</li>
+                <li>Skeleton</li>
+                <li><a href="#s-toast">Toaster</a></li>
+                <li>CopyButton</li>
+                <li><a href="#s-stat">Stat</a></li>
+                <li>Icon</li>
+                <li>Avatar</li>
+              </ul>
+            </div>
+            <div class="fam">
+              <h3>Overlays and menus <span>08</span></h3>
+              <p>Built on the native <code>&lt;dialog&gt;</code> and the Popover API: focus is contained and restored.</p>
+              <ul class="chips">
+                <li><a href="#s-dialog">Dialog</a></li>
+                <li>Sheet</li>
+                <li><a href="#s-dialog">ConfirmDialog</a></li>
+                <li>Popover</li>
+                <li>Tooltip</li>
+                <li>DropdownMenu</li>
+                <li>ContextMenu</li>
+                <li><a href="#s-command">Command</a></li>
+              </ul>
+            </div>
+            <div class="fam">
+              <h3>Forms <span>22</span></h3>
+              <p>Native controls, with <code>name</code> so SvelteKit form actions work without JavaScript.</p>
+              <ul class="chips">
+                <li><a href="#s-field">Input</a></li>
+                <li>Textarea</li>
+                <li>Select</li>
+                <li>Checkbox</li>
+                <li>Label</li>
+                <li><a href="#s-field">Field</a></li>
+                <li>SearchInput</li>
+                <li>NumberInput</li>
+                <li>Slider</li>
+                <li><a href="#s-switch">Switch</a></li>
+                <li>Toggle</li>
+                <li>ToggleGroup</li>
+                <li>RadioGroup</li>
+                <li>Rating</li>
+                <li>InputOTP</li>
+                <li>Combobox</li>
+                <li>KeyValueEditor</li>
+                <li>FileUpload</li>
+                <li>Calendar</li>
+                <li>DatePicker</li>
+                <li>SchemaForm</li>
+                <li>CodeEditor</li>
+              </ul>
+            </div>
+            <div class="fam">
+              <h3>Navigation and layout <span>12</span></h3>
+              <p>The app shell. NavMenu, MegaMenu and BottomNav are <code>&lt;details&gt;</code>-based and work with no hydration.</p>
+              <ul class="chips">
+                <li>Card</li>
+                <li><a href="#s-tabs">Tabs</a></li>
+                <li>Accordion</li>
+                <li>Breadcrumb</li>
+                <li>Pagination</li>
+                <li>Sidebar</li>
+                <li>NavMenu</li>
+                <li>MegaMenu</li>
+                <li>BottomNav</li>
+                <li>SplitPane</li>
+                <li>Carousel</li>
+                <li>ThemeScope</li>
+              </ul>
+            </div>
+            <div class="fam">
+              <h3>Data <span>09</span></h3>
+              <p>Tables with sorting and filters, and charts with a tooltip you can step through with the keyboard and a table with all the data.</p>
+              <ul class="chips">
+                <li>Table</li>
+                <li>DataTable</li>
+                <li><a href="#s-chart">BarChart</a></li>
+                <li>LineChart</li>
+                <li>MonthView</li>
+                <li>CompareSlider</li>
+                <li>SelectionBar</li>
+                <li>DragBoard</li>
+                <li>GameMap</li>
+              </ul>
+            </div>
+          </div>
+          <p class="mono kit-note"><i aria-hidden="true"></i>Has a specimen on this page · GameMap ships in tallao/map and CodeEditor in tallao/code</p>
+        </div>
+      </section>
+
+      <!-- ═════════ 04 Install ═════════ -->
+      <section class="sec" id="install">
+        <div class="wrap">
+          <div class="sec-meta mono"><span>[04] Install</span><span>From GitHub · not on npm yet</span></div>
+          <div class="sec-head">
+            <p class="num" aria-hidden="true">04<span>/04</span></p>
+            <div>
+              <h2 data-i="H2">Install it, or copy what you need</h2>
+            </div>
+          </div>
+
+          <div class="install">
+            <div class="ta-tabs" data-i="Tabs">
+              <div class="ta-tabs-list" role="tablist" aria-label="How to use tallao">
+                <button type="button" role="tab" class="ta-tab" id="t-pkg" aria-controls="p-pkg" aria-selected="true">As a package</button>
+                <button type="button" role="tab" class="ta-tab" id="t-copy" aria-controls="p-copy" aria-selected="false" tabindex="-1">Copy a component</button>
+                <button type="button" role="tab" class="ta-tab" id="t-agent" aria-controls="p-agent" aria-selected="false" tabindex="-1">With my coding agent</button>
+              </div>
+              <div class="ta-tabs-panel panel" role="tabpanel" id="p-pkg" aria-labelledby="t-pkg" tabindex="-1">
+                <p>It installs from GitHub and builds itself. It isn't on npm yet.</p>
+                <div class="copy">
+                  <pre class="code" id="c-pkg"><code>pnpm add github:tallao-ui/tallao</code></pre>
+                  <button class="ta-btn ta-btn--secondary ta-btn--sm" type="button" data-i="Button" data-copy-from="c-pkg"><span>Copy</span></button>
+                </div>
+                <div class="copy">
+                  <pre class="code" id="c-use"><code>&lt;script&gt;
   import "tallao/tokens.css";
   import "tallao/base.css";
   import { Button, Dialog, ToolCallCard } from "tallao";
 &lt;/script&gt;</code></pre>
-              <button class="btn" type="button" data-copy-from="c-use"><span>Copy</span></button>
-            </div>
-          </div>
-          <div class="panel" role="tabpanel" id="p-copy" aria-labelledby="t-copy" hidden>
-            <p>
-              Like shadcn: take <code>src/lib/components/&lt;component&gt;.svelte</code>, the components it imports,
-              <code>src/lib/internal/</code>, <code>src/lib/utils.ts</code> and the two CSS files. The code is then yours to change.
-            </p>
-            <a class="btn" href="https://github.com/tallao-ui/tallao/tree/main/src/lib/components">Browse the components</a>
-          </div>
-          <div class="panel" role="tabpanel" id="p-agent" aria-labelledby="t-agent" hidden>
-            <p>Paste this into Claude Code, Cursor or Codex, in your Svelte project.</p>
-            <div class="copy">
-              <pre id="c-agent"><code>Add tallao to this Svelte 5 project and use it for the UI.
+                  <button class="ta-btn ta-btn--secondary ta-btn--sm" type="button" data-i="Button" data-copy-from="c-use"><span>Copy</span></button>
+                </div>
+              </div>
+              <div class="ta-tabs-panel panel" role="tabpanel" id="p-copy" aria-labelledby="t-copy" tabindex="-1" hidden>
+                <p>
+                  Like shadcn: take <code>src/lib/components/&lt;component&gt;.svelte</code>, the components it imports,
+                  <code>src/lib/internal/</code>, <code>src/lib/utils.ts</code> and the two CSS files. The code is then yours to change.
+                </p>
+                <a class="ta-btn ta-btn--secondary ta-btn--md" data-i="Button" href="https://github.com/tallao-ui/tallao/tree/main/src/lib/components">Browse the components</a>
+              </div>
+              <div class="ta-tabs-panel panel" role="tabpanel" id="p-agent" aria-labelledby="t-agent" tabindex="-1" hidden>
+                <p>Paste this into Claude Code, Cursor or Codex, in your Svelte project.</p>
+                <div class="copy">
+                  <pre class="code" id="c-agent"><code>Add tallao to this Svelte 5 project and use it for the UI.
 
 1. Run: pnpm add github:tallao-ui/tallao
 2. Import "tallao/tokens.css" and "tallao/base.css" once, in the root layout.
@@ -781,7 +2753,9 @@
    buttons, inputs, dialogs and tables. Never invent a prop.
 4. To match my brand, set --ta-accent (and the other --ta-* tokens) in my
    own CSS. Do not edit the kit's files.</code></pre>
-              <button class="btn" type="button" data-copy-from="c-agent"><span>Copy</span></button>
+                  <button class="ta-btn ta-btn--secondary ta-btn--sm" type="button" data-i="Button" data-copy-from="c-agent"><span>Copy</span></button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -790,21 +2764,337 @@
 
     <footer>
       <div class="wrap">
-        <span>tallao is MIT licensed.</span>
-        <a href="https://github.com/tallao-ui/tallao">GitHub</a>
-        <a href="https://github.com/tallao-ui/tallao/blob/main/CHANGELOG.md">Changelog</a>
-        <a href="https://github.com/Kitsuden/kitsuden">Kitsuden</a>
-        <a href="https://github.com/tallao-ui/tallao/issues">Issues</a>
+        <div class="foot-links mono">
+          <span>tallao is MIT licensed.</span>
+          <a href="https://github.com/tallao-ui/tallao">GitHub</a>
+          <a href="https://github.com/tallao-ui/tallao/blob/main/CHANGELOG.md">Changelog</a>
+          <a href="https://github.com/Kitsuden/kitsuden">Kitsuden</a>
+          <a href="https://github.com/tallao-ui/tallao/issues">Issues</a>
+        </div>
+        <div class="wordmark" aria-hidden="true">tallao</div>
       </div>
     </footer>
+
+    <!-- Dialog -->
+    <dialog class="ta-dialog-overlay" id="dlg" aria-labelledby="dlg-t" aria-describedby="dlg-d">
+      <div class="ta-dialog" style="max-width: 28rem" tabindex="-1">
+        <div class="ta-dialog-header">
+          <div>
+            <h2 class="ta-dialog-title" id="dlg-t">Dialog</h2>
+            <p class="ta-dialog-description" id="dlg-d">A native &lt;dialog&gt; opened with showModal().</p>
+          </div>
+          <button type="button" class="ta-dialog-close" data-close aria-label="Close" data-l-aria="close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+          </button>
+        </div>
+        <div class="ta-dialog-body">
+          <p>Focus stays inside, Escape closes it, the page behind does not scroll, and focus goes back to the button that opened it. Press Tab to check.</p>
+          <label class="ta-field">
+            <span class="ta-field-label">Name</span>
+            <input class="ta-input" type="text" name="name" placeholder="Something to tab through" autocomplete="off" />
+          </label>
+        </div>
+        <div class="ta-dialog-footer">
+          <button type="button" class="ta-btn ta-btn--ghost ta-btn--md" data-close data-l="cancel">Cancel</button>
+          <button type="button" class="ta-btn ta-btn--primary ta-btn--md" data-close data-l="close">Close</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- ConfirmDialog -->
+    <dialog class="ta-dialog-overlay" id="cfm" aria-labelledby="cfm-t" aria-describedby="cfm-d">
+      <div class="ta-dialog" style="max-width: 24rem" tabindex="-1">
+        <div class="ta-dialog-header">
+          <div>
+            <h2 class="ta-dialog-title" id="cfm-t">Delete this draft?</h2>
+            <p class="ta-dialog-description" id="cfm-d">This cannot be undone.</p>
+          </div>
+          <button type="button" class="ta-dialog-close" data-close aria-label="Close" data-l-aria="close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+          </button>
+        </div>
+        <div class="ta-dialog-body">The confirm button waits for an async onConfirm and stays open if it fails.</div>
+        <div class="ta-dialog-footer">
+          <button type="button" class="ta-btn ta-btn--ghost ta-btn--md" id="cfm-no" data-close data-l="cancel">Cancel</button>
+          <button type="button" class="ta-btn ta-btn--danger ta-btn--md" id="cfm-yes"><span data-l="confirm">Confirm</span></button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Command -->
+    <dialog class="ta-dialog-overlay" id="cmd" aria-label="Command palette" data-l-aria="commandPalette">
+      <div class="ta-dialog ta-command" style="max-width: 36rem" tabindex="-1">
+        <div class="ta-dialog-body">
+          <div class="ta-command-field">
+            <input
+              type="text"
+              role="combobox"
+              autocomplete="off"
+              spellcheck="false"
+              aria-autocomplete="list"
+              aria-expanded="true"
+              aria-controls="cmd-list"
+              aria-label="Command palette"
+              data-l-aria="commandPalette"
+              placeholder="Search…"
+              data-l-ph="search"
+              class="ta-command-search"
+              id="cmd-in"
+            />
+          </div>
+          <div id="cmd-list" role="listbox" aria-label="Command palette" data-l-aria="commandPalette" class="ta-command-list"></div>
+          <div class="ta-command-status" role="status" id="cmd-status"></div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Toaster -->
+    <section popover="manual" class="ta-toaster" id="toaster" aria-label="Notifications">
+      <ol class="ta-toaster-list" aria-live="polite" id="toasts"></ol>
+    </section>
+
+    <!-- Inspector -->
+    <div id="insp" aria-hidden="true">
+      <i class="g gh"></i><i class="g gh"></i><i class="g gv"></i><i class="g gv"></i>
+      <i class="cross gh"></i><i class="cross gv"></i><i class="pt"></i><i class="xy"></i>
+      <i class="sel"><b></b><b></b><b></b><b></b></i><i class="tag"></i>
+    </div>
 
     <script>
       (() => {
         "use strict";
         const $ = (s, r = document) => r.querySelector(s);
         const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-        const still = matchMedia("(prefers-reduced-motion: reduce)");
+        const root = document.documentElement;
+        const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+        const X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 
+        /* ——— The kit's own texts: src/lib/i18n.ts, `en` and `es` ——— */
+        const LABELS = {
+          en: { close: "Close", cancel: "Cancel", confirm: "Confirm", dismiss: "Dismiss", noResults: "No results", approve: "Approve", reject: "Reject", pending: "Pending", running: "Running…", done: "Done", rejected: "Rejected", failed: "Failed", arguments: "Arguments", result: "Result", search: "Search…", commandPalette: "Command palette", showData: "Show data", hideData: "Hide data", planSteps: "Plan steps", skipped: "Skipped" },
+          es: { close: "Cerrar", cancel: "Cancelar", confirm: "Confirmar", dismiss: "Descartar", noResults: "Sin resultados", approve: "Aprobar", reject: "Rechazar", pending: "Pendiente", running: "Ejecutando…", done: "Ejecutado", rejected: "Rechazado", failed: "Fallido", arguments: "Argumentos", result: "Resultado", search: "Buscar…", commandPalette: "Paleta de órdenes", showData: "Ver datos", hideData: "Ocultar datos", planSteps: "Pasos del plan", skipped: "Saltado" },
+        };
+        const L = (k) => LABELS[st.es ? "es" : "en"][k];
+
+        /* ——— State: what the visitor can flip ——— */
+        const ACCENTS = ["lilac", "orange", "green", "blue"];
+        const st = { light: root.dataset.tallaoTheme === "light", accent: root.dataset.accent, radius: 0.5, es: false, guides: true };
+        try {
+          const r = JSON.parse(localStorage.getItem("tallao-site") || "{}").radius;
+          if (typeof r === "number" && r >= 0 && r <= 1) st.radius = r;
+        } catch (e) {}
+        const TOKENS = ["bg", "surface", "elevated", "border", "muted", "text", "text-dim", "accent", "accent-hover", "accent-2", "success", "warning", "info", "danger"];
+        $("#sheet").innerHTML = TOKENS.map((t) => `<li><i style="background:rgb(var(--ta-${t}))"></i><b>--ta-${t}</b><span></span></li>`).join("");
+
+        function paint() {
+          root.dataset.tallaoTheme = st.light ? "light" : "dark";
+          root.dataset.accent = st.accent;
+          root.style.setProperty("--ta-radius", st.radius + "rem");
+          root.style.setProperty("--ta-radius-sm", st.radius * 0.75 + "rem");
+          root.style.setProperty("--ta-radius-lg", st.radius * 1.5 + "rem");
+          root.classList.toggle("no-guides", !st.guides);
+          for (const b of $$("[data-sw]")) b.setAttribute("aria-checked", String(!!st[b.dataset.sw]));
+          for (const b of $$("#swatches button")) b.setAttribute("aria-pressed", String(b.dataset.a === st.accent));
+          $("#theme-btn").setAttribute("aria-label", `Switch to the ${st.light ? "dark" : "light"} theme`);
+          $("#accent-btn").setAttribute("aria-label", `Accent: ${st.accent}. Switch to the next accent`);
+          $("#rad").value = st.radius;
+          $("#rad-n").textContent = st.radius + "rem";
+          const cs = getComputedStyle(root);
+          const v = (t) => cs.getPropertyValue("--ta-" + t).trim();
+          $$("#sheet span").forEach((s, i) => (s.textContent = v(TOKENS[i])));
+          $("#css").textContent =
+            (st.light ? '<html data-tallao-theme="light">\n\n' : "") +
+            `:root {\n  --ta-accent: ${v("accent")};\n  --ta-accent-hover: ${v("accent-hover")};\n  --ta-radius: ${st.radius}rem;\n}`;
+          for (const el of $$("[data-l]")) el.textContent = L(el.dataset.l);
+          for (const el of $$("[data-l-aria]")) el.setAttribute("aria-label", L(el.dataset.lAria));
+          for (const el of $$("[data-l-ph]")) el.placeholder = L(el.dataset.lPh);
+          try {
+            localStorage.setItem("tallao-site", JSON.stringify({ theme: root.dataset.tallaoTheme, accent: st.accent, radius: st.radius }));
+          } catch (e) {}
+          renderSteps();
+          renderTool();
+          drawChart();
+          schedule();
+        }
+        const set = (k, val) => {
+          st[k] = val;
+          paint();
+        };
+        const nextAccent = () => set("accent", ACCENTS[(ACCENTS.indexOf(st.accent) + 1) % ACCENTS.length]);
+        $("#theme-btn").addEventListener("click", () => set("light", !st.light));
+        $("#accent-btn").addEventListener("click", nextAccent);
+        for (const b of $$("#swatches button")) b.addEventListener("click", () => set("accent", b.dataset.a));
+        $("#rad").addEventListener("input", (e) => set("radius", Number(e.target.value)));
+        /* Switch: the track is the control, its label toggles it too. */
+        for (const sw of $$(".ta-switch")) {
+          const track = $(".ta-switch-track", sw);
+          const flip = () => set(track.dataset.sw, !st[track.dataset.sw]);
+          track.addEventListener("click", flip);
+          $(".ta-switch-label", sw).addEventListener("click", flip);
+        }
+
+        /* ——— Inspector ——— */
+        const insp = $("#insp");
+        const [gT, gB, gL, gR, cH, cV, pt, xy, sel, tag] = insp.children;
+        const dims = (el) => {
+          const r = el.getBoundingClientRect();
+          return `${Math.round(r.width)}×${Math.round(r.height)}`;
+        };
+        const ro = new ResizeObserver((es) => {
+          for (const e of es) mark(e.target);
+          schedule();
+        });
+        function mark(el) {
+          const m = el.querySelector(":scope > .mk");
+          if (m) m.dataset.t = `${el.dataset.i} · ${dims(el)}`;
+        }
+        for (const el of $$("[data-mark]")) {
+          const m = document.createElement("i");
+          m.className = "mk";
+          m.setAttribute("aria-hidden", "true");
+          el.append(m);
+          ro.observe(el);
+        }
+        const props = $$("#props dd");
+        const ink = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+        ink.canvas.width = ink.canvas.height = 1;
+        function describe(el) {
+          const r = el.getBoundingClientRect();
+          const cs = getComputedStyle(el);
+          const bg = cs.backgroundColor;
+          /* Any CSS colour (color-mix gives color(srgb …)) read back as hex from one pixel. */
+          ink.clearRect(0, 0, 1, 1);
+          ink.fillStyle = bg;
+          ink.fillRect(0, 0, 1, 1);
+          const d = ink.getImageData(0, 0, 1, 1).data;
+          const none = !d[3];
+          const hex = "#" + [d[0], d[1], d[2]].map((n) => n.toString(16).padStart(2, "0")).join("") + (d[3] < 255 ? ` · ${Math.round(d[3] / 2.55)}%` : "");
+          const out = [
+            el.dataset.i,
+            `${Math.round(r.width)} × ${Math.round(r.height)}`,
+            `x ${Math.round(r.left + scrollX)} · y ${Math.round(r.top + scrollY)}`,
+            cs.borderTopLeftRadius,
+            `${parseFloat(cs.fontSize)}px / ${cs.fontWeight}`,
+            none ? "none" : hex,
+          ];
+          out.forEach((t, i) => (props[i].textContent = t));
+          if (!none) props[5].insertAdjacentHTML("afterbegin", `<i style="background:${bg}"></i>`);
+        }
+        let cur = null;
+        let byKey = false;
+        let px = -1;
+        let py = -1;
+        let mouse = false;
+        let raf = 0;
+        function schedule() {
+          if (!raf) raf = requestAnimationFrame(draw);
+        }
+        const show = (el, on) => (el.style.display = on ? "block" : "none");
+        function draw() {
+          raf = 0;
+          if (cur && !cur.isConnected) pick(null);
+          const on = st.guides && !$("dialog[open]");
+          const wide = innerWidth >= 760;
+          let r = on && cur ? cur.getBoundingClientRect() : null;
+          if (r && (r.bottom < 0 || r.top > innerHeight)) r = null;
+          if (r) describe(cur);
+          for (const el of [gT, gB, gL, gR]) show(el, r && wide);
+          show(sel, r);
+          show(tag, r);
+          if (r) {
+            const x = Math.round(r.left);
+            const y = Math.round(r.top);
+            const w = Math.round(r.width);
+            const h = Math.round(r.height);
+            sel.style.cssText += `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+            gT.style.top = y + "px";
+            gB.style.top = y + h - 1 + "px";
+            gL.style.left = x + "px";
+            gR.style.left = x + w - 1 + "px";
+            tag.textContent = `${cur.dataset.i} · ${w}×${h}`;
+            const above = y - 24 > 74;
+            tag.style.top = (above ? y - 23 : y + h + 5) + "px";
+            tag.style.left = Math.max(4, Math.min(x - 1, innerWidth - tag.offsetWidth - 4)) + "px";
+          }
+          const cross = on && !r && mouse && wide && !still && px >= 0;
+          for (const el of [cH, cV, pt, xy]) show(el, cross);
+          if (cross) {
+            cH.style.top = py + "px";
+            cV.style.left = px + "px";
+            pt.style.left = px + "px";
+            pt.style.top = py + "px";
+            xy.textContent = `X ${String(px).padStart(4, "0")} · Y ${String(py).padStart(4, "0")}`;
+            xy.style.left = Math.min(px + 12, innerWidth - 130) + "px";
+            xy.style.top = Math.min(py + 12, innerHeight - 24) + "px";
+          }
+        }
+        function pick(el) {
+          if (el === cur) return;
+          cur?.classList.remove("is-sel");
+          cur = el;
+          cur?.classList.add("is-sel");
+          schedule();
+        }
+        const target = (n) => (n instanceof Element ? n.closest("[data-i]") : null);
+        addEventListener("pointermove", (e) => {
+          mouse = e.pointerType === "mouse";
+          px = Math.round(e.clientX);
+          py = Math.round(e.clientY);
+          byKey = false;
+          if (mouse) pick(target(e.target));
+          schedule();
+        });
+        addEventListener("pointerdown", (e) => {
+          if (e.pointerType !== "mouse") pick(target(e.target));
+        });
+        document.addEventListener("pointerleave", () => {
+          px = -1;
+          if (mouse) pick(null);
+        });
+        addEventListener("focusin", (e) => {
+          if (!e.target.matches?.(":focus-visible")) return;
+          byKey = true;
+          pick(target(e.target));
+        });
+        addEventListener(
+          "scroll",
+          () => {
+            /* The page moved under a still pointer: select what is under it now. */
+            if (mouse && !byKey && px >= 0) pick(target(document.elementFromPoint(px, py)));
+            schedule();
+          },
+          { passive: true }
+        );
+        addEventListener("resize", schedule);
+
+        /* ——— Ruler: where you are on the page ——— */
+        const pos = $("#ruler-pos");
+        function ruler() {
+          const max = root.scrollHeight - innerHeight;
+          const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+          pos.textContent = Math.round(p * 100) + "%";
+          pos.style.left = `clamp(1.2rem, ${p * 100}%, calc(100% - 1.2rem))`;
+        }
+        addEventListener("scroll", ruler, { passive: true });
+        addEventListener("resize", ruler);
+        ruler();
+
+        /* ——— Numbered nav: the section on screen ——— */
+        const links = $$(".bar nav a");
+        const spy = new IntersectionObserver(
+          (es) => {
+            for (const e of es) {
+              const a = links.find((l) => l.hash === "#" + e.target.id);
+              if (e.isIntersecting) for (const l of links) l.setAttribute("aria-current", String(l === a));
+              else if (e.boundingClientRect.top > 0 && a === links[0]) a.setAttribute("aria-current", "false");
+            }
+          },
+          { rootMargin: "-45% 0px -50% 0px" }
+        );
+        for (const s of $$("main .sec")) spy.observe(s);
+
+        /* ——— Copy buttons ——— */
         async function copy(text) {
           try {
             await navigator.clipboard.writeText(text);
@@ -812,8 +3102,7 @@
           } catch (e) {
             const ta = document.createElement("textarea");
             ta.value = text;
-            ta.style.position = "fixed";
-            ta.style.opacity = "0";
+            ta.style.cssText = "position:fixed;opacity:0";
             document.body.append(ta);
             ta.select();
             let ok = false;
@@ -834,50 +3123,484 @@
           });
         }
 
-        const tabs = $$('[role="tab"]');
-        const select = (tab, focus) => {
-          for (const t of tabs) {
-            const on = t === tab;
-            t.setAttribute("aria-selected", String(on));
-            t.tabIndex = on ? 0 : -1;
-            $("#" + t.getAttribute("aria-controls")).hidden = !on;
-          }
-          if (focus) tab.focus();
-        };
-        tabs.forEach((t, i) => {
-          t.addEventListener("click", () => select(t, false));
-          t.addEventListener("keydown", (e) => {
-            const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-            if (!d) return;
-            e.preventDefault();
-            select(tabs[(i + d + tabs.length) % tabs.length], true);
+        /* ——— Tabs (APG): arrows, Home and End ——— */
+        for (const list of $$('[role="tablist"]')) {
+          const tabs = $$('[role="tab"]', list);
+          const select = (tab, focus) => {
+            for (const t of tabs) {
+              const on = t === tab;
+              t.setAttribute("aria-selected", String(on));
+              t.tabIndex = on ? 0 : -1;
+              $("#" + t.getAttribute("aria-controls")).hidden = !on;
+            }
+            if (focus) tab.focus();
+          };
+          tabs.forEach((t, i) => {
+            t.addEventListener("click", () => select(t, false));
+            t.addEventListener("keydown", (e) => {
+              const n = tabs.length;
+              const to = e.key === "ArrowRight" ? (i + 1) % n : e.key === "ArrowLeft" ? (i - 1 + n) % n : e.key === "Home" ? 0 : e.key === "End" ? n - 1 : -1;
+              if (to < 0) return;
+              e.preventDefault();
+              select(tabs[to], true);
+            });
           });
-        });
-
-        /* the token playground */
-        const stage = $("#stage");
-        const state = { a: "147 51 234", t: "192 132 252", r: "0.5" };
-        function paint() {
-          stage.style.setProperty("--accent", `rgb(${state.a})`);
-          stage.style.setProperty("--accent-text", `rgb(${state.t})`);
-          stage.style.setProperty("--radius", state.r + "rem");
-          $("#rad-n").textContent = state.r + "rem";
-          $("#css").textContent = `:root {\n  --ta-accent: ${state.a};\n  --ta-accent-hover: ${state.t};\n  --ta-radius: ${state.r}rem;\n}`;
         }
-        for (const b of $$("#swatches button"))
-          b.addEventListener("click", () => {
-            state.a = b.dataset.a;
-            state.t = b.dataset.t;
-            for (const x of $$("#swatches button")) x.setAttribute("aria-pressed", String(x === b));
-            paint();
-          });
-        $("#rad").addEventListener("input", (e) => {
-          state.r = e.target.value;
-          paint();
-        });
-        paint();
 
-        /* the clip: plays while on screen, never under reduced motion */
+        /* ——— Field: the error appears and goes with the value ——— */
+        const email = $("#f-email");
+        const field = email.closest(".ta-field");
+        const err = $("#f-email-e");
+        email.addEventListener("input", () => {
+          const bad = !email.validity.valid;
+          field.classList.toggle("ta-field--error", bad);
+          email.setAttribute("aria-invalid", String(bad));
+          err.hidden = !bad;
+          err.textContent = email.value ? "Enter a complete email address." : "An email address is required.";
+        });
+
+        /* ——— Dialog: native <dialog>, a click on the backdrop closes ——— */
+        function openDialog(d) {
+          root.style.overflow = "hidden";
+          d.showModal();
+          schedule();
+        }
+        for (const d of $$("dialog")) {
+          d.addEventListener("click", (e) => {
+            if (e.target === d && !d.dataset.busy) d.close();
+          });
+          d.addEventListener("cancel", (e) => {
+            if (d.dataset.busy) e.preventDefault();
+          });
+          d.addEventListener("close", () => {
+            if (!$("dialog[open]")) root.style.overflow = "";
+            schedule();
+          });
+          for (const b of $$("[data-close]", d)) b.addEventListener("click", () => d.close());
+        }
+        for (const b of $$("[data-open]")) b.addEventListener("click", () => openDialog($("#" + b.dataset.open)));
+        /* ConfirmDialog: an async onConfirm; the button shows it is working. */
+        const cfm = $("#cfm");
+        const yes = $("#cfm-yes");
+        yes.addEventListener("click", () => {
+          cfm.dataset.busy = "1";
+          yes.disabled = $("#cfm-no").disabled = true;
+          yes.setAttribute("aria-busy", "true");
+          yes.insertAdjacentHTML("afterbegin", '<span class="ta-btn-spinner" aria-hidden="true"></span>');
+          setTimeout(() => {
+            delete cfm.dataset.busy;
+            yes.disabled = $("#cfm-no").disabled = false;
+            yes.removeAttribute("aria-busy");
+            $(".ta-btn-spinner", yes).remove();
+            cfm.close();
+            toast("Draft deleted", { action: { label: "Undo", onClick: () => toast("Draft restored", { variant: "success" }) } });
+          }, 800);
+        });
+
+        /* ——— Toaster: an aria-live list in the top layer; the countdown pauses on hover or focus ——— */
+        const toaster = $("#toaster");
+        const toasts = $("#toasts");
+        function toast(message, { variant = "default", description, action, duration = 5000 } = {}) {
+          const li = document.createElement("li");
+          li.className = `ta-toast ta-toast--${variant}`;
+          li.innerHTML =
+            `<div class="ta-toast-body"><p class="ta-toast-message">${esc(message)}</p>${description ? `<p class="ta-toast-detail">${esc(description)}</p>` : ""}</div>` +
+            (action ? `<button type="button" class="ta-toast-action">${esc(action.label)}</button>` : "") +
+            `<button type="button" class="ta-toast-close" aria-label="${L("dismiss")}">${X}</button>`;
+          let timer = 0;
+          const dismiss = () => {
+            clearTimeout(timer);
+            li.remove();
+            if (!toasts.children.length) toaster.hidePopover?.();
+          };
+          const start = () => (timer = setTimeout(dismiss, duration));
+          const pause = () => clearTimeout(timer);
+          li.addEventListener("pointerenter", pause);
+          li.addEventListener("pointerleave", start);
+          li.addEventListener("focusin", pause);
+          li.addEventListener("focusout", start);
+          $(".ta-toast-close", li).addEventListener("click", dismiss);
+          $(".ta-toast-action", li)?.addEventListener("click", () => {
+            action.onClick();
+            dismiss();
+          });
+          toasts.append(li);
+          /* Re-entering the top layer puts it above a dialog that opened meanwhile. */
+          if (toaster.showPopover) {
+            if (toaster.matches(":popover-open")) toaster.hidePopover();
+            toaster.showPopover();
+          }
+          start();
+        }
+        $("#toast-fire").addEventListener("click", () => toast("Saved", { variant: "success", description: 'toast.success("Saved")' }));
+        $("#toast-x").addEventListener("click", () => {
+          const spec = $("#toast-spec");
+          spec.hidden = true;
+          toast("Specimen dismissed", { action: { label: "Undo", onClick: () => (spec.hidden = false) } });
+        });
+
+        /* ——— The run: ChatMessage streams, Steps advance, ToolCallCard waits for a person ——— */
+        const TEXT = "Three orders are late. I can email the customers and open a ticket with the carrier.";
+        const ARGS = JSON.stringify({ orders: [1042, 1047, 1051], reason: "late", message: "Orders 1042, 1047 and 1051 are past their delivery date." }, null, 2);
+        const ICON = {
+          done: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+          skipped: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="m14 6 6 6-6 6"/></svg>',
+          running: '<span class="ta-spinner-ring"></span>',
+          pending: '<span class="ta-steps-dot"></span>',
+        };
+        const run = {
+          steps: [
+            { title: "Find the late orders", description: "Orders past their delivery date", status: "done" },
+            { title: "Draft the customer emails", status: "done" },
+            { title: "Open a ticket with the carrier", description: "Needs your approval", status: "running" },
+          ],
+          tool: "pending",
+          open: false,
+          id: 0,
+        };
+        const msg = $("#s-msg");
+        const body = $("#msg-body");
+        function renderSteps() {
+          $("#steps").innerHTML = run.steps
+            .map(
+              (s, i) =>
+                `<li class="ta-steps-step ta-steps-step--${s.status}"${s.status === "running" ? ' aria-current="step"' : ""}>` +
+                `<span class="ta-steps-icon" aria-hidden="true">${ICON[s.status]}</span>` +
+                `<span class="ta-steps-body"><span class="ta-steps-title">${s.title}</span>${s.description ? `<span class="ta-steps-description">${s.description}</span>` : ""}</span>` +
+                `<span class="ta-steps-status">${L(s.status)}</span>` +
+                (i < run.steps.length - 1 ? '<span class="ta-steps-connector" aria-hidden="true"></span>' : "") +
+                "</li>"
+            )
+            .join("");
+        }
+        const BADGE = { pending: ["warning", "pending"], executing: ["info", "running"], executed: ["success", "done"], rejected: ["default", "rejected"] };
+        function renderTool() {
+          const card = $("#s-tool");
+          const hadFocus = card.contains(document.activeElement);
+          const [variant, key] = BADGE[run.tool] || BADGE.pending;
+          for (const n of [...card.childNodes]) if (!n.classList?.contains("mk")) n.remove();
+          card.className = `ta-toolcall ta-toolcall--${run.tool}` + (card === cur ? " is-sel" : "");
+          card.hidden = run.tool === "hidden";
+          card.insertAdjacentHTML(
+            "afterbegin",
+            `<div class="ta-toolcall-header"><span class="ta-toolcall-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>` +
+              `<span class="ta-toolcall-name">carrier.open_ticket</span><span class="ta-badge ta-badge--${variant} ta-badge--sm" data-i="Badge">${L(key)}</span></div>` +
+              `<div class="ta-toolcall-block"><button type="button" class="ta-toolcall-collapsible" aria-expanded="${run.open}">${L("arguments")} <span class="ta-toolcall-more">${run.open ? "▾" : "▸"}</span></button>` +
+              `<pre class="ta-toolcall-json${run.open ? "" : " ta-toolcall-json--collapsed"}">${esc(ARGS)}</pre></div>` +
+              (run.tool === "executed" ? `<div class="ta-toolcall-block"><span class="ta-toolcall-label">${L("result")}</span><p class="ta-toolcall-result">Ticket opened for 3 orders.</p></div>` : "") +
+              (run.tool === "pending"
+                ? `<div class="ta-toolcall-actions"><button type="button" class="ta-btn ta-btn--ghost ta-btn--sm" data-i="Button" data-act="reject">${L("reject")}</button><button type="button" class="ta-btn ta-btn--primary ta-btn--sm" data-i="Button" data-act="approve">${L("approve")}</button></div>`
+                : "")
+          );
+          if (hadFocus) (card.querySelector("[data-act=approve]") || card).focus({ preventScroll: true });
+        }
+        $("#s-tool").addEventListener("click", (e) => {
+          const b = e.target.closest("button");
+          if (!b) return;
+          if (b.classList.contains("ta-toolcall-collapsible")) {
+            run.open = !run.open;
+            renderTool();
+            $("#s-tool .ta-toolcall-collapsible").focus({ preventScroll: true });
+          } else if (b.dataset.act === "approve") {
+            const id = run.id;
+            run.tool = "executing";
+            run.steps[2].description = "";
+            renderTool();
+            renderSteps();
+            setTimeout(
+              () => {
+                if (id !== run.id) return;
+                run.tool = "executed";
+                run.steps[2].status = "done";
+                renderTool();
+                renderSteps();
+                toast("carrier.open_ticket ran", { variant: "success", description: "You approved it." });
+              },
+              still ? 0 : 1300
+            );
+          } else if (b.dataset.act === "reject") {
+            run.tool = "rejected";
+            run.steps[2].status = "skipped";
+            run.steps[2].description = "";
+            renderTool();
+            renderSteps();
+          }
+        });
+        function play() {
+          const id = ++run.id;
+          const at = (ms, fn) => setTimeout(() => id === run.id && fn(), ms);
+          const stepTo = (...s) => {
+            s.forEach((v, i) => (run.steps[i].status = v));
+            renderSteps();
+          };
+          run.steps[2].description = "Needs your approval";
+          run.open = false;
+          if (still) {
+            body.textContent = TEXT;
+            msg.removeAttribute("aria-busy");
+            run.tool = "pending";
+            stepTo("done", "done", "running");
+            return renderTool();
+          }
+          run.tool = "hidden";
+          renderTool();
+          stepTo("running", "pending", "pending");
+          msg.setAttribute("aria-busy", "true");
+          body.innerHTML = '<span class="ta-chatmsg-typing" role="status" aria-label="Writing…"><span></span><span></span><span></span></span>';
+          const words = TEXT.split(" ");
+          words.forEach((_, i) =>
+            at(900 + i * 70, () => {
+              body.textContent = words.slice(0, i + 1).join(" ");
+              if (i === 4) stepTo("done", "running", "pending");
+              if (i === words.length - 1) {
+                msg.removeAttribute("aria-busy");
+                at(500, () => {
+                  stepTo("done", "done", "running");
+                  run.tool = "pending";
+                  renderTool();
+                });
+              }
+            })
+          );
+        }
+        $("#replay").addEventListener("click", play);
+        if (still) play();
+        else {
+          const io = new IntersectionObserver(
+            ([e]) => {
+              if (!e.isIntersecting) return;
+              io.disconnect();
+              /* Someone already working in it (a jump from the palette) keeps the finished state. */
+              if (!$(".chat").contains(document.activeElement)) play();
+            },
+            { threshold: 0.3 }
+          );
+          io.observe($(".chat"));
+        }
+
+        /* ——— BarChart: a slider over the categories; ← → step through the data ——— */
+        const DATA = [
+          ["Feedback", "Actions and feedback", 11],
+          ["Forms", "Forms", 22],
+          ["Overlays", "Overlays and menus", 8],
+          ["Layout", "Navigation and layout", 12],
+          ["Data", "Data", 9],
+          ["Gen UI", "Generative UI", 8],
+        ];
+        const canvas = $("#chart");
+        const H = 220;
+        const M = { top: 12, right: 8, bottom: 26, left: 32 };
+        let active = null;
+        function drawChart() {
+          const W = canvas.clientWidth;
+          if (!W) return;
+          const pw = W - M.left - M.right;
+          const band = pw / DATA.length;
+          const bw = Math.min(56, band * 0.62);
+          const yOf = (v) => M.top + (H - M.top - M.bottom) * (1 - v / 25);
+          const step = band < 58 ? 2 : 1;
+          let s = `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" class="ta-chart-svg" aria-hidden="true">`;
+          for (const t of [0, 5, 10, 15, 20, 25])
+            s += `<line x1="${M.left}" x2="${M.left + pw}" y1="${yOf(t)}" y2="${yOf(t)}" class="${t ? "ta-chart-grid" : "ta-chart-base"}"/><text x="${M.left - 8}" y="${yOf(t)}" class="ta-chart-axis" text-anchor="end" dominant-baseline="middle">${t}</text>`;
+          DATA.forEach(([short, , v], i) => {
+            const x = M.left + band * i + (band - bw) / 2;
+            const y0 = yOf(0);
+            const y = yOf(v);
+            const r = Math.min(4, y0 - y, bw / 2);
+            s += `<g class="ta-chart-group${active === i ? " ta-chart-group--active" : ""}"><path d="M${x},${y0}V${y + r}Q${x},${y} ${x + r},${y}H${x + bw - r}Q${x + bw},${y} ${x + bw},${y + r}V${y0}Z" fill="rgb(var(--ta-series-1))"/>`;
+            if (i % step === 0) s += `<text x="${M.left + band * i + band / 2}" y="${H - 8}" class="ta-chart-axis" text-anchor="middle">${short}</text>`;
+            s += "</g>";
+          });
+          s += "</svg>";
+          if (active != null) {
+            const left = Math.min(W - 160, Math.max(0, M.left + band * active + band / 2 - 80));
+            s += `<div class="ta-chart-tooltip" style="left:${left}px" aria-hidden="true"><span class="ta-chart-tooltip-x">${DATA[active][1]}</span><span class="ta-chart-tooltip-row"><span class="ta-chart-key"></span><strong>${DATA[active][2]}</strong><span>Components</span></span></div>`;
+          }
+          canvas.innerHTML = s;
+          canvas.setAttribute("aria-valuenow", active ?? 0);
+          canvas.setAttribute("aria-valuetext", active == null ? "Components per family" : `${DATA[active][1]}: ${DATA[active][2]} components`);
+          const t = $("#chart-toggle");
+          t.textContent = L(t.getAttribute("aria-expanded") === "true" ? "hideData" : "showData");
+        }
+        const setActive = (i) => {
+          if (i === active) return;
+          active = i;
+          drawChart();
+        };
+        canvas.addEventListener("keydown", (e) => {
+          const n = DATA.length - 1;
+          const i = active ?? 0;
+          const to = e.key === "ArrowRight" ? Math.min(n, i + 1) : e.key === "ArrowLeft" ? Math.max(0, i - 1) : e.key === "Home" ? 0 : e.key === "End" ? n : -1;
+          if (to < 0) return;
+          e.preventDefault();
+          setActive(to);
+        });
+        canvas.addEventListener("focus", () => setActive(active ?? 0));
+        canvas.addEventListener("blur", () => setActive(null));
+        canvas.addEventListener("pointermove", (e) => {
+          const r = canvas.getBoundingClientRect();
+          const band = (r.width - M.left - M.right) / DATA.length;
+          const i = Math.floor((e.clientX - r.left - M.left) / band);
+          setActive(i >= 0 && i < DATA.length ? i : null);
+        });
+        canvas.addEventListener("pointerleave", () => document.activeElement !== canvas && setActive(null));
+        new ResizeObserver(drawChart).observe(canvas);
+        $("#chart-toggle").addEventListener("click", (e) => {
+          const open = e.currentTarget.getAttribute("aria-expanded") !== "true";
+          e.currentTarget.setAttribute("aria-expanded", String(open));
+          const box = $("#chart-table");
+          box.hidden = !open;
+          box.innerHTML =
+            '<table class="ta-table"><caption class="sr">Components per family</caption><thead><tr><th scope="col">Family</th><th scope="col" class="ta-chart-num">Components</th></tr></thead><tbody>' +
+            DATA.map(([, name, v]) => `<tr><td>${name}</td><td class="ta-chart-num">${v}</td></tr>`).join("") +
+            "</tbody></table>";
+          drawChart();
+        });
+
+        /* ——— Command: Ctrl+K / ⌘K, a combobox over a listbox (aria-activedescendant) ——— */
+        const cmd = $("#cmd");
+        const input = $("#cmd-in");
+        const list = $("#cmd-list");
+        const go = (sel, block) => () => {
+          const el = $(sel);
+          el.scrollIntoView({ block, behavior: still ? "auto" : "smooth" });
+          if (!el.matches("a, button, input, [tabindex]")) el.tabIndex = -1;
+          el.focus({ preventScroll: true });
+          byKey = true;
+          if (el.dataset.i) pick(el);
+        };
+        const spec = (label, description, id, keywords) => ({ group: "Specimens", label, description, run: go(id, "center"), keywords });
+        const ITEMS = [
+          { group: "Sections", label: "Top", badge: "00", run: go("#top", "start") },
+          { group: "Sections", label: "Specimens", badge: "01", run: go("#specimens", "start") },
+          { group: "Sections", label: "Tokens", badge: "02", run: go("#tokens", "start"), keywords: "theme accent radius" },
+          { group: "Sections", label: "Components", badge: "03", run: go("#kit", "start"), keywords: "kit list families" },
+          { group: "Sections", label: "Install", badge: "04", run: go("#install", "start"), keywords: "pnpm copy agent prompt" },
+          spec("ChatMessage", "A message in a conversation, with a typing state", "#s-msg", "chat stream"),
+          spec("Steps", "An agent's plan, step by step", "#s-steps", "plan"),
+          spec("ToolCallCard", "A tool call with approve / reject", "#s-tool", "approval agent"),
+          spec("Button", "7 variants × 4 sizes", "#s-button"),
+          spec("Field and Input", "Label + control + error", "#s-field", "form email"),
+          spec("Switch", "role=\"switch\", for settings that apply immediately", "#s-switch", "toggle"),
+          spec("Badge", "9 variants × 2 sizes", "#s-badge", "status"),
+          spec("Tabs", "Arrows, Home and End", "#s-tabs"),
+          spec("Dialog and ConfirmDialog", "Native <dialog> with showModal()", "#s-dialog", "modal overlay"),
+          spec("Toaster", "Short-lived notifications", "#s-toast", "toast"),
+          spec("Stat", "Figure + label", "#s-stat"),
+          spec("BarChart", "Keyboard tooltip and a data table", "#s-chart", "chart data"),
+          { group: "Inspector", label: "Switch theme", description: "Dark or light", run: () => set("light", !st.light), keywords: "dark light" },
+          { group: "Inspector", label: "Next accent", description: "Lilac, orange, green, blue", run: nextAccent, keywords: "colour color" },
+          { group: "Inspector", label: "Toggle the guides", run: () => set("guides", !st.guides), keywords: "inspector marks" },
+          { group: "Inspector", label: "Toggle Spanish labels", description: "setLabels(es)", run: () => set("es", !st.es), keywords: "español i18n language" },
+          { group: "Links", label: "GitHub", description: "github.com/tallao-ui/tallao", href: "https://github.com/tallao-ui/tallao" },
+          { group: "Links", label: "Changelog", href: "https://github.com/tallao-ui/tallao/blob/main/CHANGELOG.md" },
+        ];
+        const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+        let visible = [];
+        let act = 0;
+        function renderCmd() {
+          const q = norm(input.value.trim());
+          visible = ITEMS.filter((it) => !q || norm([it.label, it.description || "", it.keywords || ""].join(" ")).includes(q));
+          act = Math.min(act, Math.max(0, visible.length - 1));
+          let html = "";
+          let group;
+          visible.forEach((it, i) => {
+            if (it.group !== group) {
+              html += (group ? "</div>" : "") + `<div role="group" aria-labelledby="cmd-g-${i}"><div class="ta-command-group" id="cmd-g-${i}" role="presentation">${it.group}</div>`;
+              group = it.group;
+            }
+            const tagName = it.href ? "a" : "div";
+            html +=
+              `<${tagName}${it.href ? ` href="${it.href}"` : ""} id="cmd-op-${i}" data-index="${i}" role="option" tabindex="-1" aria-selected="${i === act}" class="ta-command-item${i === act ? " ta-command-item--active" : ""}">` +
+              `<span class="ta-command-text">${it.description ? `<span class="ta-command-title">${esc(it.label)}</span><span class="ta-command-desc">${esc(it.description)}</span>` : esc(it.label)}</span>` +
+              (it.badge ? `<span class="ta-command-badge">${it.badge}</span>` : "") +
+              `</${tagName}>`;
+          });
+          list.innerHTML = html + (group ? "</div>" : "");
+          list.hidden = !visible.length;
+          input.setAttribute("aria-expanded", String(!!visible.length));
+          if (visible.length) input.setAttribute("aria-activedescendant", "cmd-op-" + act);
+          else input.removeAttribute("aria-activedescendant");
+          $("#cmd-status").innerHTML = visible.length ? "" : `<p class="ta-command-empty">${L("noResults")}</p>`;
+          $(`[data-index="${act}"]`, list)?.scrollIntoView({ block: "nearest" });
+        }
+        function runItem(it) {
+          if (!it) return;
+          cmd.close();
+          /* After the dialog has given the focus back, so a jump can move it. */
+          if (it.run) setTimeout(it.run, 0);
+        }
+        function togglePalette() {
+          if (cmd.open) return cmd.close();
+          for (const d of $$("dialog[open]")) d.close();
+          input.value = "";
+          act = 0;
+          renderCmd();
+          openDialog(cmd);
+          input.focus();
+        }
+        input.addEventListener("input", () => {
+          act = 0;
+          renderCmd();
+        });
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            e.preventDefault();
+            if (!visible.length) return;
+            act = (act + (e.key === "ArrowDown" ? 1 : -1) + visible.length) % visible.length;
+            renderCmd();
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            const it = visible[act];
+            if (it?.href) $(`[data-index="${act}"]`, list).click();
+            else runItem(it);
+          }
+        });
+        list.addEventListener("mousedown", (e) => e.preventDefault());
+        list.addEventListener("pointermove", (e) => {
+          const el = e.target.closest("[data-index]");
+          if (!el || +el.dataset.index === act) return;
+          $(".ta-command-item--active", list)?.classList.remove("ta-command-item--active");
+          $(`[aria-selected="true"]`, list)?.setAttribute("aria-selected", "false");
+          act = +el.dataset.index;
+          el.classList.add("ta-command-item--active");
+          el.setAttribute("aria-selected", "true");
+          input.setAttribute("aria-activedescendant", el.id);
+        });
+        list.addEventListener("click", (e) => {
+          const el = e.target.closest("[data-index]");
+          if (el) runItem(visible[+el.dataset.index]);
+        });
+        addEventListener("keydown", (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+            e.preventDefault();
+            togglePalette();
+          }
+        });
+        for (const b of $$("#cmd-btn, #menu-btn, [data-palette]")) b.addEventListener("click", togglePalette);
+        if (/Mac|iPhone|iPad/.test(navigator.platform)) for (const k of $$("#cmd-kbd, kbd.k")) k.textContent = "⌘K";
+
+        /* ——— The headline's second line arrives word by word ——— */
+        const sub = $("#h1-sub");
+        const words = sub.textContent.trim().split(" ");
+        const t0 = performance.now();
+        for (const n of [...sub.childNodes]) if (!n.classList?.contains("mk")) sub.removeChild(n);
+        words.forEach((w, i) => {
+          const s = document.createElement("span");
+          s.className = "w";
+          s.textContent = w;
+          sub.append(s, i < words.length - 1 ? " " : "");
+          if (still) s.classList.add("in");
+          else setTimeout(() => s.classList.add("in"), 350 + i * 140);
+        });
+        const caret = document.createElement("span");
+        caret.className = "caret";
+        sub.append(caret);
+        const legend = () => ($("#h1-legend").lastChild.textContent = ` H1.stream · ${words.length} words · ${still ? "shown at once: reduced motion" : `streamed in ${Math.round(performance.now() - t0)} ms`}`);
+        if (still) legend();
+        else setTimeout(legend, 350 + words.length * 140 + 400);
+
+        /* ——— The clip: plays while on screen, never under reduced motion ——— */
         const box = $(".clip");
         const video = $("video", box);
         const btn = $(".clip-toggle", box);
@@ -885,7 +3608,7 @@
           btn.textContent = video.paused ? "Play" : "Pause";
           btn.setAttribute("aria-pressed", String(video.paused));
         };
-        if (still.matches) {
+        if (still) {
           video.removeAttribute("autoplay");
           video.pause();
         }
@@ -897,12 +3620,16 @@
         video.addEventListener("pause", sync);
         new IntersectionObserver(
           ([e]) => {
-            if (still.matches || btn.dataset.user) return;
+            if (still || btn.dataset.user) return;
             e.isIntersecting ? video.play().catch(() => {}) : video.pause();
           },
           { threshold: 0.25 }
         ).observe(box);
         sync();
+
+        describe($("[data-copy]"));
+        paint();
+        document.fonts?.ready.then(() => $$("[data-mark]").forEach(mark));
       })();
     </script>
   </body>

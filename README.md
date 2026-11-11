@@ -94,7 +94,18 @@ Requires Svelte 5.29 or later.
 | MegaMenu | a wide header menu: a featured tile (art, title, one line and a call to action) next to columns of grouped links with an icon, label and one-line description, and an optional footer link; same contract as NavMenu (native `<details>`, works with no JavaScript, opens on click or tap, never on hover), a list of links rather than an ARIA `menu` |
 | BottomNav | a mobile tab bar fixed to the bottom, above the safe area: up to 5 links with icon and visible label, the current one marked, badges, an optional raised central `action`; `hideAbove` keeps desktop untouched; works with no JavaScript |
 | SplitPane | two panes with an accessible separator (APG "window splitter" pattern): arrows, Home/End, Enter collapses |
-| BarChart · LineChart | column and line charts with the kit's series colours: a legend with two or more series, a tooltip on hover **or when stepping through with the keyboard**, a table with all the data |
+| BarChart · LineChart | bar and line charts with the kit's series colours: a legend with two or more series, a tooltip on hover **or when stepping through with the keyboard**, a table with all the data, a labelled empty state. BarChart: grouped or `stacked`, columns or `orientation="horizontal"`. LineChart: `area`, `stacked` areas, `domain` for a scale that does not start at zero. `hideTitle` inside a ChartCard |
+| DonutChart | parts of a whole as a ring, or a pie with `innerRadius={0}`: the total in the centre, a legend with every label, value and percentage in text, the slices past `maxSlices` grouped into "Other" |
+| ScatterChart | two measures against each other, one point per item; a colour **and a shape** per `group`, reference lines (`xRef`, `yRef`), optional point labels, arrows step through the points, a table with all the data |
+| Heatmap | a matrix shaded by value, as a real `<table>` with row and column headers and the value printed in every cell; scrolls sideways in a focusable region with the row headers fixed; a scale under it |
+| Funnel | steps of a sequence as an ordered list: value, share of the first step and share of the previous one in text, bars centred or left-aligned |
+| BarList | a ranking ("top 10"): label, bar and value per row, numbered with `ranked`, links with `href`, `limit` |
+| Sparkline | a trend the size of a word (line, area or columns), an image named with the trend in words |
+| KpiCard | a headline figure: value and unit, the change with its direction (▲ ▼) and its meaning (`goodWhen="down"` when falling is good; good and bad differ by shape and are spelled out for screen readers), an optional sparkline and progress to a `target` |
+| Gauge | a value inside a range as a half dial or a ring (`role="meter"`), with an optional `target` tick |
+| BigNumber · IconArray · Timeline · ComparisonBar | infographic pieces: a headline figure that counts up when it scrolls into view (the server renders the final value; no count under reduced motion), a unit chart ("7 of 10", filled against hollow marks), dated events with `<time>`, and two values against each other on one split bar |
+| DashboardGrid · DashboardItem · ChartCard | a dashboard layout that answers to its container's width (4 → 2 → 1 columns, `span` per item), and the frame of a chart: title, description, `toolbar` snippet, note and source |
+| ChartLegend | the legend the charts draw, on its own: mark, label and value per entry |
 | SchemaForm | a form built from a JSON Schema: validates on submit, focuses the first error, works as the `<form>` of a SvelteKit action |
 | Popover | a non-modal panel anchored to its trigger |
 | Tooltip | a description on hover or focus; Escape hides it (WCAG 1.4.13) |

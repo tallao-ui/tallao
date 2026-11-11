@@ -1,25 +1,23 @@
 <!--
   tallao — LineChart
   Change over time: one line per series (2px), end point with a ring in the surface
-  color, optional very soft fill (`area`), a single scale.
+  color, optional very soft fill (`area`), a single scale. `stacked` piles the series up
+  as an area chart (each band is one series, the top edge is the total).
   - With two or more series there is a legend; with one, the title says what is measured.
   - A vertical line follows the pointer and snaps to the nearest point; the tooltip
-    lists every series at that point. With focus on the chart, ← → do the same
-    and a screen reader hears it.
+    lists every series at that point. With focus on the chart, ← → (Home / End / Escape)
+    do the same and a screen reader hears it.
   - "Show data" opens the table with every value.
-  `data` is rows in order: `{ day: "Nov 1", visits: 120 }`, `x="day"`.
+  - The scale starts at zero; `domain={[45, 55]}` narrows it for values that live far from
+    zero (a win rate). With no rows it shows a labelled empty state (`emptyText`).
+  `data` is rows in order, plain JSON: `[{ "day": "Nov 1", "visits": 120 }, …]`, with
+  `x="day"` and `series=[{ "key": "visits", "label": "Visits" }]`. A value that is not a
+  finite number is a gap in the line (it counts as zero when stacked).
 -->
 <script lang="ts">
+  import ChartFigure from "$lib/internal/chart-figure.svelte";
   import { useLabels } from "$lib/i18n";
-  import { cn } from "$lib/utils";
-  import { compactNumber, niceScale, seriesColor, valueOf, type ChartSeries } from "$lib/internal/chart";
-
-  import Table from "./table.svelte";
-  import TableBody from "./table-body.svelte";
-  import TableCell from "./table-cell.svelte";
-  import TableHead from "./table-head.svelte";
-  import TableHeader from "./table-header.svelte";
-  import TableRow from "./table-row.svelte";
+  import { compactNumber, niceDomain, niceScale, seriesColor, valueOf, type ChartSeries } from "$lib/internal/chart";
 
   const L = useLabels();
   const {
@@ -27,11 +25,16 @@
     x,
     series,
     title,
+    hideTitle = false,
     xLabel,
     height = 240,
     area = false,
+    stacked = false,
+    domain,
     locale,
     format = (n: number) => compactNumber(n, locale),
+    emptyText = L.noData,
+    totalLabel = L.total,
     showDataLabel = L.showData,
     hideDataLabel = L.hideData,
     class: className = "",
@@ -40,39 +43,57 @@
     x: string;
     series: ChartSeries[];
     title: string;
+    /** Keeps the title for screen readers only (inside a ChartCard that already shows it). */
+    hideTitle?: boolean;
     xLabel?: string;
     height?: number;
     /** Fill under the line, at 10% of the series color. */
     area?: boolean;
+    /** Stacked areas: every series is drawn on top of the previous ones. */
+    stacked?: boolean;
+    /** Lower and upper bound of the scale, instead of zero to the maximum (ignored when stacked). */
+    domain?: [number, number];
     locale?: string;
     format?: (n: number) => string;
+    /** Text shown when `data` is empty. */
+    emptyText?: string;
+    /** Name of the sum of the series when stacked, in the tooltip and the table. */
+    totalLabel?: string;
     showDataLabel?: string;
     hideDataLabel?: string;
     class?: string;
   } = $props();
 
-  const id = $props.id();
   let chartWidth = $state(640);
   let active = $state<number | null>(null);
-  let showTable = $state(false);
   let canvas: HTMLElement | undefined = $state();
 
   const M = { top: 12, right: 12, bottom: 26, left: 48 };
   const plotWidth = $derived(Math.max(40, chartWidth - M.left - M.right));
   const plotHeight = $derived(Math.max(40, height - M.top - M.bottom));
+  const piles = $derived(stacked && series.length > 1);
 
-  const maxValue = $derived(Math.max(0, ...data.flatMap((d) => series.map((s) => valueOf(d, s.key) ?? 0))));
-  const scale = $derived(niceScale(maxValue));
-  const yOf = (v: number) => M.top + plotHeight - (v / scale.max) * plotHeight;
+  const totalOf = (row: Record<string, unknown>) => series.reduce((sum, s) => sum + Math.max(0, valueOf(row, s.key) ?? 0), 0);
+  /** What is drawn for series `si` in row `i`: its value, or the running sum when stacked. */
+  function drawn(i: number, si: number): number | null {
+    if (!piles) return valueOf(data[i], series[si].key);
+    let sum = 0;
+    for (let k = 0; k <= si; k++) sum += Math.max(0, valueOf(data[i], series[k].key) ?? 0);
+    return sum;
+  }
+
+  const maxValue = $derived(Math.max(0, ...data.map((d) => (piles ? totalOf(d) : Math.max(0, ...series.map((s) => valueOf(d, s.key) ?? 0))))));
+  const scale = $derived(domain && !piles ? niceDomain(domain[0], domain[1]) : { min: 0, ...niceScale(maxValue) });
+  const yOf = (v: number) => M.top + plotHeight - ((Math.min(scale.max, Math.max(scale.min, v)) - scale.min) / (scale.max - scale.min)) * plotHeight;
   const xOf = (i: number) => M.left + (data.length <= 1 ? plotWidth / 2 : (i / (data.length - 1)) * plotWidth);
   const labelStep = $derived(Math.max(1, Math.ceil(data.length / Math.max(1, Math.floor(plotWidth / 64)))));
 
   /** A series' path; a gap (missing value) breaks the line instead of inventing a zero. */
-  function linePath(key: string) {
+  function linePath(si: number) {
     let d = "";
     let open = false;
-    data.forEach((row, i) => {
-      const v = valueOf(row, key);
+    data.forEach((_, i) => {
+      const v = drawn(i, si);
       if (v == null) {
         open = false;
         return;
@@ -83,15 +104,21 @@
     return d;
   }
 
-  function areaPath(key: string) {
-    const points = data.map((f, i) => [i, valueOf(f, key)] as const).filter(([, v]) => v != null) as [number, number][];
+  /** The fill: down to the base line, or down to the series below when stacked. */
+  function areaPath(si: number) {
+    const points = data.map((_, i) => [i, drawn(i, si)] as const).filter(([, v]) => v != null) as [number, number][];
     if (points.length < 2) return "";
-    const base = yOf(0);
-    return `M${xOf(points[0][0])},${base}${points.map(([i, v]) => `L${xOf(i)},${yOf(v)}`).join("")}L${xOf(points.at(-1)![0])},${base}Z`;
+    const top = points.map(([i, v], n) => `${n ? "L" : "M"}${xOf(i)},${yOf(v)}`).join("");
+    if (piles && si > 0) {
+      const below = [...points].reverse().map(([i]) => `L${xOf(i)},${yOf(drawn(i, si - 1) ?? 0)}`).join("");
+      return `${top}${below}Z`;
+    }
+    const base = yOf(scale.min);
+    return `${top}L${xOf(points.at(-1)![0])},${base}L${xOf(points[0][0])},${base}Z`;
   }
 
-  const lastIndex = (key: string) => {
-    for (let i = data.length - 1; i >= 0; i--) if (valueOf(data[i], key) != null) return i;
+  const lastIndex = (si: number) => {
+    for (let i = data.length - 1; i >= 0; i--) if (drawn(i, si) != null) return i;
     return -1;
   };
 
@@ -103,12 +130,18 @@
     active = Math.min(data.length - 1, Math.max(0, Math.round(t * (data.length - 1))));
   }
 
+  const category = (i: number) => String(data[i]?.[x] ?? "");
   const fmt = (v: number | null) => (v == null ? "—" : format(v));
   const readout = $derived(
-    active == null
+    active == null || !data[active]
       ? ""
-      : `${String(data[active]?.[x] ?? "")}: ${series.map((s) => `${s.label} ${fmt(valueOf(data[active!], s.key))}`).join(", ")}`
+      : `${category(active)}: ${series.map((s) => `${s.label} ${fmt(valueOf(data[active!], s.key))}`).join(", ")}${piles ? `, ${totalLabel} ${format(totalOf(data[active]))}` : ""}`
   );
+
+  const table = $derived({
+    columns: [{ label: xLabel ?? x }, ...series.map((s) => ({ label: s.label, numeric: true })), ...(piles ? [{ label: totalLabel, numeric: true }] : [])],
+    rows: data.map((row, i) => [category(i), ...series.map((s) => fmt(valueOf(row, s.key))), ...(piles ? [format(totalOf(row))] : [])]),
+  });
 
   function onKey(e: KeyboardEvent) {
     if (!data.length) return;
@@ -122,16 +155,18 @@
   }
 </script>
 
-<figure class={cn("ta-chart", className)}>
-  <figcaption class="ta-chart-title">{title}</figcaption>
-  {#if series.length > 1}
-    <ul class="ta-chart-legend">
-      {#each series as s, i (s.key)}
-        <li><span class="ta-chart-line" style:background={seriesColor(i)} aria-hidden="true"></span>{s.label}</li>
-      {/each}
-    </ul>
-  {/if}
-
+<ChartFigure
+  {title}
+  {hideTitle}
+  legend={series.length > 1 ? series.map((s) => ({ label: s.label })) : undefined}
+  legendMarker={piles ? "square" : "line"}
+  empty={data.length === 0}
+  {emptyText}
+  {table}
+  {showDataLabel}
+  {hideDataLabel}
+  class={className}
+>
   <!-- A slider over the points: ← → step through the data and aria-valuetext reads it. -->
   <div
     class="ta-chart-canvas"
@@ -152,30 +187,30 @@
   >
     <svg width="100%" {height} viewBox={`0 0 ${chartWidth} ${height}`} class="ta-chart-svg" aria-hidden="true">
       {#each scale.ticks as t (t)}
-        <line x1={M.left} x2={M.left + plotWidth} y1={yOf(t)} y2={yOf(t)} class={t === 0 ? "ta-chart-base" : "ta-chart-grid"} />
+        <line x1={M.left} x2={M.left + plotWidth} y1={yOf(t)} y2={yOf(t)} class={t === scale.min ? "ta-chart-base" : "ta-chart-grid"} />
         <text x={M.left - 8} y={yOf(t)} class="ta-chart-axis" text-anchor="end" dominant-baseline="middle">{format(t)}</text>
       {/each}
-      {#each data as d, i (i)}
+      {#each data as _, i (i)}
         {#if i % labelStep === 0 || i === data.length - 1}
-          <text x={xOf(i)} y={height - 8} class="ta-chart-axis" text-anchor="middle">{String(d[x] ?? "")}</text>
+          <text x={xOf(i)} y={height - 8} class="ta-chart-axis" text-anchor={i === data.length - 1 && data.length > 1 ? "end" : "middle"}>{category(i)}</text>
         {/if}
       {/each}
 
-      {#if area}
-        {#each series as s, si (s.key)}<path d={areaPath(s.key)} fill={seriesColor(si)} fill-opacity="0.1" />{/each}
+      {#if area || piles}
+        {#each series as s, si (s.key)}<path d={areaPath(si)} fill={seriesColor(si)} fill-opacity={piles ? 0.35 : 0.1} />{/each}
       {/if}
       {#each series as s, si (s.key)}
-        <path d={linePath(s.key)} fill="none" stroke={seriesColor(si)} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-        {@const u = lastIndex(s.key)}
+        <path d={linePath(si)} fill="none" stroke={seriesColor(si)} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+        {@const u = lastIndex(si)}
         {#if u >= 0}
-          <circle cx={xOf(u)} cy={yOf(valueOf(data[u], s.key)!)} r="4" fill={seriesColor(si)} class="ta-chart-dot" />
+          <circle cx={xOf(u)} cy={yOf(drawn(u, si)!)} r="4" fill={seriesColor(si)} class="ta-chart-dot" />
         {/if}
       {/each}
 
-      {#if active != null}
+      {#if active != null && data[active]}
         <line x1={xOf(active)} x2={xOf(active)} y1={M.top} y2={M.top + plotHeight} class="ta-chart-crosshair" />
         {#each series as s, si (s.key)}
-          {@const v = valueOf(data[active], s.key)}
+          {@const v = drawn(active, si)}
           {#if v != null}<circle cx={xOf(active)} cy={yOf(v)} r="4" fill={seriesColor(si)} class="ta-chart-dot" />{/if}
         {/each}
       {/if}
@@ -184,103 +219,33 @@
     {#if active != null && data[active]}
       <div
         class="ta-chart-tooltip"
-        style:left={`${Math.min(chartWidth - 160, Math.max(0, xOf(active) + (xOf(active) > chartWidth / 2 ? -172 : 12)))}px`}
+        style:left={`${Math.min(Math.max(0, chartWidth - 160), Math.max(0, xOf(active) + (xOf(active) > chartWidth / 2 ? -172 : 12)))}px`}
         aria-hidden="true"
       >
-        <span class="ta-chart-tooltip-x">{String(data[active][x] ?? "")}</span>
+        <span class="ta-chart-tooltip-x">{category(active)}</span>
         {#each series as s, si (s.key)}
           <span class="ta-chart-tooltip-row">
-            <span class="ta-chart-line" style:background={seriesColor(si)}></span>
+            <span class={piles ? "ta-chart-key" : "ta-chart-line"} style:background={seriesColor(si)}></span>
             <strong>{fmt(valueOf(data[active], s.key))}</strong>
             <span>{s.label}</span>
           </span>
         {/each}
+        {#if piles}
+          <span class="ta-chart-tooltip-row ta-chart-tooltip-total">
+            <strong>{format(totalOf(data[active]))}</strong>
+            <span>{totalLabel}</span>
+          </span>
+        {/if}
       </div>
     {/if}
   </div>
-
-  <button type="button" class="ta-chart-data" aria-expanded={showTable} aria-controls={`${id}-table`} onclick={() => (showTable = !showTable)}>
-    {showTable ? hideDataLabel : showDataLabel}
-  </button>
-  {#if showTable}
-    <div id={`${id}-table`}>
-      <Table>
-        <caption class="ta-hidden">{title}</caption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{xLabel ?? x}</TableHead>
-            {#each series as s (s.key)}<TableHead style="text-align: right">{s.label}</TableHead>{/each}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {#each data as d, i (i)}
-            <TableRow>
-              <TableCell>{String(d[x] ?? "")}</TableCell>
-              {#each series as s (s.key)}<TableCell class="ta-chart-num">{fmt(valueOf(d, s.key))}</TableCell>{/each}
-            </TableRow>
-          {/each}
-        </TableBody>
-      </Table>
-    </div>
-  {/if}
-</figure>
+</ChartFigure>
 
 <style>
-  .ta-chart { margin: 0; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; color: rgb(var(--ta-text)); }
-  .ta-chart-title { font-size: 0.875rem; font-weight: 600; }
+  .ta-chart-tooltip-total { margin-top: 0.125rem; padding-top: 0.25rem; border-top: 1px solid rgb(var(--ta-border)); }
 
-  .ta-chart-legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 0; padding: 0; list-style: none; font-size: 0.75rem; color: rgb(var(--ta-text-dim)); }
-  .ta-chart-legend li { display: inline-flex; align-items: center; gap: 0.375rem; }
-  .ta-chart-line { width: 0.875rem; height: 2px; border-radius: 1px; flex-shrink: 0; }
-
-  .ta-chart-canvas { position: relative; width: 100%; outline: none; border-radius: var(--ta-radius-sm); touch-action: pan-y; }
-  .ta-chart-canvas:focus-visible { box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.6); }
-  .ta-chart-svg { display: block; overflow: visible; }
-
-  .ta-chart-grid { stroke: rgb(var(--ta-border)); stroke-width: 1; shape-rendering: crispEdges; }
-  .ta-chart-base { stroke: rgb(var(--ta-muted)); stroke-width: 1; shape-rendering: crispEdges; }
-  .ta-chart-axis { fill: rgb(var(--ta-text-dim)); font-size: 11px; font-variant-numeric: tabular-nums; }
-  .ta-chart-crosshair { stroke: rgb(var(--ta-muted)); stroke-width: 1; }
-  /* Ring in the surface color: the point stays readable even where it crosses another line. */
-  .ta-chart-dot { stroke: rgb(var(--ta-surface)); stroke-width: 2; }
-
-  .ta-chart-tooltip {
-    position: absolute;
-    top: 0;
-    width: 160px;
-    padding: 0.5rem 0.625rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    color: rgb(var(--ta-text));
-    background: rgb(var(--ta-surface));
-    border: 1px solid rgb(var(--ta-border));
-    border-radius: var(--ta-radius);
-    box-shadow: 0 8px 24px -8px rgb(0 0 0 / 0.5);
-    pointer-events: none;
-  }
-  .ta-chart-tooltip-x { color: rgb(var(--ta-text-dim)); }
-  .ta-chart-tooltip-row { display: flex; align-items: center; gap: 0.375rem; }
-  .ta-chart-tooltip-row strong { font-variant-numeric: tabular-nums; }
-  .ta-chart-tooltip-row span:last-child { color: rgb(var(--ta-text-dim)); }
-
-  .ta-chart-data {
-    align-self: flex-start;
-    padding: 0.125rem 0;
-    font: inherit;
-    font-size: 0.75rem;
-    color: rgb(var(--ta-accent-hover));
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  .ta-chart-data:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 2px; }
-  .ta-chart :global(.ta-chart-num) { text-align: right; font-variant-numeric: tabular-nums; }
-
-  .ta-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   @media (pointer: coarse) {
-    .ta-chart-data { position: relative; }
-    .ta-chart-data::after { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); transform: translate(-50%, -50%); }
+    /* The chart itself is the control: tall enough to step through with a finger. */
+    .ta-chart-canvas { min-height: 2.75rem; }
   }
 </style>

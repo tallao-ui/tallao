@@ -1,26 +1,24 @@
 <!--
   tallao — BarChart
-  Columns per category, one or several grouped series. Follows the kit's brand rules:
-  columns 24px wide at most, rounded data end (4px) and a straight base, 2px of space
-  between neighbouring columns, thin and discreet grid and axes, a single scale.
+  Bars per category, one or several series: grouped side by side or `stacked`, as columns
+  or as horizontal bars (`orientation="horizontal"`, for long category names and phones).
+  Follows the kit's brand rules: bars 24px thick at most (32px stacked), rounded data end
+  (4px) and a straight base, 2px between neighbours, thin and discreet grid and axes, a
+  single scale that starts at zero.
   - With two or more series there is a legend; with one, the title says what is measured.
-  - Hovering or stepping with ← → (the chart takes focus) shows the category with
-    each series' value; a screen reader hears it.
+  - Hovering or stepping with the arrows (the chart takes focus; Home / End / Escape too)
+    shows the category with each series' value, and the total when stacked; a screen
+    reader hears it.
   - "Show data" opens the table with every value: nothing is conveyed by color alone.
-  `data` is rows: `{ month: "Jan", visits: 120, signups: 30 }`, `x="month"`,
-  `series=[{ key: "visits", label: "Visits" }, …]`.
+  - With no rows it shows a labelled empty state (`emptyText`) instead of an empty axis.
+  `data` is rows, plain JSON: `[{ "month": "Jan", "visits": 120, "signups": 30 }, …]`,
+  with `x="month"` and `series=[{ "key": "visits", "label": "Visits" }, …]`. A value that
+  is not a finite number counts as missing.
 -->
 <script lang="ts">
+  import ChartFigure from "$lib/internal/chart-figure.svelte";
   import { useLabels } from "$lib/i18n";
-  import { cn } from "$lib/utils";
   import { compactNumber, niceScale, seriesColor, valueOf, type ChartSeries } from "$lib/internal/chart";
-
-  import Table from "./table.svelte";
-  import TableBody from "./table-body.svelte";
-  import TableCell from "./table-cell.svelte";
-  import TableHead from "./table-head.svelte";
-  import TableHeader from "./table-header.svelte";
-  import TableRow from "./table-row.svelte";
 
   const L = useLabels();
   const {
@@ -28,11 +26,16 @@
     x,
     series,
     title,
+    hideTitle = false,
     /** Header of the first column of the data table (defaults to `x`). */
     xLabel,
-    height = 240,
+    height,
+    orientation = "vertical",
+    stacked = false,
     locale,
     format = (n: number) => compactNumber(n, locale),
+    emptyText = L.noData,
+    totalLabel = L.total,
     showDataLabel = L.showData,
     hideDataLabel = L.hideData,
     class: className = "",
@@ -42,86 +45,148 @@
     series: ChartSeries[];
     /** What the chart shows: its accessible name and the figure caption. */
     title: string;
+    /** Keeps the title for screen readers only (inside a ChartCard that already shows it). */
+    hideTitle?: boolean;
     xLabel?: string;
+    /** Height in px: 240 for columns; horizontal bars grow with the number of rows. */
     height?: number;
+    /** Columns (`vertical`) or bars that run left to right (`horizontal`). */
+    orientation?: "vertical" | "horizontal";
+    /** One bar per category with the series piled up, instead of side by side. */
+    stacked?: boolean;
     locale?: string;
     /** Format of the values on axes, tooltip and table. */
     format?: (n: number) => string;
+    /** Text shown when `data` is empty. */
+    emptyText?: string;
+    /** Name of the sum of a stacked bar, in the tooltip and the table. */
+    totalLabel?: string;
     showDataLabel?: string;
     hideDataLabel?: string;
     class?: string;
   } = $props();
 
-  const id = $props.id();
   let chartWidth = $state(640);
   let active = $state<number | null>(null);
-  let showTable = $state(false);
   let canvas: HTMLElement | undefined = $state();
 
-  const M = { top: 12, right: 8, bottom: 26, left: 48 };
+  const horizontal = $derived(orientation === "horizontal");
+  const category = (i: number) => String(data[i]?.[x] ?? "");
+  const piles = $derived(stacked && series.length > 1);
+  const lanes = $derived(piles ? 1 : Math.max(1, series.length));
+
+  // Horizontal bars keep room on the left for the category names (40% of the width at most).
+  const labelWidth = $derived(Math.min(chartWidth * 0.4, Math.max(40, Math.max(0, ...data.map((_, i) => category(i).length)) * 6.5 + 14)));
+  const M = $derived(horizontal ? { top: 6, right: 20, bottom: 24, left: labelWidth } : { top: 12, right: 8, bottom: 26, left: 48 });
+  const fullHeight = $derived(height ?? (horizontal ? data.length * Math.max(30, lanes * 16 + 12) + 30 : 240));
   const plotWidth = $derived(Math.max(40, chartWidth - M.left - M.right));
-  const plotHeight = $derived(Math.max(40, height - M.top - M.bottom));
+  const plotHeight = $derived(Math.max(40, fullHeight - M.top - M.bottom));
 
-  const maxValue = $derived(Math.max(0, ...data.flatMap((d) => series.map((s) => valueOf(d, s.key) ?? 0))));
-  const scale = $derived(niceScale(maxValue));
-  const yOf = (v: number) => M.top + plotHeight - (v / scale.max) * plotHeight;
+  const positive = (row: Record<string, unknown>, key: string) => Math.max(0, valueOf(row, key) ?? 0);
+  const totalOf = (row: Record<string, unknown>) => series.reduce((sum, s) => sum + positive(row, s.key), 0);
+  const maxValue = $derived(Math.max(0, ...data.map((d) => (piles ? totalOf(d) : Math.max(0, ...series.map((s) => positive(d, s.key)))))));
+  const scale = $derived(niceScale(maxValue, horizontal ? Math.max(2, Math.min(4, Math.floor(plotWidth / 70))) : 4));
 
-  const band = $derived(plotWidth / Math.max(1, data.length));
-  const barWidth = $derived(Math.min(24, Math.max(2, (band * 0.7 - (series.length - 1) * 2) / series.length)));
-  const groupWidth = $derived(series.length * barWidth + (series.length - 1) * 2);
+  /** Position of a value along the value axis (y for columns, x for horizontal bars). */
+  const at = (v: number) => (horizontal ? M.left + (v / scale.max) * plotWidth : M.top + plotHeight - (v / scale.max) * plotHeight);
+
+  const band = $derived((horizontal ? plotHeight : plotWidth) / Math.max(1, data.length));
+  const thick = $derived(Math.min(piles ? 32 : horizontal ? 20 : 24, Math.max(2, (band * 0.7 - (lanes - 1) * 2) / lanes)));
+  const groupSize = $derived(lanes * thick + (lanes - 1) * 2);
+  const bandStart = (i: number) => (horizontal ? M.top : M.left) + band * i;
   // With many categories, only one in every `labelStep` is labelled on the axis.
-  const labelStep = $derived(Math.max(1, Math.ceil(data.length / Math.max(1, Math.floor(plotWidth / 56)))));
+  const labelStep = $derived(horizontal ? 1 : Math.max(1, Math.ceil(data.length / Math.max(1, Math.floor(plotWidth / 56)))));
+  const maxChars = $derived(Math.max(3, Math.floor((labelWidth - 14) / 6.5)));
+  const clip = (text: string) => (text.length > maxChars ? `${text.slice(0, maxChars - 1)}…` : text);
 
-  /** Column with a rounded data end and a straight base. */
-  function column(xi: number, v: number) {
-    const y0 = yOf(0);
-    const y = yOf(v);
-    const barHeight = y0 - y;
-    if (barHeight <= 0) return "";
-    const r = Math.min(4, barHeight, barWidth / 2);
-    return `M${xi},${y0}V${y + r}Q${xi},${y} ${xi + r},${y}H${xi + barWidth - r}Q${xi + barWidth},${y} ${xi + barWidth},${y + r}V${y0}Z`;
+  /** A bar from value `from` to `to`, `lane` px into its band; `cap` rounds the data end. */
+  function bar(lane: number, from: number, to: number, cap: boolean) {
+    const a = at(from);
+    const b = at(to);
+    const length = Math.abs(b - a);
+    if (length <= 0) return "";
+    const r = cap ? Math.min(4, length, thick / 2) : 0;
+    // 1px off the start of a piled segment keeps the neighbours apart.
+    const gap = from > 0 ? Math.min(1, length / 2) : 0;
+    if (horizontal) {
+      const s = a + gap;
+      return `M${s},${lane}H${b - r}Q${b},${lane} ${b},${lane + r}V${lane + thick - r}Q${b},${lane + thick} ${b - r},${lane + thick}H${s}Z`;
+    }
+    const s = a - gap;
+    return `M${lane},${s}V${b + r}Q${lane},${b} ${lane + r},${b}H${lane + thick - r}Q${lane + thick},${b} ${lane + thick},${b + r}V${s}Z`;
   }
 
-  const xOf = (i: number, s: number) => M.left + band * i + (band - groupWidth) / 2 + s * (barWidth + 2);
-
-  const readout = $derived(
-    active == null
-      ? ""
-      : `${String(data[active]?.[x] ?? "")}: ${series.map((s) => `${s.label} ${fmt(valueOf(data[active!], s.key))}`).join(", ")}`
+  const bars = $derived(
+    data.map((row, i) => {
+      const start = bandStart(i) + (band - groupSize) / 2;
+      let pile = 0;
+      let last = -1;
+      series.forEach((s, si) => {
+        if (positive(row, s.key) > 0) last = si;
+      });
+      return series.map((s, si) => {
+        const v = positive(row, s.key);
+        const from = piles ? pile : 0;
+        pile += v;
+        return v > 0 ? bar(start + (piles ? 0 : si * (thick + 2)), from, from + v, !piles || si === last) : "";
+      });
+    })
   );
-  const fmt = (v: number | null) => (v == null ? "—" : format(v));
 
-  // The area that responds to the pointer is each category's whole band, not just the column.
+  const fmt = (v: number | null) => (v == null ? "—" : format(v));
+  const readout = $derived(
+    active == null || !data[active]
+      ? ""
+      : `${category(active)}: ${series.map((s) => `${s.label} ${fmt(valueOf(data[active!], s.key))}`).join(", ")}${piles ? `, ${totalLabel} ${format(totalOf(data[active]))}` : ""}`
+  );
+
+  const table = $derived({
+    columns: [{ label: xLabel ?? x }, ...series.map((s) => ({ label: s.label, numeric: true })), ...(piles ? [{ label: totalLabel, numeric: true }] : [])],
+    rows: data.map((row, i) => [category(i), ...series.map((s) => fmt(valueOf(row, s.key))), ...(piles ? [format(totalOf(row))] : [])]),
+  });
+
+  // The area that responds to the pointer is each category's whole band, not just the bar.
   function onMove(e: PointerEvent) {
     if (!canvas || data.length === 0) return;
     const r = canvas.getBoundingClientRect();
-    const px = ((e.clientX - r.left) / r.width) * chartWidth - M.left;
-    active = Math.min(data.length - 1, Math.max(0, Math.floor(px / band)));
+    const p = horizontal ? ((e.clientY - r.top) / r.height) * fullHeight - M.top : ((e.clientX - r.left) / r.width) * chartWidth - M.left;
+    active = Math.min(data.length - 1, Math.max(0, Math.floor(p / band)));
   }
 
   function onKey(e: KeyboardEvent) {
     if (!data.length) return;
-    if (e.key === "ArrowRight") active = active == null ? 0 : Math.min(data.length - 1, active + 1);
-    else if (e.key === "ArrowLeft") active = active == null ? data.length - 1 : Math.max(0, active - 1);
+    const next = horizontal ? ["ArrowDown", "ArrowRight"] : ["ArrowRight", "ArrowUp"];
+    const previous = horizontal ? ["ArrowUp", "ArrowLeft"] : ["ArrowLeft", "ArrowDown"];
+    if (next.includes(e.key)) active = active == null ? 0 : Math.min(data.length - 1, active + 1);
+    else if (previous.includes(e.key)) active = active == null ? data.length - 1 : Math.max(0, active - 1);
     else if (e.key === "Home") active = 0;
     else if (e.key === "End") active = data.length - 1;
     else if (e.key === "Escape") active = null;
     else return;
     e.preventDefault();
   }
+
+  const tooltipLeft = $derived(
+    active == null
+      ? 0
+      : horizontal
+        ? Math.min(Math.max(0, chartWidth - 160), Math.max(0, M.left + plotWidth / 2 - 80))
+        : Math.min(Math.max(0, chartWidth - 160), Math.max(0, bandStart(active) + band / 2 - 80))
+  );
 </script>
 
-<figure class={cn("ta-chart", className)}>
-  <figcaption class="ta-chart-title">{title}</figcaption>
-  {#if series.length > 1}
-    <ul class="ta-chart-legend">
-      {#each series as s, i (s.key)}
-        <li><span class="ta-chart-swatch" style:background={seriesColor(i)} aria-hidden="true"></span>{s.label}</li>
-      {/each}
-    </ul>
-  {/if}
-
-  <!-- A slider over the categories: ← → step through the data and aria-valuetext reads it. -->
+<ChartFigure
+  {title}
+  {hideTitle}
+  legend={series.length > 1 ? series.map((s) => ({ label: s.label })) : undefined}
+  empty={data.length === 0}
+  {emptyText}
+  {table}
+  {showDataLabel}
+  {hideDataLabel}
+  class={className}
+>
+  <!-- A slider over the categories: the arrows step through the data and aria-valuetext reads it. -->
   <div
     class="ta-chart-canvas"
     bind:clientWidth={chartWidth}
@@ -129,6 +194,7 @@
     role="slider"
     tabindex="0"
     aria-label={title}
+    aria-orientation={horizontal ? "vertical" : "horizontal"}
     aria-valuemin={0}
     aria-valuemax={Math.max(0, data.length - 1)}
     aria-valuenow={active ?? 0}
@@ -139,20 +205,29 @@
     onpointermove={onMove}
     onpointerleave={() => (active = null)}
   >
-    <svg width="100%" {height} viewBox={`0 0 ${chartWidth} ${height}`} class="ta-chart-svg" aria-hidden="true">
+    <svg width="100%" height={fullHeight} viewBox={`0 0 ${chartWidth} ${fullHeight}`} class="ta-chart-svg" aria-hidden="true">
       {#each scale.ticks as t (t)}
-        <line x1={M.left} x2={M.left + plotWidth} y1={yOf(t)} y2={yOf(t)} class={t === 0 ? "ta-chart-base" : "ta-chart-grid"} />
-        <text x={M.left - 8} y={yOf(t)} class="ta-chart-axis" text-anchor="end" dominant-baseline="middle">{format(t)}</text>
+        {#if horizontal}
+          <line x1={at(t)} x2={at(t)} y1={M.top} y2={M.top + plotHeight} class={t === 0 ? "ta-chart-base" : "ta-chart-grid"} />
+          <text x={at(t)} y={fullHeight - 8} class="ta-chart-axis" text-anchor="middle">{format(t)}</text>
+        {:else}
+          <line x1={M.left} x2={M.left + plotWidth} y1={at(t)} y2={at(t)} class={t === 0 ? "ta-chart-base" : "ta-chart-grid"} />
+          <text x={M.left - 8} y={at(t)} class="ta-chart-axis" text-anchor="end" dominant-baseline="middle">{format(t)}</text>
+        {/if}
       {/each}
 
-      {#each data as d, i (i)}
+      {#each data as _, i (i)}
         <g class="ta-chart-group" class:ta-chart-group--active={active === i}>
+          {#if horizontal && active === i}
+            <rect x={M.left} y={bandStart(i)} width={plotWidth} height={band} class="ta-chart-band" />
+          {/if}
           {#each series as s, si (s.key)}
-            {@const v = valueOf(d, s.key)}
-            {#if v != null && v > 0}<path d={column(xOf(i, si), v)} fill={seriesColor(si)} />{/if}
+            {#if bars[i]?.[si]}<path d={bars[i][si]} fill={seriesColor(si)} />{/if}
           {/each}
-          {#if i % labelStep === 0}
-            <text x={M.left + band * i + band / 2} y={height - 8} class="ta-chart-axis" text-anchor="middle">{String(d[x] ?? "")}</text>
+          {#if horizontal}
+            <text x={M.left - 8} y={bandStart(i) + band / 2} class="ta-chart-axis ta-chart-category" text-anchor="end" dominant-baseline="middle">{clip(category(i))}</text>
+          {:else if i % labelStep === 0}
+            <text x={bandStart(i) + band / 2} y={fullHeight - 8} class="ta-chart-axis" text-anchor="middle">{category(i)}</text>
           {/if}
         </g>
       {/each}
@@ -161,10 +236,11 @@
     {#if active != null && data[active]}
       <div
         class="ta-chart-tooltip"
-        style:left={`${Math.min(chartWidth - 160, Math.max(0, M.left + band * active + band / 2 - 80))}px`}
+        style:left={`${tooltipLeft}px`}
+        style:top={horizontal ? `${Math.max(0, bandStart(active) + band)}px` : undefined}
         aria-hidden="true"
       >
-        <span class="ta-chart-tooltip-x">{String(data[active][x] ?? "")}</span>
+        <span class="ta-chart-tooltip-x">{category(active)}</span>
         {#each series as s, si (s.key)}
           <span class="ta-chart-tooltip-row">
             <span class="ta-chart-key" style:background={seriesColor(si)}></span>
@@ -172,92 +248,25 @@
             <span>{s.label}</span>
           </span>
         {/each}
+        {#if piles}
+          <span class="ta-chart-tooltip-row ta-chart-tooltip-total">
+            <strong>{format(totalOf(data[active]))}</strong>
+            <span>{totalLabel}</span>
+          </span>
+        {/if}
       </div>
     {/if}
   </div>
-
-  <button type="button" class="ta-chart-data" aria-expanded={showTable} aria-controls={`${id}-table`} onclick={() => (showTable = !showTable)}>
-    {showTable ? hideDataLabel : showDataLabel}
-  </button>
-  {#if showTable}
-    <div id={`${id}-table`}>
-      <Table>
-        <caption class="ta-hidden">{title}</caption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{xLabel ?? x}</TableHead>
-            {#each series as s (s.key)}<TableHead style="text-align: right">{s.label}</TableHead>{/each}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {#each data as d, i (i)}
-            <TableRow>
-              <TableCell>{String(d[x] ?? "")}</TableCell>
-              {#each series as s (s.key)}<TableCell class="ta-chart-num">{fmt(valueOf(d, s.key))}</TableCell>{/each}
-            </TableRow>
-          {/each}
-        </TableBody>
-      </Table>
-    </div>
-  {/if}
-</figure>
+</ChartFigure>
 
 <style>
-  .ta-chart { margin: 0; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; color: rgb(var(--ta-text)); }
-  .ta-chart-title { font-size: 0.875rem; font-weight: 600; }
-
-  .ta-chart-legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 0; padding: 0; list-style: none; font-size: 0.75rem; color: rgb(var(--ta-text-dim)); }
-  .ta-chart-legend li { display: inline-flex; align-items: center; gap: 0.375rem; }
-  .ta-chart-swatch { width: 0.625rem; height: 0.625rem; border-radius: 2px; }
-
-  .ta-chart-canvas { position: relative; width: 100%; outline: none; border-radius: var(--ta-radius-sm); }
-  .ta-chart-canvas:focus-visible { box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.6); }
-  .ta-chart-svg { display: block; overflow: visible; }
-
-  .ta-chart-grid { stroke: rgb(var(--ta-border)); stroke-width: 1; shape-rendering: crispEdges; }
-  .ta-chart-base { stroke: rgb(var(--ta-muted)); stroke-width: 1; shape-rendering: crispEdges; }
-  .ta-chart-axis { fill: rgb(var(--ta-text-dim)); font-size: 11px; font-variant-numeric: tabular-nums; }
-
   .ta-chart-group--active path { filter: brightness(1.15); }
+  .ta-chart-band { fill: rgb(var(--ta-elevated) / 0.6); }
+  .ta-chart-category { fill: rgb(var(--ta-text)); font-size: 12px; }
+  .ta-chart-tooltip-total { margin-top: 0.125rem; padding-top: 0.25rem; border-top: 1px solid rgb(var(--ta-border)); }
 
-  .ta-chart-tooltip {
-    position: absolute;
-    top: 0;
-    width: 160px;
-    padding: 0.5rem 0.625rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    color: rgb(var(--ta-text));
-    background: rgb(var(--ta-surface));
-    border: 1px solid rgb(var(--ta-border));
-    border-radius: var(--ta-radius);
-    box-shadow: 0 8px 24px -8px rgb(0 0 0 / 0.5);
-    pointer-events: none;
-  }
-  .ta-chart-tooltip-x { color: rgb(var(--ta-text-dim)); }
-  .ta-chart-tooltip-row { display: flex; align-items: center; gap: 0.375rem; }
-  .ta-chart-tooltip-row strong { font-variant-numeric: tabular-nums; }
-  .ta-chart-tooltip-row span:last-child { color: rgb(var(--ta-text-dim)); }
-  .ta-chart-key { width: 0.625rem; height: 0.625rem; border-radius: 2px; flex-shrink: 0; }
-
-  .ta-chart-data {
-    align-self: flex-start;
-    padding: 0.125rem 0;
-    font: inherit;
-    font-size: 0.75rem;
-    color: rgb(var(--ta-accent-hover));
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  .ta-chart-data:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 2px; }
-  .ta-chart :global(.ta-chart-num) { text-align: right; font-variant-numeric: tabular-nums; }
-
-  .ta-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   @media (pointer: coarse) {
-    .ta-chart-data { position: relative; }
-    .ta-chart-data::after { content: ""; position: absolute; top: 50%; left: 50%; width: max(100%, 2.75rem); height: max(100%, 2.75rem); transform: translate(-50%, -50%); }
+    /* The chart itself is the control: tall enough to step through with a finger. */
+    .ta-chart-canvas { min-height: 2.75rem; }
   }
 </style>

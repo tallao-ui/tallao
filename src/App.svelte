@@ -84,6 +84,22 @@
     Sources,
     UsageMeter,
     InputOTP,
+    BarList,
+    BigNumber,
+    ChartCard,
+    ChartLegend,
+    ComparisonBar,
+    DashboardGrid,
+    DashboardItem,
+    DonutChart,
+    Funnel,
+    Gauge,
+    Heatmap,
+    IconArray,
+    KpiCard,
+    ScatterChart,
+    Sparkline,
+    Timeline,
     type DataFilters,
     type JsonSchema,
   } from "$lib/components";
@@ -313,6 +329,87 @@
     { id: "e4", date: "2026-11-27", title: "End of season" },
   ];
   let chosenEvent = $state("none");
+
+  // ——— BI: a patch report for an invented hero game (every figure is made up) ———
+  const percent = (n: number) => `${n.toLocaleString("en", { maximumFractionDigits: 1 })}%`;
+  const signedPoints = (n: number) => `${n > 0 ? "+" : ""}${n.toLocaleString("en", { maximumFractionDigits: 1 })} pp`;
+  const biRoles = [
+    { key: "duelist", label: "Duelist" },
+    { key: "vanguard", label: "Vanguard" },
+    { key: "support", label: "Support" },
+    { key: "controller", label: "Controller" },
+  ];
+  const biRoleShare = [
+    { patch: "0.9", duelist: 38, vanguard: 24, support: 22, controller: 16 },
+    { patch: "1.0", duelist: 36, vanguard: 25, support: 22, controller: 17 },
+    { patch: "1.1", duelist: 41, vanguard: 21, support: 21, controller: 17 },
+    { patch: "1.2", duelist: 34, vanguard: 26, support: 23, controller: 17 },
+  ];
+  const biHeroes = [
+    { label: "Kaela", group: "Duelist", x: 18.4, y: 53.8 },
+    { label: "Brann", group: "Vanguard", x: 14.1, y: 51.2 },
+    { label: "Ysolde", group: "Support", x: 12.7, y: 52.6 },
+    { label: "Riven", group: "Duelist", x: 11.9, y: 48.3 },
+    { label: "Thorne", group: "Controller", x: 9.6, y: 50.4 },
+    { label: "Mirel", group: "Support", x: 8.8, y: 49.1 },
+    { label: "Oskar", group: "Vanguard", x: 7.2, y: 54.6 },
+    { label: "Nyx", group: "Controller", x: 6.4, y: 46.9 },
+    { label: "Dara", group: "Duelist", x: 5.1, y: 51.7 },
+    { label: "Fenn", group: "Support", x: 3.3, y: 47.5 },
+    { label: "Vex", group: "Controller", x: 2.5, y: 55.9 },
+  ];
+  const biTopPicks = biHeroes.slice(0, 8).map((h) => ({ label: h.label, value: h.x, note: h.group, href: `#${h.label.toLowerCase()}` }));
+  const biTiers = [
+    { label: "S tier", value: 4 },
+    { label: "A tier", value: 9 },
+    { label: "B tier", value: 14 },
+    { label: "C tier", value: 8 },
+    { label: "D tier", value: 3 },
+  ];
+  const biTrends = {
+    win: [
+      { patch: "0.8", kaela: 49.2, oskar: 51.0, nyx: 50.8 },
+      { patch: "0.9", kaela: 50.1, oskar: 51.9, nyx: 49.6 },
+      { patch: "1.0", kaela: 51.4, oskar: 52.2, nyx: 49.9 },
+      { patch: "1.1", kaela: 55.2, oskar: 53.0, nyx: 48.1 },
+      { patch: "1.2", kaela: 53.8, oskar: 54.6, nyx: 46.9 },
+    ],
+    pick: [
+      { patch: "0.8", kaela: 9.4, oskar: 6.1, nyx: 9.8 },
+      { patch: "0.9", kaela: 10.8, oskar: 6.0, nyx: 9.1 },
+      { patch: "1.0", kaela: 12.9, oskar: 6.6, nyx: 8.2 },
+      { patch: "1.1", kaela: 21.3, oskar: 6.9, nyx: 7.0 },
+      { patch: "1.2", kaela: 18.4, oskar: 7.2, nyx: 6.4 },
+    ],
+  };
+  let biMeasure = $state<"win" | "pick">("win");
+  const biTrendSeries = [
+    { key: "kaela", label: "Kaela" },
+    { key: "oskar", label: "Oskar" },
+    { key: "nyx", label: "Nyx" },
+  ];
+  const biRoleNames = biRoles.map((r) => r.label);
+  const biMatchupValues = [
+    [50, 54.2, 47.1, 51.8],
+    [45.8, 50, 53.4, 48.9],
+    [52.9, 46.6, 50, 55.3],
+    [48.2, 51.1, 44.7, 50],
+  ];
+  const biMatchups = biRoleNames.flatMap((y, r) => biRoleNames.map((x, c) => ({ x, y, value: biMatchupValues[r][c] })));
+  const biLadder = [
+    { label: "Finished placements", value: 412000 },
+    { label: "Reached Gold", value: 238000 },
+    { label: "Reached Platinum", value: 96500 },
+    { label: "Reached Diamond", value: 21400 },
+    { label: "Reached Master", value: 3100 },
+  ];
+  const biPatchEvents = [
+    { date: "2026-10-06", title: "Patch 1.1", description: "Kaela's dash resets on takedown. Pick rate doubles in a week.", tag: "Patch", tone: "warning" as const },
+    { date: "2026-10-18", title: "Autumn Open finals", description: "Kaela picked or banned in 31 of 34 maps.", tag: "Tournament" },
+    { date: "2026-11-03", title: "Patch 1.2", description: "Dash reset removed, Oskar's shield up 10%.", tag: "Patch", tone: "accent" as const, current: true },
+    { date: "2026-11-24", title: "Patch 1.3 preview", description: "Controller rework on the test server.", tag: "Upcoming" },
+  ];
+  const biDaily = [31, 34, 33, 38, 44, 52, 49, 41, 40, 43, 47, 55, 61, 58];
 </script>
 
 <svelte:head>
@@ -815,7 +912,122 @@
     <div class="grid-2">
       <BarChart title="Visits and sign-ups per month" data={monthlyVisits} x="month" series={[{ key: "visits", label: "Visits" }, { key: "signups", label: "Sign-ups" }]} locale="en" />
       <LineChart title="Visits per month" data={monthlyVisits} x="month" series={[{ key: "visits", label: "Visits" }]} area locale="en" />
+      <BarChart title="Role share by patch (stacked)" data={biRoleShare} x="patch" xLabel="Patch" series={biRoles} stacked format={percent} />
+      <BarChart title="Role share by patch (horizontal)" data={biRoleShare} x="patch" xLabel="Patch" series={biRoles.slice(0, 2)} orientation="horizontal" format={percent} />
+      <LineChart title="Role share by patch (stacked areas)" data={biRoleShare} x="patch" xLabel="Patch" series={biRoles} stacked format={percent} />
+      <LineChart title="Win rate by patch (domain 44–58)" data={biTrends.win} x="patch" xLabel="Patch" series={biTrendSeries} domain={[44, 58]} format={percent} />
+      <BarChart title="No matches yet" data={[]} x="patch" series={biRoles} />
     </div>
+  </section>
+
+  <section class="section">
+    <h2>DonutChart · ScatterChart · Heatmap · Funnel · BarList · ChartLegend</h2>
+    <div class="grid-2">
+      <DonutChart title="Heroes per tier" data={biTiers} centerLabel="Heroes" locale="en" />
+      <DonutChart title="Heroes per tier (pie, legend below)" data={biTiers} innerRadius={0} legend="bottom" size={160} locale="en" />
+      <ScatterChart title="Pick rate against win rate" data={biHeroes} xLabel="Pick rate" yLabel="Win rate" yRef={50} showLabels format={percent} />
+      <Heatmap title="Win rate by role matchup" data={biMatchups} cornerLabel="Row beats column" format={percent} />
+      <Funnel title="Ranked ladder this season" data={biLadder} locale="en" />
+      <BarList title="Most picked heroes" data={biTopPicks} ranked format={percent} />
+    </div>
+    <div class="row" style="margin-top: 1rem">
+      <ChartLegend items={[{ label: "Duelist", value: "34%" }, { label: "Vanguard", value: "26%" }, { label: "Support", value: "23%" }, { label: "Controller", value: "17%" }]} aria-label="Role share" />
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>KpiCard · Sparkline · Gauge · BigNumber · IconArray · Timeline · ComparisonBar</h2>
+    <div class="grid">
+      <KpiCard label="Kaela win rate" value={53.8} format={percent} delta={-1.4} deltaFormat={signedPoints} deltaLabel="vs patch 1.1" goodWhen="down" trend={biTrends.win.map((r) => r.kaela)} target={50} targetLabel="Balance target" />
+      <KpiCard label="Kaela ban rate" value={41} format={percent} delta={6} deltaFormat={signedPoints} deltaLabel="vs patch 1.1" goodWhen="down" trend={[22, 25, 28, 35, 41]} />
+      <KpiCard label="Heroes in the roster" value={38} delta={0} deltaLabel="no new hero" locale="en" />
+    </div>
+    <p class="note" style="margin-top: 1rem">
+      Matches per day <Sparkline data={biDaily} label="Matches per day, in thousands" area locale="en" /> and as columns
+      <Sparkline data={biDaily} label="Matches per day, in thousands" variant="bar" locale="en" />
+    </p>
+    <div class="row" style="align-items: flex-start; gap: 2rem; margin-top: 1rem">
+      <Gauge value={53.8} label="Kaela win rate" target={50} format={percent} tone="warning" />
+      <Gauge value={72} label="Season progress" variant="ring" format={percent} size={150} />
+      <BigNumber value={1240000} unit="matches" label="analysed since patch 1.2 went live" locale="en" />
+      <IconArray value={7} total={10} label="ranked matches had a Kaela pick or ban" shape="person" />
+    </div>
+    <div class="grid-2" style="margin-top: 1.5rem">
+      <Timeline items={biPatchEvents} ariaLabel="Patch history" locale="en" />
+      <ComparisonBar title="Win rate by side" left={{ label: "Attack", value: 51.6 }} right={{ label: "Defence", value: 48.4 }} format={percent} showShare={false} />
+    </div>
+  </section>
+
+  <section class="section section--wide" id="dashboard">
+    <h2>Dashboard: DashboardGrid · ChartCard</h2>
+    <p class="section-note">
+      One public report built only from the kit: a patch report for an invented hero game. Every figure is made up.
+    </p>
+    <DashboardGrid>
+      <KpiCard label="Matches analysed" value={1240000} delta={8.2} deltaFormat={(n) => `${n > 0 ? "+" : ""}${n}%`} deltaLabel="vs patch 1.1" trend={biDaily} locale="en" />
+      <KpiCard label="Top hero win rate" value={55.9} format={percent} delta={0.7} deltaFormat={signedPoints} deltaLabel="Vex, vs patch 1.1" goodWhen="none" trend={[53.1, 54.0, 54.4, 55.2, 55.9]} />
+      <KpiCard label="Most banned: Kaela" value={41} format={percent} delta={6} deltaFormat={signedPoints} deltaLabel="vs patch 1.1" goodWhen="down" trend={[22, 25, 28, 35, 41]} />
+      <KpiCard label="Heroes within 48–52%" value={61} format={percent} delta={9} deltaFormat={signedPoints} deltaLabel="vs patch 1.1" trend={[48, 50, 49, 52, 61]} target={75} targetLabel="Balance target" />
+
+      <ChartCard title="Pick rate against win rate" description="Top right is strong and popular; bottom right is popular but losing." span={2} source="Ranked matches, Gold and above">
+        <ScatterChart title="Pick rate against win rate, per hero" hideTitle data={biHeroes} xLabel="Pick rate" yLabel="Win rate" yRef={50} showLabels format={percent} height={300} />
+      </ChartCard>
+      <ChartCard title={biMeasure === "win" ? "Win rate by patch" : "Pick rate by patch"} description="Kaela's 1.1 spike and the 1.2 correction." span={2} source="Ranked matches, Gold and above">
+        {#snippet toolbar()}
+          <ToggleGroup
+            ariaLabel="Measure"
+            variant="segmented"
+            required
+            bind:value={biMeasure}
+            options={[{ value: "win", label: "Win rate" }, { value: "pick", label: "Pick rate" }]}
+          />
+        {/snippet}
+        <LineChart
+          title={biMeasure === "win" ? "Win rate by patch" : "Pick rate by patch"}
+          hideTitle
+          data={biTrends[biMeasure]}
+          x="patch"
+          xLabel="Patch"
+          series={biTrendSeries}
+          domain={biMeasure === "win" ? [44, 58] : undefined}
+          format={percent}
+          height={300}
+        />
+      </ChartCard>
+
+      <ChartCard title="Most picked" description="Share of ranked matches.">
+        <BarList ariaLabel="Most picked heroes" data={biTopPicks} ranked limit={6} format={percent} />
+      </ChartCard>
+      <ChartCard title="Tier list shape" description="Heroes per tier after 1.2.">
+        <DonutChart title="Heroes per tier" hideTitle data={biTiers} centerLabel="Heroes" legend="bottom" size={170} locale="en" />
+      </ChartCard>
+      <ChartCard title="Role share by patch" description="Share of all picks, by role." span={2}>
+        <BarChart title="Role share by patch" hideTitle data={biRoleShare} x="patch" xLabel="Patch" series={biRoles} stacked format={percent} height={260} />
+      </ChartCard>
+
+      <ChartCard title="Role matchups" description="Win rate of the row's role against the column's." span={2} note="50% is an even matchup">
+        <Heatmap title="Win rate by role matchup" hideTitle data={biMatchups} cornerLabel="Row vs column" format={percent} />
+      </ChartCard>
+      <ChartCard title="Ranked ladder" description="How far players climbed this season.">
+        <Funnel title="Ranked ladder this season" hideTitle data={biLadder} align="left" locale="en" />
+      </ChartCard>
+      <ChartCard title="Balance" description="Side advantage and the season so far.">
+        <div class="stack">
+          <ComparisonBar ariaLabel="Win rate by side" left={{ label: "Attack", value: 51.6 }} right={{ label: "Defence", value: 48.4 }} format={percent} showShare={false} />
+          <Gauge value={72} label="Season progress" format={percent} size={170} class="demo-center" />
+        </div>
+      </ChartCard>
+
+      <ChartCard title="The patch in one number" span={2}>
+        <div class="demo-infographic">
+          <BigNumber value={1240000} unit="matches" label="analysed since patch 1.2 went live" size="xl" locale="en" />
+          <IconArray value={7} total={10} label="ranked matches had a Kaela pick or ban" shape="person" />
+        </div>
+      </ChartCard>
+      <ChartCard title="How we got here" span={2}>
+        <Timeline items={biPatchEvents} ariaLabel="Patch history" locale="en" />
+      </ChartCard>
+    </DashboardGrid>
   </section>
 
   <section class="section">
@@ -1181,6 +1393,10 @@
 
   :global(.demo-zone) { display: flex; flex-direction: column; gap: 0.5rem; min-height: 6rem; padding: 0.75rem; border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
   .stack { display: flex; flex-direction: column; gap: 1rem; }
+  /* The dashboard breaks out of the demo's 60rem column: a report wants the width. */
+  .section--wide { position: relative; left: 50%; width: max(100%, min(84rem, calc(100vw - 4rem))); transform: translateX(-50%); }
+  .demo-infographic { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem 2.5rem; }
+  :global(.demo-center) { align-self: center; }
   .demo-col { display: flex; flex-direction: column; gap: 0.75rem; }
   .context-zone { margin-top: 0.75rem; padding: 1.25rem; text-align: center; color: rgb(var(--ta-text-dim)); border: 1px dashed rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); }
 

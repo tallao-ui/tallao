@@ -109,6 +109,32 @@ export interface Labels {
   noMatches: string;
   /** A navigation entry that is not available yet (NavMenu). */
   comingSoon: string;
+  /** Empty state of a chart or data block with nothing to show. */
+  noData: string;
+  /** The slice that groups what does not fit (DonutChart). */
+  other: string;
+  /** Sum of the values (DonutChart centre, stacked charts). */
+  total: string;
+  /** "Source" before a chart's source (ChartCard). */
+  source: string;
+  /** "Target" before a goal value (KpiCard, Gauge). */
+  target: string;
+  /** Direction of a change, read by screen readers (KpiCard). */
+  trendUp: string;
+  trendDown: string;
+  trendFlat: string;
+  /** Meaning of a change, independent of its direction (KpiCard). */
+  better: string;
+  worse: string;
+  /** "{n} of {total}" (IconArray). */
+  countOf: string;
+  /** A trend in words: "{first}", "{last}", "{min}", "{max}" are replaced (Sparkline). */
+  trendSummary: string;
+  /** "{percent} of the previous step" (Funnel). */
+  ofPreviousStep: string;
+  /** Column headers of the data table (ScatterChart). */
+  label: string;
+  group: string;
 }
 
 export const en: Labels = {
@@ -189,6 +215,21 @@ export const en: Labels = {
   clearFilters: "Clear filters",
   noMatches: "No rows match the filters",
   comingSoon: "Coming soon",
+  noData: "No data",
+  other: "Other",
+  total: "Total",
+  source: "Source",
+  target: "Target",
+  trendUp: "up",
+  trendDown: "down",
+  trendFlat: "no change",
+  better: "better",
+  worse: "worse",
+  countOf: "{n} of {total}",
+  trendSummary: "from {first} to {last}, low {min}, high {max}",
+  ofPreviousStep: "{percent} of the previous step",
+  label: "Label",
+  group: "Group",
 };
 
 export const es: Labels = {
@@ -269,6 +310,21 @@ export const es: Labels = {
   clearFilters: "Quitar filtros",
   noMatches: "Ninguna fila cumple los filtros",
   comingSoon: "Próximamente",
+  noData: "Sin datos",
+  other: "Otros",
+  total: "Total",
+  source: "Fuente",
+  target: "Objetivo",
+  trendUp: "sube",
+  trendDown: "baja",
+  trendFlat: "sin cambios",
+  better: "mejor",
+  worse: "peor",
+  countOf: "{n} de {total}",
+  trendSummary: "de {first} a {last}, mínimo {min}, máximo {max}",
+  ofPreviousStep: "{percent} del paso anterior",
+  label: "Etiqueta",
+  group: "Grupo",
 };
 
 const KEY = Symbol("tallao-labels");

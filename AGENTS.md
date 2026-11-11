@@ -61,7 +61,8 @@ All under `src/lib/components/` (kebab-case file, PascalCase export in `componen
 | Forms | Input, Textarea, Select, Checkbox, Label, Field, SearchInput, NumberInput, Slider, Switch, Toggle, ToggleGroup, RadioGroup, Rating, InputOTP, Combobox, KeyValueEditor, FileUpload, Calendar, DatePicker, SchemaForm, CodeEditor (`tallao/code`) |
 | Overlays and menus | Dialog, Sheet, ConfirmDialog, Popover, Tooltip, DropdownMenu + MenuItem / MenuSeparator / MenuLabel, ContextMenu, Command |
 | Navigation and layout | Card (+ CardHeader / CardTitle / CardContent / CardFooter), Tabs, Accordion, Breadcrumb, Pagination, Sidebar, NavMenu, MegaMenu, BottomNav, SplitPane, Carousel, ThemeScope |
-| Data | Table (+ TableHeader / TableBody / TableRow / TableHead / TableCell), DataTable, BarChart, LineChart, MonthView, CompareSlider, SelectionBar, DragBoard + DropZone / DragItem, GameMap (`tallao/map`) |
+| Data | Table (+ TableHeader / TableBody / TableRow / TableHead / TableCell), DataTable, MonthView, CompareSlider, SelectionBar, DragBoard + DropZone / DragItem, GameMap (`tallao/map`) |
+| Charts and BI | BarChart, LineChart, DonutChart, ScatterChart, Heatmap, Funnel, BarList, Sparkline, Gauge, ChartLegend, KpiCard, BigNumber, IconArray, Timeline, ComparisonBar, DashboardGrid + DashboardItem, ChartCard |
 | Generative UI | PromptInput, ToolCallCard, ChatMessage, Steps, SuggestionChips, CodeBlock, Sources, UsageMeter |
 
 Shared code: `src/lib/internal/` (floating layer: top layer + Floating UI positioning + layer

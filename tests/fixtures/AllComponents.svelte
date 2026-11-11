@@ -36,6 +36,24 @@
     NavMenu,
     BottomNav,
     DataTable,
+    BarChart,
+    BarList,
+    BigNumber,
+    ChartCard,
+    ChartLegend,
+    ComparisonBar,
+    DashboardGrid,
+    DashboardItem,
+    DonutChart,
+    Funnel,
+    Gauge,
+    Heatmap,
+    IconArray,
+    KpiCard,
+    LineChart,
+    ScatterChart,
+    Sparkline,
+    Timeline,
   } from "$lib/components";
 
   let { dialogOpen = false }: { dialogOpen?: boolean } = $props();
@@ -92,6 +110,28 @@
         { key: "points", header: "Points", filter: "range" },
       ]}
     />
+    <DashboardGrid>
+      <KpiCard label="Win rate" value={52.4} unit="%" delta={1.8} deltaLabel="vs last patch" trend={[49, 50, 52.4]} target={55} locale="en" />
+      <ChartCard title="Role share" description="By patch" source="Match API" sourceHref="/source" span={2}>
+        <BarChart title="Role share by patch" hideTitle data={[{ patch: "1.0", dps: 50, tank: 20 }, { patch: "1.1", dps: 55, tank: 25 }]} x="patch" series={[{ key: "dps", label: "DPS" }, { key: "tank", label: "Tank" }]} stacked orientation="horizontal" locale="en" />
+      </ChartCard>
+      <DashboardItem span="full"><BigNumber value={1240000} unit="matches" label="analysed this patch" locale="en" /></DashboardItem>
+    </DashboardGrid>
+    <LineChart title="Stacked roles" data={[{ patch: "1.0", dps: 50, tank: 20 }, { patch: "1.1", dps: 55, tank: 25 }]} x="patch" series={[{ key: "dps", label: "DPS" }, { key: "tank", label: "Tank" }]} stacked locale="en" />
+    <DonutChart title="Picks by element" data={[{ label: "Fire", value: 40 }, { label: "Water", value: 30 }]} locale="en" />
+    <DonutChart title="Nothing yet" data={[]} />
+    <ScatterChart title="Pick rate against win rate" data={[{ x: 18, y: 54, label: "Kaela", group: "Fire" }, { x: 6, y: 47, label: "Moss", group: "Grass" }]} xLabel="Pick rate" yLabel="Win rate" yRef={50} showLabels locale="en" />
+    <Heatmap title="Matchups" data={[{ x: "Fire", y: "Water", value: 62 }, { x: "Water", y: "Fire", value: 38 }]} cornerLabel="Attacker" locale="en" />
+    <Funnel title="New players" data={[{ label: "Visited", value: 1000 }, { label: "Signed up", value: 400 }]} locale="en" />
+    <BarList title="Most picked" ranked data={[{ label: "Kaela", value: 18, href: "/kaela", note: "Fire" }, { label: "Tide", value: 12 }]} locale="en" />
+    <p>Trend <Sparkline data={[12, 9, 11, 18]} label="Pick rate" locale="en" /></p>
+    <Gauge value={52.4} label="Win rate" target={55} locale="en" />
+    <Gauge value={80} label="Completion" variant="ring" locale="en" />
+    <IconArray value={7} total={10} label="players pick a Fire lead" />
+    <IconArray value={3} total={5} label="wins" shape="person" showSummary={false} />
+    <Timeline ariaLabel="Season" locale="en" items={[{ date: "2026-11-03", title: "Patch 1.2", tag: "Patch", tone: "accent", href: "/patch" }, { date: "Season 3", title: "Ladder reset", current: true }]} />
+    <ComparisonBar title="Side win rate" left={{ label: "Blue side", value: 5230 }} right={{ label: "Red side", value: 4770 }} locale="en" />
+    <ChartLegend items={[{ label: "Fire", value: "40%" }, { label: "Water" }]} aria-label="Elements" />
     <Dialog open={dialogOpen} title="Dialog" description="Details"><p>Body</p></Dialog>
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
   </main>

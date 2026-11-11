@@ -246,3 +246,30 @@ describe("BottomNav publishes its height for the Toaster", () => {
     expect(always).toContain("<style>html { --ta-bottom-nav-offset:");
   });
 });
+
+import Bi from "../fixtures/Bi.svelte";
+
+describe("server rendering of the BI components", () => {
+  it("renders charts, KPI and infographic pieces with their final values, the same every time", () => {
+    const { body } = render(Bi);
+    // Charts: the drawing and its text are already in the HTML.
+    expect(body).toContain('aria-orientation="vertical"');
+    expect(body).toContain("Fire");
+    expect(body).toContain("40%");
+    expect(body).toContain('role="meter"');
+    expect(body).toContain('aria-valuetext="52.4%, Target 55%"');
+    expect(body).toContain("40% of the previous step");
+    expect(body).toContain('datetime="2026-11-03"');
+    expect(body).toContain("Nov 3, 2026");
+    expect(body).toContain('data-ta-span="full"');
+    // BigNumber: the final figure, not the start of the count.
+    expect(body).toContain("1.2M");
+    expect(body).not.toContain("ta-bignumber-hidden");
+    expect(render(Bi).body).toBe(body);
+  });
+
+  it("renders the empty states on the server", () => {
+    const { body } = render(Bi, { props: { empty: true } });
+    expect(body.match(/>No data</g)?.length).toBe(8);
+  });
+});
