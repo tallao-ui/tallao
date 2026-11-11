@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tallao — Svelte 5 components for the interfaces an agent builds</title>
+    <meta
+      name="description"
+      content="A Svelte 5 UI kit for generative interfaces: 80 components in plain CSS on tokens, keyboard and screen reader ready, and SSR-ready for SvelteKit. MIT licensed."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="tallao — Svelte 5 components for the interfaces an agent builds" />
+    <meta
+      property="og:description"
+      content="80 components in plain CSS on tokens: chat, tool calls, steps and approvals next to the forms, tables and dialogs every app needs."
+    />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <style>
+      @font-face {
+        font-family: "Inter";
+        src: url("fonts/inter.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        src: url("fonts/jetbrains-mono.woff2") format("woff2");
+        font-weight: 100 800;
+        font-display: swap;
+      }
+      :root {
+        --bg: #09090b;
+        --surface: #18181b;
+        --border: #2b2b31;
+        --text: #fafafa;
+        --dim: #a1a1aa;
+        --lilac: #c084fc;
+        --violet: #9333ea;
+        --orange: #fb923c;
+        --fill: #7e22ce;
+        --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+        --wrap: 70rem;
+        --gutter: clamp(1rem, 4vw, 2.5rem);
+        /* the playground's own accent */
+        --accent: #9333ea;
+        --accent-text: #c084fc;
+        --radius: 0.5rem;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 5rem;
+        -webkit-text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        color: var(--text);
+        font: 400 1.0625rem/1.6 var(--sans);
+        background:
+          radial-gradient(56rem 32rem at 8% -6rem, rgb(147 51 234 / 0.3), transparent 65%),
+          radial-gradient(48rem 30rem at 100% 22rem, rgb(251 146 60 / 0.16), transparent 65%), var(--bg);
+        overflow-x: hidden;
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.05;
+        text-wrap: balance;
+      }
+      h1 {
+        font-size: clamp(2.5rem, 5.4vw, 4.3rem);
+      }
+      h2 {
+        font-size: clamp(1.8rem, 3.1vw, 2.6rem);
+      }
+      h3 {
+        font-size: 1.05rem;
+        letter-spacing: -0.01em;
+        line-height: 1.3;
+      }
+      p {
+        margin: 0;
+        max-width: 62ch;
+      }
+      a {
+        color: inherit;
+        text-underline-offset: 0.2em;
+      }
+      a:hover {
+        color: var(--orange);
+      }
+      code,
+      pre {
+        font-family: var(--mono);
+        font-size: 0.875em;
+      }
+      :focus-visible {
+        outline: 3px solid var(--orange);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+      .wrap {
+        width: 100%;
+        max-width: var(--wrap);
+        margin-inline: auto;
+        padding-inline: var(--gutter);
+      }
+      .dim {
+        color: var(--dim);
+      }
+      .grad {
+        background: linear-gradient(92deg, var(--lilac), var(--orange));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .skip {
+        position: absolute;
+        left: -999px;
+        top: 0.5rem;
+        background: var(--orange);
+        color: #09090b;
+        padding: 0.5rem 0.9rem;
+        border-radius: 6px;
+        z-index: 50;
+      }
+      .skip:focus {
+        left: 0.5rem;
+      }
+      header.top {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgb(9 9 11 / 0.82);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+      }
+      header.top .wrap {
+        display: flex;
+        align-items: center;
+        gap: 1.4rem;
+        min-height: 3.75rem;
+      }
+      .brand {
+        margin-right: auto;
+        font: 800 1.35rem/1 var(--sans);
+        letter-spacing: -0.04em;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+      }
+      .brand i {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 0.45rem;
+        background: linear-gradient(135deg, var(--violet), var(--orange));
+      }
+      header.top nav {
+        display: flex;
+        gap: 1.4rem;
+        font-size: 0.95rem;
+      }
+      header.top nav a {
+        text-decoration: none;
+        padding: 0.75rem 0;
+      }
+      @media (max-width: 640px) {
+        header.top nav a.wide {
+          display: none;
+        }
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 3rem;
+        padding: 0.7rem 1.2rem;
+        border-radius: 0.6rem;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font: 600 1rem/1.2 var(--sans);
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .btn:hover {
+        border-color: var(--dim);
+        color: var(--text);
+      }
+      .btn.primary {
+        border-color: transparent;
+        color: #fff;
+        background: linear-gradient(92deg, #7e22ce, #c2410c);
+        box-shadow: 0 12px 34px -14px var(--orange);
+      }
+      .btn.primary:hover {
+        filter: brightness(1.14);
+      }
+      .hero {
+        padding-block: clamp(3rem, 7vw, 5.5rem) clamp(2.5rem, 5vw, 4rem);
+      }
+      .hero p.lede {
+        margin-top: 1.4rem;
+        font-size: 1.2rem;
+        color: var(--dim);
+        max-width: 40rem;
+      }
+      .hero p.lede b {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .cta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.9rem;
+      }
+      .fine {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: var(--dim);
+      }
+      .clip {
+        position: relative;
+        margin-top: clamp(2.2rem, 4vw, 3.2rem);
+        border: 1px solid color-mix(in srgb, var(--violet) 45%, var(--border));
+        border-radius: 16px;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+        background: #09090b;
+        box-shadow: 0 0 80px -24px var(--violet);
+      }
+      .clip video {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .clip-toggle {
+        position: absolute;
+        right: 0.8rem;
+        bottom: 0.8rem;
+        min-height: 2.75rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 99px;
+        border: 1px solid rgb(255 255 255 / 0.25);
+        background: rgb(9 9 11 / 0.72);
+        color: #fafafa;
+        font: 600 0.88rem var(--sans);
+        cursor: pointer;
+      }
+      section.block {
+        padding-block: clamp(3.5rem, 7vw, 5.5rem);
+        border-top: 1px solid var(--border);
+      }
+      .block > .wrap > h2 + p {
+        margin-top: 1rem;
+        font-size: 1.15rem;
+        color: var(--dim);
+      }
+      .groups {
+        margin-top: 2.2rem;
+        display: grid;
+        gap: 1.6rem 2.5rem;
+      }
+      @media (min-width: 52rem) {
+        .groups {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .groups h3 {
+        color: var(--lilac);
+        margin-bottom: 0.6rem;
+      }
+      .groups p {
+        color: var(--dim);
+        font-size: 0.98rem;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin: 0.7rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .chips li {
+        font: 0.84rem var(--mono);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.28rem 0.6rem;
+        background: var(--surface);
+      }
+      /* playground */
+      .play {
+        margin-top: 2.2rem;
+        display: grid;
+        gap: 1.5rem;
+      }
+      @media (min-width: 56rem) {
+        .play {
+          grid-template-columns: 19rem 1fr;
+        }
+      }
+      .knobs {
+        display: grid;
+        gap: 1.2rem;
+        align-content: start;
+      }
+      .knobs fieldset {
+        border: 0;
+        padding: 0;
+        margin: 0;
+      }
+      .knobs legend {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+        padding: 0;
+      }
+      .swatches {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .swatches button {
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        cursor: pointer;
+        background: var(--c);
+      }
+      .swatches button[aria-pressed="true"] {
+        border-color: var(--text);
+        box-shadow: 0 0 0 3px var(--bg) inset;
+      }
+      .knobs input[type="range"] {
+        width: 100%;
+        height: 2.75rem;
+        accent-color: var(--accent);
+      }
+      .knobs pre {
+        margin: 0;
+        padding: 0.9rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.7rem;
+        background: var(--surface);
+        font-size: 0.8rem;
+        line-height: 1.7;
+      }
+      .stage {
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        background: var(--surface);
+        padding: 1.3rem;
+        display: grid;
+        gap: 1rem;
+      }
+      .msg {
+        border: 1px solid var(--border);
+        border-radius: calc(var(--radius) * 1.5);
+        padding: 0.9rem 1rem;
+        background: var(--bg);
+      }
+      .msg small {
+        color: var(--accent-text);
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      .tool {
+        border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+        border-radius: calc(var(--radius) * 1.5);
+        padding: 0.9rem 1rem;
+        background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+      }
+      .tool code {
+        display: block;
+        color: var(--dim);
+        margin-top: 0.3rem;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        align-items: center;
+      }
+      .ta-btn {
+        min-height: 2.75rem;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius);
+        border: 1px solid transparent;
+        font: 600 0.92rem var(--sans);
+        cursor: pointer;
+        color: #fff;
+        background: color-mix(in srgb, var(--accent) 88%, black);
+      }
+      .ta-btn.soft {
+        background: color-mix(in srgb, var(--accent) 14%, transparent);
+        border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+        color: var(--accent-text);
+      }
+      .ta-btn.outline {
+        background: transparent;
+        border-color: var(--border);
+        color: var(--text);
+      }
+      .ta-badge {
+        font: 600 0.78rem var(--sans);
+        padding: 0.25rem 0.6rem;
+        border-radius: 99px;
+        color: var(--accent-text);
+        background: color-mix(in srgb, var(--accent) 14%, transparent);
+        border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+      }
+      .ta-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+      .ta-switch input {
+        appearance: none;
+        width: 2.75rem;
+        height: 1.6rem;
+        border-radius: 99px;
+        background: var(--border);
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin: 0;
+      }
+      .ta-switch input::after {
+        content: "";
+        position: absolute;
+        top: 0.2rem;
+        left: 0.2rem;
+        width: 1.2rem;
+        height: 1.2rem;
+        border-radius: 50%;
+        background: #fff;
+        transition: translate 0.2s;
+      }
+      .ta-switch input:checked {
+        background: color-mix(in srgb, var(--accent) 88%, black);
+      }
+      .ta-switch input:checked::after {
+        translate: 1.15rem 0;
+      }
+      /* facts */
+      .facts {
+        margin: 2.2rem 0 0;
+        display: grid;
+        border-top: 1px solid var(--border);
+      }
+      .facts div {
+        display: grid;
+        gap: 0.3rem 2rem;
+        padding: 1.1rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      @media (min-width: 52rem) {
+        .facts div {
+          grid-template-columns: 18rem 1fr;
+        }
+      }
+      .facts dt {
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+      .facts dd {
+        margin: 0;
+        color: var(--dim);
+        max-width: 60ch;
+      }
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        border-bottom: 1px solid var(--border);
+        margin-top: 2rem;
+      }
+      .tabs button {
+        min-height: 2.75rem;
+        padding: 0.5rem 0.9rem;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -1px;
+        background: none;
+        color: var(--dim);
+        font: 600 0.95rem var(--sans);
+        cursor: pointer;
+      }
+      .tabs button[aria-selected="true"] {
+        color: var(--text);
+        border-bottom-color: var(--orange);
+      }
+      .panel {
+        padding-top: 1.2rem;
+        max-width: 48rem;
+      }
+      .panel > p {
+        color: var(--dim);
+        margin-bottom: 0.9rem;
+      }
+      .copy {
+        position: relative;
+      }
+      .copy pre {
+        margin: 0;
+        padding: 1rem 6rem 1rem 1.1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.8rem;
+        background: var(--surface);
+        line-height: 1.65;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .copy .btn {
+        position: absolute;
+        top: 0.55rem;
+        right: 0.55rem;
+        min-height: 2.5rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.88rem;
+      }
+      footer {
+        border-top: 1px solid var(--border);
+        padding-block: 2.2rem 3rem;
+        color: var(--dim);
+        font-size: 0.95rem;
+      }
+      footer .wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem 1.6rem;
+        align-items: center;
+      }
+      footer span {
+        margin-right: auto;
+      }
+      footer a {
+        padding: 0.6rem 0;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="top">
+      <div class="wrap">
+        <a class="brand" href="#top"><i aria-hidden="true"></i>tallao</a>
+        <nav aria-label="Sections">
+          <a class="wide" href="#kit">Components</a>
+          <a class="wide" href="#tokens">Theming</a>
+          <a class="wide" href="#install">Install</a>
+          <a href="https://github.com/tallao-ui/tallao">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top">
+        <div class="wrap">
+          <h1>Svelte 5 components for <span class="grad">the interfaces an agent builds.</span></h1>
+          <p class="lede">
+            tallao is a UI kit with the parts a generative interface needs — streamed messages, tool calls, steps and
+            approvals — next to the forms, tables and dialogs every app needs.
+            <b>80 components, plain CSS on tokens, ready for SvelteKit.</b>
+          </p>
+          <div class="cta">
+            <button class="btn primary" type="button" data-copy="pnpm add github:tallao-ui/tallao"><span>Copy the install command</span></button>
+            <a class="btn" href="https://github.com/tallao-ui/tallao#components">See every component</a>
+          </div>
+          <p class="fine">MIT licensed. Version 0.7. Needs Svelte 5.29 or later.</p>
+
+          <div class="clip">
+            <video
+              autoplay
+              loop
+              muted
+              playsinline
+              preload="auto"
+              poster="media/reel.jpg"
+              width="1280"
+              height="720"
+              aria-label="Animation: an agent's streamed answer, its plan as steps, a tool call and a confirmation dialog a person approves"
+            >
+              <source src="media/reel.mp4" type="video/mp4" />
+            </video>
+            <button class="clip-toggle" type="button" aria-pressed="false">Pause</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="kit">
+        <div class="wrap">
+          <h2>What's in the kit</h2>
+          <p>One import, one look. Every component works with a keyboard and a screen reader, and renders on the server.</p>
+          <div class="groups">
+            <div>
+              <h3>For agents</h3>
+              <p>Show what a model is doing, and let a person decide.</p>
+              <ul class="chips">
+                <li>ChatMessage</li>
+                <li>PromptInput</li>
+                <li>ToolCallCard</li>
+                <li>Steps</li>
+                <li>Sources</li>
+                <li>SuggestionChips</li>
+                <li>UsageMeter</li>
+                <li>CodeBlock</li>
+                <li>ConfirmDialog</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Forms</h3>
+              <p>Native controls, with <code>name</code> so SvelteKit form actions work without JavaScript.</p>
+              <ul class="chips">
+                <li>Input</li>
+                <li>Select</li>
+                <li>Combobox</li>
+                <li>Switch</li>
+                <li>DatePicker</li>
+                <li>NumberInput</li>
+                <li>InputOTP</li>
+                <li>FileUpload</li>
+                <li>SchemaForm</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Overlays and menus</h3>
+              <p>Built on the native <code>&lt;dialog&gt;</code> and the Popover API: focus is contained and restored.</p>
+              <ul class="chips">
+                <li>Dialog</li>
+                <li>Sheet</li>
+                <li>Popover</li>
+                <li>Tooltip</li>
+                <li>DropdownMenu</li>
+                <li>ContextMenu</li>
+                <li>Command</li>
+                <li>Toaster</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Data and layout</h3>
+              <p>Tables with sorting and filters, charts with a legend and a data table, and the app shell.</p>
+              <ul class="chips">
+                <li>DataTable</li>
+                <li>Pagination</li>
+                <li>BarChart</li>
+                <li>LineChart</li>
+                <li>Calendar</li>
+                <li>Tabs</li>
+                <li>Sidebar</li>
+                <li>SplitPane</li>
+                <li>Carousel</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="tokens">
+        <div class="wrap">
+          <h2>Change three variables, and it's yours.</h2>
+          <p>There is no Tailwind and no theme provider: the kit is plain CSS reading <code>--ta-*</code> tokens. Try it.</p>
+          <div class="play">
+            <div class="knobs">
+              <fieldset>
+                <legend>Accent</legend>
+                <div class="swatches" id="swatches">
+                  <button type="button" style="--c: #9333ea" data-a="147 51 234" data-t="192 132 252" aria-pressed="true" aria-label="Lilac"></button>
+                  <button type="button" style="--c: #ea580c" data-a="234 88 12" data-t="253 186 116" aria-pressed="false" aria-label="Orange"></button>
+                  <button type="button" style="--c: #059669" data-a="5 150 105" data-t="110 231 183" aria-pressed="false" aria-label="Green"></button>
+                  <button type="button" style="--c: #2563eb" data-a="37 99 235" data-t="147 197 253" aria-pressed="false" aria-label="Blue"></button>
+                </div>
+              </fieldset>
+              <label>
+                <span style="font-weight: 600; font-size: 0.95rem">Corner radius: <output id="rad-n">0.5rem</output></span>
+                <input type="range" id="rad" min="0" max="1.2" step="0.1" value="0.5" />
+              </label>
+              <pre id="css" aria-label="The CSS that produces this look"></pre>
+            </div>
+            <div class="stage" id="stage" aria-label="Preview">
+              <div class="msg">
+                <small>Assistant</small>
+                Three orders are late. I can email the customers and open a ticket with the carrier.
+              </div>
+              <div class="tool">
+                <b>carrier.open_ticket</b> <span class="ta-badge">waiting for you</span>
+                <code>{ "orders": [1042, 1047, 1051], "reason": "late" }</code>
+              </div>
+              <div class="row">
+                <button class="ta-btn" type="button">Approve</button>
+                <button class="ta-btn soft" type="button">Edit first</button>
+                <button class="ta-btn outline" type="button">Cancel</button>
+                <label class="ta-switch"><input type="checkbox" role="switch" checked />Ask me every time</label>
+              </div>
+            </div>
+          </div>
+          <dl class="facts">
+            <div>
+              <dt>Readable by default</dt>
+              <dd>Filled controls are derived from your accent and darkened until their text reaches 4.5:1, so a new colour doesn't cost you contrast.</dd>
+            </div>
+            <div>
+              <dt>Tested like an app</dt>
+              <dd>240 tests in a real DOM and on the server, with automated accessibility checks, plus a SvelteKit app that checks hydration.</dd>
+            </div>
+            <div>
+              <dt>English and Spanish built in</dt>
+              <dd>Every label the kit shows comes from one table you can replace or extend for a subtree with <code>setLabels()</code>.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="block" id="install">
+        <div class="wrap">
+          <h2>Install it, or copy what you need</h2>
+          <div class="tabs" role="tablist" aria-label="How to use tallao">
+            <button role="tab" id="t-pkg" aria-controls="p-pkg" aria-selected="true">As a package</button>
+            <button role="tab" id="t-copy" aria-controls="p-copy" aria-selected="false" tabindex="-1">Copy a component</button>
+            <button role="tab" id="t-agent" aria-controls="p-agent" aria-selected="false" tabindex="-1">With my coding agent</button>
+          </div>
+          <div class="panel" role="tabpanel" id="p-pkg" aria-labelledby="t-pkg">
+            <p>It installs from GitHub and builds itself. It isn't on npm yet.</p>
+            <div class="copy">
+              <pre id="c-pkg"><code>pnpm add github:tallao-ui/tallao</code></pre>
+              <button class="btn" type="button" data-copy-from="c-pkg"><span>Copy</span></button>
+            </div>
+            <div class="copy" style="margin-top: 0.9rem">
+              <pre id="c-use"><code>&lt;script&gt;
+  import "tallao/tokens.css";
+  import "tallao/base.css";
+  import { Button, Dialog, ToolCallCard } from "tallao";
+&lt;/script&gt;</code></pre>
+              <button class="btn" type="button" data-copy-from="c-use"><span>Copy</span></button>
+            </div>
+          </div>
+          <div class="panel" role="tabpanel" id="p-copy" aria-labelledby="t-copy" hidden>
+            <p>
+              Like shadcn: take <code>src/lib/components/&lt;component&gt;.svelte</code>, the components it imports,
+              <code>src/lib/internal/</code>, <code>src/lib/utils.ts</code> and the two CSS files. The code is then yours to change.
+            </p>
+            <a class="btn" href="https://github.com/tallao-ui/tallao/tree/main/src/lib/components">Browse the components</a>
+          </div>
+          <div class="panel" role="tabpanel" id="p-agent" aria-labelledby="t-agent" hidden>
+            <p>Paste this into Claude Code, Cursor or Codex, in your Svelte project.</p>
+            <div class="copy">
+              <pre id="c-agent"><code>Add tallao to this Svelte 5 project and use it for the UI.
+
+1. Run: pnpm add github:tallao-ui/tallao
+2. Import "tallao/tokens.css" and "tallao/base.css" once, in the root layout.
+3. Read the component table in node_modules/tallao/README.md before
+   writing markup, and use the kit's components instead of hand-made
+   buttons, inputs, dialogs and tables. Never invent a prop.
+4. To match my brand, set --ta-accent (and the other --ta-* tokens) in my
+   own CSS. Do not edit the kit's files.</code></pre>
+              <button class="btn" type="button" data-copy-from="c-agent"><span>Copy</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <span>tallao is MIT licensed.</span>
+        <a href="https://github.com/tallao-ui/tallao">GitHub</a>
+        <a href="https://github.com/tallao-ui/tallao/blob/main/CHANGELOG.md">Changelog</a>
+        <a href="https://github.com/Kitsuden/kitsuden">Kitsuden</a>
+        <a href="https://github.com/tallao-ui/tallao/issues">Issues</a>
+      </div>
+    </footer>
+
+    <script>
+      (() => {
+        "use strict";
+        const $ = (s, r = document) => r.querySelector(s);
+        const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+        const still = matchMedia("(prefers-reduced-motion: reduce)");
+
+        async function copy(text) {
+          try {
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch (e) {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.append(ta);
+            ta.select();
+            let ok = false;
+            try {
+              ok = document.execCommand("copy");
+            } catch (e2) {}
+            ta.remove();
+            return ok;
+          }
+        }
+        for (const b of $$("[data-copy], [data-copy-from]")) {
+          const label = $("span", b);
+          const original = label.textContent;
+          b.addEventListener("click", async () => {
+            const text = b.dataset.copy ?? $("#" + b.dataset.copyFrom).textContent;
+            label.textContent = (await copy(text.trim())) ? "Copied" : "Select and copy it by hand";
+            setTimeout(() => (label.textContent = original), 2200);
+          });
+        }
+
+        const tabs = $$('[role="tab"]');
+        const select = (tab, focus) => {
+          for (const t of tabs) {
+            const on = t === tab;
+            t.setAttribute("aria-selected", String(on));
+            t.tabIndex = on ? 0 : -1;
+            $("#" + t.getAttribute("aria-controls")).hidden = !on;
+          }
+          if (focus) tab.focus();
+        };
+        tabs.forEach((t, i) => {
+          t.addEventListener("click", () => select(t, false));
+          t.addEventListener("keydown", (e) => {
+            const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+            if (!d) return;
+            e.preventDefault();
+            select(tabs[(i + d + tabs.length) % tabs.length], true);
+          });
+        });
+
+        /* the token playground */
+        const stage = $("#stage");
+        const state = { a: "147 51 234", t: "192 132 252", r: "0.5" };
+        function paint() {
+          stage.style.setProperty("--accent", `rgb(${state.a})`);
+          stage.style.setProperty("--accent-text", `rgb(${state.t})`);
+          stage.style.setProperty("--radius", state.r + "rem");
+          $("#rad-n").textContent = state.r + "rem";
+          $("#css").textContent = `:root {\n  --ta-accent: ${state.a};\n  --ta-accent-hover: ${state.t};\n  --ta-radius: ${state.r}rem;\n}`;
+        }
+        for (const b of $$("#swatches button"))
+          b.addEventListener("click", () => {
+            state.a = b.dataset.a;
+            state.t = b.dataset.t;
+            for (const x of $$("#swatches button")) x.setAttribute("aria-pressed", String(x === b));
+            paint();
+          });
+        $("#rad").addEventListener("input", (e) => {
+          state.r = e.target.value;
+          paint();
+        });
+        paint();
+
+        /* the clip: plays while on screen, never under reduced motion */
+        const box = $(".clip");
+        const video = $("video", box);
+        const btn = $(".clip-toggle", box);
+        const sync = () => {
+          btn.textContent = video.paused ? "Play" : "Pause";
+          btn.setAttribute("aria-pressed", String(video.paused));
+        };
+        if (still.matches) {
+          video.removeAttribute("autoplay");
+          video.pause();
+        }
+        btn.addEventListener("click", () => {
+          btn.dataset.user = "1";
+          video.paused ? video.play() : video.pause();
+        });
+        video.addEventListener("play", sync);
+        video.addEventListener("pause", sync);
+        new IntersectionObserver(
+          ([e]) => {
+            if (still.matches || btn.dataset.user) return;
+            e.isIntersecting ? video.play().catch(() => {}) : video.pause();
+          },
+          { threshold: 0.25 }
+        ).observe(box);
+        sync();
+      })();
+    </script>
+  </body>
+</html>
