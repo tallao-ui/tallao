@@ -196,6 +196,7 @@ Props:
 
 Props:
 - `class?: string`
+- `exit?: () => boolean` — Asked when the row is removed: `true` fades it out first (DataTable uses it).
 - `children?: import("svelte").Snippet`
 
 ### TableHead
@@ -1945,6 +1946,7 @@ The filters of a list, from a declaration.
   { key: "status", label: "Status", type: "select", options: ["Draft", "Published"] },
   { key: "featured", label: "Featured", type: "boolean" },
   { key: "since", label: "Published since", type: "date", hidden: true },
+  { key: "period", label: "Period", type: "date", range: true, hidden: true },
   { key: "author", label: "Author", type: "text", hidden: true },
 ]} />
 ```
@@ -1979,6 +1981,7 @@ Props:
 - `value?: FilterChipValue` — `null` when the filter is not applied.
 - `removable?: boolean` — Shows the remove button while the chip has a value.
 - `placeholder?: string` — Placeholder of the "text" field.
+- `range?: boolean` — A "date" filter takes two dates, stored as "start..end".
 - `locale?: string` — Language of the "date" calendar.
 - `removeLabel?: string` — Accessible name of the remove button; "{filter}" is replaced by the label.
 - `anyLabel?: string` — The entry that clears a "select" or "boolean".
@@ -2406,7 +2409,7 @@ Props:
 - `hideTitle?: boolean`
 - `max?: number` — End of the scale; by default a round number over the largest value.
 - `levels?: number` — How many rings the grid has.
-- `size?: number` — Width of the drawing in px (it shrinks to fit a narrow container).
+- `size?: number` — Width of the drawing in px (it shrinks to fit a narrower container).
 - `axisLabel?: string` — Header of the axis column in the data table.
 - `locale?: string`
 - `format?: (n: number) => string`
@@ -2429,6 +2432,116 @@ Props:
 - `locale?: string`
 - `format?: Intl.NumberFormatOptions` — Options for `Intl.NumberFormat` (grouping, decimals, currency…).
 - `size?: "sm" | "md" | "lg"`
+- `class?: string`
+
+### CardStack
+
+A deck of cards looked at one by one.
+
+```svelte
+<CardStack items={cards} bind:index label="Featured decks">
+  {#snippet card(deck)}<DeckCard {deck} />{/snippet}
+</CardStack>
+```
+
+Props:
+- `items: T[]`
+- `index?: number` — Position of the top card (bindable).
+- `loop?: boolean` — After the last card comes the first.
+- `peek?: number` — How many cards show behind the top one.
+- `label?: string` — Accessible name of the stack.
+- `previousLabel?: string`
+- `nextLabel?: string`
+- `class?: string`
+- `onchange?: (index: number) => void`
+- `card: Snippet<[T, number]>` — Draws one card; gets the item and its index.
+
+### CalendarHeatmap
+
+Activity by day over weeks or months (matches played, posts published, commits).
+
+```svelte
+<CalendarHeatmap title="Matches played" unit="matches"
+  data={[{ date: "2026-10-01", value: 3 }, { date: "2026-10-02", value: 7 }]} />
+```
+
+Props:
+- `data: CalendarHeatmapDay[]`
+- `title: string`
+- `hideTitle?: boolean`
+- `start?: string` — First and last day shown (`YYYY-MM-DD`); by default the range of `data`.
+- `end?: string`
+- `weekStartsOn?: number` — First day of the week: 0 Sunday, 1 Monday (default).
+- `unit?: string` — What is counted, after the figure in each day's text ("matches").
+- `max?: number` — The value of the darkest shade; by default the largest in `data`.
+- `levels?: number` — How many shades above empty.
+- `color?: string` — Any CSS colour for the shades; the accent by default.
+- `locale?: string`
+- `format?: (n: number) => string`
+- `lessLabel?: string`
+- `moreLabel?: string`
+- `emptyText?: string`
+- `class?: string`
+
+### DateRangePicker
+
+Two dates, from and to.
+
+```svelte
+<DateRangePicker bind:value={range} name="period" />
+```
+
+Props:
+- `value?: DateRange` — The two dates (bindable).
+- `min?: ISODate`
+- `max?: ISODate`
+- `locale?: string`
+- `weekStartsOn?: number`
+- `presets?: DateRangePreset[]` — Quick ranges; `[]` shows none.
+- `name?: string` — Submits the dates as `<name>_start` and `<name>_end`.
+- `startName?: string`
+- `endName?: string`
+- `disabled?: boolean`
+- `inline?: boolean` — Only the panel's content, in place.
+- `ariaLabel?: string` — Accessible name of the group of two fields.
+- `startLabel?: string`
+- `endLabel?: string`
+- `buttonLabel?: string`
+- `class?: string`
+- `onchange?: (value: DateRange) => void`
+
+### SankeyChart
+
+Where a quantity comes from and where it goes.
+
+```svelte
+<SankeyChart title="Where new players end up" unit="players"
+  links={[
+    { source: "Signed up", target: "Finished tutorial", value: 720 },
+    { source: "Signed up", target: "Left", value: 280 },
+    { source: "Finished tutorial", target: "Ranked", value: 410 },
+    { source: "Finished tutorial", target: "Casual", value: 310 },
+  ]} />
+```
+
+Props:
+- `links: SankeyLink[]`
+- `nodes?: SankeyNode[]` — Labels, colours and first order of the nodes; ids not listed are taken from the links.
+- `title: string`
+- `hideTitle?: boolean`
+- `unit?: string` — What flows, after each figure ("players").
+- `height?: number` — Height of the drawing in px.
+- `width?: number` — Width used on the server and before the container is measured.
+- `nodePadding?: number` — Vertical gap between the nodes of a column.
+- `align?: "left" | "justify"`
+- `locale?: string`
+- `format?: (n: number) => string`
+- `fromLabel?: string`
+- `toLabel?: string`
+- `valueLabel?: string`
+- `emptyText?: string`
+- `showDataLabel?: string`
+- `hideDataLabel?: string`
 - `class?: string`
 
 ## Components (`tallao/map`)

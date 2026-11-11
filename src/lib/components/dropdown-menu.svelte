@@ -24,6 +24,7 @@
   import { pushLayer } from "$lib/internal/layers";
   import { focusItem, menuKeyboard, provideMenu } from "$lib/internal/menu";
   import { anchor, type Placement } from "$lib/internal/position";
+  import { scaleIn } from "$lib/motion";
 
   import type { TriggerProps } from "./popover.svelte";
 
@@ -122,6 +123,7 @@
     popover="manual"
     class={cn("ta-menu", className)}
     onkeydown={(e) => keyboard(e, menuEl)}
+    out:scaleIn={{ duration: "fast", from: 0.98 }}
   >
     {@render children?.()}
   </div>

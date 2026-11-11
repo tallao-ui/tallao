@@ -347,6 +347,19 @@
   const allChecked = $derived(visibleKeys.length > 0 && checkedVisible === visibleKeys.length);
   const partial = $derived(checkedVisible > 0 && !allChecked);
 
+  // A row that is deleted fades out; a new page, order or filter swaps the rows at once
+  // (fading them would show two pages for a moment). A deletion takes away one or two rows
+  // and brings in at most as many (the next ones of the following page).
+  let previousKeys: string[] = [];
+  let rowsLeaving = false;
+  $effect.pre(() => {
+    const now = visibleKeys;
+    const gone = previousKeys.filter((k) => !now.includes(k)).length;
+    const added = now.filter((k) => !previousKeys.includes(k)).length;
+    rowsLeaving = gone > 0 && gone <= 2 && added <= gone;
+    previousKeys = now;
+  });
+
   function setSelected(next: string[]) {
     selected = next;
     onSelectionChange?.(next);
@@ -533,7 +546,7 @@
       {:else}
         {#each visible as row (keyOf(row))}
           {@const k = keyOf(row)}
-          <TableRow data-selected={selected.includes(k) || undefined}>
+          <TableRow data-selected={selected.includes(k) || undefined} exit={() => rowsLeaving}>
             {#if selectable}
               <TableCell class="ta-datatable-check">
                 <input

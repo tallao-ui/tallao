@@ -26,7 +26,10 @@
 </script>
 
 <label class={cn("ta-checkbox", disabled && "ta-checkbox--off", className)}>
-  <input type="checkbox" bind:checked {disabled} aria-label={ariaLabel} {...rest} />
+  <span class="ta-checkbox-box">
+    <input type="checkbox" bind:checked {disabled} aria-label={ariaLabel} {...rest} />
+    <svg class="ta-checkbox-mark" viewBox="0 0 16 16" aria-hidden="true"><path class="ta-checkbox-check" d="M3.5 8.4l3 3 6-6.6" /><path class="ta-checkbox-dash" d="M4 8h8" /></svg>
+  </span>
   {#if label}<span>{label}</span>{/if}
   {@render children?.()}
 </label>
@@ -42,16 +45,50 @@
     user-select: none;
   }
 
+  /* Still a native checkbox (name, value, form, :indeterminate, Space): only its drawing is
+     the kit's, so the check can be drawn by its stroke. */
+  .ta-checkbox-box { position: relative; display: inline-flex; flex-shrink: 0; width: 1rem; height: 1rem; }
   .ta-checkbox input {
+    appearance: none;
     width: 1rem;
     height: 1rem;
     margin: 0;
-    accent-color: rgb(var(--ta-accent));
+    background: rgb(var(--ta-bg));
+    border: 1px solid rgb(var(--ta-subtle));
+    border-radius: 0.25rem;
     cursor: inherit;
     transition: transform var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
   }
   /* Press feedback: the box gives a little under the pointer. */
   .ta-checkbox input:active:not(:disabled) { transform: scale(0.88); }
+
+  .ta-checkbox input:checked,
+  .ta-checkbox input:indeterminate {
+    background: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
+    border-color: transparent;
+  }
+  .ta-checkbox-mark {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: rgb(var(--ta-on-accent));
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .ta-checkbox-check,
+  .ta-checkbox-dash { stroke-dasharray: 16; stroke-dashoffset: 16; transition: stroke-dashoffset var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out); }
+  .ta-checkbox input:checked:not(:indeterminate) + .ta-checkbox-mark .ta-checkbox-check,
+  .ta-checkbox input:indeterminate + .ta-checkbox-mark .ta-checkbox-dash { stroke-dashoffset: 0; }
+
+  /* Forced colours: the system draws its own checkbox. */
+  @media (forced-colors: active) {
+    .ta-checkbox input { appearance: auto; }
+    .ta-checkbox-mark { display: none; }
+  }
 
   .ta-checkbox input:focus-visible {
     outline: 2px solid rgb(var(--ta-accent) / 0.6);
@@ -64,7 +101,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ta-checkbox input { transition: none; }
+    .ta-checkbox input,
+    .ta-checkbox-check,
+    .ta-checkbox-dash { transition: none; }
     .ta-checkbox input:active:not(:disabled) { transform: none; }
   }
 

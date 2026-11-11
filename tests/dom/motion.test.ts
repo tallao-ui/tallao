@@ -285,9 +285,9 @@ describe("RadarChart", () => {
     render(Motion);
     const figure = figureOf("Kaela against Oskar");
     const kaela = figure.querySelector(".ta-radar-area")!.getAttribute("points")!.split(" ")[0].split(",").map(Number);
-    // Damage 92 of 100 on the axis that points up from (160, 152) with radius 104.
+    // Damage 92 of 100 on the axis that points up from (160, 130) with radius 96.
     expect(kaela[0]).toBeCloseTo(160, 1);
-    expect(kaela[1]).toBeCloseTo(152 - 104 * 0.92, 1);
+    expect(kaela[1]).toBeCloseTo(130 - 96 * 0.92, 1);
   });
 
   it("with fewer than three axes it shows the empty state", () => {

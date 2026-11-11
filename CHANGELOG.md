@@ -2,6 +2,49 @@
 
 ## Unreleased
 
+**Flows, calendars, decks and date ranges.**
+
+- **SankeyChart**: `links` (`SankeyLink[]`: `source`, `target`, `value`), `nodes` (`SankeyNode[]`:
+  `id`, `label`, `color`), `title`, `hideTitle`, `unit`, `height`, `width`, `nodePadding`, `align`
+  (`justify`, `left`), `locale`, `format`, `fromLabel`, `toLabel`, `valueLabel`, `emptyText`,
+  `showDataLabel`, `hideDataLabel`. The layout is the kit's own (`internal/sankey.ts`); links
+  that would close a cycle are not drawn and are marked in the table.
+- **CalendarHeatmap**: `data` (`CalendarHeatmapDay[]`: `date`, `value`), `title`, `hideTitle`,
+  `start`, `end`, `weekStartsOn`, `unit`, `max`, `levels`, `color`, `locale`, `format`,
+  `lessLabel`, `moreLabel`, `emptyText`.
+- **CardStack**: `items`, `index` (bindable), `loop`, `peek`, `label`, `previousLabel`,
+  `nextLabel`, `onchange` and the `card` snippet. `--ta-cardstack-bg` sets the plate behind
+  each card.
+- **DateRangePicker**: `value` (bindable `DateRange`: `start`, `end`), `min`, `max`, `locale`,
+  `weekStartsOn`, `presets` (`DateRangePreset[]`), `name`, `startName`, `endName`, `disabled`,
+  `inline`, `ariaLabel`, `startLabel`, `endLabel`, `buttonLabel`, `onchange`.
+- **FilterBar / FilterChip**: a `date` filter with `range: true` (FilterChip: `range`) edits two
+  dates with a DateRangePicker and stores them as `"start..end"`.
+- **RadarChart**: text no longer scales with the drawing. It is laid out in real pixels for
+  the width it has, axis names are 11px at any `size` and break into two lines when long, and
+  the scale's figures run between the first two axes instead of on one (they sat on points).
+- **Badge**: on the light theme the soft tones reach 4.5:1 on their tint. A new token,
+  `--ta-tone-ink` (0% on dark, 55% on light), is how much of the text colour a tinted text
+  takes; the dark theme renders as before.
+- New label keys, in `en` and `es`: `less`, `more`, `startDate`, `endDate`, `chooseDates`,
+  `lastDays`, `thisMonth`, `cards`, `from`, `to`, `value`, `flowsNotDrawn`.
+
+**Motion: leaving.**
+
+- Dialog and Sheet fade out, and their panel leaves the way it came (a dialog shrinks, a sheet
+  slides to its edge): the closed `<dialog>` stays painted through
+  `transition-behavior: allow-discrete` on `display` and `overlay`; where the browser has
+  not got it, closing is instant as before. Popover, DropdownMenu (and ContextMenu's menus that
+  use it), the DateRangePicker panel and toasts leave with a short `scaleIn` / `fade` from
+  `tallao/motion`. All of it is interruptible and off under reduced motion.
+- **DataTable**: a row that is deleted fades out before it goes (a change of page, order or
+  filter still swaps the rows at once). **TableRow** has a new prop for it, `exit`.
+- **Checkbox**: the check draws itself (and a dash when `indeterminate`). It is still the
+  native `<input type="checkbox">` (name, value, form, Space, `:indeterminate`); the kit now
+  draws its box (`appearance: none`) with an SVG mark next to it, so the markup inside the
+  label changed (a `ta-checkbox-box` wrapper). Under forced colours the system's checkbox is
+  used.
+
 **Agent run components.** What a screen that shows a model at work needs, composed in
 `src/AgentDemo.svelte` (the "Agent screen" section of the demo).
 

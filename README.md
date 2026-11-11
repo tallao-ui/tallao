@@ -94,6 +94,7 @@ Requires Svelte 5.29 or later.
 | Kbd | a keyboard shortcut hint (`<kbd>` per key); `Mod` is ⌘ on Apple devices and Ctrl elsewhere, with the key names for screen readers |
 | Pagination | Previous / numbers with "…" / Next, `aria-current="page"` |
 | Calendar · DatePicker | pick a day with the keyboard (APG pattern), ISO dates, `min`/`max`, localized names; the DatePicker can also be typed into |
+| DateRangePicker | two dates typed (ISO) or picked: quick ranges ("Last 7 days") and a Calendar per end in a non-modal panel; the fields are real inputs submitted as `<name>_start` / `<name>_end`, so a form filters without JavaScript; `inline` shows only the panel (FilterChip uses it for a `date` filter with `range`) |
 | MonthView | a month to look at (agenda, events): the `day` snippet with what goes in each day (`date`, `day`, `weekday`, `today`, `outside`), ‹ › and PageUp/PageDown (Shift: year) to change month, `bind:month`, today with `aria-current="date"`; unlike Calendar, a day's content can hold links and buttons |
 | FileUpload | choose or drop files on a real `<input type="file">`; `accept`, `maxSize`, `maxFiles`, with the reason for each rejection |
 | Breadcrumb | a navigation trail in `<nav>` + `<ol>`; the last item is `aria-current="page"` |
@@ -115,6 +116,9 @@ Requires Svelte 5.29 or later.
 | BigNumber · IconArray · Timeline · ComparisonBar | infographic pieces: a headline figure that counts up when it scrolls into view (the server renders the final value; no count under reduced motion), a unit chart ("7 of 10", filled against hollow marks), dated events with `<time>`, and two values against each other on one split bar |
 | DashboardGrid · DashboardItem · ChartCard | a dashboard layout that answers to its container's width (4 → 2 → 1 columns, `span` per item), and the frame of a chart: title, description, `toolbar` snippet, note and source |
 | RadarChart | several measures on one shape (a character's stats), for one item or up to four compared; series differ by colour, point shape and line style; same contract as the other charts (legend, empty state, "Show data" table) |
+| SankeyChart | where a quantity comes from and where it goes: nodes in columns joined by ribbons as thick as the flow, laid out without a library (columns by longest path, order by the barycentre heuristic, proportional heights); names and totals in text, a node's flows highlighted on hover or focus, the "Show data" table; readable for about 5–25 nodes |
+| CalendarHeatmap | activity by day as a calendar: weeks as columns, weekdays as rows, months named over their weeks, a shade per day; a real table whose cells say the date and the value, in a scrolling region with the weekdays fixed |
+| CardStack | a deck looked at one card at a time: flick the top card away with the pointer, or use the buttons and ← → Home End; the position is announced, the cards behind are inert |
 | RollingCounter | a number whose digits roll, each on its own wheel, to the new value; the server renders the final value and screen readers get plain text |
 | ChartLegend | the legend the charts draw, on its own: mark, label and value per entry |
 | SchemaForm | a form built from a JSON Schema: validates on submit, focuses the first error, works as the `<form>` of a SvelteKit action |

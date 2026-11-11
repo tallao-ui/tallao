@@ -232,6 +232,23 @@ export interface Labels {
   confidenceHigh: string;
   /** Heading of the reasons behind a suggestion (RecommendationCard). */
   reasons: string;
+  /** Ends of the shade scale of a calendar heatmap (CalendarHeatmap). */
+  less: string;
+  more: string;
+  /** The two fields of a date range, its button and its quick ranges: "{n}" is replaced (DateRangePicker). */
+  startDate: string;
+  endDate: string;
+  chooseDates: string;
+  lastDays: string;
+  thisMonth: string;
+  /** Accessible name of a stack of cards (CardStack). */
+  cards: string;
+  /** Column headers of the data table of a flow chart (SankeyChart). */
+  from: string;
+  to: string;
+  value: string;
+  /** Note under a flow chart: "{n}" is replaced (SankeyChart). */
+  flowsNotDrawn: string;
 }
 
 export const en: Labels = {
@@ -393,6 +410,18 @@ export const en: Labels = {
   confidenceMedium: "Medium confidence",
   confidenceHigh: "High confidence",
   reasons: "Why",
+  less: "Less",
+  more: "More",
+  startDate: "Start date",
+  endDate: "End date",
+  chooseDates: "Choose dates",
+  lastDays: "Last {n} days",
+  thisMonth: "This month",
+  cards: "Cards",
+  from: "From",
+  to: "To",
+  value: "Value",
+  flowsNotDrawn: "{n} not drawn: it would close a loop",
 };
 
 export const es: Labels = {
@@ -554,6 +583,18 @@ export const es: Labels = {
   confidenceMedium: "Confianza media",
   confidenceHigh: "Confianza alta",
   reasons: "Por qué",
+  less: "Menos",
+  more: "Más",
+  startDate: "Fecha inicial",
+  endDate: "Fecha final",
+  chooseDates: "Elegir fechas",
+  lastDays: "Últimos {n} días",
+  thisMonth: "Este mes",
+  cards: "Tarjetas",
+  from: "Desde",
+  to: "Hasta",
+  value: "Valor",
+  flowsNotDrawn: "{n} sin dibujar: cerraría un ciclo",
 };
 
 const KEY = Symbol("tallao-labels");

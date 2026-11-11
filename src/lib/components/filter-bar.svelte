@@ -7,6 +7,7 @@
       { key: "status", label: "Status", type: "select", options: ["Draft", "Published"] },
       { key: "featured", label: "Featured", type: "boolean" },
       { key: "since", label: "Published since", type: "date", hidden: true },
+      { key: "period", label: "Period", type: "date", range: true, hidden: true },
       { key: "author", label: "Author", type: "text", hidden: true },
     ]} />
 
@@ -37,6 +38,8 @@
     hidden?: boolean;
     /** Placeholder of a "text" filter. */
     placeholder?: string;
+    /** A "date" filter takes two dates: its value is "start..end". */
+    range?: boolean;
   }
 
   export type FilterValues = Record<string, string | boolean>;
@@ -176,6 +179,7 @@
       type={def.type}
       options={def.options}
       placeholder={def.placeholder}
+      range={def.range}
       {locale}
       value={has(def.key) ? value[def.key] : null}
       onchange={(next) => set(def.key, next)}

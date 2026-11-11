@@ -22,8 +22,13 @@
     state is shown.
   - Series differ by colour, by the shape of their points and by their line (solid, dashed,
     dotted), so two overlapping profiles can be told apart without colour.
-  - The drawing is an image named with the title and the series; it is plain SVG, the same
-    on the server. Up to four series: more than that on one radar cannot be read.
+  - Text keeps its size: the drawing is laid out in real pixels for the width it has (`size`,
+    or its container when that is narrower), so axis names are 11px at any size. They sit
+    outside the rings and break into two lines at a space when long. The scale's figures run
+    along the gap between the first two axes, never on an axis, so they do not sit on a point.
+  - The drawing is an image named with the title and the series; it is plain SVG. The server
+    draws it at `size`; the browser redraws it if the container is narrower. Up to four
+    series: more than that on one radar cannot be read.
   `data` and `series` are plain JSON.
 -->
 <script lang="ts">
@@ -47,7 +52,7 @@
     max?: number;
     /** How many rings the grid has. */
     levels?: number;
-    /** Width of the drawing in px (it shrinks to fit a narrow container). */
+    /** Width of the drawing in px (it shrinks to fit a narrower container). */
     size?: number;
     /** Header of the axis column in the data table. */
     axisLabel?: string;
@@ -85,14 +90,18 @@
     max ?? niceScale(Math.max(0, ...data.flatMap((row) => shown.map((s) => valueAt(row, s.key) ?? 0))), levels).max
   );
 
-  // Geometry in a 320 × 300 box: room around the rings for the axis names.
-  const W = 320;
-  const H = 300;
-  const CX = W / 2;
-  const CY = H / 2 + 2;
-  const R = 104;
+  // Laid out in real pixels: a margin for the axis names, the rings in what is left.
+  let available = $state(0);
+  const W = $derived(Math.max(200, Math.min(size, available || size)));
+  const MX = 64;
+  const MY = 34;
+  const R = $derived(Math.max(36, (W - MX * 2) / 2));
+  const H = $derived(R * 2 + MY * 2);
+  const CX = $derived(W / 2);
+  const CY = $derived(H / 2);
   const angle = (i: number) => (i / Math.max(1, axes.length)) * Math.PI * 2;
-  const point = (i: number, r: number) => [CX + r * Math.sin(angle(i)), CY - r * Math.cos(angle(i))] as const;
+  const polar = (a: number, r: number) => [CX + r * Math.sin(a), CY - r * Math.cos(a)] as const;
+  const point = (i: number, r: number) => polar(angle(i), r);
   const fixed = (p: readonly [number, number]) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
   const ring = (r: number) => axes.map((_, i) => fixed(point(i, r))).join(" ");
 
@@ -103,14 +112,33 @@
     })
   );
 
-  const anchor = (i: number) => {
-    const x = Math.sin(angle(i));
-    return Math.abs(x) < 0.2 ? "middle" : x > 0 ? "start" : "end";
-  };
-  const baseline = (i: number) => {
-    const y = -Math.cos(angle(i));
-    return y < -0.3 ? "auto" : y > 0.3 ? "hanging" : "middle";
-  };
+  /** A long axis name on two lines, broken at the space nearest its middle. */
+  function lines(label: string): string[] {
+    if (label.length <= 10 || !label.includes(" ")) return [label];
+    const middle = label.length / 2;
+    const spaces = [...label.matchAll(/ /g)].map((m) => m.index!);
+    const at = spaces.reduce((best, i) => (Math.abs(i - middle) < Math.abs(best - middle) ? i : best), spaces[0]);
+    return [label.slice(0, at), label.slice(at + 1)];
+  }
+  const labels = $derived(
+    axes.map((label, i) => {
+      const [x, y] = point(i, R + 10);
+      const sin = Math.sin(angle(i));
+      const cos = -Math.cos(angle(i));
+      const text = lines(label);
+      // Above the chart the block grows upwards; below, downwards; at the sides it is centred.
+      const first = cos < -0.3 ? y - (text.length - 1) * 13 : cos > 0.3 ? y + 9 : y + 4 - (text.length - 1) * 6.5;
+      return { text, x, y: first, anchor: Math.abs(sin) < 0.2 ? "middle" : sin > 0 ? "start" : "end" };
+    })
+  );
+  // The scale's figures: on the bisector between the first two axes, where no point can be.
+  const ticks = $derived(
+    Array.from({ length: levels }, (_, l) => {
+      const half = Math.PI / Math.max(1, axes.length);
+      const [x, y] = polar(half, ((R * (l + 1)) / levels) * Math.cos(half));
+      return { x, y, text: format((top * (l + 1)) / levels) };
+    })
+  );
 
   const table = $derived<ChartTable>({
     columns: [{ label: axisLabel }, ...shown.map((s) => ({ label: s.label, numeric: true }))],
@@ -130,39 +158,54 @@
   {hideDataLabel}
   class={cn("ta-radar", className)}
 >
-  <svg class="ta-radar-svg" viewBox={`0 0 ${W} ${H}`} style:max-width={`${size}px`} role="img" aria-label={name}>
-    {#each Array.from({ length: levels }) as _, l (l)}
-      <polygon class={cn("ta-radar-ring", l === levels - 1 && "ta-radar-ring--outer")} points={ring((R * (l + 1)) / levels)} />
-    {/each}
-    {#each axes as label, i (i)}
-      {@const end = point(i, R)}
-      {@const at = point(i, R + 12)}
-      <line class="ta-radar-spoke" x1={CX} y1={CY} x2={end[0].toFixed(1)} y2={end[1].toFixed(1)} />
-      <text class="ta-radar-axis" x={at[0].toFixed(1)} y={at[1].toFixed(1)} text-anchor={anchor(i)} dominant-baseline={baseline(i)}>{label}</text>
-    {/each}
-    {#each Array.from({ length: levels }) as _, l (l)}
-      <text class="ta-radar-tick" x={CX + 3} y={(CY - (R * (l + 1)) / levels - 2).toFixed(1)}>{format((top * (l + 1)) / levels)}</text>
-    {/each}
-    {#each shapes as s (s.series.key)}
-      <polygon class="ta-radar-area" points={s.d} fill={s.color} stroke={s.color} stroke-dasharray={s.dash || undefined} />
-    {/each}
-    {#each shapes as s (s.series.key)}
-      {#each s.points as p, i (i)}
-        <path class="ta-radar-point" d={shapePath(s.shape, p[0], p[1], 3.2)} fill={s.color} />
+  <div class="ta-radar-box" bind:clientWidth={available}>
+    <svg class="ta-radar-svg" width={W} height={H} viewBox={`0 0 ${W} ${H}`} role="img" aria-label={name}>
+      {#each Array.from({ length: levels }) as _, l (l)}
+        <polygon class={cn("ta-radar-ring", l === levels - 1 && "ta-radar-ring--outer")} points={ring((R * (l + 1)) / levels)} />
       {/each}
-    {/each}
-  </svg>
+      {#each axes as _, i (i)}
+        {@const end = point(i, R)}
+        <line class="ta-radar-spoke" x1={CX} y1={CY} x2={end[0].toFixed(1)} y2={end[1].toFixed(1)} />
+      {/each}
+      {#each shapes as s (s.series.key)}
+        <polygon class="ta-radar-area" points={s.d} fill={s.color} stroke={s.color} stroke-dasharray={s.dash || undefined} />
+      {/each}
+      {#each ticks as tick, l (l)}
+        <text class="ta-radar-tick" x={tick.x.toFixed(1)} y={tick.y.toFixed(1)} text-anchor="middle" dominant-baseline="middle">{tick.text}</text>
+      {/each}
+      {#each shapes as s (s.series.key)}
+        {#each s.points as p, i (i)}
+          <path class="ta-radar-point" d={shapePath(s.shape, p[0], p[1], 3.2)} fill={s.color} />
+        {/each}
+      {/each}
+      {#each labels as label, i (i)}
+        <text class="ta-radar-axis" x={label.x.toFixed(1)} y={label.y.toFixed(1)} text-anchor={label.anchor}>
+          {#each label.text as line, n (n)}<tspan x={label.x.toFixed(1)} dy={n === 0 ? 0 : 13}>{line}</tspan>{/each}
+        </text>
+      {/each}
+    </svg>
+  </div>
 </ChartFigure>
 
 <style>
-  .ta-radar-svg { display: block; width: 100%; height: auto; margin: 0 auto; overflow: visible; }
+  .ta-radar-box { display: flex; justify-content: center; width: 100%; min-width: 0; }
+  .ta-radar-svg { display: block; flex: 0 0 auto; overflow: visible; }
 
   .ta-radar-ring { fill: none; stroke: rgb(var(--ta-border)); stroke-width: 1; }
   .ta-radar-ring--outer { stroke: rgb(var(--ta-muted)); }
   .ta-radar-spoke { stroke: rgb(var(--ta-border)); stroke-width: 1; }
 
   .ta-radar-axis { fill: rgb(var(--ta-text-dim)); font-size: 11px; font-weight: 500; }
-  .ta-radar-tick { fill: rgb(var(--ta-text-dim)); font-size: 9px; font-variant-numeric: tabular-nums; opacity: 0.8; }
+  /* A halo in the page colour keeps the figures readable over a filled shape. */
+  .ta-radar-tick {
+    fill: rgb(var(--ta-text-dim));
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    paint-order: stroke;
+    stroke: rgb(var(--ta-bg) / 0.85);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
 
   .ta-radar-area { fill-opacity: 0.14; stroke-width: 2; stroke-linejoin: round; }
   .ta-radar-point { stroke: rgb(var(--ta-surface)); stroke-width: 1.5; }

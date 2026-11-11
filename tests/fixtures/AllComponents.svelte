@@ -75,6 +75,10 @@
     ToolChips,
     RadarChart,
     RollingCounter,
+    CardStack,
+    CalendarHeatmap,
+    DateRangePicker,
+    SankeyChart,
   } from "$lib/components";
 
   let { dialogOpen = false }: { dialogOpen?: boolean } = $props();
@@ -234,6 +238,12 @@
     <InsightCard level={2} title="Kaela's pick rate doubled" label="Pick rate" value={18.4} unit="%" delta={9.1} trend={[9, 14, 18.4]} text="After patch 1.1." actionLabel="Open the table" actionHref="/meta" locale="en" />
     <RadarChart title="Stats" axis="stat" locale="en" data={[{ stat: "Damage", a: 9, b: 5 }, { stat: "Speed", a: 7, b: 4 }, { stat: "Guard", a: 3, b: 9 }]} series={[{ key: "a", label: "Kaela" }, { key: "b", label: "Oskar" }]} />
     <p>Online <RollingCounter value={1249} label="Players online" locale="en" size="sm" /></p>
+    <CardStack items={["One", "Two", "Three"]} label="Deck">
+      {#snippet card(item)}<p>{item}</p>{/snippet}
+    </CardStack>
+    <CalendarHeatmap title="Activity" unit="matches" locale="en" data={[{ date: "2026-10-28", value: 3 }, { date: "2026-11-03", value: 7 }, { date: "2026-11-10", value: 0 }]} />
+    <DateRangePicker value={{ start: "2026-11-01", end: "2026-11-07" }} name="period" locale="en" />
+    <SankeyChart title="Flows" locale="en" links={[{ source: "A", target: "B", value: 5 }, { source: "A", target: "C", value: 3 }, { source: "B", target: "D", value: 4 }, { source: "C", target: "D", value: 3 }]} />
     <Dialog open={dialogOpen} title="Dialog" description="Details"><p>Body</p></Dialog>
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
   </main>

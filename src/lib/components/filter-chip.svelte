@@ -13,7 +13,8 @@
   - "text": a small non-modal panel with a text field; it filters as you type and Enter
     closes it.
   - "date": a panel with a Calendar; picking a day sets an ISO date ("2026-11-03") and
-    closes it.
+    closes it. With `range` it is a DateRangePicker (quick ranges and two calendars) and the
+    value is "2026-11-01..2026-11-07" (either end may be empty: "2026-11-01..").
   No value is `null` (an empty text is `null` too). An active chip is marked by its value in
   text and a filled style, never by colour alone. Without JavaScript the chip is an inert
   button: render your own `<form>` controls for a page that must filter without it.
@@ -31,6 +32,7 @@
   import { cn } from "$lib/utils";
 
   import Calendar from "./calendar.svelte";
+  import DateRangePicker from "./date-range-picker.svelte";
   import DropdownMenu from "./dropdown-menu.svelte";
   import Icon from "./icon.svelte";
   import MenuItem from "./menu-item.svelte";
@@ -49,6 +51,8 @@
     removable?: boolean;
     /** Placeholder of the "text" field. */
     placeholder?: string;
+    /** A "date" filter takes two dates, stored as "start..end". */
+    range?: boolean;
     /** Language of the "date" calendar. */
     locale?: string;
     /** Accessible name of the remove button; "{filter}" is replaced by the label. */
@@ -71,6 +75,7 @@
     value = $bindable(null),
     removable = true,
     placeholder,
+    range = false,
     locale,
     removeLabel = L.removeFilter,
     anyLabel = L.allValues,
@@ -96,7 +101,13 @@
   const shown = $derived.by(() => {
     if (!active) return "";
     if (type === "select" || type === "boolean") return choices.find((c) => c.value === value)?.label ?? String(value);
+    if (type === "date" && range) return String(value).split("..").map((d) => d || "…").join(" – ");
     return String(value);
+  });
+
+  const rangeValue = $derived.by(() => {
+    const [start = "", end = ""] = typeof value === "string" ? value.split("..") : [];
+    return { start: start || null, end: end || null };
   });
 
   function set(next: FilterChipValue) {
@@ -159,6 +170,8 @@
             }
           }}
         />
+      {:else if range}
+        <DateRangePicker inline value={rangeValue} {locale} onchange={(next) => set(next.start || next.end ? `${next.start ?? ""}..${next.end ?? ""}` : null)} />
       {:else}
         <Calendar
           value={typeof value === "string" ? value : null}

@@ -55,6 +55,10 @@
   --ta-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ta-ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1);
   --ta-motion: 1;
+
+  /* Coloured text on a tint of its own colour (a soft Badge): how much of the text colour is
+     mixed in so it reaches 4.5:1. Nothing on the dark theme, where the tones are light. */
+  --ta-tone-ink: 0%;
 }
 
 /* Reduced motion, in one place: the system setting, or `data-tallao-motion="reduce"` on <html>
@@ -112,6 +116,7 @@
   --ta-text: 24 24 27;
   --ta-text-dim: 82 82 91;
   --ta-backdrop: 9 9 11;
+  --ta-tone-ink: 55%;
   /* The same eight, in their shades for a light background (aquamarine, yellow and magenta
      stay under 3:1: charts always carry a legend and the data table). */
   --ta-series-1: 42 120 214;

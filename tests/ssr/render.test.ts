@@ -368,3 +368,23 @@ describe("server rendering of the motion pieces, RadarChart and RollingCounter",
     await motion.viewTransition(() => {});
   });
 });
+
+import Round3 from "../fixtures/Round3.svelte";
+
+describe("server rendering of the flow chart, the calendar heatmap, the card stack and the date range", () => {
+  it("renders them whole, the same every time", () => {
+    const { body } = render(Round3);
+    // The Sankey is laid out on the server at its default width.
+    expect(body).toContain("ta-sankey-link");
+    expect(body).toContain('aria-label="Signed up: 1,000 players. To: Tutorial 720 players, Left 280 players"');
+    expect(body).toContain("Nov 2, 2026: 8 matches");
+    expect(body).toContain('name="period_start"');
+    expect(body).toContain('value="2026-11-03"');
+    expect(body).toContain("1 of 3");
+    expect(body).toContain("Ember Rush");
+    // The check mark is in the HTML; the date range panel is not until it is opened.
+    expect(body).toContain("ta-checkbox-mark");
+    expect(body).not.toContain("ta-daterange-panel");
+    expect(render(Round3).body).toBe(body);
+  });
+});

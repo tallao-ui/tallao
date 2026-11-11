@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import { useLabels } from "$lib/i18n";
+  import { fade } from "$lib/motion";
   import { cn } from "$lib/utils";
   import { toast, toasts, type Toast } from "$lib/toast.svelte";
 
@@ -82,6 +83,7 @@
     {#each toasts as t (t.id)}
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <li
+        out:fade={{ duration: "base" }}
         class={cn("ta-toast", `ta-toast--${t.variant}`)}
         role={t.variant === "error" ? "alert" : undefined}
         onpointerenter={() => pause(t)}

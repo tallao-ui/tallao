@@ -71,12 +71,12 @@ All under `src/lib/components/` (kebab-case file, PascalCase export in `componen
 | Family | Components |
 | --- | --- |
 | Actions and feedback | Button, Badge, Spinner, Alert, Progress, Skeleton, Toaster + `toast()`, CopyButton, Stat, Icon, Avatar |
-| Forms | Input, Textarea, Select, Checkbox, Label, Field, SearchInput, NumberInput, Slider, Switch, Toggle, ToggleGroup, RadioGroup, Rating, InputOTP, Combobox, KeyValueEditor, FileUpload, Calendar, DatePicker, SchemaForm, CodeEditor (`tallao/code`) |
+| Forms | Input, Textarea, Select, Checkbox, Label, Field, SearchInput, NumberInput, Slider, Switch, Toggle, ToggleGroup, RadioGroup, Rating, InputOTP, Combobox, KeyValueEditor, FileUpload, Calendar, DatePicker, DateRangePicker, SchemaForm, CodeEditor (`tallao/code`) |
 | Overlays and menus | Dialog, Sheet, ConfirmDialog, Popover, Tooltip, DropdownMenu + MenuItem / MenuSeparator / MenuLabel, ContextMenu, Command |
-| Navigation and layout | Card (+ CardHeader / CardTitle / CardContent / CardFooter), Tabs, Accordion, Breadcrumb, Pagination, Sidebar, NavMenu, MegaMenu, BottomNav, SplitPane, Carousel, ThemeScope |
+| Navigation and layout | Card (+ CardHeader / CardTitle / CardContent / CardFooter), Tabs, Accordion, Breadcrumb, Pagination, Sidebar, NavMenu, MegaMenu, BottomNav, SplitPane, Carousel, CardStack, ThemeScope |
 | Admin pages | AppShell, PageHeader, FilterBar + FilterChip, SavedViews, EmptyState, SaveBar, DiffView, DescriptionList, Kbd |
 | Data | Table (+ TableHeader / TableBody / TableRow / TableHead / TableCell), DataTable, MonthView, CompareSlider, SelectionBar, DragBoard + DropZone / DragItem, GameMap (`tallao/map`) |
-| Charts and BI | BarChart, LineChart, DonutChart, ScatterChart, RadarChart, Heatmap, Funnel, BarList, Sparkline, Gauge, ChartLegend, KpiCard, BigNumber, RollingCounter, IconArray, Timeline, ComparisonBar, DashboardGrid + DashboardItem, ChartCard |
+| Charts and BI | BarChart, LineChart, DonutChart, ScatterChart, RadarChart, SankeyChart, Heatmap, CalendarHeatmap, Funnel, BarList, Sparkline, Gauge, ChartLegend, KpiCard, BigNumber, RollingCounter, IconArray, Timeline, ComparisonBar, DashboardGrid + DashboardItem, ChartCard |
 | Generative UI | PromptInput, ChatMessage, Thinking, StreamingText, ToolChips, ToolCallCard, TaskList, Steps, ApprovalCard, ContextCards, RecommendationCard, InsightCard, SuggestionChips, CodeBlock, Sources, UsageMeter |
 
 Shared code: `src/lib/internal/` (floating layer: top layer + Floating UI positioning + layer

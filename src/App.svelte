@@ -102,6 +102,11 @@
     Timeline,
     RadarChart,
     RollingCounter,
+    CardStack,
+    CalendarHeatmap,
+    DateRangePicker,
+    SankeyChart,
+    type DateRange,
     type DataFilters,
     type JsonSchema,
   } from "$lib/components";
@@ -116,6 +121,37 @@
 
   let theme = $state<"dark" | "light">("dark");
   let playersOnline = $state(12480);
+  let demoRange = $state<DateRange>({ start: "2026-11-01", end: "2026-11-07" });
+  let deckIndex = $state(0);
+  const demoDecks = [
+    { name: "Ember Rush", kind: "Aggro", win: "54.2%", note: "Wins by turn six or not at all." },
+    { name: "Tidewall", kind: "Control", win: "51.8%", note: "Answers everything, then one finisher." },
+    { name: "Root Engine", kind: "Combo", win: "49.6%", note: "Three pieces and the game is over." },
+    { name: "Stormcallers", kind: "Tempo", win: "52.3%", note: "Cheap threats backed by counters." },
+  ];
+  // A deterministic year of activity (no Math.random: the server and the browser agree).
+  const demoActivity = Array.from({ length: 182 }, (_, i) => {
+    const day = new Date(Date.UTC(2026, 4, 11 + i));
+    const wave = Math.sin(i / 9) * 4 + Math.sin(i / 2.3) * 2 + (day.getUTCDay() % 6 === 0 ? 5 : 1);
+    return { date: day.toISOString().slice(0, 10), value: Math.max(0, Math.round(wave + (i % 11 === 0 ? 6 : 0))) };
+  });
+  const demoFlows = [
+    { source: "Search", target: "Home", value: 420 },
+    { source: "Search", target: "Tier list", value: 380 },
+    { source: "Social", target: "Home", value: 210 },
+    { source: "Social", target: "Patch notes", value: 260 },
+    { source: "Direct", target: "Home", value: 190 },
+    { source: "Home", target: "Tier list", value: 310 },
+    { source: "Home", target: "Patch notes", value: 180 },
+    { source: "Home", target: "Left", value: 330 },
+    { source: "Tier list", target: "Builds", value: 400 },
+    { source: "Tier list", target: "Left", value: 290 },
+    { source: "Patch notes", target: "Builds", value: 150 },
+    { source: "Patch notes", target: "Left", value: 290 },
+    { source: "Builds", target: "Signed up", value: 240 },
+    { source: "Builds", target: "Left", value: 310 },
+    { source: "Search", target: "Signed up", value: 60 },
+  ];
   let dialogOpen = $state(false);
   let search = $state("");
   let loading = $state(false);
@@ -1094,6 +1130,41 @@
           <Button variant="secondary" size="sm" onclick={() => (playersOnline += Math.round(Math.random() * 1800 - 600))}>Change</Button>
         </div>
         <p class="note">Players online, with each digit on its own wheel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ——— SANKEY · CALENDAR HEATMAP · CARD STACK · DATE RANGE ——— -->
+  <section class="section" id="flows">
+    <h2>SankeyChart · CalendarHeatmap · CardStack · DateRangePicker</h2>
+    <SankeyChart title="Where visits go" unit="visits" links={demoFlows} locale="en" height={360} />
+    <div class="stack" style="margin-top: 1.5rem">
+      <CalendarHeatmap title="Matches played per day" unit="matches" data={demoActivity} locale="en" />
+      <div class="grid-2">
+        <CardStack items={demoDecks} bind:index={deckIndex} label="Featured decks">
+          {#snippet card(deck)}
+            <Card>
+              <CardHeader><CardTitle level={3}>{deck.name}</CardTitle></CardHeader>
+              <CardContent>
+                <p class="card-text"><Badge variant="accent">{deck.kind}</Badge> · win rate {deck.win}</p>
+                <p class="card-text" style="margin-top: 0.5rem">{deck.note}</p>
+              </CardContent>
+            </Card>
+          {/snippet}
+        </CardStack>
+        <div class="stack">
+          <Field label="Period"><DateRangePicker bind:value={demoRange} name="period" locale="en" /></Field>
+          <p class="note">{demoRange.start ?? "…"} to {demoRange.end ?? "…"}</p>
+          <div class="row">
+            <Badge variant="success" dot>Published</Badge>
+            <Badge variant="warning" dot>In review</Badge>
+            <Badge variant="error">Failed</Badge>
+            <Badge variant="info">Info</Badge>
+            <Badge variant="accent">Featured</Badge>
+            <Badge variant="accent-2">New</Badge>
+          </div>
+          <Checkbox label="A check that draws itself" checked />
+        </div>
       </div>
     </div>
   </section>

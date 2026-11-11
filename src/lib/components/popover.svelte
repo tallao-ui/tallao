@@ -23,6 +23,7 @@
   import { restoreFocus, getActiveElement, tabbables } from "$lib/internal/focus";
   import { pushLayer } from "$lib/internal/layers";
   import { anchor, type Placement } from "$lib/internal/position";
+  import { scaleIn } from "$lib/motion";
 
   interface Props {
     open?: boolean;
@@ -107,6 +108,7 @@
     aria-labelledby={title ? `${id}-title` : undefined}
     aria-label={title ? undefined : ariaLabel}
     class={cn("ta-popover", className)}
+    out:scaleIn={{ duration: "fast", from: 0.98 }}
   >
     {#if title}<p class="ta-popover-title" id={`${id}-title`}>{title}</p>{/if}
     {@render children?.()}

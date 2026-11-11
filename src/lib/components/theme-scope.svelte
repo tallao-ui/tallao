@@ -52,6 +52,7 @@
     --ta-on-warning: 9 9 11;
     --ta-on-info: 9 9 11;
     --ta-on-danger: 9 9 11;
+    --ta-tone-ink: 0%;
     --ta-success: 52 211 153;
     --ta-warning: 251 191 36;
     --ta-info: 96 165 250;
@@ -97,6 +98,7 @@
     --ta-on-warning: 9 9 11;
     --ta-on-info: 9 9 11;
     --ta-on-danger: 9 9 11;
+    --ta-tone-ink: var(--kitsuden-tone-ink, 0%);
     --ta-success: var(--kitsuden-green, 52 211 153);
     --ta-warning: var(--kitsuden-amber, 251 191 36);
     --ta-info: 96 165 250;
