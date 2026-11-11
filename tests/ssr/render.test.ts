@@ -273,3 +273,98 @@ describe("server rendering of the BI components", () => {
     expect(body.match(/>No data</g)?.length).toBe(8);
   });
 });
+
+import Admin from "../fixtures/Admin.svelte";
+import AdminTexts from "../fixtures/AdminTexts.svelte";
+
+describe("server rendering of the admin building blocks", () => {
+  it("renders the page header, filters, states, save bar, diff and lists, the same every time", () => {
+    const { body } = render(Admin, { props: { query: { status: "pub", q: "tide" } } });
+    expect(body).toContain("ta-page-header");
+    // The applied filters are already in the HTML: the chip's value and the search text.
+    expect(body).toContain('aria-label="Status: Published"');
+    expect(body).toContain('value="tide"');
+    expect(body).toContain("1 filter active");
+    expect(body).toContain("All changes saved");
+    expect(body).toMatch(/<del[^>]*>.*Hello/s);
+    expect(body).toContain("<dl");
+    expect(body).toContain('href="/posts/p1"');
+    expect(body).toContain('aria-pressed="false"');
+    // No floating panel, menu or sheet is rendered closed.
+    expect(body).not.toContain('role="menu"');
+    expect(body).not.toContain("Mobile navigation");
+    expect(render(Admin, { props: { query: { status: "pub", q: "tide" } } }).body).toBe(body);
+  });
+
+  it("Kbd draws the non-Mac legend on the server unless the platform is fixed", () => {
+    const { body } = render(Admin, { props: { platform: "auto" } });
+    expect(body).toMatch(/data-testid="kbd"[^>]*>.*Ctrl/s);
+    expect(body).not.toContain("⌘");
+    expect(render(Admin, { props: { platform: "mac" } }).body).toContain("⌘");
+  });
+
+  it("the table renders its skeleton rows and its error state", () => {
+    const loading = render(Admin, { props: { tableLoading: true, tableRows: [] } }).body;
+    expect(loading).toContain("ta-datatable-loading");
+    expect(loading).toContain('aria-busy="true"');
+    const failed = render(Admin, { props: { tableError: "Could not load the posts" } }).body;
+    expect(failed).toContain("Could not load the posts");
+    expect(failed).toContain('role="alert"');
+  });
+
+  it("AppShell renders its landmarks and the skip link, with the labels of the request", () => {
+    const { body } = render(AdminTexts, { props: { shell: true } });
+    expect(body).toContain("<main");
+    expect(body).toContain("Saltar al contenido");
+    expect(body).toContain('aria-haspopup="dialog"');
+    expect(render(AdminTexts, { props: { shell: true } }).body).toBe(body);
+  });
+});
+
+import AgentUi from "../fixtures/AgentUi.svelte";
+
+describe("server rendering of the agent-run components", () => {
+  it("renders the run as given, whole and the same every time", () => {
+    const { body } = render(AgentUi, { props: { running: true, streaming: true, onApprove: () => {}, onReject: () => {} } });
+    expect(body).toContain("Thinking…");
+    expect(body).toContain('aria-busy="true"');
+    // The streamed text is whole on the server, and already split for screen readers.
+    expect(body).toMatch(/ta-stream-word[^>]*>First /);
+    expect(body).toContain("First sentence.");
+    expect(body).toContain("5 tool calls, 2 messages");
+    expect(body).toContain('role="progressbar"');
+    expect(body).toContain("Approval requested");
+    expect(body).toContain("High confidence");
+    expect(body).toContain("ta-kpi-value");
+    expect(render(AgentUi, { props: { running: true, streaming: true, onApprove: () => {}, onReject: () => {} } }).body).toBe(body);
+  });
+
+  it("renders a decided approval without its buttons", () => {
+    const { body } = render(AgentUi, { props: { status: "approved", onApprove: () => {} } });
+    expect(body).toContain("Approved by Ana");
+    expect(body).not.toContain("ta-approval-actions");
+  });
+});
+
+import Motion from "../fixtures/Motion.svelte";
+
+describe("server rendering of the motion pieces, RadarChart and RollingCounter", () => {
+  it("renders final states: content in place, the counter at its value, the radar drawn", () => {
+    const { body } = render(Motion, { props: { value: 1249, total: 10 } });
+    expect(body).toContain("Panel");
+    // The sliding underline waits for the browser: the server draws each tab's own.
+    expect(body).not.toContain("ta-tabs-indicator");
+    expect(body).not.toContain("ta-tabs--sliding");
+    expect(body).toContain("Players online: 1,249");
+    expect(body).toContain("translateY(-90%)");
+    expect(body).toContain('aria-label="Kaela against Oskar: Kaela, Oskar"');
+    expect(body).toContain("ta-radar-area");
+    expect(render(Motion, { props: { value: 1249, total: 10 } }).body).toBe(body);
+  });
+
+  it("the motion module imports and answers on the server without a document", async () => {
+    const motion = await import("$lib/motion");
+    expect(motion.prefersReducedMotion()).toBe(true);
+    await motion.viewTransition(() => {});
+  });
+});

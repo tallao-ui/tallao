@@ -91,7 +91,7 @@
   .ta-accordion-chevron {
     flex-shrink: 0;
     color: rgb(var(--ta-text-dim));
-    transition: transform 0.15s;
+    transition: transform var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out);
   }
   details[open] > .ta-accordion-title .ta-accordion-chevron { transform: rotate(180deg); }
 
@@ -101,6 +101,13 @@
     color: rgb(var(--ta-text-dim));
   }
 
+  /* An opened section's content settles in; closing is the browser's (instant). */
+  details[open] > .ta-accordion-content { animation: ta-accordion-open var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out); }
+  @keyframes ta-accordion-open {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+  }
+
   details[aria-disabled="true"] > .ta-accordion-title {
     opacity: 0.5;
     cursor: not-allowed;
@@ -108,6 +115,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .ta-accordion-chevron { transition: none; }
+    details[open] > .ta-accordion-content { animation: none; }
   }
 
   /* On touch screens: a 44px header for the finger. */

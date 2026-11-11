@@ -30,6 +30,7 @@ pnpm add github:tallao-ui/tallao   # builds dist/ on install through `prepare`
 | `tallao` | every component, `toast()` / `toasts`, `setLabels`, `setDefaultLabels`, `useLabels`, `en`, `es`, `cn`, and the public types |
 | `tallao/map` | `GameMap` (optional peers `leaflet`, `sveaflet`) |
 | `tallao/code` | `CodeEditor` (optional peers `@codemirror/*`, `@lezer/highlight`) |
+| `tallao/motion` | transitions (`fade`, `rise`, `scaleIn`, `slide`, `collapse`, `stagger`, `crossfade`), attachments (`press`, `shimmer`, `drawCheck`, `rollNumber`, `tabIndicator`) and `shake`, `viewTransition`, `prefersReducedMotion` |
 | `tallao/tokens.css` | every `--ta-*` variable; dark by default, `data-tallao-theme="light"` on `<html>` for light |
 | `tallao/base.css` | base styles |
 
@@ -50,6 +51,18 @@ not your memory of other kits. Do not invent props, variants or snippets.
   (custom elements) use the kit.
 - **Server-rendered navigation.** NavMenu, MegaMenu and BottomNav are `<details>`-based markup that
   works with no hydration.
+- **Agent run screens.** `src/AgentDemo.svelte` composes a whole run (context, thinking, tool
+  chips, tasks, an approval, the streamed answer, sources, usage) from the kit alone: the page
+  owns the run state, the components only draw it.
+- **Motion.** Use `tallao/motion` and the tokens `--ta-duration-fast | base | slow` and
+  `--ta-ease-out | in-out | spring`; never a raw duration. Reduced motion is one switch (the
+  system setting or `data-tallao-motion="reduce"` on `<html>`) that the library and the tokens
+  honour.
+- **Admin pages.** `src/AdminDemo.svelte` is the reference for a model list page (PageHeader →
+  FilterBar → SelectionBar → DataTable → Pagination) and a record detail page (PageHeader with
+  Tabs → fields + DescriptionList → Timeline + DiffView → SaveBar) inside an AppShell. Copy its
+  order and who owns which state; a kon view does the same inside `<ThemeScope>` with
+  `<AppShell landmarks={false}>` or no shell at all.
 
 ## Component map
 
@@ -61,15 +74,18 @@ All under `src/lib/components/` (kebab-case file, PascalCase export in `componen
 | Forms | Input, Textarea, Select, Checkbox, Label, Field, SearchInput, NumberInput, Slider, Switch, Toggle, ToggleGroup, RadioGroup, Rating, InputOTP, Combobox, KeyValueEditor, FileUpload, Calendar, DatePicker, SchemaForm, CodeEditor (`tallao/code`) |
 | Overlays and menus | Dialog, Sheet, ConfirmDialog, Popover, Tooltip, DropdownMenu + MenuItem / MenuSeparator / MenuLabel, ContextMenu, Command |
 | Navigation and layout | Card (+ CardHeader / CardTitle / CardContent / CardFooter), Tabs, Accordion, Breadcrumb, Pagination, Sidebar, NavMenu, MegaMenu, BottomNav, SplitPane, Carousel, ThemeScope |
+| Admin pages | AppShell, PageHeader, FilterBar + FilterChip, SavedViews, EmptyState, SaveBar, DiffView, DescriptionList, Kbd |
 | Data | Table (+ TableHeader / TableBody / TableRow / TableHead / TableCell), DataTable, MonthView, CompareSlider, SelectionBar, DragBoard + DropZone / DragItem, GameMap (`tallao/map`) |
-| Charts and BI | BarChart, LineChart, DonutChart, ScatterChart, Heatmap, Funnel, BarList, Sparkline, Gauge, ChartLegend, KpiCard, BigNumber, IconArray, Timeline, ComparisonBar, DashboardGrid + DashboardItem, ChartCard |
-| Generative UI | PromptInput, ToolCallCard, ChatMessage, Steps, SuggestionChips, CodeBlock, Sources, UsageMeter |
+| Charts and BI | BarChart, LineChart, DonutChart, ScatterChart, RadarChart, Heatmap, Funnel, BarList, Sparkline, Gauge, ChartLegend, KpiCard, BigNumber, RollingCounter, IconArray, Timeline, ComparisonBar, DashboardGrid + DashboardItem, ChartCard |
+| Generative UI | PromptInput, ChatMessage, Thinking, StreamingText, ToolChips, ToolCallCard, TaskList, Steps, ApprovalCard, ContextCards, RecommendationCard, InsightCard, SuggestionChips, CodeBlock, Sources, UsageMeter |
 
 Shared code: `src/lib/internal/` (floating layer: top layer + Floating UI positioning + layer
 stack in `layers.ts`, `position.ts`, `menu.ts`; focus, scroll lock, dates, charts, drag board),
 `src/lib/i18n.ts` (the `Labels` interface and `en` / `es`), `src/lib/utils.ts` (`cn`),
 `src/lib/toast.svelte.ts`, `src/lib/tokens.css`, `src/lib/base.css`. `src/App.svelte` is the demo
-(`pnpm dev`); `kit-check/` is a SvelteKit 3 app that consumes the package in CI.
+(`pnpm dev`), with the admin pages in `src/AdminDemo.svelte`, the agent screen in
+`src/AgentDemo.svelte` and the motion stages in `src/MotionDemo.svelte`; `src/lib/motion/` is the
+transition library; `llms.txt` is generated from the component sources by `scripts/llms.mjs`; `kit-check/` is a SvelteKit 3 app that consumes the package in CI.
 
 ## Conventions in the code
 
@@ -88,6 +104,9 @@ stack in `layers.ts`, `position.ts`, `menu.ts`; focus, scroll lock, dates, chart
   `$props.id()`, never `Math.random()`.
 - **Accessibility:** follow the matching WAI-ARIA APG pattern; colour is never the only cue;
   respect `prefers-reduced-motion`.
+- **Motion:** durations and easings from the tokens (`var(--ta-duration-base, 180ms)`,
+  `var(--ta-ease-out, ease-out)`), 120–240 ms, opacity and transform; a component that animates
+  has a `prefers-reduced-motion` rule (`tests/dom/motion.test.ts` checks it).
 - **Touch:** every control a component draws has a 44px target under `@media (pointer: coarse)`
   (the control grows, or an absolutely positioned `::after` widens the hit area). Fields use 16px
   text there. `tests/dom/touch-targets.test.ts` fails a component that lacks the rule.
@@ -102,6 +121,7 @@ pnpm build:demo  # builds the demo
 pnpm dev         # the demo
 pnpm kit:check   # the SvelteKit app in kit-check/: prerender + hydration in Chromium (Playwright)
 pnpm vitest run tests/dom/<file>.test.ts   # one file
+pnpm llms        # regenerates llms.txt from the component sources (the test suite checks it)
 ```
 
 CI (`.github/workflows/ci.yml`) runs `check`, `test`, `package`, `build:demo` and the kit-check
@@ -125,6 +145,8 @@ build and Playwright tests on every push to `main` and every pull request.
   a test in `tests/dom/` (behaviour, keyboard, axe), an entry in `AllComponents.svelte`, a touch
   rule, a row in the README component table and an entry under `## Unreleased` in `CHANGELOG.md`.
 - **A bug fix comes with** a test that fails without it.
+- **`llms.txt` is generated:** after adding a component or changing a prop or a header comment,
+  run `pnpm llms`; `tests/ssr/llms.test.ts` fails while it is stale.
 - **Dependencies:** heavy libraries stay optional peers behind their own entry point (as
   `tallao/map` and `tallao/code` do). The only runtime dependency is `@floating-ui/dom`.
 - **Language:** code, comments, docs, tests and default texts are in English; Spanish lives only
@@ -137,6 +159,8 @@ build and Playwright tests on every push to `main` and every pull request.
   `build:demo`, `kit:check`, single vitest files and read-only git are allowed; reading `.env`
   files, `git push` and `pnpm publish` / `npm publish` are denied.
 - `.claude/skills/`: step-by-step skills, usable by any agent that reads Markdown:
+  - `build-with-tallao`: pick and compose components for an agent run screen, an admin
+    list / detail page or a public dashboard, with the motion rules (for agents using the kit);
   - `new-component`: add a component with its export, labels, touch rule, tests and docs;
   - `fix-component`: change or fix a component without breaking its public contract;
   - `release-check`: the full pre-release verification.

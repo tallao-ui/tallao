@@ -45,6 +45,34 @@
   /* Layout: height of BottomNav (without the safe area), for the page's bottom padding:
        padding-bottom: calc(var(--ta-bottom-nav-height) + env(safe-area-inset-bottom)); */
   --ta-bottom-nav-height: 3.75rem;
+
+  /* Motion. Three durations and three easings for everything that moves; `tallao/motion`
+     reads the same values. `--ta-motion` is the single switch: 1 moves, 0 does not. */
+  --ta-duration-fast: 120ms;
+  --ta-duration-base: 180ms;
+  --ta-duration-slow: 240ms;
+  --ta-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ta-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ta-ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1);
+  --ta-motion: 1;
+}
+
+/* Reduced motion, in one place: the system setting, or `data-tallao-motion="reduce"` on <html>
+   (a setting of the app). Durations drop to nothing, so a transition still ends and fires its
+   events; components and `tallao/motion` also read `--ta-motion` to skip movement altogether. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-tallao-motion="full"]) {
+    --ta-duration-fast: 0.01ms;
+    --ta-duration-base: 0.01ms;
+    --ta-duration-slow: 0.01ms;
+    --ta-motion: 0;
+  }
+}
+:root[data-tallao-motion="reduce"] {
+  --ta-duration-fast: 0.01ms;
+  --ta-duration-base: 0.01ms;
+  --ta-duration-slow: 0.01ms;
+  --ta-motion: 0;
 }
 
 /* ——— Dark theme (default) ——— */

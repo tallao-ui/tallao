@@ -130,7 +130,7 @@
     box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
     font: inherit;
     outline: none;
-    animation: ta-popover-enter 0.12s ease-out;
+    animation: ta-popover-enter var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
   }
 
   .ta-popover-title {
@@ -140,7 +140,7 @@
   }
 
   @keyframes ta-popover-enter {
-    from { opacity: 0; transform: translateY(-2px); }
+    from { opacity: 0; transform: translateY(-2px) scale(0.98); }
     to { opacity: 1; transform: none; }
   }
 

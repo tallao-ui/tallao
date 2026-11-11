@@ -41,3 +41,25 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 } as unknown as typeof ResizeObserver;
+
+// jsdom has no Web Animations API; Svelte's transitions (the kit's `tallao/motion`) call
+// `element.animate`. This stand-in finishes at once, which is all a behaviour test needs.
+if (typeof Element.prototype.animate !== "function") {
+  Element.prototype.animate = function () {
+    const animation = {
+      currentTime: 0,
+      playState: "finished",
+      onfinish: null as null | (() => void),
+      oncancel: null as null | (() => void),
+      finished: Promise.resolve(),
+      cancel() {},
+      finish() {},
+      play() {},
+      pause() {},
+      addEventListener() {},
+      removeEventListener() {},
+    };
+    queueMicrotask(() => animation.onfinish?.());
+    return animation as unknown as Animation;
+  };
+}

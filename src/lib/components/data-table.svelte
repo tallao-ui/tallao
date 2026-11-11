@@ -28,6 +28,23 @@
   to page 1. `bind:filters` holds the state ({ [key]: string | { min, max } | anything }),
   so a page can read it or keep it in the URL. With `manual` nothing is filtered here:
   `onFiltersChange` hands the state to whoever asks the API.
+
+  For an admin list:
+  - `rowHref`: the first column's cell (or `linkColumn`) is a real link to the record, so the
+    row opens with a click, a middle click or Enter, and reads as a link.
+  - `rowActions`: a last column that stays in view while the table scrolls sideways (usually
+    a "⋯" DropdownMenu). Its background is `--ta-table-sticky-bg` (the page background by
+    default: set it when the table sits on a card). `actions` is still the plain last column.
+  - `density` ("comfortable" | "compact", bindable) and `visibleColumns` (bindable keys; a
+    column with `hideable: false` always shows). `densityToggle` and `columnChooser` add
+    their controls to a toolbar above the table: a pressed button (`aria-pressed`) and a menu
+    of `menuitemcheckbox`. The `toolbar` snippet puts your own content at its start.
+  - `loading` with no rows draws skeleton rows shaped like the columns (`loadingRows`); the
+    table is `aria-busy` and "Loading" is announced once.
+  - `error` (a message) replaces the rows with an EmptyState `variant="error"`, with Retry
+    when `onRetry` is given; the `errorState` snippet draws it yourself.
+  - With no rows the body is an EmptyState; the `empty` snippet draws your own (it gets
+    `{ filtered, clear }`: whether column filters are applied and how to clear them).
 -->
 <script lang="ts" module>
   import type { Snippet } from "svelte";
@@ -62,7 +79,11 @@
     filterOptions?: (string | { value: string; label: string })[];
     /** Custom match (required for a snippet filter, optional for the others). */
     filterFn?: (row: T, value: unknown) => boolean;
+    /** `false`: the column chooser cannot hide it. */
+    hideable?: boolean;
   }
+
+  export type DataDensity = "comfortable" | "compact";
 
   export interface DataSort {
     key: string;
@@ -87,6 +108,10 @@
 
   import Button from "./button.svelte";
   import { normalizeText } from "./combobox.svelte";
+  import DropdownMenu from "./dropdown-menu.svelte";
+  import EmptyState from "./empty-state.svelte";
+  import Icon from "./icon.svelte";
+  import MenuItem from "./menu-item.svelte";
   import Pagination from "./pagination.svelte";
   import Skeleton from "./skeleton.svelte";
   import Table from "./table.svelte";
@@ -116,13 +141,30 @@
     noMatchesText = L.noMatches,
     /** Accessible name of the table (goes in a hidden <caption>). */
     caption,
+    density = $bindable("comfortable"),
+    densityToggle = false,
+    visibleColumns = $bindable(),
+    columnChooser = false,
+    rowHref,
+    linkColumn,
+    loadingRows,
+    error,
+    onRetry,
+    compactLabel = L.compactRows,
+    columnsLabel = L.columns,
     class: className = "",
     cell,
     actions,
+    rowActions,
+    toolbar,
+    empty,
+    errorState,
     onSortChange,
     onPageChange,
     onSelectionChange,
     onFiltersChange,
+    onDensityChange,
+    onVisibleColumnsChange,
   }: {
     rows: T[];
     columns: DataColumn<T>[];
@@ -145,11 +187,41 @@
     /** Empty row when the filters leave no rows. */
     noMatchesText?: string;
     caption?: string;
+    /** Row height (bindable). */
+    density?: DataDensity;
+    /** Shows the density toggle in the toolbar. */
+    densityToggle?: boolean;
+    /** Keys of the columns shown (bindable); without it, all of them. */
+    visibleColumns?: string[];
+    /** Shows the column menu in the toolbar. */
+    columnChooser?: boolean;
+    /** Where a row leads: its first cell (or `linkColumn`) becomes a link. */
+    rowHref?: (row: T) => string | undefined;
+    /** Key of the column that carries the row's link; the first one shown by default. */
+    linkColumn?: string;
+    /** How many skeleton rows `loading` draws (by default the page size, 5 at most). */
+    loadingRows?: number;
+    /** The load failed: this message replaces the rows. */
+    error?: string | null;
+    /** Adds "Retry" to the error state. */
+    onRetry?: () => void;
+    compactLabel?: string;
+    columnsLabel?: string;
     class?: string;
     /** Custom cell content; without it, the value as text. */
     cell?: Snippet<[T, DataColumn<T>]>;
     /** Last column with per-row actions. */
     actions?: Snippet<[T]>;
+    /** Per-row actions in a last column that stays in view when the table scrolls sideways. */
+    rowActions?: Snippet<[T]>;
+    /** Your own content at the start of the toolbar. */
+    toolbar?: Snippet;
+    /** Replaces the default empty state. */
+    empty?: Snippet<[{ filtered: boolean; clear: () => void }]>;
+    /** Replaces the default error state; gets the message. */
+    errorState?: Snippet<[string]>;
+    onDensityChange?: (density: DataDensity) => void;
+    onVisibleColumnsChange?: (keys: string[]) => void;
     onSortChange?: (sort: DataSort | null) => void;
     onPageChange?: (page: number) => void;
     onSelectionChange?: (selected: string[]) => void;
@@ -288,12 +360,67 @@
     setSelected(selected.includes(k) ? selected.filter((x) => x !== k) : [...selected, k]);
   }
 
-  const totalColumns = $derived(columns.length + (selectable ? 1 : 0) + (actions ? 1 : 0));
+  // ——— Columns shown, density ———
+  const shownColumns = $derived(
+    visibleColumns ? columns.filter((c) => c.hideable === false || visibleColumns!.includes(c.key)) : columns
+  );
+  const linkKey = $derived(linkColumn ?? shownColumns[0]?.key);
+
+  function toggleColumn(key: string) {
+    const all = columns.map((c) => c.key);
+    const current = visibleColumns ?? all;
+    const next = current.includes(key) ? current.filter((k) => k !== key) : all.filter((k) => k === key || current.includes(k));
+    // A table with no columns is not a table: the last one stays.
+    if (!columns.some((c) => c.hideable === false || next.includes(c.key))) return;
+    visibleColumns = next;
+    onVisibleColumnsChange?.(next);
+  }
+
+  function toggleDensity() {
+    density = density === "compact" ? "comfortable" : "compact";
+    onDensityChange?.(density);
+  }
+
+  const SKELETON_WIDTHS = ["70%", "45%", "60%", "35%", "55%"];
+  const skeletonRows = $derived(loadingRows ?? Math.min(pageSize ?? 5, 5));
+
+  const totalColumns = $derived(shownColumns.length + (selectable ? 1 : 0) + (actions ? 1 : 0) + (rowActions ? 1 : 0));
   const styleOf = (col: DataColumn<T>) =>
     [col.width ? `width: ${col.width}` : "", col.align ? `text-align: ${col.align}` : ""].filter(Boolean).join("; ") || undefined;
 </script>
 
-<div class={cn("ta-datatable", className)} aria-busy={loading || undefined}>
+<div class={cn("ta-datatable", density === "compact" && "ta-datatable--compact", className)} aria-busy={loading || undefined} data-density={density}>
+  {#if toolbar || densityToggle || columnChooser}
+    <div class="ta-datatable-toolbar">
+      <div class="ta-datatable-toolbar-start">{@render toolbar?.()}</div>
+      {#if densityToggle || columnChooser}
+        <div class="ta-datatable-tools">
+          {#if densityToggle}
+            <button type="button" class="ta-datatable-tool" aria-pressed={density === "compact"} onclick={toggleDensity}>
+              <Icon name="menu" size={14} />{compactLabel}
+            </button>
+          {/if}
+          {#if columnChooser}
+            <DropdownMenu label={columnsLabel} placement="bottom-end">
+              {#snippet trigger(props)}
+                <button {...props} type="button" class="ta-datatable-tool">
+                  <Icon name="eye" size={14} />{columnsLabel}<Icon name="chevron-down" size={12} />
+                </button>
+              {/snippet}
+              {#each columns as col (col.key)}
+                <MenuItem
+                  checked={shownColumns.includes(col)}
+                  disabled={col.hideable === false}
+                  closeOnSelect={false}
+                  onSelect={() => toggleColumn(col.key)}
+                >{col.header}</MenuItem>
+              {/each}
+            </DropdownMenu>
+          {/if}
+        </div>
+      {/if}
+    </div>
+  {/if}
   <Table>
     {#if caption}<caption class="ta-hidden">{caption}</caption>{/if}
     <TableHeader>
@@ -313,7 +440,7 @@
             />
           </TableHead>
         {/if}
-        {#each columns as col (col.key)}
+        {#each shownColumns as col (col.key)}
           <TableHead aria-sort={col.sortable ? ariaSort(col) : undefined} style={styleOf(col)}>
             {#if col.sortable}
               <button type="button" class="ta-datatable-sort" onclick={() => toggleSort(col)}>
@@ -328,11 +455,12 @@
           </TableHead>
         {/each}
         {#if actions}<TableHead><span class="ta-hidden">{L.actions}</span></TableHead>{/if}
+        {#if rowActions}<TableHead class="ta-datatable-pin"><span class="ta-hidden">{L.actions}</span></TableHead>{/if}
       </TableRow>
       {#if filterable.length}
         <TableRow class="ta-datatable-filters">
           {#if selectable}<TableCell></TableCell>{/if}
-          {#each columns as col (col.key)}
+          {#each shownColumns as col (col.key)}
             {@const custom = typeof col.filter === "function" ? col.filter : null}
             <TableCell class="ta-datatable-filter">
               {#if custom}
@@ -380,14 +508,26 @@
             </TableCell>
           {/each}
           {#if actions}<TableCell></TableCell>{/if}
+          {#if rowActions}<TableCell class="ta-datatable-pin"></TableCell>{/if}
         </TableRow>
       {/if}
     </TableHeader>
     <TableBody>
-      {#if loading && visible.length === 0}
-        {#each Array.from({ length: Math.min(pageSize ?? 5, 5) }) as _, i (i)}
-          <TableRow>
-            <TableCell colspan={totalColumns}><Skeleton height="1rem" /></TableCell>
+      {#if error}
+        <TableRow class="ta-datatable-state">
+          <TableCell colspan={totalColumns}>
+            {#if errorState}{@render errorState(error)}{:else}<EmptyState variant="error" size="sm" level={null} description={error} {onRetry} retrying={loading} />{/if}
+          </TableCell>
+        </TableRow>
+      {:else if loading && visible.length === 0}
+        {#each Array.from({ length: skeletonRows }) as _, i (i)}
+          <TableRow class="ta-datatable-loading">
+            {#if selectable}<TableCell class="ta-datatable-check"><Skeleton width="1rem" height="1rem" /></TableCell>{/if}
+            {#each shownColumns as col, c (col.key)}
+              <TableCell><Skeleton height="0.875rem" width={SKELETON_WIDTHS[(i + c) % SKELETON_WIDTHS.length]} class={col.align === "right" ? "ta-datatable-skeleton-end" : ""} /></TableCell>
+            {/each}
+            {#if actions}<TableCell></TableCell>{/if}
+            {#if rowActions}<TableCell class="ta-datatable-pin"></TableCell>{/if}
           </TableRow>
         {/each}
       {:else}
@@ -405,16 +545,26 @@
                 />
               </TableCell>
             {/if}
-            {#each columns as col (col.key)}
-              <TableCell style={col.align ? `text-align: ${col.align}` : undefined}>
-                {#if cell}{@render cell(row, col)}{:else}{valueOf(row, col) ?? "—"}{/if}
+            {#each shownColumns as col (col.key)}
+              {@const href = rowHref && col.key === linkKey ? rowHref(row) : undefined}
+              <TableCell class={href ? "ta-datatable-linkcell" : ""} style={col.align ? `text-align: ${col.align}` : undefined}>
+                {#if href}
+                  <a class="ta-datatable-link" {href}>{#if cell}{@render cell(row, col)}{:else}{valueOf(row, col) ?? "—"}{/if}</a>
+                {:else if cell}{@render cell(row, col)}{:else}{valueOf(row, col) ?? "—"}{/if}
               </TableCell>
             {/each}
             {#if actions}<TableCell class="ta-datatable-actions">{@render actions(row)}</TableCell>{/if}
+            {#if rowActions}<TableCell class="ta-datatable-pin">{@render rowActions(row)}</TableCell>{/if}
           </TableRow>
         {:else}
-          <TableRow>
-            <TableCell colspan={totalColumns}><span class="ta-datatable-empty">{anyActive ? noMatchesText : emptyText}</span></TableCell>
+          <TableRow class="ta-datatable-state">
+            <TableCell colspan={totalColumns}>
+              {#if empty}
+                {@render empty({ filtered: anyActive, clear: clearFilters })}
+              {:else}
+                <EmptyState variant={anyActive ? "no-results" : "empty"} size="sm" level={null} icon={false} title={anyActive ? noMatchesText : emptyText} />
+              {/if}
+            </TableCell>
           </TableRow>
         {/each}
       {/if}
@@ -435,7 +585,8 @@
 </div>
 
 <style>
-  .ta-datatable { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+  /* A size container: the state rows below measure the visible width, not the table's. */
+  .ta-datatable { container-type: inline-size; display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
 
   .ta-datatable :global(.ta-datatable-check) { width: 2.5rem; }
 
@@ -470,7 +621,104 @@
 
   .ta-datatable :global(.ta-datatable-actions) { text-align: right; white-space: nowrap; }
 
-  .ta-datatable-empty { color: rgb(var(--ta-text-dim)); }
+  /* A row that appears (a new record, another page) fades in; it is usable at once. */
+  .ta-datatable :global(tbody > tr) {
+    transition: opacity var(--ta-duration-base, 180ms) ease-out, background-color 0.15s;
+    @starting-style {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ta-datatable :global(tbody > tr) { transition: background-color 0.15s; }
+  }
+
+  /* The state rows (empty, error, loading) are not data: no hover tint. */
+  .ta-datatable :global(.ta-datatable-state:hover),
+  .ta-datatable :global(.ta-datatable-loading:hover) { background: none; }
+  .ta-datatable :global(.ta-datatable-skeleton-end) { margin-left: auto; }
+  /* When the table is wider than its box, the empty and error states stay in view, centred
+     in the visible part, instead of being cut at the edge. */
+  .ta-datatable :global(.ta-datatable-state > td > *) {
+    position: sticky;
+    left: 1rem;
+    width: calc(100cqw - 2rem - 2px);
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* — Toolbar — */
+  .ta-datatable-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem 0.75rem; min-width: 0; }
+  .ta-datatable-toolbar-start { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; min-width: 0; flex: 1 1 auto; }
+  .ta-datatable-tools { display: flex; align-items: center; gap: 0.25rem; margin-left: auto; }
+  .ta-datatable-tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2rem;
+    padding: 0 0.625rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    color: rgb(var(--ta-text-dim));
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--ta-radius);
+    cursor: pointer;
+  }
+  .ta-datatable-tool:hover { color: rgb(var(--ta-text)); background: rgb(var(--ta-elevated) / 0.5); }
+  .ta-datatable-tool:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 1px; }
+  /* Pressed: a frame and a tint (the state is also in aria-pressed). */
+  .ta-datatable-tool[aria-pressed="true"] {
+    color: rgb(var(--ta-text));
+    background: rgb(var(--ta-accent) / 0.12);
+    border-color: rgb(var(--ta-accent) / 0.45);
+  }
+
+  /* — Density — */
+  .ta-datatable--compact :global(.ta-table-td) { padding-top: 0.3125rem; padding-bottom: 0.3125rem; font-size: 0.8125rem; }
+  .ta-datatable--compact :global(.ta-table-th) { padding-top: 0.4375rem; padding-bottom: 0.4375rem; }
+
+  /* — The row's link — */
+  /* The column that names the row keeps a readable width when the table is squeezed. */
+  .ta-datatable :global(.ta-datatable-linkcell) { min-width: 11rem; }
+  .ta-datatable-link {
+    position: relative;
+    font-weight: 500;
+    color: rgb(var(--ta-text));
+    text-decoration: none;
+    border-radius: var(--ta-radius-sm);
+  }
+  .ta-datatable-link:hover { text-decoration: underline; text-decoration-color: rgb(var(--ta-accent)); text-underline-offset: 3px; }
+  .ta-datatable-link:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 2px; }
+
+  /* — Pinned actions column: stays at the right edge while the table scrolls sideways.
+     The cell is opaque, so the header, hover and selection tints are repeated on it. — */
+  .ta-datatable :global(.ta-datatable-pin) {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    width: 1%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    text-align: right;
+    white-space: nowrap;
+    background: var(--ta-table-sticky-bg, rgb(var(--ta-bg)));
+    box-shadow: inset 1px 0 0 rgb(var(--ta-border));
+  }
+  .ta-datatable :global(thead .ta-datatable-pin) {
+    background:
+      linear-gradient(rgb(var(--ta-elevated) / 0.4), rgb(var(--ta-elevated) / 0.4)),
+      var(--ta-table-sticky-bg, rgb(var(--ta-bg)));
+  }
+  .ta-datatable :global(tbody tr:hover > .ta-datatable-pin) {
+    background:
+      linear-gradient(rgb(var(--ta-elevated) / 0.35), rgb(var(--ta-elevated) / 0.35)),
+      var(--ta-table-sticky-bg, rgb(var(--ta-bg)));
+  }
+  .ta-datatable :global(tbody tr[data-selected] > .ta-datatable-pin) {
+    background:
+      linear-gradient(rgb(var(--ta-accent) / 0.08), rgb(var(--ta-accent) / 0.08)),
+      var(--ta-table-sticky-bg, rgb(var(--ta-bg)));
+  }
 
   .ta-datatable-footer { display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; flex-wrap: wrap; }
   .ta-datatable-footer :global(.ta-datatable-clear) { margin-right: auto; }
@@ -503,6 +751,9 @@
 
   @media (pointer: coarse) {
     .ta-datatable-field { font-size: 1rem; min-height: 2.75rem; }
+    .ta-datatable-tool { min-height: 2.75rem; }
+    /* The link's hit area grows to 44px without changing the row height. */
+    .ta-datatable-link::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2.75rem; transform: translateY(-50%); }
   }
 
   .ta-hidden {

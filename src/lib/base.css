@@ -33,3 +33,14 @@ body {
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--ta-muted)) transparent;
 }
+
+/* Reduced motion as an app setting: `data-tallao-motion="reduce"` on <html> does what the
+   system setting does (tokens.css zeroes the durations; this stops what does not read them). */
+:root[data-tallao-motion="reduce"] *,
+:root[data-tallao-motion="reduce"] *::before,
+:root[data-tallao-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}

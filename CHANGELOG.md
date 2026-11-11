@@ -2,6 +2,131 @@
 
 ## Unreleased
 
+**Agent run components.** What a screen that shows a model at work needs, composed in
+`src/AgentDemo.svelte` (the "Agent screen" section of the demo).
+
+- **Thinking**: `running`, `summary`, `seconds`, `steps`, `open` (bindable), `runningLabel`,
+  `doneLabel`, `onOpenChange` and `children` (the trace).
+- **StreamingText**: `text`, `stream` (an `AsyncIterable<string>`), `streaming`, `caret`, `onDone`.
+- **ToolChips**: `calls` (`ToolChipCall[]`: `id`, `verb`, `target`, `icon`, `status`, `added`,
+  `removed`, `name`, `args`, `result`), `messages`, `summary`, `open` (bindable), `collapsible`,
+  `ariaLabel`, `onOpenChange`.
+- **TaskList**: `tasks` (`TaskItem[]`: `id`, `title`, `status`, `done`, `total`, `meta`,
+  `detail`), `variant` (`list`, `capsule`), `open` and `expanded` (bindable), `label`, `labels`
+  and the `details` snippet. Steps is unchanged: it shows a plan, TaskList work in flight.
+- **ApprovalCard**: `title`, `requester`, `description`, `changes`, `tool`, `args`, `risk`,
+  `riskLevel`, `status` (`pending`, `approved`, `rejected`, `expired`), `outcome`, `level`,
+  `shortcuts`, `approveLabel`, `rejectLabel`, `editLabel`, `requestLabel`, `onApprove`,
+  `onReject`, `onEdit` and `children`.
+- **ContextCards**: `items` (`ContextItem[]`: `id`, `title`, `type`, `meta`, `excerpt`, `href`,
+  `icon`), `label`, `layout` (`row`, `stack`), `removeLabel`, `onRemove`.
+- **RecommendationCard**: `title`, `description`, `reasons`, `confidence`, `level`,
+  `actionLabel` + `onAction` / `actionHref`, `secondaryLabel` + `onSecondary`, `onDismiss`,
+  `dismissLabel`, `reasonsLabel` and `children`. **InsightCard**: `title`, `label`, `value`,
+  `unit`, `delta`, `deltaLabel`, `goodWhen`, `trend`, `text`, `tone`, `level`, `locale`,
+  `format`, `deltaFormat`, `actionLabel` + `actionHref` / `onAction` and `children`.
+- **Icon**: new names `file`, `terminal`, `sparkle`, `database`, `image`, `globe`, `shield`,
+  `text`, `refresh`.
+- New label keys, in `en` and `es`: `thinking`, `thoughtFor`, `secondsShort`, `minutesShort`,
+  `toolCallOne`, `toolCalls`, `messageOne`, `messages`, `linesAdded`, `linesRemoved`, `tasks`,
+  `tasksDone`, `details`, `approvalRequested`, `approved`, `editFirst`, `expired`, `riskLow`,
+  `riskMedium`, `riskHigh`, `context`, `removeItem`, `confidenceLow`, `confidenceMedium`,
+  `confidenceHigh`, `reasons`.
+
+**Motion.** A motion system for the kit and for apps built with it.
+
+- Tokens in `tokens.css`: `--ta-duration-fast` (120ms), `--ta-duration-base` (180ms),
+  `--ta-duration-slow` (240ms), `--ta-ease-out`, `--ta-ease-in-out`, `--ta-ease-spring` and
+  `--ta-motion` (1 or 0). Reduced motion is one switch: `prefers-reduced-motion`, or
+  `data-tallao-motion="reduce"` on `<html>` (`"full"` overrides the system); `base.css` stops
+  every animation and transition under the attribute.
+- New entry point **`tallao/motion`**: the transitions `fade`, `rise`, `scaleIn`, `slide`,
+  `collapse`, the helpers `stagger` and `crossfade`, the attachments `press`, `shimmer`,
+  `drawCheck`, `rollNumber`, `tabIndicator`, the functions `shake`, `viewTransition`,
+  `prefersReducedMotion`, `easeOut`, `easeInOut` and the constants `DURATION` and `EASE`.
+- In the kit's components: Dialog, Sheet, Popover, DropdownMenu, Toaster, Progress and Switch
+  take their durations and easings from the tokens (a sheet uses the slow one, the backdrop
+  fades in, the Switch thumb has a spring); Tooltip fades in; an Accordion section's content
+  settles in when opened; Tabs (underline, one row) draws one underline that slides to the
+  selected tab after hydration (the server still renders each tab's own; internal: a
+  `ta-tabs-indicator` element inside the tablist and the class `ta-tabs--sliding`); Checkbox
+  gives under the pointer; a DataTable row that is added fades in. Button's busy spinner now
+  stops under reduced motion (it did not).
+- `src/MotionDemo.svelte` (the "Motion" section of the demo) shows each piece with a replay
+  button and a "Reduce motion" switch.
+
+**Charts and counters.**
+
+- **RadarChart**: `data`, `axis`, `series`, `title`, `hideTitle`, `max`, `levels`, `size`,
+  `axisLabel`, `locale`, `format`, `emptyText`, `showDataLabel`, `hideDataLabel`.
+- **RollingCounter**: `value`, `label`, `locale`, `format` (`Intl.NumberFormatOptions`), `size`.
+
+**For agents building with the kit.**
+
+- `llms.txt` at the repository root: every component with its purpose, props and a usage
+  example, generated from the sources by `scripts/llms.mjs` (`pnpm llms`);
+  `tests/ssr/llms.test.ts` fails while it is stale.
+- A new skill, `.claude/skills/build-with-tallao`: which components to pick for an agent run
+  screen, an admin list / detail page and a public dashboard, and the motion rules.
+
+**Building blocks for an admin panel.** What a "model list" and a "record detail" page need, so
+the Kitsuden admin and the kon views can be built from the kit alone. `src/AdminDemo.svelte` (the
+"Admin" section of the demo) composes them into both pages and is the reference to copy.
+
+- **AppShell**: `breakpoint` (`sm` 640px, `md` 768px, `lg` 1024px), `sidebarOpen` (bindable),
+  `height`, `landmarks`, `mainId`, `menuLabel`, `navLabel`, `skipLabel`, `closeLabel` and the
+  snippets `sidebar` (gets `{ mobile, close }`), `breadcrumb`, `command`, `user`, `topbar`. It
+  lays out a Sidebar, a top bar and the page; below the breakpoint the sidebar is rendered in a
+  modal sheet opened by a menu button. Sidebar itself is unchanged.
+- **PageHeader**: `title`, `level`, `description`, `divider` and the snippets `breadcrumb`,
+  `status`, `meta`, `actions`, `tabs`, `children`. `--ta-page-header-gap` sets the space under it.
+- **FilterBar**: `filters` (`FilterDef[]`: `key`, `label`, `type`, `options`, `hidden`,
+  `placeholder`), `value` (bindable `FilterValues`), `search`, `searchKey`, `searchPlaceholder`,
+  `searchLabel`, `ariaLabel`, `addFilterLabel`, `clearAllLabel`, `locale`, `onchange`, the `end`
+  snippet and the `clear()` method; plus the functions `filtersToQuery` and `filtersFromQuery`.
+- **FilterChip**: `label`, `type` (`select`, `boolean`, `date`, `text`), `options`, `value`
+  (bindable), `removable`, `placeholder`, `locale`, `removeLabel`, `anyLabel`, `yesLabel`,
+  `noLabel`, `onchange`, `onremove` and the `openEditor()` method.
+- **SavedViews**: `views` (`SavedView[]`: `name`, `query`), `current` (bindable), `query`,
+  `label`, `saveLabel`, `renameLabel`, `deleteLabel`, `deleteConfirmTitle`, `nameLabel`,
+  `emptyText`, `onSelect`, `onSave`, `onRename`, `onDelete`.
+- **EmptyState**: `variant` (`empty`, `no-results`, `error`), `title`, `description`, `icon`,
+  `level` (`null` for a paragraph), `size`, `actionLabel` + `onAction` / `actionHref`,
+  `onClearFilters`, `clearFiltersLabel`, `onRetry`, `retryLabel`, `retrying` and the snippets
+  `actions` and `children`.
+- **SaveBar**: `dirty`, `saving`, `error`, `savedText`, `form`, `secondaryActions`
+  (`SaveBarAction[]`: `id`, `label`, `name`, `value`, `onSelect`), `disableWhenClean`, `sticky`,
+  `saveLabel`, `cancelLabel`, `dirtyText`, `savingText`, `ariaLabel`, `onSave`, `onCancel`,
+  `cancelHref` and `children`.
+- **DiffView**: `changes` (`DiffChange[]`: `field`, `label`, `before`, `after`), `compact`,
+  `showUnchanged`, `collapseAfter`, `format`, `ariaLabel`, `beforeLabel`, `afterLabel`,
+  `addedLabel`, `removedLabel`, `changedLabel`, `emptyValueLabel`, `showMoreLabel`,
+  `showLessLabel`, `emptyText`; plus the function `diffKind`.
+- **DescriptionList**: `items` (`DescriptionItem[]`: `label`, `value`, `copy`, `href`, `mono`),
+  `layout` (`auto`, `stacked`), `columns`, `ariaLabel`, `emptyValue`, `copyLabel`, `copiedLabel`
+  and the `value` snippet.
+- **Kbd**: `keys`, `platform` (`auto`, `mac`, `other`), `separator`, `size`, or a single key as
+  content.
+- **DataTable** (every existing prop works as before): `density` (bindable `DataDensity`) with
+  `densityToggle`; `visibleColumns` (bindable) with `columnChooser` and `hideable` per column;
+  `rowHref` and `linkColumn`; the `rowActions` snippet (a pinned last column; `actions` is
+  unchanged); `loadingRows`; `error` and `onRetry`; the snippets `toolbar`, `empty` (gets
+  `{ filtered, clear }`) and `errorState`; `compactLabel`, `columnsLabel`, `onDensityChange`,
+  `onVisibleColumnsChange`. `aria-sort` on sortable headers was already there. Changes in what
+  it renders: `loading` with no rows now draws one skeleton per cell (it was one bar per row), and
+  the empty row holds an EmptyState (the class `ta-datatable-empty` is gone). The root is now a
+  size container (`container-type: inline-size`).
+- **MenuItem**: `checked` and `checkType` (`checkbox`, `radio`): a `menuitemcheckbox` or
+  `menuitemradio` with `aria-checked` and a check mark. The menu keyboard now reaches every
+  `menuitem*` role.
+- New label keys, in `en` and `es`: `filters`, `addFilter`, `clearAll`, `noActiveFilters`,
+  `activeFilterOne`, `activeFilters`, `removeFilter`, `yes`, `no`, `emptyTitle`,
+  `noResultsTitle`, `errorTitle`, `retry`, `unsavedChanges`, `saving`, `formActions`, `changes`,
+  `added`, `removed`, `changed`, `noChanges`, `emptyValue`, `showMore`, `showLess`,
+  `keyCommand`, `keyOption`, `keyShift`, `keyControl`, `compactRows`, `columns`, `savedViews`,
+  `saveView`, `renameView`, `deleteView`, `deleteViewConfirm`, `viewName`, `noSavedViews`,
+  `delete`, `openNavigation`, `skipToContent`.
+
 **Charts and BI for public pages.** What a dashboard, a report or an infographic needed and the
 kit did not have. Every chart takes plain arrays (the JSON shape is in each header comment),
 formats numbers through `format` / `locale`, shows a labelled empty state (`emptyText`, default

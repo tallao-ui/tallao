@@ -100,9 +100,14 @@
     ScatterChart,
     Sparkline,
     Timeline,
+    RadarChart,
+    RollingCounter,
     type DataFilters,
     type JsonSchema,
   } from "$lib/components";
+  import AdminDemo from "./AdminDemo.svelte";
+  import AgentDemo from "./AgentDemo.svelte";
+  import MotionDemo from "./MotionDemo.svelte";
   import { CodeEditor } from "$lib/code";
   import { GameMap } from "$lib/map";
   import { toast } from "$lib/toast.svelte";
@@ -110,6 +115,7 @@
   // The demo is in English, so it keeps the kit's default `en` labels.
 
   let theme = $state<"dark" | "light">("dark");
+  let playersOnline = $state(12480);
   let dialogOpen = $state(false);
   let search = $state("");
   let loading = $state(false);
@@ -1028,6 +1034,78 @@
         <Timeline items={biPatchEvents} ariaLabel="Patch history" locale="en" />
       </ChartCard>
     </DashboardGrid>
+  </section>
+
+  <!-- ——— AGENT SCREEN ——— -->
+  <section class="section section--wide" id="agent">
+    <h2>Agent screen: Thinking · ToolChips · TaskList · ApprovalCard · StreamingText · ContextCards · RecommendationCard · InsightCard</h2>
+    <p class="section-note">
+      A full agent run built only from the kit (<code>src/AgentDemo.svelte</code>). Replay plays it from the start and
+      stops at the approval, as a real run would.
+    </p>
+    <AgentDemo />
+  </section>
+
+  <!-- ——— MOTION ——— -->
+  <section class="section section--wide" id="motion">
+    <h2>Motion: tallao/motion</h2>
+    <p class="section-note">
+      Transitions, attachments and helpers on the kit's motion tokens (<code>src/MotionDemo.svelte</code>). Each stage has a replay button.
+    </p>
+    <MotionDemo />
+  </section>
+
+  <!-- ——— RADAR · ROLLING COUNTER ——— -->
+  <section class="section" id="playful">
+    <h2>RadarChart · RollingCounter</h2>
+    <div class="grid-2">
+      <RadarChart
+        title="Kaela against Oskar"
+        axis="stat"
+        max={100}
+        locale="en"
+        data={[
+          { stat: "Damage", kaela: 92, oskar: 55 },
+          { stat: "Mobility", kaela: 88, oskar: 40 },
+          { stat: "Defence", kaela: 35, oskar: 90 },
+          { stat: "Control", kaela: 50, oskar: 72 },
+          { stat: "Support", kaela: 20, oskar: 64 },
+          { stat: "Range", kaela: 64, oskar: 30 },
+        ]}
+        series={[{ key: "kaela", label: "Kaela" }, { key: "oskar", label: "Oskar" }]}
+      />
+      <div class="stack">
+        <RadarChart
+          title="Deck profile"
+          axis="trait"
+          size={240}
+          locale="en"
+          data={[
+            { trait: "Aggro", value: 8 },
+            { trait: "Control", value: 3 },
+            { trait: "Combo", value: 6 },
+            { trait: "Draw", value: 5 },
+            { trait: "Removal", value: 4 },
+          ]}
+          series={[{ key: "value", label: "Deck" }]}
+        />
+        <div class="row">
+          <RollingCounter value={playersOnline} label="Players online" locale="en" size="lg" />
+          <Button variant="secondary" size="sm" onclick={() => (playersOnline += Math.round(Math.random() * 1800 - 600))}>Change</Button>
+        </div>
+        <p class="note">Players online, with each digit on its own wheel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ——— ADMIN ——— -->
+  <section class="section section--wide" id="admin">
+    <h2>Admin: AppShell · PageHeader · FilterBar · SavedViews · DataTable · EmptyState · SaveBar · DescriptionList · DiffView · Kbd</h2>
+    <p class="section-note">
+      A model list page and a record detail page built only from the kit (<code>src/AdminDemo.svelte</code>).
+      Open a row to reach the detail page; narrow the window and the sidebar moves into a sheet.
+    </p>
+    <AdminDemo />
   </section>
 
   <section class="section">

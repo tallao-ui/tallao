@@ -69,7 +69,7 @@
     height: 100%;
     border-radius: inherit;
     background: rgb(var(--ta-accent));
-    transition: width 0.25s ease;
+    transition: width var(--ta-duration-slow, 240ms) var(--ta-ease-out, ease-out);
   }
   .ta-progress--success .ta-progress-bar { background: rgb(var(--ta-success)); }
   .ta-progress--warning .ta-progress-bar { background: rgb(var(--ta-warning)); }

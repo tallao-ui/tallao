@@ -48,7 +48,10 @@
     margin: 0;
     accent-color: rgb(var(--ta-accent));
     cursor: inherit;
+    transition: transform var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
   }
+  /* Press feedback: the box gives a little under the pointer. */
+  .ta-checkbox input:active:not(:disabled) { transform: scale(0.88); }
 
   .ta-checkbox input:focus-visible {
     outline: 2px solid rgb(var(--ta-accent) / 0.6);
@@ -58,6 +61,11 @@
   .ta-checkbox--off {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ta-checkbox input { transition: none; }
+    .ta-checkbox input:active:not(:disabled) { transform: none; }
   }
 
   /* On touch screens: the whole label is the 44px hit area; the box stays 16px. */

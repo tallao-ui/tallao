@@ -82,7 +82,16 @@ Requires Svelte 5.29 or later.
 | CopyButton | copies a text to the clipboard and announces it |
 | DragBoard · DropZone · DragItem | drag between zones with the mouse **and the keyboard** (Space picks up, arrows move, Space drops, Escape cancels), with screen-reader announcements |
 | ChatMessage | a message in a conversation (user, assistant or system), with a "typing" state |
-| DataTable | a data table: sorting by column (`aria-sort`), pagination, selection with "select all", loading; an optional filter row (per column `filter`: `"text"` ignoring case and accents, `"select"`, `"range"` or your own snippet; AND together, back to page 1 on change, `bind:filters`, "Clear filters"); in the browser or against the API (`manual`, which hands over the filters with `onFiltersChange`) |
+| DataTable | a data table: sorting by column (`aria-sort`), pagination, selection with "select all", loading; an optional filter row (per column `filter`: `"text"` ignoring case and accents, `"select"`, `"range"` or your own snippet; AND together, back to page 1 on change, `bind:filters`, "Clear filters"); in the browser or against the API (`manual`, which hands over the filters with `onFiltersChange`); for an admin list: `rowHref` (the first cell is a real link), a pinned `rowActions` column, `density` and `visibleColumns` (bindable) with a toolbar toggle and a column menu, skeleton rows while `loading`, and `empty` / `errorState` snippets that default to EmptyState (`error`, `onRetry`) |
+| AppShell | the frame of an application: a `sidebar` column, a top bar (`breadcrumb`, `command`, `user` and `topbar` snippets) and the page; below `breakpoint` the sidebar moves into a modal sheet behind a menu button (CSS media query, so it renders right on the server); `<header>` / `<main>` and a skip link unless `landmarks={false}` |
+| PageHeader | the top of every page at one height: `breadcrumb`, title as a heading (`level`), `status` badge, `meta` line, description, right-aligned `actions` that drop under the title when the header is narrow, and `tabs` on its bottom rule |
+| FilterBar · FilterChip | the filters of a list from a declaration (`select`, `boolean`, `date`, `text`): a search field, a chip per filter that opens a menu, a text field or a calendar, an "Add filter" menu for hidden filters, "Clear all", and the count announced politely; `bind:value` is a plain object (`filtersToQuery` / `filtersFromQuery` for the URL) |
+| SavedViews | a menu of named views (`{ name, query }`): choose one, save the current query, rename or delete the active one; storage is the caller's, every change is an event |
+| EmptyState | "nothing yet" (icon, title, text, primary action), `variant="no-results"` (Clear filters, a polite status) and `variant="error"` (message and Retry, an alert); what DataTable shows by default |
+| SaveBar | a form's sticky footer: the state in words and a shape ("Unsaved changes", "Saving…", an error) in a polite live region, Cancel, secondary submit actions and Save; submits a `<form>` without JavaScript and never covers the last field |
+| DiffView | before and after of a record as a list of field changes: added / removed / changed by sign, word and `<ins>` / `<del>`, text that wraps, indented JSON, long values folded; `compact` for one line per change |
+| DescriptionList | a record's label / value pairs as a `<dl>`: copyable values, links, monospace, your own `value` snippet; side by side or stacked by its own width, or in `columns` |
+| Kbd | a keyboard shortcut hint (`<kbd>` per key); `Mod` is ⌘ on Apple devices and Ctrl elsewhere, with the key names for screen readers |
 | Pagination | Previous / numbers with "…" / Next, `aria-current="page"` |
 | Calendar · DatePicker | pick a day with the keyboard (APG pattern), ISO dates, `min`/`max`, localized names; the DatePicker can also be typed into |
 | MonthView | a month to look at (agenda, events): the `day` snippet with what goes in each day (`date`, `day`, `weekday`, `today`, `outside`), ‹ › and PageUp/PageDown (Shift: year) to change month, `bind:month`, today with `aria-current="date"`; unlike Calendar, a day's content can hold links and buttons |
@@ -105,17 +114,53 @@ Requires Svelte 5.29 or later.
 | Gauge | a value inside a range as a half dial or a ring (`role="meter"`), with an optional `target` tick |
 | BigNumber · IconArray · Timeline · ComparisonBar | infographic pieces: a headline figure that counts up when it scrolls into view (the server renders the final value; no count under reduced motion), a unit chart ("7 of 10", filled against hollow marks), dated events with `<time>`, and two values against each other on one split bar |
 | DashboardGrid · DashboardItem · ChartCard | a dashboard layout that answers to its container's width (4 → 2 → 1 columns, `span` per item), and the frame of a chart: title, description, `toolbar` snippet, note and source |
+| RadarChart | several measures on one shape (a character's stats), for one item or up to four compared; series differ by colour, point shape and line style; same contract as the other charts (legend, empty state, "Show data" table) |
+| RollingCounter | a number whose digits roll, each on its own wheel, to the new value; the server renders the final value and screen readers get plain text |
 | ChartLegend | the legend the charts draw, on its own: mark, label and value per entry |
 | SchemaForm | a form built from a JSON Schema: validates on submit, focuses the first error, works as the `<form>` of a SvelteKit action |
 | Popover | a non-modal panel anchored to its trigger |
 | Tooltip | a description on hover or focus; Escape hides it (WCAG 1.4.13) |
-| DropdownMenu · MenuItem · MenuSeparator · MenuLabel | an action menu: arrows, Home/End, type-ahead by letter |
+| DropdownMenu · MenuItem · MenuSeparator · MenuLabel | an action menu: arrows, Home/End, type-ahead by letter; a MenuItem with `checked` is a `menuitemcheckbox` (or a radio with `checkType="radio"`) |
 | Combobox | a field with a filterable list (ARIA 1.2, `aria-activedescendant`), ignoring case and accents |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
 | PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
+| Thinking | a model's reasoning as one quiet line: a soft shimmer, a live `summary` and the elapsed time while `running`, "Thought for 12 s" when done, and the trace (`steps`, content) behind a disclosure; the end is announced once |
+| StreamingText | an answer drawn as it arrives (`text` that grows, or an async iterable in `stream`): new words fade in, a caret follows, no layout jump; screen readers get it sentence by sentence from a hidden live region, never from the start again |
+| ToolChips | a run of tool calls as compact chips (icon, verb, target, `+74 −41` for files) under a "4 tool calls, 2 messages" disclosure; a chip with a tool `name` unfolds a ToolCallCard |
+| TaskList | live task rows: pending, running (a progress ring with a count), done, failed, each one a disclosure of its details; `variant="capsule"` is one pill with the overall progress that unfolds the list |
+| ApprovalCard | a human-in-the-loop request: who asks, what will happen, the field changes (DiffView) or the call and its arguments, a risk note in words, and Reject / Edit first / Approve with async busy states, Mod+Enter and Mod+Backspace while focus is in the card, and an outcome line once decided |
+| ContextCards | what the model was given (files, records, links) as small cards with a type icon, a note and a remove button that hands the focus on |
+| RecommendationCard · InsightCard | a suggestion with its reasons, a confidence in bars and words and one primary action; and something noticed in the data: a sentence, the figure with its change and sparkline (a KpiCard without its frame) and a link |
 | Steps · SuggestionChips · CodeBlock · Sources · UsageMeter | an agent's plan step by step, single-use suggestions, code with a copy button, cited sources and quota usage |
 | GameMap (`tallao/map`) | Leaflet with the kit's theme |
 | CodeEditor (`tallao/code`) | CodeMirror 6 with the kit's theme (Markdown, JSON, JS/TS); before it loads, and without JavaScript, it is a `<textarea>` submitted with the form |
+
+## Motion
+
+`tallao/motion` is a small transition library on the kit's motion tokens
+(`--ta-duration-fast | base | slow`, `--ta-ease-out | in-out | spring` in `tokens.css`):
+
+```svelte
+<script>
+  import { rise, collapse, stagger, press, shake } from "tallao/motion";
+</script>
+
+{#each items as item, i (item.id)}<li in:rise={stagger(i)}>{item.title}</li>{/each}
+{#if open}<div transition:collapse>…</div>{/if}
+<button {@attach press()} onclick={() => valid || shake(field)}>Save</button>
+```
+
+| Kind | What there is |
+| --- | --- |
+| Svelte transitions | `fade`, `rise`, `scaleIn` (overlays), `slide` (sheets), `collapse` (height auto), `stagger(i)` for a list, `crossfade()` for an item that changes place |
+| Attachments | `press()`, `shimmer()`, `drawCheck()` (a stroke that draws itself), `rollNumber(value)`, `tabIndicator(active)` |
+| Functions | `shake(node)`, `viewTransition(update)`, `prefersReducedMotion()` |
+
+Everything is 120–240 ms, on opacity and transform, interruptible and safe to import on the
+server. Reduced motion is one switch: the system setting, or `data-tallao-motion="reduce"` on
+`<html>` (an app setting; `"full"` overrides the system). The tokens drop to no duration, the
+library stops moving, and the kit's own components (dialogs, sheets, menus, toasts, the Tabs
+underline, the Accordion, new DataTable rows) follow.
 
 ## How an app uses it
 

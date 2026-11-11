@@ -219,6 +219,18 @@
   @keyframes ta-dialog-top { from { transform: translateY(-100%); } to { transform: none; } }
   @keyframes ta-dialog-bottom { from { transform: translateY(100%); } to { transform: none; } }
 
+  /* A sheet travels further than a dialog grows: it gets the slow duration. */
+  [data-placement="left"] .ta-dialog,
+  [data-placement="right"] .ta-dialog,
+  [data-placement="top"] .ta-dialog,
+  [data-placement="bottom"] .ta-dialog { animation-duration: var(--ta-duration-slow, 240ms); }
+
+  .ta-dialog-overlay[open]::backdrop { animation: ta-dialog-backdrop var(--ta-duration-base, 180ms) ease-out; }
+  @keyframes ta-dialog-backdrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
   .ta-dialog-overlay::backdrop {
     background: rgb(var(--ta-backdrop, 0 0 0) / 0.7);
     backdrop-filter: blur(4px);
@@ -237,7 +249,7 @@
     border: 1px solid rgb(var(--ta-border));
     border-radius: var(--ta-radius-lg);
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-    animation: ta-dialog-enter 0.15s ease-out;
+    animation: ta-dialog-enter var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out);
     outline: none;
   }
 
@@ -248,6 +260,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .ta-dialog { animation: none; }
+    .ta-dialog-overlay[open]::backdrop { animation: none; }
   }
 
   .ta-dialog-header {

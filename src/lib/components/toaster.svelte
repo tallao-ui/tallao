@@ -157,7 +157,7 @@
     border-left-width: 3px;
     border-radius: var(--ta-radius);
     box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
-    animation: ta-toast-enter 0.18s ease-out;
+    animation: ta-toast-enter var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out);
   }
 
   .ta-toast--success { border-left-color: rgb(var(--ta-success)); }

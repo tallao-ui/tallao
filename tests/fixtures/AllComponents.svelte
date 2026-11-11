@@ -54,6 +54,27 @@
     ScatterChart,
     Sparkline,
     Timeline,
+    AppShell,
+    DescriptionList,
+    DiffView,
+    EmptyState,
+    FilterBar,
+    FilterChip,
+    Kbd,
+    PageHeader,
+    SaveBar,
+    SavedViews,
+    Sidebar,
+    ApprovalCard,
+    ContextCards,
+    InsightCard,
+    RecommendationCard,
+    StreamingText,
+    TaskList,
+    Thinking,
+    ToolChips,
+    RadarChart,
+    RollingCounter,
   } from "$lib/components";
 
   let { dialogOpen = false }: { dialogOpen?: boolean } = $props();
@@ -132,6 +153,87 @@
     <Timeline ariaLabel="Season" locale="en" items={[{ date: "2026-11-03", title: "Patch 1.2", tag: "Patch", tone: "accent", href: "/patch" }, { date: "Season 3", title: "Ladder reset", current: true }]} />
     <ComparisonBar title="Side win rate" left={{ label: "Blue side", value: 5230 }} right={{ label: "Red side", value: 4770 }} locale="en" />
     <ChartLegend items={[{ label: "Fire", value: "40%" }, { label: "Water" }]} aria-label="Elements" />
+    <PageHeader title="Posts" level={2} description="Everything published.">
+      {#snippet status()}<Badge variant="success" dot>Live</Badge>{/snippet}
+      {#snippet meta()}Updated today{/snippet}
+      {#snippet actions()}<Button>New post</Button>{/snippet}
+    </PageHeader>
+    <FilterBar
+      value={{ status: "Draft" }}
+      filters={[
+        { key: "status", label: "Status", type: "select", options: ["Draft", "Published"] },
+        { key: "featured", label: "Featured", type: "boolean" },
+        { key: "since", label: "Since", type: "date", hidden: true },
+      ]}
+    >
+      {#snippet end()}<SavedViews views={[{ name: "Drafts", query: { status: "Draft" } }]} current="Drafts" onSave={() => {}} />{/snippet}
+    </FilterBar>
+    <FilterChip label="Author" type="text" value="ana" />
+    <EmptyState level={2} title="No posts yet" description="Write the first one." actionLabel="New post" actionHref="/new" />
+    <EmptyState level={2} variant="no-results" onClearFilters={() => {}} />
+    <EmptyState level={2} variant="error" description="The API answered 500." onRetry={() => {}} />
+    <SaveBar dirty onCancel={() => {}} secondaryActions={[{ id: "add", label: "Save and add another" }]} />
+    <DiffView changes={[
+      { field: "title", label: "Title", before: "Hello", after: "Hello, world" },
+      { field: "tags", label: "Tags", before: null, after: ["news"] },
+      { field: "excerpt", label: "Excerpt", before: "Old", after: null },
+    ]} />
+    <DiffView compact ariaLabel="Compact changes" changes={[{ field: "status", label: "Status", before: "Draft", after: "Published" }]} />
+    <p>Search with <Kbd keys={["Mod", "K"]} /> or <Kbd>Esc</Kbd></p>
+    <DescriptionList ariaLabel="About" items={[{ label: "Created", value: "3 Nov 2026" }, { label: "Author", value: "Ana", href: "/users/ana" }, { label: "API path", value: "/api/posts/42", copy: true }, { label: "Deleted" }]} />
+    <DataTable
+      caption="Admin list"
+      rows={[{ id: "a", title: "Patch notes", status: "Draft" }]}
+      rowKey="id"
+      columns={[{ key: "title", header: "Title", sortable: true }, { key: "status", header: "Status" }]}
+      densityToggle
+      columnChooser
+      density="compact"
+      rowHref={(row) => `/posts/${row.id}`}
+    >
+      {#snippet rowActions(row)}<Button variant="ghost" size="sm" ariaLabel={`Edit ${row.title}`}>Edit</Button>{/snippet}
+    </DataTable>
+    <DataTable caption="Failed list" rows={[]} rowKey="id" columns={[{ key: "title", header: "Title" }]} error="Could not load" onRetry={() => {}} />
+    <DataTable caption="Loading list" rows={[]} rowKey="id" columns={[{ key: "title", header: "Title" }]} loading />
+    <AppShell landmarks={false} height="auto">
+      {#snippet sidebar({ mobile })}<Sidebar ariaLabel={mobile ? "Mobile navigation" : "Shell navigation"} groups={[{ items: [{ id: "posts", label: "Posts", href: "/posts" }] }]} />{/snippet}
+      {#snippet user()}<Button variant="ghost" size="sm">Ana</Button>{/snippet}
+      <p>Shell content</p>
+    </AppShell>
+    <Thinking running summary="Reading the brief" seconds={4} steps={["Read the brief"]} />
+    <Thinking seconds={12}>It weighed two options.</Thinking>
+    <StreamingText text="The notes are live. Kaela fell" streaming />
+    <ToolChips messages={1} calls={[
+      { id: "1", verb: "Read", target: "brief.md", icon: "file" },
+      { id: "2", verb: "Write", target: "Schedule.tsx", icon: "edit", added: 74, removed: 41 },
+      { id: "3", verb: "Publish", target: "post #42", name: "publish_post", args: { id: 42 }, status: "running" },
+    ]} />
+    <TaskList tasks={[
+      { id: "a", title: "Collect match data", status: "done", meta: "12 s" },
+      { id: "b", title: "Recompute tier list", status: "running", done: 3, total: 8, detail: "Three elements done." },
+      { id: "c", title: "Write the summary" },
+      { id: "d", title: "Post to Discord", status: "failed" },
+    ]} />
+    <TaskList variant="capsule" label="Run tasks" tasks={[{ id: "a", title: "Collect", status: "done" }, { id: "b", title: "Compute", status: "running" }]} />
+    <ApprovalCard
+      level={2}
+      requester="Publisher agent"
+      title="Publish the patch notes"
+      description="The post goes live now."
+      changes={[{ field: "status", label: "Status", before: "In review", after: "Published" }]}
+      tool="publish_post"
+      args={{ id: 42 }}
+      risk="Visible to every visitor."
+      onApprove={() => {}}
+      onReject={() => {}}
+      onEdit={() => {}}
+    />
+    <ApprovalCard level={2} title="Delete the draft" status="rejected" />
+    <ContextCards items={[{ id: "1", title: "brief.md", type: "file", meta: "4.2 KB" }, { id: "2", title: "Post #42", type: "record", href: "/posts/42" }]} onRemove={() => {}} />
+    <RecommendationCard level={2} title="Feature the patch notes" description="Most read this week." reasons={["9,810 views"]} confidence="high" actionLabel="Feature it" onAction={() => {}} onDismiss={() => {}} />
+    <InsightCard level={2} title="Kaela's pick rate doubled" label="Pick rate" value={18.4} unit="%" delta={9.1} trend={[9, 14, 18.4]} text="After patch 1.1." actionLabel="Open the table" actionHref="/meta" locale="en" />
+    <RadarChart title="Stats" axis="stat" locale="en" data={[{ stat: "Damage", a: 9, b: 5 }, { stat: "Speed", a: 7, b: 4 }, { stat: "Guard", a: 3, b: 9 }]} series={[{ key: "a", label: "Kaela" }, { key: "b", label: "Oskar" }]} />
+    <p>Online <RollingCounter value={1249} label="Players online" locale="en" size="sm" /></p>
     <Dialog open={dialogOpen} title="Dialog" description="Details"><p>Body</p></Dialog>
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
   </main>
