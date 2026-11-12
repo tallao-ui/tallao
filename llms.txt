@@ -2071,6 +2071,7 @@ Props:
 - `removedLabel?: string`
 - `changedLabel?: string`
 - `emptyValueLabel?: string` — What a missing value is called ("empty").
+- `redactedLabel?: string` — What a redacted value reads ("hidden").
 - `showMoreLabel?: string`
 - `showLessLabel?: string`
 - `emptyText?: string` — Shown when there is nothing to list.

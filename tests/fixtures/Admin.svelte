@@ -154,6 +154,11 @@
 />
 <DiffView compact ariaLabel="Compact changes" changes={[{ field: "status", label: "Status", before: "Draft", after: "Published" }, { field: "meta", before: null, after: { a: 1 } }]} />
 <DiffView changes={[]} />
+<DiffView
+  ariaLabel="Secret changes"
+  changes={[{ field: "api_token", label: "API token", redacted: true }, { field: "pin", before: "1", after: "1", redacted: true }]}
+/>
+<DiffView compact ariaLabel="Compact secret" changes={[{ field: "api_token", label: "API token", redacted: true }]} />
 
 <p>Open with <Kbd keys={["Mod", "K"]} {platform} data-testid="kbd" />, close with <Kbd>Esc</Kbd>, send with <Kbd keys={["Shift", "Enter"]} platform="mac" data-testid="kbd-mac" /></p>
 

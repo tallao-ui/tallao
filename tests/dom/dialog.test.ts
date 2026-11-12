@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { tick } from "svelte";
 
+import ConfirmHarness from "../fixtures/ConfirmHarness.svelte";
 import DialogHarness from "../fixtures/DialogHarness.svelte";
 
 const dialogs = () => [...document.querySelectorAll("dialog")];
@@ -59,5 +60,24 @@ describe("Dialog", () => {
     render(DialogHarness);
     await userEvent.click(screen.getByRole("button", { name: "Open" }));
     expect(screen.getByRole("button", { name: "Close dialog" })).toBeTruthy();
+  });
+});
+
+describe("ConfirmDialog", () => {
+  it("draws no empty body between the header and the buttons when it has no content", async () => {
+    render(ConfirmHarness);
+    await userEvent.click(screen.getByRole("button", { name: "Ask" }));
+    const d = dialogs().find((x) => x.open)!;
+    // An empty padded body drew a blank band between the header's rule and the footer's.
+    expect(d.querySelector(".ta-dialog-body")).toBeNull();
+    expect(d.textContent).toContain("This cannot be undone.");
+    expect(d.querySelector(".ta-dialog-footer")).not.toBeNull();
+  });
+
+  it("keeps its body when it has content", async () => {
+    render(ConfirmHarness);
+    await userEvent.click(screen.getByRole("button", { name: "Ask with a note" }));
+    const d = dialogs().find((x) => x.open)!;
+    expect(d.querySelector(".ta-dialog-body")?.textContent).toContain("Readers see it at once.");
   });
 });

@@ -89,7 +89,7 @@ Requires Svelte 5.29 or later.
 | SavedViews | a menu of named views (`{ name, query }`): choose one, save the current query, rename or delete the active one; storage is the caller's, every change is an event |
 | EmptyState | "nothing yet" (icon, title, text, primary action), `variant="no-results"` (Clear filters, a polite status) and `variant="error"` (message and Retry, an alert); what DataTable shows by default |
 | SaveBar | a form's sticky footer: the state in words and a shape ("Unsaved changes", "Saving…", an error) in a polite live region, Cancel, secondary submit actions and Save; submits a `<form>` without JavaScript and never covers the last field |
-| DiffView | before and after of a record as a list of field changes: added / removed / changed by sign, word and `<ins>` / `<del>`, text that wraps, indented JSON, long values folded; `compact` for one line per change |
+| DiffView | before and after of a record as a list of field changes: added / removed / changed by sign, word and `<ins>` / `<del>`, text that wraps, indented JSON, long values folded; `compact` for one line per change; `redacted` for a secret that changed, its values hidden |
 | DescriptionList | a record's label / value pairs as a `<dl>`: copyable values, links, monospace, your own `value` snippet; side by side or stacked by its own width, or in `columns` |
 | Kbd | a keyboard shortcut hint (`<kbd>` per key); `Mod` is ⌘ on Apple devices and Ctrl elsewhere, with the key names for screen readers |
 | Pagination | Previous / numbers with "…" / Next, `aria-current="page"` |

@@ -4,6 +4,14 @@
 
 **Flows, calendars, decks and date ranges.**
 
+- **DiffView**: `redacted` on a `DiffChange`, and `redactedLabel` (label `redacted`: "hidden" /
+  "oculto"). A secret field that changed, with no values to show, is listed as changed and both
+  sides read "hidden" in italics, never struck through. Before, the only way to show one was two
+  equal stand-in values, which DiffView reads as unchanged and leaves out.
+- **Dialog**, **ConfirmDialog**: a dialog with no content draws no body. A ConfirmDialog with
+  only a title and a description had an empty padded `.ta-dialog-body` between the header's rule
+  and the footer's, a blank band. ConfirmDialog hands its `children` on as it got them; on a
+  Sheet with no body the footer still sits at the bottom.
 - **Checkbox**, **DataTable**, **Switch**, **SelectionBar**: 24px targets on a fine pointer. The
   checkbox label, the sortable header button and the "select all" label are at least 24px tall
   (they were 16–21px), a checkbox with no text is 24px wide too, and the switch track has a 24px

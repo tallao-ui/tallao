@@ -266,7 +266,24 @@ describe("DiffView", () => {
     expect(list.textContent).not.toContain("slug");
   });
 
-  it("folds a long value behind a button with aria-expanded", async () => {
+  it("a redacted field is listed as changed, with its values hidden and not struck through", () => {
+    expect(diffKind({ field: "a", redacted: true })).toBe("changed");
+    // Even with equal stand-ins, a secret that was written is a change.
+    expect(diffKind({ field: "a", before: "x", after: "x", redacted: true })).toBe("changed");
+    render(Admin);
+    const items = within(screen.getByRole("list", { name: "Secret changes" })).getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    expect(items[0].querySelector(".ta-diff-kind")!.textContent).toContain("Changed");
+    expect(items[0].querySelector("del")).toBeNull();
+    expect(items[0].querySelector("ins")).toBeNull();
+    expect(items[0].querySelectorAll(".ta-diff-redacted")).toHaveLength(2);
+    expect(items[0].textContent).toContain("hidden");
+    expect(items[1].textContent).not.toContain("1");
+    const compact = within(screen.getByRole("list", { name: "Compact secret" })).getByRole("listitem");
+    expect(compact.textContent?.replace(/\s+/g, " ").trim()).toBe("~ API token (Changed): hidden");
+  });
+
+    it("folds a long value behind a button with aria-expanded", async () => {
     render(Admin);
     const more = screen.getByRole("button", { name: "Show more: Body" });
     expect(more.getAttribute("aria-expanded")).toBe("false");
