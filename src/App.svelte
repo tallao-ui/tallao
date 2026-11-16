@@ -49,6 +49,8 @@
     Label,
     SelectionBar,
     KeyValueEditor,
+    TagInput,
+    TreeView,
     CopyButton,
     DragBoard,
     DropZone,
@@ -193,6 +195,14 @@
   // ——— 0.5 ———
   const demoRows = ["Comment by ana", "Comment by luis", "Comment by eva"];
   let demoChecked = $state<string[]>([]);
+  let demoRoleIds = $state<string[]>(["123456789012345678"]);
+  let demoNode = $state<string | null>("cmd-ping");
+  let demoOpen = $state<string[]>(["commands"]);
+  const demoOutline = [
+    { id: "commands", label: "Commands", badge: "2", children: [{ id: "cmd-ping", label: "/ping" }, { id: "cmd-booth", label: "/booth", children: [{ id: "sub-set", label: "set" }, { id: "sub-score", label: "score" }] }] },
+    { id: "panels", label: "Panels", badge: "live", badgeTone: "success" as const, children: [{ id: "panel-booth", label: "booth", description: "5 rows" }] },
+    { id: "modals", label: "Modals", children: [{ id: "modal-edit", label: "edit" }] },
+  ];
   let demoStats = $state([{ key: "hp", value: "1200" }, { key: "atk", value: "85" }]);
   let demoTiers = $state<Record<string, string>>({ Nahida: "pool", Raiden: "pool", Furina: "s" });
 
@@ -1248,6 +1258,13 @@
         <CopyButton text="https://valhalla-legion.com/obs/marcador" />
       </div>
       <KeyValueEditor bind:entries={demoStats} keyLabel="Stat" valueLabel="Value" valueType="number" />
+    </div>
+    <h3>TagInput · TreeView</h3>
+    <div class="grid-2">
+      <Field label="Operator role ids">
+        <TagInput bind:values={demoRoleIds} pattern={"\d{15,20}"} patternMessage="Not a Discord id" maxItems={5} placeholder="Paste or type an id" />
+      </Field>
+      <TreeView items={demoOutline} bind:selected={demoNode} bind:expanded={demoOpen} ariaLabel="Blueprint outline" />
     </div>
     <DragBoard
       onMove={(item, zone) => {

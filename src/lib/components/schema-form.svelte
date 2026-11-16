@@ -8,6 +8,8 @@
     number / integer → numeric Input with minimum / maximum (the value is a number)
     boolean → Switch (or Checkbox with "x-widget": "checkbox")
     array with items.enum → multiple Combobox
+    array of strings, numbers or integers → TagInput (items.pattern, maxItems; numbers are numbers)
+    array of objects → one <fieldset> per item, with Add and Remove (minItems / maxItems)
     object → <fieldset> with its <legend>
   Validates required, minLength / maxLength, pattern, minimum / maximum and the format on
   submit (and each field on leaving it, once touched). With `name`, the fields are sent
@@ -31,6 +33,8 @@
     pattern?: string;
     minimum?: number;
     maximum?: number;
+    minItems?: number;
+    maxItems?: number;
     default?: unknown;
     "x-widget"?: "textarea" | "radio" | "checkbox";
   }
@@ -39,7 +43,8 @@
 
   /** The starting value: the schema's `default`s, or empty. */
   export function defaultsOf(schema: JsonSchema): unknown {
-    if (schema.default !== undefined) return structuredClone(schema.default);
+    // JSON, not structuredClone: a schema held in $state is a proxy, which structuredClone refuses.
+    if (schema.default !== undefined) return JSON.parse(JSON.stringify(schema.default));
     if (schema.type === "object") {
       const o: FormValue = {};
       for (const [k, s] of Object.entries(schema.properties ?? {})) o[k] = defaultsOf(s);
@@ -67,6 +72,7 @@
   import RadioGroup from "./radio-group.svelte";
   import Select from "./select.svelte";
   import Switch from "./switch.svelte";
+  import TagInput from "./tag-input.svelte";
   import Textarea from "./textarea.svelte";
 
   const L = useLabels();
@@ -128,7 +134,16 @@
   /** The first problem with a value, or null. */
   function problemOf(s: JsonSchema, v: unknown, isRequired: boolean): string | null {
     const empty = v == null || v === "" || (Array.isArray(v) && v.length === 0);
-    if (empty) return isRequired ? L.required : null;
+    if (empty) return isRequired || (s.minItems ?? 0) > 0 ? L.required : null;
+    if (s.type === "array" && Array.isArray(v)) {
+      if (s.minItems != null && v.length < s.minItems) return `${L.invalid} (≥ ${s.minItems})`;
+      if (s.maxItems != null && v.length > s.maxItems) return `${L.invalid} (≤ ${s.maxItems})`;
+      if (s.items?.pattern && s.items.type === "string") {
+        const re = new RegExp(`^(?:${s.items.pattern})$`);
+        const bad = v.find((x) => typeof x === "string" && !re.test(x));
+        if (bad !== undefined) return `${L.invalid}: ${bad}`;
+      }
+    }
     if (s.type === "string" && typeof v === "string") {
       if (s.minLength != null && v.length < s.minLength) return `${L.invalid} (≥ ${s.minLength})`;
       if (s.maxLength != null && v.length > s.maxLength) return `${L.invalid} (≤ ${s.maxLength})`;
@@ -150,6 +165,12 @@
     let s = schema;
     let isRequired = false;
     for (const k of path) {
+      if (s.type === "array") {
+        // An item of an array of objects: its fields' rules are the item schema's.
+        s = s.items ?? {};
+        isRequired = false;
+        continue;
+      }
       isRequired = !!s.required?.includes(k);
       s = s.properties?.[k] ?? {};
     }
@@ -164,9 +185,30 @@
     else delete errors[key];
   }
 
+  const isObjectList = (s: JsonSchema) => s.type === "array" && s.items?.type === "object";
+
   function leaves(s: JsonSchema, path: string[] = []): string[][] {
+    if (isObjectList(s)) {
+      // The list itself (its count), then every field of every item.
+      const items = (read(path) as unknown[] | undefined) ?? [];
+      return [path, ...items.flatMap((_, i) => leaves(s.items!, [...path, String(i)]))];
+    }
     if (s.type !== "object") return [path];
     return Object.entries(s.properties ?? {}).flatMap(([k, child]) => leaves(child, [...path, k]));
+  }
+
+  function addItem(path: string[], item: JsonSchema) {
+    const list = [...(((read(path) as unknown[] | undefined) ?? []) as unknown[]), defaultsOf(item)];
+    write(path, list);
+  }
+
+  function removeAt(path: string[], index: number) {
+    const list = ((read(path) as unknown[] | undefined) ?? []).filter((_, i) => i !== index);
+    // Errors of the items after it would point at the wrong item: forget the list's.
+    const prefix = path.join(".") + ".";
+    for (const k of Object.keys(errors)) if (k.startsWith(prefix)) delete errors[k];
+    for (const k of Object.keys(touched)) if (k.startsWith(prefix)) delete touched[k];
+    write(path, list);
   }
 
   /** Validates everything; returns whether it is valid and focuses the first field with an error. */
@@ -228,6 +270,42 @@
         {@render field(child, [...path, k], !!s.required?.includes(k))}
       {/each}
     </fieldset>
+  {:else if isObjectList(s)}
+    {@const list = (read(path) as unknown[] | undefined) ?? []}
+    <fieldset class="ta-schema-group ta-schema-list" data-field={key}>
+      <legend>{fieldLabel}{#if isRequired}<span class="ta-schema-required" aria-hidden="true"> *</span>{/if}</legend>
+      {#if helpId}<p class="ta-schema-help" id={helpId}>{s.description}</p>{/if}
+      {#each list as _, i (i)}
+        <fieldset class="ta-schema-group ta-schema-item">
+          <legend>{fieldLabel} {i + 1}</legend>
+          {#each Object.entries(s.items?.properties ?? {}) as [k, child] (k)}
+            {@render field(child, [...path, String(i), k], !!s.items?.required?.includes(k))}
+          {/each}
+          <div class="ta-schema-item-actions">
+            <Button
+              variant="danger-ghost"
+              size="sm"
+              disabled={disabled || (s.minItems != null && list.length <= s.minItems)}
+              ariaLabel={L.removeItem.replace("{item}", `${fieldLabel} ${i + 1}`)}
+              onclick={() => removeAt(path, i)}
+            >
+              {L.remove}
+            </Button>
+          </div>
+        </fieldset>
+      {/each}
+      <div class="ta-schema-list-actions">
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={disabled || (s.maxItems != null && list.length >= s.maxItems)}
+          onclick={() => addItem(path, s.items!)}
+        >
+          {L.addItem}
+        </Button>
+      </div>
+      {#if error}<span class="ta-schema-error" role="alert">{error}</span>{/if}
+    </fieldset>
   {:else if s.type === "boolean"}
     <div class="ta-schema-field" data-field={key}>
       {#if s["x-widget"] === "checkbox"}
@@ -263,6 +341,22 @@
             values={(read(path) as string[]) ?? []}
             {disabled}
             onValuesChange={(v) => write(path, v)}
+          />
+        {:else if s.type === "array" && s.items && ["string", "number", "integer"].includes(s.items.type ?? "string")}
+          {@const numeric = s.items.type === "number" || s.items.type === "integer"}
+          <TagInput
+            id={cid}
+            name={nameOf(path)}
+            values={((read(path) as unknown[] | undefined) ?? []).map(String)}
+            pattern={numeric ? (s.items.type === "integer" ? "-?\\d+" : "-?\\d+(\\.\\d+)?") : s.items.pattern}
+            maxItems={s.maxItems}
+            {disabled}
+            aria-describedby={helpId}
+            aria-invalid={error ? "true" : undefined}
+            onchange={(v) => {
+              write(path, numeric ? v.map(Number) : v);
+              leave(path);
+            }}
           />
         {:else if s.enum || s.oneOf}
           <Select
@@ -359,4 +453,9 @@
   .ta-schema-help { margin: 0; font-size: 0.75rem; color: rgb(var(--ta-text-dim)); }
   .ta-schema-error { font-size: 0.75rem; color: rgb(var(--ta-danger)); }
   .ta-schema-actions { display: flex; justify-content: flex-end; }
+  .ta-schema-item { padding-top: 0.5rem; }
+  .ta-schema-item legend { font-weight: 500; color: rgb(var(--ta-text-dim)); }
+  .ta-schema-item-actions,
+  .ta-schema-list-actions { display: flex; justify-content: flex-end; }
+  .ta-schema-required { color: rgb(var(--ta-danger)); }
 </style>

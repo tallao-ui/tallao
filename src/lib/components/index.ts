@@ -162,3 +162,7 @@ export { default as DateRangePicker } from "./date-range-picker.svelte";
 export type { DateRange, DateRangePreset } from "./date-range-picker.svelte";
 export { default as SankeyChart } from "./sankey-chart.svelte";
 export type { SankeyLink, SankeyNode } from "./sankey-chart.svelte";
+export { default as TagInput } from "./tag-input.svelte";
+export { default as SortableList } from "./sortable-list.svelte";
+export { default as TreeView } from "./tree-view.svelte";
+export type { TreeNode } from "./tree-view.svelte";
