@@ -37,6 +37,13 @@
 - **SchemaForm**: a schema held in `$state` (one a page loads from an API) no longer crashes the
   form. Its `default`s are copied as JSON; `structuredClone` refused the reactive proxies with a
   `DataCloneError` and nothing rendered.
+- **LineChart**, **BarChart** (and every chart with "Show data"): the "Show data" button is at least
+  24 × 24 px with a fine pointer (WCAG 2.2 target size); it was 22px tall.
+- **Field**: with `error`, its control gets `aria-invalid="true"` and `aria-describedby` pointing at
+  the message (kept alongside ids it already had), and both are removed when the error goes. The
+  message has an id now. Before, only the label wrapping it tied the error to the control.
+- **KpiCard**: in a narrow card the sparkline moves under the figure instead of breaking the
+  figure across two lines ("35.1 / K").
 
 **Flows, calendars, decks and date ranges.**
 
