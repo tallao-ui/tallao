@@ -251,6 +251,18 @@ export interface Labels {
   value: string;
   /** Note under a flow chart: "{n}" is replaced (SankeyChart). */
   flowsNotDrawn: string;
+  /** Button that adds one more item to a list (SchemaForm arrays of objects). */
+  addItem: string;
+  /** SortableList: the handle ("{item}" is replaced), its move buttons and what is announced. */
+  moveItem: string;
+  moveUp: string;
+  moveDown: string;
+  sortInstructions: string;
+  /** "{item}", "{position}" and "{total}" are replaced. */
+  sortPicked: string;
+  sortMoved: string;
+  sortDropped: string;
+  sortCancelled: string;
 }
 
 export const en: Labels = {
@@ -425,6 +437,15 @@ export const en: Labels = {
   to: "To",
   value: "Value",
   flowsNotDrawn: "{n} not drawn: it would close a loop",
+  addItem: "Add",
+  moveItem: "Move {item}",
+  moveUp: "Move up",
+  moveDown: "Move down",
+  sortInstructions: "Press the handle to pick the item up, the arrow keys to move it, the handle again to drop it, Escape to cancel.",
+  sortPicked: "{item} picked up, position {position} of {total}.",
+  sortMoved: "{item}, position {position} of {total}.",
+  sortDropped: "{item} dropped at position {position} of {total}.",
+  sortCancelled: "{item} back at position {position} of {total}.",
 };
 
 export const es: Labels = {
@@ -599,6 +620,15 @@ export const es: Labels = {
   to: "Hasta",
   value: "Valor",
   flowsNotDrawn: "{n} sin dibujar: cerraría un ciclo",
+  addItem: "Añadir",
+  moveItem: "Mover {item}",
+  moveUp: "Subir",
+  moveDown: "Bajar",
+  sortInstructions: "Pulsa el asa para tomar el elemento, las flechas para moverlo, el asa otra vez para soltarlo y Escape para cancelar.",
+  sortPicked: "{item} tomado, posición {position} de {total}.",
+  sortMoved: "{item}, posición {position} de {total}.",
+  sortDropped: "{item} soltado en la posición {position} de {total}.",
+  sortCancelled: "{item} vuelve a la posición {position} de {total}.",
 };
 
 const KEY = Symbol("tallao-labels");

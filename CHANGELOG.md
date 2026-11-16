@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+**Lists, outlines and forms that take them.**
+
+- **SortableList** (new): rows put in another order (`items`, `key`, `label`, a `row` snippet,
+  `onReorder(from, to)`; the list moves nothing itself). Drag a row by its handle with the mouse;
+  or press the handle (a button with `aria-pressed`) and move it with ↑ ↓ / Home / End or the Move
+  up / Move down buttons it shows while picked up (touch), press the handle again to drop it,
+  Escape to put it back. Focus follows the row; every step is announced in an `aria-live` region.
+  Props: `ariaLabel`, `disabled`, `handleLabel`, `moveUpLabel`, `moveDownLabel`, `instructions`,
+  `class`; other attributes go to the `<ol>`. New labels: `moveItem`, `moveUp`, `moveDown`,
+  `sortInstructions`, `sortPicked`, `sortMoved`, `sortDropped`, `sortCancelled`.
+- **TagInput** (new): a list of short free-text values as removable chips (`values`, bindable).
+  Enter or a `separators` character (`[","]`) adds what was typed, also when the separator
+  arrives as text with no key event (Android keyboards, autocomplete); a pasted list is split on
+  them and on new lines, Backspace in the empty field takes the last value back to edit. Before
+  adding it checks `pattern` (anchored, like `<input pattern>`; `patternMessage` says why),
+  `maxItems` (the field is disabled when full) and repeats (`unique`, default `true`); what does
+  not pass stays in the field with the reason under it (`role="alert"`, linked with
+  `aria-describedby`). Props: `placeholder`, `disabled`, `id`, `name` (one hidden input per value),
+  `ariaLabel`, `removeLabel` (label `removeItem`), `invalidLabel` (label `invalid`), `onchange`;
+  other attributes go to the text field. 44px targets under `pointer: coarse`.
+- **TreeView** (new): the APG tree view with single selection. `items` (`TreeNode`: `id`,
+  `label`, `description`, `badge`, `badgeTone`, `disabled`, `children`), bindable `selected` and
+  `expanded`, `ariaLabel`, `onselect`, and a `node` snippet to draw a node yourself. Arrows move,
+  open and close, Home/End, Enter or Space select, `*` opens the siblings, typing a letter jumps;
+  roving tabindex; `aria-level`, `aria-setsize`, `aria-posinset`, `aria-expanded`,
+  `aria-selected`. Exports `TreeNode`.
+- **SchemaForm**: arrays. An array of strings, numbers or integers is a TagInput (numbers come
+  back as numbers; `items.pattern` and `maxItems` are checked per value), and an array of objects
+  is one fieldset per item with Remove and an Add button (`minItems` / `maxItems` limit both).
+  Fields inside items validate like any other, the list validates its count, and removing an item
+  forgets the errors of the list. `JsonSchema` gains `minItems` and `maxItems`. New label
+  `addItem` ("Add" / "Añadir").
+- **SchemaForm**: a schema held in `$state` (one a page loads from an API) no longer crashes the
+  form. Its `default`s are copied as JSON; `structuredClone` refused the reactive proxies with a
+  `DataCloneError` and nothing rendered.
+
 **Flows, calendars, decks and date ranges.**
 
 - **DiffView**: `redacted` on a `DiffChange`, and `redactedLabel` (label `redacted`: "hidden" /

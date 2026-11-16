@@ -28,6 +28,9 @@
     ThemeScope,
     ToolCallCard,
     Steps,
+    TagInput,
+    SortableList,
+    TreeView,
     SuggestionChips,
     CodeBlock,
     Sources,
@@ -245,6 +248,11 @@
     <DateRangePicker value={{ start: "2026-11-01", end: "2026-11-07" }} name="period" locale="en" />
     <SankeyChart title="Flows" locale="en" links={[{ source: "A", target: "B", value: 5 }, { source: "A", target: "C", value: 3 }, { source: "B", target: "D", value: 4 }, { source: "C", target: "D", value: 3 }]} />
     <Dialog open={dialogOpen} title="Dialog" description="Details"><p>Body</p></Dialog>
+    <TagInput values={["123456789012345678"]} ariaLabel="Role ids" name="roles" />
+    <SortableList ariaLabel="Steps" items={["Reply", "Give coins"]} key={(s) => s} label={(s) => s} onReorder={() => {}}>
+      {#snippet row(s)}{s}{/snippet}
+    </SortableList>
+    <TreeView ariaLabel="Outline" expanded={["a"]} selected="a1" items={[{ id: "a", label: "Commands", badge: "2", children: [{ id: "a1", label: "ping" }, { id: "a2", label: "booth" }] }, { id: "b", label: "Panels" }]} />
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
   </main>
 </ThemeScope>

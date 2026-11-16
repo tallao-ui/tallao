@@ -2545,6 +2545,73 @@ Props:
 - `hideDataLabel?: string`
 - `class?: string`
 
+### TagInput
+
+A list of short free-text values typed one after another.
+
+```svelte
+<TagInput />
+```
+
+Props:
+- `values?: string[]` — The values, in order.
+- `placeholder?: string`
+- `pattern?: string` — A regular expression the whole value must match (anchored), e.g. `\d{15,20}`.
+- `patternMessage?: string` — What to say when a value does not match `pattern` (default: the "invalid" label).
+- `maxItems?: number` — No more than this many values.
+- `unique?: boolean` — With `true` (default), a value already in the list is not added again.
+- `separators?: string[]` — Characters that end a value as you type or paste (Enter always does).
+- `disabled?: boolean`
+- `id?: string` — Id of the text field, for a <label for>.
+- `name?: string` — Name in a form: each value is submitted as `name` (repeated).
+- `ariaLabel?: string` — Accessible name of the text field when there is no visible label.
+- `removeLabel?: string` — Accessible name of each remove button; "{item}" is replaced by the value.
+- `invalidLabel?: string` — Prefix of a rejection message.
+- `class?: string`
+- `onchange?: (values: string[]) => void`
+
+### SortableList
+
+A list whose rows can be put in another order.
+
+```svelte
+<SortableList items={steps} key={(s) => s.id} label={(s) => s.name}
+  onReorder={(from, to) => steps.splice(to, 0, steps.splice(from, 1)[0])}>
+  {#snippet row(step)}{step.name}{/snippet}
+</SortableList>
+```
+
+Props:
+- `items: T[]`
+- `key: (item: T, index: number) => string` — A stable key per item (it keeps focus and the row's state when the order changes).
+- `label: (item: T, index: number) => string` — The item's name in the handle and the announcements.
+- `onReorder: (from: number, to: number) => void` — Move the item at `from` to `to` in your data.
+- `row: import("svelte").Snippet<[T, number]>` — What each row shows, after its handle.
+- `ariaLabel?: string` — Accessible name of the list.
+- `disabled?: boolean`
+- `handleLabel?: string` — The handle's name; "{item}" is replaced by the item's label.
+- `moveUpLabel?: string`
+- `moveDownLabel?: string`
+- `instructions?: string`
+- `class?: string`
+
+### TreeView
+
+A hierarchy you move through and pick from.
+
+```svelte
+<TreeView {items} ariaLabel="…" />
+```
+
+Props:
+- `items: TreeNode[]`
+- `selected?: string | null` — Id of the selected node, or null.
+- `expanded?: string[]` — Ids of the open nodes.
+- `ariaLabel: string` — Accessible name of the tree.
+- `class?: string`
+- `onselect?: (id: string, node: TreeNode) => void`
+- `node?: Snippet<[TreeNode, { level: number; selected: boolean }]>` — Draws a node's content instead of label + description + badge.
+
 ## Components (`tallao/map`)
 
 ### GameMap
