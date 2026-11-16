@@ -9,7 +9,8 @@ description: >-
 # Release check
 
 Run every step, even after a failure, and report a table: step, result, and what failed.
-Do not fix anything unless the user asks; do not commit, tag or push.
+Do not fix anything unless the user asks; do not commit, tag or push unless
+the user asks (and never tag or publish: a human releases).
 
 1. **Types.** `pnpm check`
 2. **Tests.** `pnpm test` (dom and ssr projects), in the background; read the summary. Rerun a

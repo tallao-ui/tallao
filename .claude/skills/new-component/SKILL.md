@@ -48,4 +48,5 @@ already covers the need, extend it instead (use `fix-component`).
    Add `pnpm kit:check` if it submits in forms or renders on the server in a special way. Fix every
    failure; never add the component to the touch-target `EXEMPT` list without a real reason.
 
-Never write a token or key into a file. Do not commit unless the user asks.
+Never write a token or key into a file. Commit, push the branch and open a PR only when the user asks (see "Commits and pull requests" in
+`AGENTS.md`).
