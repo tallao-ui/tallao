@@ -333,7 +333,8 @@ follows (runes, tokens, labels, SSR, 44px touch targets), commands, tests and th
 must keep. Claude Code reads it through [CLAUDE.md](CLAUDE.md).
 
 - [`.claude/settings.json`](.claude/settings.json): shared permissions. The check, test and build
-  scripts and read-only git are allowed; reading `.env` files, `git push` and publishing are denied.
+  scripts, commits and pushes on a branch, and opening PRs are allowed; reading `.env` files,
+  pushing to `main`, force pushes, merging and publishing are denied.
 - [`.claude/skills/`](.claude/skills): [`new-component`](.claude/skills/new-component/SKILL.md),
   [`fix-component`](.claude/skills/fix-component/SKILL.md) and
   [`release-check`](.claude/skills/release-check/SKILL.md), plain Markdown any agent can follow.

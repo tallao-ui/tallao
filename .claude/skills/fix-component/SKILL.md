@@ -36,5 +36,5 @@ description: >-
    Add `pnpm kit:check` for anything touching SSR, hydration, ids or form submission. Under load,
    rerun a failing file alone before concluding it is broken.
 
-Report what changed, the test that proves it, and anything you could not run. Do not commit unless
-asked.
+Report what changed, the test that proves it, and anything you could not run. Commit, push the
+branch and open a PR only when asked (see "Commits and pull requests" in `AGENTS.md`).

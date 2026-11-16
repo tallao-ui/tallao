@@ -156,8 +156,18 @@ build and Playwright tests on every push to `main` and every pull request.
 ## Tools for agents
 
 - `.claude/settings.json`: shared Claude Code permissions. `pnpm check`, `test`, `package`,
-  `build:demo`, `kit:check`, single vitest files and read-only git are allowed; reading `.env`
-  files, `git push` and `pnpm publish` / `npm publish` are denied.
+  `build:demo`, `kit:check`, single vitest files, git on a branch (`switch`, `add`, `commit`,
+  `push` of that branch) and `gh pr create` / `view` / `checks` are allowed. Denied: reading
+  `.env` files, pushing to `main`, force pushes, deleting remote branches, `gh pr merge` and
+  `pnpm publish` / `npm publish`.
+
+## Commits and pull requests
+
+When the user asks for a commit or a PR: work on a branch (never commit to `main`), run
+`pnpm check` and `pnpm test` first, commit with a message that says what changed and why, push
+that branch and open the PR against `main` with `gh pr create`. The PR body lists what changed
+and the checks that ran (and the ones that did not). A human merges; agents never merge, force
+push or publish.
 - `.claude/skills/`: step-by-step skills, usable by any agent that reads Markdown:
   - `build-with-tallao`: pick and compose components for an agent run screen, an admin
     list / detail page or a public dashboard, with the motion rules (for agents using the kit);
