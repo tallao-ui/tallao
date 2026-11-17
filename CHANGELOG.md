@@ -4,6 +4,20 @@
 
 **Lists, outlines and forms that take them.**
 
+- **PasswordInput** (new): a password or secret-key field with a show / hide button. A real
+  `<input>` (type `password` or `text`), so password managers, paste, autofill and `name` in a
+  native form keep working; other attributes go to it. The toggle is a `<button type="button">`
+  with `aria-pressed` and the name "Show password" (`toggleLabel`, label `showPassword`), reached
+  with Tab after the field; a click keeps focus in the field. Props: `value`, `revealed` (both
+  bindable), `ref`, `disabled`, `onRevealChange`, `class`. 44px targets and 16px text under
+  `pointer: coarse`.
+- **FloatingScene** (new): a decorative 3D backdrop of frosted glass tiles at four depths behind
+  the content (`children`). `tiles` (texts drawn on them), `count`, `seed` (deterministic layout,
+  the same on the server; exported as `layoutScene` with the `SceneTile` type), `parallax`
+  (default on: the pointer tilts the layers through two CSS custom properties, once per frame),
+  `drift` (default off: a slow 10–14 s float), `glow` (a soft accent light). The stage is
+  `aria-hidden` with no pointer events; under reduced motion the tiles stay still. Coloured by
+  `--ta-accent`, `--ta-accent-2` and `--ta-text`.
 - **Install from GitHub with Corepack.** `pnpm add github:tallao-ui/tallao` in a Docker image with
   Corepack failed in `prepare` with `ERR_PNPM_IGNORED_BUILDS`: the nested install runs in the
   package's own folder, which named no package manager, so Corepack picked the newest pnpm, which

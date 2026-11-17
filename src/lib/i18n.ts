@@ -92,6 +92,7 @@ export interface Labels {
   suggestions: string;
   /** Accessible name of the source list (Sources). */
   sources: string;
+  showPassword: string;
   /** Label for quota usage (UsageMeter). */
   usage: string;
   /** Accessible name of a one-time code field (InputOTP). */
@@ -337,6 +338,7 @@ export const en: Labels = {
   skipped: "Skipped",
   suggestions: "Suggestions",
   sources: "Sources",
+  showPassword: "Show password",
   usage: "Usage",
   oneTimeCode: "One-time code",
   otpDigit: "Digit {n} of {total}",
@@ -522,6 +524,7 @@ export const es: Labels = {
   skipped: "Saltado",
   suggestions: "Sugerencias",
   sources: "Fuentes",
+  showPassword: "Mostrar contraseña",
   usage: "Uso",
   oneTimeCode: "Código de un solo uso",
   otpDigit: "Dígito {n} de {total}",

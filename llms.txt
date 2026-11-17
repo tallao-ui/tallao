@@ -76,6 +76,43 @@ Props:
 - `type?: string`
 - `disabled?: boolean`
 
+### PasswordInput
+
+A password (or secret key) field with a button that shows and hides what was typed.
+
+```svelte
+<PasswordInput />
+```
+
+Props:
+- `value?: string` — What was typed (bindable).
+- `revealed?: boolean` — The text is shown (bindable).
+- `ref?: HTMLInputElement` — The native element (bind:ref).
+- `disabled?: boolean`
+- `toggleLabel?: string` — Accessible name of the toggle; by default "Show password".
+- `class?: string`
+- `onRevealChange?: (revealed: boolean) => void`
+
+### FloatingScene
+
+A decorative 3D backdrop.
+
+```svelte
+<FloatingScene tiles={["BEG READ", "GOTO", "IF"]} class="page">
+  <form>…</form>
+</FloatingScene>
+```
+
+Props:
+- `tiles?: string[]` — Short texts drawn on the tiles (a keyword, an icon character). Repeated if there are more tiles.
+- `count?: number` — How many tiles (default: the number of `tiles`, or 8).
+- `seed?: number` — Changes the layout; the same seed always gives the same scene.
+- `parallax?: boolean` — Tilt the layers with the pointer.
+- `drift?: boolean` — A slow continuous float. Off by default.
+- `glow?: boolean` — A soft light under the scene, in the accent colour.
+- `class?: string`
+- `children?: Snippet` — The content, drawn above the scene.
+
 ### Dialog
 
 Modal dialog built on the native <dialog> with showModal().

@@ -14,6 +14,8 @@
     Dialog,
     Field,
     Input,
+    PasswordInput,
+    FloatingScene,
     PromptInput,
     Select,
     Stat,
@@ -95,6 +97,8 @@
     <Badge variant="success">ok</Badge>
     <Alert variant="error" title="Error" onDismiss={() => {}}>Something went wrong</Alert>
     <Field label="Name" required><Input /></Field>
+    <Field label="Secret"><PasswordInput name="secret" /></Field>
+    <FloatingScene tiles={["IF", "GOTO"]}><p>Over the scene</p></FloatingScene>
     <Field label="Role"><Select options={[{ value: "a", label: "A" }]} /></Field>
     <Field label="Notes"><Textarea /></Field>
     <Checkbox label="Agent" />

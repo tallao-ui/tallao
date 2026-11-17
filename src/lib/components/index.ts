@@ -1,6 +1,9 @@
 export { default as Button } from "./button.svelte";
 export { default as Badge } from "./badge.svelte";
 export { default as Input } from "./input.svelte";
+export { default as PasswordInput } from "./password-input.svelte";
+export { default as FloatingScene } from "./floating-scene.svelte";
+export type { SceneTile } from "./floating-scene.svelte";
 export { default as Dialog } from "./dialog.svelte";
 export { default as Card } from "./card.svelte";
 export { default as CardHeader } from "./card-header.svelte";

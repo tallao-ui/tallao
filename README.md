@@ -49,6 +49,7 @@ Requires Svelte 5.29 or later.
 | Button | 7 variants (including `soft`, tinted with the accent, and `danger-ghost`, the quiet destructive action: red text, no fill) × 4 sizes, `loading`, `href`; passes any attribute and attachment to the element |
 | Badge | 9 variants (including `accent` and `accent-2`, the second accent) × 2 sizes; `tone="solid"` fills with the colour and uses contrasting text ("LIVE" over an image); `dot` adds a leading status dot in the variant's colour and `pulse` makes it pulse (live, running; still under reduced motion); passes any attribute to the `<span>` |
 | Spinner | a standalone loading indicator: `role="status"` with hidden text (`label`, by default the kit's "Loading" text), `size` sm / md / lg or in pixels, text colour; with reduced motion it pulses instead of spinning |
+| PasswordInput | a password or secret-key field with a show / hide button (`aria-pressed`); password managers, paste and `name` keep working; `revealed` is bindable |
 | Input · Textarea · Select · Checkbox | native controls styled with the kit's tokens (for a number bound as `number \| null`, use NumberInput) |
 | Label | a standalone `<label>`: `for`, `required` (a visible "*" plus a hidden "Required" for screen readers), `disabled` styling; passes any attribute |
 | Field | label + control + error, required marker |
@@ -129,6 +130,7 @@ Requires Svelte 5.29 or later.
 | Tooltip | a description on hover or focus; Escape hides it (WCAG 1.4.13) |
 | DropdownMenu · MenuItem · MenuSeparator · MenuLabel | an action menu: arrows, Home/End, type-ahead by letter; a MenuItem with `checked` is a `menuitemcheckbox` (or a radio with `checkType="radio"`) |
 | Combobox | a field with a filterable list (ARIA 1.2, `aria-activedescendant`), ignoring case and accents |
+| FloatingScene | decorative 3D backdrop of frosted glass tiles at four depths behind the content (`tiles`, `seed`, `parallax`, `drift`, `glow`); `aria-hidden`, same layout on the server, still under reduced motion |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
 | PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
 | Thinking | a model's reasoning as one quiet line: a soft shimmer, a live `summary` and the elapsed time while `running`, "Thought for 12 s" when done, and the trace (`steps`, content) behind a disclosure; the end is announced once |
