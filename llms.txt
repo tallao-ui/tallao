@@ -1034,6 +1034,10 @@ Props:
 - `required?: boolean`
 - `chooseLabel?: string`
 - `dropLabel?: string`
+- `paste?: boolean | "document"` — Takes files from the clipboard: `true` while focus is in the zone, `"document"` anywhere on the page.
+- `previews?: boolean` — Shows a thumbnail for image files.
+- `pasteLabel?: string` — Hint shown under the drop text when `paste` is on.
+- `pastedName?: (n: number) => string` — Name for a pasted file that has none of its own (without extension).
 - `removeLabel?: (name: string) => string`
 - `rejectionText?: (r: FileRejection) => string`
 - `class?: string`

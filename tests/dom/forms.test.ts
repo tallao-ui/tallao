@@ -148,6 +148,50 @@ describe("FileUpload", () => {
     await fireEvent.drop(zone, { dataTransfer: { files: [f] } });
     expect(screen.getByTestId("files").textContent).toBe("dropped.pdf");
   });
+
+  /** A paste event carrying `files` (and optionally text) on the clipboard. */
+  function pasteOn(target: EventTarget, files: File[], text = "") {
+    const items = files.map((f) => ({ kind: "file", type: f.type, getAsFile: () => f }));
+    if (text) items.push({ kind: "string", type: "text/plain", getAsFile: () => null as unknown as File });
+    const e = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(e, "clipboardData", { value: { items, files, getData: () => text } });
+    target.dispatchEvent(e);
+    return e;
+  }
+
+  it("paste: takes images from the clipboard, names the nameless ones, and shows thumbnails", async () => {
+    let n = 0;
+    const created = vi.fn(() => `blob:thumb-${++n}`);
+    const revoked = vi.fn();
+    Object.assign(URL, { createObjectURL: created, revokeObjectURL: revoked });
+    render(Forms);
+    const zone = document.querySelectorAll(".ta-upload-zone")[1];
+    expect(zone.textContent).toContain("or paste them with Ctrl+V");
+    const shot = new File(["x"], "image.png", { type: "image/png" });
+    const named = new File(["x"], "invoice.jpg", { type: "image/jpeg" });
+    const e = pasteOn(document.body, [shot, named]);
+    await tick();
+    expect(e.defaultPrevented).toBe(true);
+    expect(screen.getByTestId("shots").textContent).toBe("Pasted image 1.png,invoice.jpg");
+    const thumbs = zone.parentElement!.querySelectorAll<HTMLImageElement>(".ta-upload-thumb");
+    expect([...thumbs].map((t) => t.getAttribute("src"))).toEqual(["blob:thumb-1", "blob:thumb-2"]);
+    expect(thumbs[0].getAttribute("alt")).toBe("");
+    await userEvent.click(screen.getByRole("button", { name: "Remove Pasted image 1.png" }));
+    expect(revoked).toHaveBeenCalledWith("blob:thumb-1");
+    expect(await axeViolations(document.body)).toEqual([]);
+  });
+
+  it("paste: text pasted into a field is left alone, and a zone without paste takes nothing", async () => {
+    render(Forms);
+    const e = pasteOn(screen.getByRole("textbox", { name: "Notes" }), [], "hello");
+    await tick();
+    expect(e.defaultPrevented).toBe(false);
+    expect(screen.getByTestId("shots").textContent).toBe("");
+    const plain = document.querySelectorAll(".ta-upload-zone")[0];
+    pasteOn(plain.querySelector("input")!, [new File(["x"], "a.png", { type: "image/png" })]);
+    await tick();
+    expect(screen.getByTestId("files").textContent).toBe("");
+  });
 });
 
 describe("Pagination", () => {

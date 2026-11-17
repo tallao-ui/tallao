@@ -31,6 +31,7 @@
   let page = $state(1);
   let selection = $state<string[]>([]);
   let files = $state<File[]>([]);
+  let shots = $state<File[]>([]);
 
   const rows = Array.from({ length: 7 }, (_, i) => ({ id: `r${i + 1}`, name: ["Eva", "Ana", "Luis", "Zoe", "Bea", "Ciro", "Dani"][i], points: [30, 5, 12, 50, 8, 21, 2][i] }));
 </script>
@@ -52,6 +53,10 @@
 </form>
 <span data-testid="date">{date ?? "none"}</span>
 <span data-testid="files">{files.map((f) => f.name).join(",")}</span>
+
+<FileUpload multiple accept="image/*" paste="document" previews bind:files={shots} />
+<span data-testid="shots">{shots.map((f) => f.name).join(",")}</span>
+<textarea aria-label="Notes"></textarea>
 
 <Calendar bind:value={day} min="2026-11-02" />
 <span data-testid="day">{day ?? "none"}</span>

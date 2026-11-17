@@ -97,7 +97,7 @@ Requires Svelte 5.29 or later.
 | Calendar · DatePicker | pick a day with the keyboard (APG pattern), ISO dates, `min`/`max`, localized names; the DatePicker can also be typed into |
 | DateRangePicker | two dates typed (ISO) or picked: quick ranges ("Last 7 days") and a Calendar per end in a non-modal panel; the fields are real inputs submitted as `<name>_start` / `<name>_end`, so a form filters without JavaScript; `inline` shows only the panel (FilterChip uses it for a `date` filter with `range`) |
 | MonthView | a month to look at (agenda, events): the `day` snippet with what goes in each day (`date`, `day`, `weekday`, `today`, `outside`), ‹ › and PageUp/PageDown (Shift: year) to change month, `bind:month`, today with `aria-current="date"`; unlike Calendar, a day's content can hold links and buttons |
-| FileUpload | choose or drop files on a real `<input type="file">`; `accept`, `maxSize`, `maxFiles`, with the reason for each rejection |
+| FileUpload | choose, drop or paste (`paste`) files on a real `<input type="file">`; `accept`, `maxSize`, `maxFiles`, with the reason for each rejection; image thumbnails with `previews` |
 | Breadcrumb | a navigation trail in `<nav>` + `<ol>`; the last item is `aria-current="page"` |
 | Icon | the kit's own icons by name (`check`, `search`, `bot`…) or your own drawing; decorative unless it has a `label` |
 | Sidebar | side navigation with groups, badges and expandable branches; marks the current page and opens its branch; collapses to icons with a Tooltip per item; your own icons (`icon` snippet), tinted and pulsing badges, `persistKey` to remember the collapsed state, a `footer(collapsed)` for the current user |

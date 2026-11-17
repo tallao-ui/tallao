@@ -4,6 +4,14 @@
 
 **Lists, outlines and forms that take them.**
 
+- **FileUpload** takes files from the clipboard and shows image thumbnails. `paste` (`true`:
+  while focus is in the zone; `"document"`: anywhere on the page, except a text paste into a
+  field, which is left alone) adds the clipboard's files through the same `accept` / `maxSize` /
+  `maxFiles` checks; a paste with only text is never taken, and nameless pastes ("image.png")
+  are named "Pasted image 1.png"… (`pastedName`). The zone then shows a hint (`pasteLabel`),
+  linked to the input with `aria-describedby`. `previews` draws a decorative thumbnail
+  (`.ta-upload-thumb`, an object URL freed when the file is removed or the component unmounts)
+  for image files. New labels: `pasteFiles`, `pastedFileName`.
 - **SortableList** (new): rows put in another order (`items`, `key`, `label`, a `row` snippet,
   `onReorder(from, to)`; the list moves nothing itself). Drag a row by its handle with the mouse;
   or press the handle (a button with `aria-pressed`) and move it with ↑ ↓ / Home / End or the Move

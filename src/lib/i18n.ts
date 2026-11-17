@@ -49,6 +49,8 @@ export interface Labels {
   nextMonth: string;
   chooseFiles: string;
   dropFiles: string;
+  pasteFiles: string;
+  pastedFileName: string;
   actions: string;
   breadcrumb: string;
   resize: string;
@@ -302,6 +304,8 @@ export const en: Labels = {
   nextMonth: "Next month",
   chooseFiles: "Choose files",
   dropFiles: "or drop them here",
+  pasteFiles: "or paste them with Ctrl+V",
+  pastedFileName: "Pasted image {n}",
   actions: "Actions",
   breadcrumb: "Breadcrumb",
   resize: "Resize",
@@ -485,6 +489,8 @@ export const es: Labels = {
   nextMonth: "Mes siguiente",
   chooseFiles: "Elegir archivos",
   dropFiles: "o suéltalos aquí",
+  pasteFiles: "o pégalos con Ctrl+V",
+  pastedFileName: "Imagen pegada {n}",
   actions: "Acciones",
   breadcrumb: "Ruta de navegación",
   resize: "Redimensionar",
