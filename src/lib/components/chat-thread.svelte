@@ -12,7 +12,8 @@
     (`aria-live="off"`): the messages announce themselves (StreamingText reads a reply sentence
     by sentence), so the thread does not read every token again. It takes focus (tabindex 0) so
     the keyboard can scroll it with the arrows, Page Up / Page Down, Home and End.
-  - Following: "at the bottom" means within `threshold` px of it. Content growth is watched with
+  - Following: "at the bottom" means within `threshold` px of it. Only scrolling up stops
+    following (content that grows under a streamed reply does not). Content growth is watched with
     a ResizeObserver, so streamed text, images that load and messages that are added all keep
     the view pinned while following. `follow` is bindable, to show it or to force it.
   - Reduced motion: jumps without smooth scrolling.
@@ -71,9 +72,16 @@
     setTimeout(() => (selfScroll = false), behavior === "smooth" ? 400 : 0);
   }
 
+  // Only the reader scrolling up leaves the bottom. While a reply streams, the content can grow
+  // between our own scroll and its scroll event: that must not count as leaving.
+  let lastTop = 0;
   function onScroll() {
-    if (!scroller || selfScroll) return;
-    follow = atBottom(scroller);
+    if (!scroller) return;
+    const top = scroller.scrollTop;
+    const movedUp = top < lastTop - 1;
+    lastTop = top;
+    if (atBottom(scroller)) follow = true;
+    else if (movedUp && !selfScroll) follow = false;
   }
 
   // Keep the newest content in view while following.

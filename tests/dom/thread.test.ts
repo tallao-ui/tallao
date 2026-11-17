@@ -27,6 +27,8 @@ describe("ChatThread", () => {
     const log = screen.getByRole("log", { name: "Conversation" });
     expect(screen.queryByRole("button", { name: /Jump to latest/ })).toBeNull();
 
+    measure(log, { top: 900 });
+    await fireEvent.scroll(log);
     measure(log, { top: 200 });
     await fireEvent.scroll(log);
     expect(screen.getByTestId("follow").textContent).toBe("false");
@@ -36,6 +38,20 @@ describe("ChatThread", () => {
     expect(log.scrollTop).toBe(1000);
     expect(screen.getByTestId("follow").textContent).toBe("true");
     expect(screen.queryByRole("button", { name: /Jump to latest/ })).toBeNull();
+  });
+
+  it("content that grows while following does not stop it; only scrolling up does", async () => {
+    render(Thread);
+    const log = screen.getByRole("log", { name: "Conversation" });
+    measure(log, { top: 900 });
+    await fireEvent.scroll(log);
+    // The reply grew by 400px before this scroll event: further down, yet no longer at the bottom.
+    measure(log, { top: 950, height: 1400 });
+    await fireEvent.scroll(log);
+    expect(screen.getByTestId("follow").textContent).toBe("true");
+    measure(log, { top: 600, height: 1400 });
+    await fireEvent.scroll(log);
+    expect(screen.getByTestId("follow").textContent).toBe("false");
   });
 
   it("near the bottom (within the threshold) still counts as following", async () => {
