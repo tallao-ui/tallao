@@ -1,2 +1,7 @@
 packages:
   - "kit-check"
+
+# Installing tallao from GitHub runs `prepare` with a nested pnpm install. Without this, a
+# non-interactive install (Docker, CI) stops on esbuild's build script with ERR_PNPM_IGNORED_BUILDS.
+onlyBuiltDependencies:
+  - esbuild
