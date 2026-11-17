@@ -93,6 +93,8 @@ export interface Labels {
   /** Accessible name of the source list (Sources). */
   sources: string;
   showPassword: string;
+  conversation: string;
+  jumpToLatest: string;
   player: string;
   playerRole: string;
   play: string;
@@ -349,6 +351,8 @@ export const en: Labels = {
   suggestions: "Suggestions",
   sources: "Sources",
   showPassword: "Show password",
+  conversation: "Conversation",
+  jumpToLatest: "Jump to latest",
   player: "Player",
   playerRole: "player",
   play: "Play",
@@ -544,6 +548,8 @@ export const es: Labels = {
   suggestions: "Sugerencias",
   sources: "Fuentes",
   showPassword: "Mostrar contraseña",
+  conversation: "Conversación",
+  jumpToLatest: "Ir al final",
   player: "Reproductor",
   playerRole: "reproductor",
   play: "Reproducir",

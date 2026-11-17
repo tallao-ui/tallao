@@ -4,6 +4,13 @@
 
 **Lists, outlines and forms that take them.**
 
+- **ChatThread** (new): the scrolling area of a conversation. It follows the newest content
+  (watched with a ResizeObserver, so streamed text and loading images keep it pinned) and stops
+  following when the reader scrolls up; a "Jump to latest" button (`jumpLabel`, label
+  `jumpToLatest`) brings it back. A focusable region with `role="log"`, a name (`label`,
+  label `conversation`) and `aria-live="off"`, so it does not re-read every token. `follow`
+  is bindable; `threshold` (48 px) says how near the bottom still counts. Exposes
+  `scrollToLatest()`. No smooth scrolling under reduced motion.
 - **ScenePlayer** (new): a "video" drawn with components, for tutorials that change with the
   product. `scenes` (`PlayerScene`: `id`, `title`, `duration` in ms, `caption`) and a `scene`
   snippet that gets the scene and its progress (0–1). Play / Pause, previous / next chapter,

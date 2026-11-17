@@ -5,6 +5,7 @@ export { default as PasswordInput } from "./password-input.svelte";
 export { default as FloatingScene } from "./floating-scene.svelte";
 export type { SceneTile } from "./floating-scene.svelte";
 export { default as ScenePlayer } from "./scene-player.svelte";
+export { default as ChatThread } from "./chat-thread.svelte";
 export type { PlayerScene } from "./scene-player.svelte";
 export { default as Dialog } from "./dialog.svelte";
 export { default as Card } from "./card.svelte";

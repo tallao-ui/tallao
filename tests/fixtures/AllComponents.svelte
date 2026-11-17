@@ -17,6 +17,7 @@
     PasswordInput,
     FloatingScene,
     ScenePlayer,
+    ChatThread,
     PromptInput,
     Select,
     Stat,
@@ -100,6 +101,7 @@
     <Field label="Name" required><Input /></Field>
     <Field label="Secret"><PasswordInput name="secret" /></Field>
     <FloatingScene tiles={["IF", "GOTO"]}><p>Over the scene</p></FloatingScene>
+    <ChatThread label="Chat"><p>One message</p></ChatThread>
     <ScenePlayer label="Tour" scenes={[{ id: "a", title: "Intro", duration: 3000, caption: "Hello" }, { id: "b", title: "End", duration: 2000 }]}>
       {#snippet scene(s, p)}<p>{s.title} {Math.round(p * 100)}</p>{/snippet}
     </ScenePlayer>

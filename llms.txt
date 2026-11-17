@@ -142,6 +142,24 @@ Props:
 - `onSceneChange?: (scene: PlayerScene, index: number) => void`
 - `onEnd?: () => void`
 
+### ChatThread
+
+The scrolling area of a conversation.
+
+```svelte
+<ChatThread label="Conversation">
+  {#each messages as m (m.id)}<ChatMessage role={m.role} content={m.text} />{/each}
+</ChatThread>
+```
+
+Props:
+- `label?: string` — Accessible name of the conversation.
+- `follow?: boolean` — Pinned to the newest content (bindable).
+- `threshold?: number` — Distance in px from the bottom still counted as "at the bottom".
+- `jumpLabel?: string` — Text of the button that jumps back to the newest content.
+- `class?: string`
+- `children?: Snippet`
+
 ### Dialog
 
 Modal dialog built on the native <dialog> with showModal().
