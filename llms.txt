@@ -114,6 +114,34 @@ Props:
 - `class?: string`
 - `children?: Snippet` — The content, drawn above the scene.
 
+### ScenePlayer
+
+A "video" drawn with components.
+
+```svelte
+<ScenePlayer label="Tutorial" scenes={[{ id: "paste", title: "Paste a capture", duration: 6000, caption: "…" }]}>
+  {#snippet scene(s, progress)}<MyScene id={s.id} {progress} />{/snippet}
+</ScenePlayer>
+```
+
+Props:
+- `scenes: PlayerScene[]`
+- `scene: Snippet<[PlayerScene, number]>` — Draws a scene: gets the scene and its progress (0–1).
+- `label?: string` — Accessible name of the player.
+- `time?: number` — Current time in ms (bindable).
+- `playing?: boolean` — Playing (bindable).
+- `autoplay?: boolean` — Start playing on mount (never under reduced motion).
+- `chapters?: boolean` — Show the chapter list.
+- `playLabel?: string`
+- `pauseLabel?: string`
+- `previousLabel?: string`
+- `nextLabel?: string`
+- `seekLabel?: string`
+- `chaptersLabel?: string`
+- `class?: string`
+- `onSceneChange?: (scene: PlayerScene, index: number) => void`
+- `onEnd?: () => void`
+
 ### Dialog
 
 Modal dialog built on the native <dialog> with showModal().

@@ -4,6 +4,17 @@
 
 **Lists, outlines and forms that take them.**
 
+- **ScenePlayer** (new): a "video" drawn with components, for tutorials that change with the
+  product. `scenes` (`PlayerScene`: `id`, `title`, `duration` in ms, `caption`) and a `scene`
+  snippet that gets the scene and its progress (0–1). Play / Pause, previous / next chapter,
+  a seek bar (`role="slider"`, value text "0:12 of 1:30"), a chapter list (`aria-current`)
+  and captions shown and read once by a polite live region. Keys with focus in the player:
+  Space or K, ← → (5 s), Home / End, N / P. `time` and `playing` are bindable; `autoplay`
+  never starts under reduced motion, where scenes are drawn at progress 1; it pauses when the
+  tab is hidden. Props: `label`, `chapters`, `playLabel`, `pauseLabel`, `previousLabel`,
+  `nextLabel`, `seekLabel`, `chaptersLabel`, `onSceneChange`, `onEnd`; exports `formatTime`.
+  New labels: `player`, `playerRole`, `play`, `pause`, `previousChapter`, `nextChapter`, `seek`,
+  `chapters`, `timeOf`.
 - **PasswordInput** (new): a password or secret-key field with a show / hide button. A real
   `<input>` (type `password` or `text`), so password managers, paste, autofill and `name` in a
   native form keep working; other attributes go to it. The toggle is a `<button type="button">`

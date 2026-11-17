@@ -16,6 +16,7 @@
     Input,
     PasswordInput,
     FloatingScene,
+    ScenePlayer,
     PromptInput,
     Select,
     Stat,
@@ -99,6 +100,9 @@
     <Field label="Name" required><Input /></Field>
     <Field label="Secret"><PasswordInput name="secret" /></Field>
     <FloatingScene tiles={["IF", "GOTO"]}><p>Over the scene</p></FloatingScene>
+    <ScenePlayer label="Tour" scenes={[{ id: "a", title: "Intro", duration: 3000, caption: "Hello" }, { id: "b", title: "End", duration: 2000 }]}>
+      {#snippet scene(s, p)}<p>{s.title} {Math.round(p * 100)}</p>{/snippet}
+    </ScenePlayer>
     <Field label="Role"><Select options={[{ value: "a", label: "A" }]} /></Field>
     <Field label="Notes"><Textarea /></Field>
     <Checkbox label="Agent" />

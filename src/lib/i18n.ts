@@ -93,6 +93,16 @@ export interface Labels {
   /** Accessible name of the source list (Sources). */
   sources: string;
   showPassword: string;
+  player: string;
+  playerRole: string;
+  play: string;
+  pause: string;
+  previousChapter: string;
+  nextChapter: string;
+  seek: string;
+  chapters: string;
+  /** "{time} of {total}". */
+  timeOf: string;
   /** Label for quota usage (UsageMeter). */
   usage: string;
   /** Accessible name of a one-time code field (InputOTP). */
@@ -339,6 +349,15 @@ export const en: Labels = {
   suggestions: "Suggestions",
   sources: "Sources",
   showPassword: "Show password",
+  player: "Player",
+  playerRole: "player",
+  play: "Play",
+  pause: "Pause",
+  previousChapter: "Previous chapter",
+  nextChapter: "Next chapter",
+  seek: "Position",
+  chapters: "Chapters",
+  timeOf: "{time} of {total}",
   usage: "Usage",
   oneTimeCode: "One-time code",
   otpDigit: "Digit {n} of {total}",
@@ -525,6 +544,15 @@ export const es: Labels = {
   suggestions: "Sugerencias",
   sources: "Fuentes",
   showPassword: "Mostrar contraseña",
+  player: "Reproductor",
+  playerRole: "reproductor",
+  play: "Reproducir",
+  pause: "Pausar",
+  previousChapter: "Capítulo anterior",
+  nextChapter: "Capítulo siguiente",
+  seek: "Posición",
+  chapters: "Capítulos",
+  timeOf: "{time} de {total}",
   usage: "Uso",
   oneTimeCode: "Código de un solo uso",
   otpDigit: "Dígito {n} de {total}",
