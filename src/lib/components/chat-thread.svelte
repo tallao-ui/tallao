@@ -88,6 +88,8 @@
 </script>
 
 <div class={cn("ta-thread", className)}>
+  <!-- A scrollable region must take focus so the keyboard can scroll it (axe: scrollable-region-focusable). -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div bind:this={scroller} class="ta-thread-scroll" role="log" aria-live="off" aria-label={label} tabindex="0" onscroll={onScroll} {...rest}>
     <div bind:this={content} class="ta-thread-content">
       {@render children?.()}
