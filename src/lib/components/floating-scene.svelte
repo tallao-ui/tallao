@@ -9,6 +9,8 @@
 
   - Decorative only: the scene layer is `aria-hidden` and takes no pointer events, so focus,
     clicks and the reading order belong to the content.
+  - Tiles stay out of `clear`, a horizontal band kept for the content (the middle third by
+    default; a sign-in with the form on the left would pass [5, 55]).
   - The layout is computed from `seed` (a small deterministic generator, no Math.random), so
     the server and the browser draw the same tiles in the same places.
   - Depth: each tile sits on one of four layers (`perspective` on the scene, translateZ on the
@@ -50,14 +52,22 @@
     };
   }
 
-  /** Places `count` tiles around the edges, leaving the middle third mostly free for content. */
-  export function layoutScene(count: number, seed: number, labels: string[] = []): SceneTile[] {
+  /**
+   * Places `count` tiles outside the horizontal band `clear` (percentages, the middle third by
+   * default), so they frame the content instead of covering it.
+   */
+  export function layoutScene(count: number, seed: number, labels: string[] = [], clear: [number, number] = [34, 66]): SceneTile[] {
     const rand = generator(seed);
     const tiles: SceneTile[] = [];
+    const from = Math.max(0, Math.min(100, Math.min(clear[0], clear[1])));
+    const to = Math.max(from, Math.min(100, Math.max(clear[0], clear[1])));
+    // Room on each side of the band (a tile is placed by its top-left corner: keep 2% of margin).
+    const left = Math.max(0, from - 4);
+    const right = Math.max(0, 98 - to);
     for (let i = 0; i < count; i++) {
-      // Alternate sides so the tiles frame the content instead of covering it.
-      const side = i % 2 === 0 ? 0 : 1;
-      const x = side === 0 ? 2 + rand() * 30 : 68 + rand() * 30;
+      // Each side gets tiles in proportion to its room.
+      const onLeft = left > 0 && (right === 0 || rand() < left / (left + right));
+      const x = onLeft ? 2 + rand() * left : to + rand() * right;
       const y = 4 + ((i / Math.max(1, count - 1)) * 82 + rand() * 10) % 92;
       const layer = Math.floor(rand() * 4);
       tiles.push({
@@ -81,6 +91,8 @@
   import { cn } from "$lib/utils";
 
   interface Props {
+    /** Horizontal band kept free for the content, as [start, end] percentages of the width. Default [34, 66]. */
+    clear?: [number, number];
     /** Short texts drawn on the tiles (a keyword, an icon character). Repeated if there are more tiles. */
     tiles?: string[];
     /** How many tiles (default: the number of `tiles`, or 8). */
@@ -104,6 +116,7 @@
     tiles: labels = [],
     count,
     seed = 7,
+    clear = [34, 66],
     parallax = true,
     drift = false,
     glow = true,
@@ -112,7 +125,7 @@
     ...rest
   }: Props = $props();
 
-  const layout = $derived(layoutScene(count ?? (labels.length || 8), seed, labels));
+  const layout = $derived(layoutScene(count ?? (labels.length || 8), seed, labels, clear));
 
   let root = $state<HTMLElement>();
   let still = $state(true);

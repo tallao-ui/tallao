@@ -12,7 +12,8 @@
   bindable), `ref`, `disabled`, `onRevealChange`, `class`. 44px targets and 16px text under
   `pointer: coarse`.
 - **FloatingScene** (new): a decorative 3D backdrop of frosted glass tiles at four depths behind
-  the content (`children`). `tiles` (texts drawn on them), `count`, `seed` (deterministic layout,
+  the content (`children`). `tiles` (texts drawn on them), `count`, `clear` (a horizontal band
+  kept free for the content, `[34, 66]` by default), `seed` (deterministic layout,
   the same on the server; exported as `layoutScene` with the `SceneTile` type), `parallax`
   (default on: the pointer tilts the layers through two CSS custom properties, once per frame),
   `drift` (default off: a slow 10–14 s float), `glow` (a soft accent light). The stage is

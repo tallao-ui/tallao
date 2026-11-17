@@ -104,6 +104,7 @@ A decorative 3D backdrop.
 ```
 
 Props:
+- `clear?: [number, number]` — Horizontal band kept free for the content, as [start, end] percentages of the width. Default [34, 66].
 - `tiles?: string[]` — Short texts drawn on the tiles (a keyword, an icon character). Repeated if there are more tiles.
 - `count?: number` — How many tiles (default: the number of `tiles`, or 8).
 - `seed?: number` — Changes the layout; the same seed always gives the same scene.

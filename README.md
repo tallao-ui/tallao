@@ -130,7 +130,7 @@ Requires Svelte 5.29 or later.
 | Tooltip | a description on hover or focus; Escape hides it (WCAG 1.4.13) |
 | DropdownMenu · MenuItem · MenuSeparator · MenuLabel | an action menu: arrows, Home/End, type-ahead by letter; a MenuItem with `checked` is a `menuitemcheckbox` (or a radio with `checkType="radio"`) |
 | Combobox | a field with a filterable list (ARIA 1.2, `aria-activedescendant`), ignoring case and accents |
-| FloatingScene | decorative 3D backdrop of frosted glass tiles at four depths behind the content (`tiles`, `seed`, `parallax`, `drift`, `glow`); `aria-hidden`, same layout on the server, still under reduced motion |
+| FloatingScene | decorative 3D backdrop of frosted glass tiles at four depths behind the content (`tiles`, `clear`, `seed`, `parallax`, `drift`, `glow`); `aria-hidden`, same layout on the server, still under reduced motion |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
 | PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
 | Thinking | a model's reasoning as one quiet line: a soft shimmer, a live `summary` and the elapsed time while `running`, "Thought for 12 s" when done, and the trace (`steps`, content) behind a disclosure; the end is announced once |

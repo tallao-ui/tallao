@@ -67,4 +67,9 @@ describe("FloatingScene", () => {
       expect(t.x < 34 || t.x > 66).toBe(true);
     }
   });
+
+  it("keeps the `clear` band free, also when it touches one edge", () => {
+    for (const t of layoutScene(10, 5, [], [5, 55])) expect(t.x < 5 || t.x >= 55).toBe(true);
+    for (const t of layoutScene(10, 5, [], [0, 60])) expect(t.x).toBeGreaterThanOrEqual(60);
+  });
 });
