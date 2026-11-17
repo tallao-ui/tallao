@@ -4,9 +4,11 @@
 
 **Lists, outlines and forms that take them.**
 
-- **Install from GitHub without a terminal.** `pnpm add github:tallao-ui/tallao` inside Docker or CI
-  failed in `prepare` with `ERR_PNPM_IGNORED_BUILDS` (esbuild's build script was not approved in
-  the nested install). `pnpm-workspace.yaml` now allows it with `onlyBuiltDependencies`.
+- **Install from GitHub with Corepack.** `pnpm add github:tallao-ui/tallao` in a Docker image with
+  Corepack failed in `prepare` with `ERR_PNPM_IGNORED_BUILDS`: the nested install runs in the
+  package's own folder, which named no package manager, so Corepack picked the newest pnpm, which
+  refuses esbuild's build script. `package.json` now declares `"packageManager": "pnpm@10.29.2"`,
+  and `pnpm-workspace.yaml` approves esbuild's build (`onlyBuiltDependencies`).
 - **FileUpload** takes files from the clipboard and shows image thumbnails. `paste` (`true`:
   while focus is in the zone; `"document"`: anywhere on the page, except a text paste into a
   field, which is left alone) adds the clipboard's files through the same `accept` / `maxSize` /
