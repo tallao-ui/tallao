@@ -26,6 +26,8 @@
     Checkbox,
     Field,
     Tabs,
+    DocumentTabs,
+    type DocumentTab,
     Alert,
     Stat,
     ConfirmDialog,
@@ -121,6 +123,14 @@
 
   // The demo is in English, so it keeps the kit's default `en` labels.
 
+  let docTabs = $state<DocumentTab[]>([
+    { id: "notes", label: "Release notes.md" },
+    { id: "chat", label: "Refactor the billing module with the new tax rules", title: "Refactor the billing module with the new tax rules (conversation)", busy: true },
+    { id: "draft", label: "Untitled draft", dirty: true },
+    { id: "pinned", label: "README.md", closable: false },
+  ]);
+  let docTab = $state("notes");
+  let docCount = 0;
   let theme = $state<"dark" | "light">("dark");
   let playersOnline = $state(12480);
   let demoRange = $state<DateRange>({ start: "2026-11-01", end: "2026-11-07" });
@@ -1418,6 +1428,26 @@
         result="The API returned 503 after 3 retries"
       />
     </div>
+  </section>
+
+  <section class="section">
+    <h2>DocumentTabs</h2>
+    <p class="section-note">
+      Open documents or conversations: close with the button, Delete or a middle click (the page
+      decides what closing means), add with "+", a spinner while one works and a dot when it has
+      unsaved changes.
+    </p>
+    <DocumentTabs
+      ariaLabel="Open documents"
+      items={docTabs}
+      bind:value={docTab}
+      onclose={(id) => (docTabs = docTabs.filter((t) => t.id !== id))}
+      onadd={() => {
+        const id = `new-${++docCount}`;
+        docTabs = [...docTabs, { id, label: `Untitled ${docCount}` }];
+        docTab = id;
+      }}
+    />
   </section>
 
   <!-- ——— GENERATIVE II: plan, suggestions, code, sources, usage ——— -->

@@ -4,6 +4,20 @@
 
 **Lists, outlines and forms that take them.**
 
+- **DocumentTabs** (new): editor-style tabs for open documents or conversations, the companion of
+  Tabs (which is unchanged). `items` (`DocumentTab`: `id`, `label`, `title`, `busy`, `dirty`,
+  `closable`, `controls`, `tabId`), `value` (bindable), `ariaLabel`, `onchange`, `onclose(id)`,
+  `onadd` (draws a "+" button), `addLabel`, `closeLabel(tab)`, `busyLabel`, `dirtyLabel`,
+  `panels` (default `false`: the page renders the panels, as in Tabs), `end` and `children`
+  snippets. Each tab is a `role="tab"` button with a close button as its SIBLING (`tabindex="-1"`,
+  named "Close {label}"); the tablist owns the tabs with `aria-owns`. Arrows (mirrored in RTL),
+  Home and End move focus and select; Delete or Backspace on a tab, the close button and a
+  middle click call `onclose` (the component removes nothing) and, once the tab is gone, focus
+  and selection move to its neighbour. `busy` shows a Spinner and the hidden text "Working",
+  `dirty` a dot and "Unsaved changes". Tabs scroll sideways, the selected one is scrolled into
+  view, labels are cut at 14rem with the full text in `title`. 44px targets under coarse
+  pointers, no transitions under reduced motion. New labels: `closeTab`, `newTab`, `tabBusy`,
+  `tabDirty`.
 - **ChatThread** (new): the scrolling area of a conversation. It follows the newest content
   (watched with a ResizeObserver, so streamed text and loading images keep it pinned) and stops
   following when the reader scrolls up; a "Jump to latest" button (`jumpLabel`, label

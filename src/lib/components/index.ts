@@ -27,6 +27,8 @@ export { default as Textarea } from "./textarea.svelte";
 export { default as Checkbox } from "./checkbox.svelte";
 export { default as Field } from "./field.svelte";
 export { default as Tabs } from "./tabs.svelte";
+export { default as DocumentTabs } from "./document-tabs.svelte";
+export type { DocumentTab } from "./document-tabs.svelte";
 export type { TabItem } from "./tabs.svelte";
 export { default as Alert } from "./alert.svelte";
 export { default as Stat } from "./stat.svelte";

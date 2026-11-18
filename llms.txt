@@ -432,6 +432,30 @@ Props:
 - `onchange?: (id: string) => void`
 - `children?: import("svelte").Snippet<[string]>`
 
+### DocumentTabs
+
+Editor-style tabs for open documents or conversations.
+
+```svelte
+<DocumentTabs items={docs} bind:value onclose={(id) => (docs = docs.filter((d) => d.id !== id))} onadd={newDoc} />
+```
+
+Props:
+- `items: DocumentTab[]`
+- `value?: string` — The id of the selected tab (bindable).
+- `ariaLabel?: string` — Accessible name of the tablist.
+- `onclose?: (id: string) => void` — Called with the id of the tab to close; the component does not remove it.
+- `onadd?: () => void` — Renders a "+" button after the tabs when given.
+- `addLabel?: string` — Name of the add button.
+- `closeLabel?: (tab: DocumentTab) => string` — Name of each close button; "Close {label}" by default.
+- `busyLabel?: string` — Hidden text of a busy tab.
+- `dirtyLabel?: string` — Hidden text of a dirty tab.
+- `onchange?: (id: string) => void`
+- `panels?: boolean` — `false`: only the tablist; the page renders the panels (see `controls`).
+- `end?: Snippet` — Controls on the same row as the tabs, on the right (outside the tablist).
+- `children?: Snippet<[string]>` — With `panels`: the active tab's content, given its id.
+- `class?: string`
+
 ### Alert
 
 Inline notice.

@@ -28,6 +28,7 @@
     TableHeader,
     TableRow,
     Tabs,
+    DocumentTabs,
     Textarea,
     ThemeScope,
     ToolCallCard,
@@ -118,6 +119,7 @@
       <TableHeader><TableRow><TableHead>Col</TableHead></TableRow></TableHeader>
       <TableBody><TableRow><TableCell>Value</TableCell></TableRow></TableBody>
     </Table>
+    <DocumentTabs items={[{ id: "a", label: "Notes" }, { id: "b", label: "Chat", busy: true }, { id: "c", label: "Draft", dirty: true }]} ariaLabel="Open documents" onclose={() => {}} onadd={() => {}} />
     <Tabs items={[{ id: "a", label: "One" }, { id: "b", label: "Two", count: 2 }]} ariaLabel="Sections">
       {#snippet children(active)}<p>Panel {active}</p>{/snippet}
     </Tabs>
