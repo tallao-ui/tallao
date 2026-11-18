@@ -4,6 +4,8 @@
 
 **Lists, outlines and forms that take them.**
 
+- **CodeBlock**: new optional `actions` snippet, rendered in the header beside the copy button
+  (for buttons such as "Copy for X"). Backwards compatible.
 - **CodeDiff** (new): a line diff of two code texts (DiffView compares the fields of a record).
   `before`, `after`, `mode` (`unified` | `split`; split falls back to unified on a container
   narrower than 560 px), `beforeLabel`, `afterLabel`, `ariaLabel`, `lineNumbers`, `context` (3),

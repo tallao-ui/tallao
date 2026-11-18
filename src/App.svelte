@@ -1524,7 +1524,11 @@ export const timeout = 30;
           fileName="src/lib/plan.ts"
           language="ts"
           code={"const plan = await agent.plan(goal);\nfor (const step of plan.steps) {\n  await step.run();\n}"}
-        />
+        >
+          {#snippet actions()}
+            <Button variant="ghost" size="sm" onclick={() => sendPrompt("Copy for the agent")}>Copy for agent</Button>
+          {/snippet}
+        </CodeBlock>
         <UsageMeter used={8100} max={10000} cost="$0.42" />
       </div>
     </div>

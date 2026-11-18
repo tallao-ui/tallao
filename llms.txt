@@ -1543,6 +1543,7 @@ Props:
 - `copiedLabel?: string` — Notice after copying.
 - `maxHeight?: string` — Maximum height before scrolling (CSS).
 - `wrap?: boolean` — Wrap long lines instead of scrolling horizontally.
+- `actions?: Snippet` — Extra controls in the header, before the copy button.
 - `class?: string`
 
 ### Sources
