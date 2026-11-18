@@ -29,6 +29,7 @@
     TableRow,
     Tabs,
     DocumentTabs,
+    CodeDiff,
     Textarea,
     ThemeScope,
     ToolCallCard,
@@ -133,6 +134,8 @@
     ]} />
     <SuggestionChips suggestions={["Write the recap", "Publish on Cardback"]} onSelect={() => {}} />
     <CodeBlock code={"const x = 1;"} language="ts" fileName="app.ts" />
+    <CodeDiff before={"a\nb\nc\nd\ne\nf\ng\nh"} after={"a\nB\nc\nd\ne\nf\ng\nH"} ariaLabel="Edit" context={1} />
+    <CodeDiff before={"a\nb"} after={"a\nc"} mode="split" ariaLabel="Split edit" />
     <Sources sources={[
       { url: "https://example.com/guide", title: "Tournament guide", domain: "example.com" },
       { url: "https://other.com/note", title: "Patch notes" },

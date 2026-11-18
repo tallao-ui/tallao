@@ -85,6 +85,7 @@
     Steps,
     SuggestionChips,
     CodeBlock,
+    CodeDiff,
     Sources,
     UsageMeter,
     InputOTP,
@@ -131,6 +132,35 @@
   ]);
   let docTab = $state("notes");
   let docCount = 0;
+  let diffSplit = $state(false);
+  const planBefore = `import { run } from "./agent";
+
+export async function plan(goal: string) {
+  const steps = await run(goal);
+  for (const step of steps) {
+    console.log("step", step.name);
+  }
+  // Keep the order the model gave.
+  return steps;
+}
+
+export const retries = 1;
+export const timeout = 30;
+`;
+  const planAfter = `import { run } from "./agent";
+
+export async function plan(goal: string, signal?: AbortSignal) {
+  const steps = await run(goal, { signal });
+  for (const step of steps) {
+    console.log("step", step.name);
+  }
+  // Keep the order the model gave.
+  return steps;
+}
+
+export const retries = 3;
+export const timeout = 30;
+`;
   let theme = $state<"dark" | "light">("dark");
   let playersOnline = $state(12480);
   let demoRange = $state<DateRange>({ start: "2026-11-01", end: "2026-11-07" });
@@ -1448,6 +1478,23 @@
         docTab = id;
       }}
     />
+  </section>
+
+  <section class="section">
+    <h2>CodeDiff</h2>
+    <p class="section-note">
+      A line diff of two texts: counts in the header, a sign and a word on every changed line, the
+      changed characters underlined or struck through, unchanged runs folded. The actions snippet
+      holds extra buttons.
+    </p>
+    <div class="demo-col">
+      <Button variant="secondary" size="sm" onclick={() => (diffSplit = !diffSplit)}>{diffSplit ? "Unified" : "Split"} view</Button>
+      <CodeDiff before={planBefore} after={planAfter} mode={diffSplit ? "split" : "unified"} beforeLabel="plan.ts (current)" afterLabel="plan.ts (proposed)" ariaLabel="Changes to plan.ts" context={2}>
+        {#snippet actions({ added, removed })}
+          <Button variant="ghost" size="sm" onclick={() => sendPrompt(`Apply ${added + removed} changed lines`)}>Apply</Button>
+        {/snippet}
+      </CodeDiff>
+    </div>
   </section>
 
   <!-- ——— GENERATIVE II: plan, suggestions, code, sources, usage ——— -->

@@ -4,6 +4,18 @@
 
 **Lists, outlines and forms that take them.**
 
+- **CodeDiff** (new): a line diff of two code texts (DiffView compares the fields of a record).
+  `before`, `after`, `mode` (`unified` | `split`; split falls back to unified on a container
+  narrower than 560 px), `beforeLabel`, `afterLabel`, `ariaLabel`, `lineNumbers`, `context` (3),
+  `fold` (long unchanged runs become a button "N unchanged lines" with `aria-expanded`),
+  `normalize`, `maxHeight`, `wrap`, `emptyText` and an `actions` snippet that gets
+  `{ added, removed }`. The header says `+A −R` in text and in words; every changed line has a
+  sign column and a hidden "Added" / "Removed"; changed characters are an `<ins>` (underlined) or
+  a `<del>` (struck through). A `<figure>` with a `role="list"` of lines; line numbers are
+  `aria-hidden`. Also exports the pure `diffLines(before, after, { normalize })` (Myers O(ND),
+  falls back to "all removed, all added" past 2000 edits; paired lines carry `marks`) and the
+  types `DiffLine` and `CodeDiffKind`. New labels: `noDifferences`, `unchangedLines`, `codeDiff`,
+  `diffBefore`, `diffAfter`.
 - **DocumentTabs** (new): editor-style tabs for open documents or conversations, the companion of
   Tabs (which is unchanged). `items` (`DocumentTab`: `id`, `label`, `title`, `busy`, `dirty`,
   `closable`, `controls`, `tabId`), `value` (bindable), `ariaLabel`, `onchange`, `onclose(id)`,

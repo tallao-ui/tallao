@@ -2189,6 +2189,31 @@ Props:
 - `emptyText?: string` — Shown when there is nothing to list.
 - `class?: string`
 
+### CodeDiff
+
+A line diff of two code texts, as a review or a "what did the model change" view shows it.
+
+```svelte
+<CodeDiff before={oldSource} after={newSource} beforeLabel="Current" afterLabel="Proposed" />
+```
+
+Props:
+- `before: string` — The old text.
+- `after: string` — The new text.
+- `mode?: "unified" | "split"` — `split`: two columns, before | after, aligned row by row (unified on a narrow container).
+- `beforeLabel?: string` — Name of the old side.
+- `afterLabel?: string` — Name of the new side.
+- `ariaLabel?: string` — Accessible name of the diff.
+- `lineNumbers?: boolean`
+- `context?: number` — Unchanged lines kept around each change; longer runs fold into a button.
+- `fold?: boolean` — `false` shows every unchanged line.
+- `normalize?: (line: string) => string` — Maps a line before comparing, to ignore trailing spaces, case…
+- `maxHeight?: string` — Maximum height before scrolling (CSS).
+- `wrap?: boolean` — Wrap long lines instead of scrolling sideways.
+- `actions?: Snippet<[{ added: number; removed: number }]>` — Extra controls in the header (copy buttons…), given the counts.
+- `emptyText?: string` — Shown when the texts have no differences.
+- `class?: string`
+
 ### Kbd
 
 A keyboard shortcut hint.
