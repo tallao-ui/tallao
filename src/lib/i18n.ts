@@ -95,6 +95,21 @@ export interface Labels {
   showPassword: string;
   conversation: string;
   jumpToLatest: string;
+  /** Close button of a document tab; `{label}` is the tab's name (DocumentTabs). */
+  closeTab: string;
+  /** The button that adds a document tab (DocumentTabs). */
+  newTab: string;
+  /** Hidden text of a tab that is working / has unsaved changes (DocumentTabs). */
+  tabBusy: string;
+  tabDirty: string;
+  /** Empty state of a line diff (CodeDiff). */
+  noDifferences: string;
+  /** Row that folds unchanged lines; `{n}` is how many (CodeDiff). */
+  unchangedLines: string;
+  /** Accessible name of a line diff, and its two sides (CodeDiff). */
+  codeDiff: string;
+  diffBefore: string;
+  diffAfter: string;
   player: string;
   playerRole: string;
   play: string;
@@ -353,6 +368,15 @@ export const en: Labels = {
   showPassword: "Show password",
   conversation: "Conversation",
   jumpToLatest: "Jump to latest",
+  closeTab: "Close {label}",
+  newTab: "New tab",
+  tabBusy: "Working",
+  tabDirty: "Unsaved changes",
+  noDifferences: "No differences",
+  unchangedLines: "{n} unchanged lines",
+  codeDiff: "Differences",
+  diffBefore: "Before",
+  diffAfter: "After",
   player: "Player",
   playerRole: "player",
   play: "Play",
@@ -550,6 +574,15 @@ export const es: Labels = {
   showPassword: "Mostrar contraseña",
   conversation: "Conversación",
   jumpToLatest: "Ir al final",
+  closeTab: "Cerrar {label}",
+  newTab: "Nueva pestaña",
+  tabBusy: "En curso",
+  tabDirty: "Cambios sin guardar",
+  noDifferences: "Sin diferencias",
+  unchangedLines: "{n} líneas sin cambios",
+  codeDiff: "Diferencias",
+  diffBefore: "Antes",
+  diffAfter: "Después",
   player: "Reproductor",
   playerRole: "reproductor",
   play: "Reproducir",
