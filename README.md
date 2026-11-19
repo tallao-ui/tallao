@@ -49,11 +49,13 @@ Requires Svelte 5.29 or later.
 | Button | 7 variants (including `soft`, tinted with the accent, and `danger-ghost`, the quiet destructive action: red text, no fill) × 4 sizes, `loading`, `href`; passes any attribute and attachment to the element |
 | Badge | 9 variants (including `accent` and `accent-2`, the second accent) × 2 sizes; `tone="solid"` fills with the colour and uses contrasting text ("LIVE" over an image); `dot` adds a leading status dot in the variant's colour and `pulse` makes it pulse (live, running; still under reduced motion); passes any attribute to the `<span>` |
 | Spinner | a standalone loading indicator: `role="status"` with hidden text (`label`, by default the kit's "Loading" text), `size` sm / md / lg or in pixels, text colour; with reduced motion it pulses instead of spinning |
+| PasswordInput | a password or secret-key field with a show / hide button (`aria-pressed`); password managers, paste and `name` keep working; `revealed` is bindable |
 | Input · Textarea · Select · Checkbox | native controls styled with the kit's tokens (for a number bound as `number \| null`, use NumberInput) |
 | Label | a standalone `<label>`: `for`, `required` (a visible "*" plus a hidden "Required" for screen readers), `disabled` styling; passes any attribute |
 | Field | label + control + error, required marker |
 | Card | container + header / title (`level`) / content / footer |
 | Table | scrolling container + header / body / row / head / cell (`colspan`); `density="compact"` (less padding and smaller text, headers without uppercase) and `stickyFirstColumn` (first column fixed while scrolling, background from `--ta-table-sticky-bg`) for matrices with many columns; every part passes any attribute to its element |
+| DocumentTabs | editor-style tabs for open documents or conversations: a close button beside each tab (a sibling, never nested), an add button, Delete / middle click close, `busy` and `dirty` marks said in words, scrolls sideways, long names cut with the full text in `title`; the parent decides what closing means |
 | Tabs | accessible tablist: arrows, Home and End, counter, stable ids in SSR; `panels={false}` renders only the tablist, with `controls` (and `tabId`) per tab pointing at the panels the page renders |
 | Alert | 4 variants, title, close |
 | Stat | figure + label |
@@ -90,6 +92,7 @@ Requires Svelte 5.29 or later.
 | SavedViews | a menu of named views (`{ name, query }`): choose one, save the current query, rename or delete the active one; storage is the caller's, every change is an event |
 | EmptyState | "nothing yet" (icon, title, text, primary action), `variant="no-results"` (Clear filters, a polite status) and `variant="error"` (message and Retry, an alert); what DataTable shows by default |
 | SaveBar | a form's sticky footer: the state in words and a shape ("Unsaved changes", "Saving…", an error) in a polite live region, Cancel, secondary submit actions and Save; submits a `<form>` without JavaScript and never covers the last field |
+| CodeDiff · diffLines | a line diff of two code texts, unified or split (two columns aligned row by row, unified on a narrow container): `+A −R` counts in text, a sign and a hidden word on every changed line, the changed characters in `<ins>` / `<del>`, long unchanged runs folded into a button (`context`, `aria-expanded`), `normalize` to ignore trailing spaces, an `actions` snippet; `diffLines` is the pure Myers diff behind it |
 | DiffView | before and after of a record as a list of field changes: added / removed / changed by sign, word and `<ins>` / `<del>`, text that wraps, indented JSON, long values folded; `compact` for one line per change; `redacted` for a secret that changed, its values hidden |
 | DescriptionList | a record's label / value pairs as a `<dl>`: copyable values, links, monospace, your own `value` snippet; side by side or stacked by its own width, or in `columns` |
 | Kbd | a keyboard shortcut hint (`<kbd>` per key); `Mod` is ⌘ on Apple devices and Ctrl elsewhere, with the key names for screen readers |
@@ -97,7 +100,7 @@ Requires Svelte 5.29 or later.
 | Calendar · DatePicker | pick a day with the keyboard (APG pattern), ISO dates, `min`/`max`, localized names; the DatePicker can also be typed into |
 | DateRangePicker | two dates typed (ISO) or picked: quick ranges ("Last 7 days") and a Calendar per end in a non-modal panel; the fields are real inputs submitted as `<name>_start` / `<name>_end`, so a form filters without JavaScript; `inline` shows only the panel (FilterChip uses it for a `date` filter with `range`) |
 | MonthView | a month to look at (agenda, events): the `day` snippet with what goes in each day (`date`, `day`, `weekday`, `today`, `outside`), ‹ › and PageUp/PageDown (Shift: year) to change month, `bind:month`, today with `aria-current="date"`; unlike Calendar, a day's content can hold links and buttons |
-| FileUpload | choose or drop files on a real `<input type="file">`; `accept`, `maxSize`, `maxFiles`, with the reason for each rejection |
+| FileUpload | choose, drop or paste (`paste`) files on a real `<input type="file">`; `accept`, `maxSize`, `maxFiles`, with the reason for each rejection; image thumbnails with `previews` |
 | Breadcrumb | a navigation trail in `<nav>` + `<ol>`; the last item is `aria-current="page"` |
 | Icon | the kit's own icons by name (`check`, `search`, `bot`…) or your own drawing; decorative unless it has a `label` |
 | Sidebar | side navigation with groups, badges and expandable branches; marks the current page and opens its branch; collapses to icons with a Tooltip per item; your own icons (`icon` snippet), tinted and pulsing badges, `persistKey` to remember the collapsed state, a `footer(collapsed)` for the current user |
@@ -129,6 +132,9 @@ Requires Svelte 5.29 or later.
 | Tooltip | a description on hover or focus; Escape hides it (WCAG 1.4.13) |
 | DropdownMenu · MenuItem · MenuSeparator · MenuLabel | an action menu: arrows, Home/End, type-ahead by letter; a MenuItem with `checked` is a `menuitemcheckbox` (or a radio with `checkType="radio"`) |
 | Combobox | a field with a filterable list (ARIA 1.2, `aria-activedescendant`), ignoring case and accents |
+| FloatingScene | decorative 3D backdrop of frosted glass tiles at four depths behind the content (`tiles`, `clear`, `seed`, `parallax`, `drift`, `glow`); `aria-hidden`, same layout on the server, still under reduced motion |
+| ChatThread | the scrolling area of a conversation: follows the reply while it streams, stops when the reader scrolls up and offers "Jump to latest"; `role="log"` without re-reading every token |
+| ScenePlayer | a "video" drawn with components: timed scenes from data, play / pause, seek bar (`role="slider"`), chapters and captions read aloud; Space, K, ← →, N / P; never autoplays under reduced motion |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
 | PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
 | Thinking | a model's reasoning as one quiet line: a soft shimmer, a live `summary` and the elapsed time while `running`, "Thought for 12 s" when done, and the trace (`steps`, content) behind a disclosure; the end is announced once |

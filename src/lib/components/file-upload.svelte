@@ -5,6 +5,15 @@
   Enter or Space open the system picker, and with `name` the files are submitted
   in a native <form>, including dropped ones (they are copied to the input).
   Whatever does not meet `accept`, `maxSize` or `maxFiles` is left out, with the reason.
+
+  - `paste`: files on the clipboard are taken too (a screenshot copied with Print Screen,
+    an image copied from another page). `true` listens while focus is inside the zone;
+    `"document"` listens on the whole page, except while the user pastes into a text field
+    that would take the paste itself. A paste with only text is never taken. Pasted files
+    with no useful name ("image.png") are named "Pasted image 1.png", "Pasted image 2.png"…
+  - `previews`: image files get a thumbnail in the list (an object URL, freed when the file is
+    removed or the component goes away). The thumbnail is decorative: the name still says
+    which file it is.
 -->
 <script lang="ts" module>
   export interface FileRejection {
@@ -43,6 +52,10 @@
     required = false,
     chooseLabel = L.chooseFiles,
     dropLabel = L.dropFiles,
+    paste = false,
+    previews = false,
+    pasteLabel = L.pasteFiles,
+    pastedName = (n: number) => L.pastedFileName.replace("{n}", String(n)),
     removeLabel = (fileName: string) => `${L.remove} ${fileName}`,
     rejectionText = (r: FileRejection) =>
       r.reason === "type"
@@ -65,6 +78,14 @@
     required?: boolean;
     chooseLabel?: string;
     dropLabel?: string;
+    /** Takes files from the clipboard: `true` while focus is in the zone, `"document"` anywhere on the page. */
+    paste?: boolean | "document";
+    /** Shows a thumbnail for image files. */
+    previews?: boolean;
+    /** Hint shown under the drop text when `paste` is on. */
+    pasteLabel?: string;
+    /** Name for a pasted file that has none of its own (without extension). */
+    pastedName?: (n: number) => string;
     removeLabel?: (name: string) => string;
     rejectionText?: (r: FileRejection) => string;
     class?: string;
@@ -74,6 +95,7 @@
 
   const id = $props.id();
   let inputEl: HTMLInputElement | undefined = $state();
+  let zoneEl: HTMLElement | undefined = $state();
   let isOver = $state(false);
   let rejected = $state<FileRejection[]>([]);
 
@@ -130,6 +152,66 @@
     inputEl?.focus();
   }
 
+  // Pasted images usually arrive as "image.png": give them a name the user can tell apart.
+  let pastedCount = 0;
+  function fromClipboard(data: DataTransfer | null): File[] {
+    const out: File[] = [];
+    for (const item of data?.items ?? []) {
+      if (item.kind !== "file") continue;
+      const f = item.getAsFile();
+      if (!f) continue;
+      if (!f.name || /^image\.\w+$/i.test(f.name)) {
+        const ext = (f.type.split("/")[1] || "png").replace("jpeg", "jpg");
+        out.push(new File([f], `${pastedName(++pastedCount)}.${ext}`, { type: f.type, lastModified: f.lastModified }));
+      } else out.push(f);
+    }
+    return out;
+  }
+
+  function onPaste(e: ClipboardEvent) {
+    if (!paste || disabled) return;
+    const pasted = fromClipboard(e.clipboardData);
+    if (!pasted.length) return; // only text: leave it to whoever has focus
+    e.preventDefault();
+    addFiles(pasted);
+  }
+
+  /** Is the target a field that takes text pastes itself? */
+  function takesText(t: EventTarget | null) {
+    const el = t as HTMLElement | null;
+    if (!el || !el.tagName) return false;
+    if (el.isContentEditable) return true;
+    if (el.tagName === "TEXTAREA") return true;
+    return el.tagName === "INPUT" && !["file", "checkbox", "radio", "button", "submit", "range", "color"].includes((el as HTMLInputElement).type);
+  }
+
+  $effect(() => {
+    if (paste !== "document") return;
+    const listener = (e: ClipboardEvent) => {
+      if (zoneEl?.contains(e.target as Node)) return; // the zone's own handler takes it
+      if (takesText(e.target) && !fromClipboard(e.clipboardData).length) return;
+      onPaste(e);
+    };
+    document.addEventListener("paste", listener);
+    return () => document.removeEventListener("paste", listener);
+  });
+
+  // Thumbnails: one object URL per file, freed when the file leaves or the component unmounts.
+  const urls = new Map<File, string>();
+  const thumbs = $derived.by(() => {
+    if (!previews || typeof URL === "undefined" || !URL.createObjectURL) return [] as (string | undefined)[];
+    for (const [f, u] of urls) if (!files.includes(f)) (URL.revokeObjectURL(u), urls.delete(f));
+    return files.map((f) => {
+      if (!f.type.startsWith("image/")) return undefined;
+      if (!urls.has(f)) urls.set(f, URL.createObjectURL(f));
+      return urls.get(f);
+    });
+  });
+  $effect(() => () => {
+    for (const u of urls.values()) URL.revokeObjectURL(u);
+    urls.clear();
+  });
+
   function onDrop(e: DragEvent) {
     e.preventDefault();
     isOver = false;
@@ -140,6 +222,7 @@
 <div class={cn("ta-upload", className)}>
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
+    bind:this={zoneEl}
     class="ta-upload-zone"
     class:ta-upload-zone--over={isOver}
     class:ta-upload-zone--off={disabled}
@@ -149,6 +232,7 @@
     }}
     ondragleave={() => (isOver = false)}
     ondrop={onDrop}
+    onpaste={onPaste}
   >
     <input
       bind:this={inputEl}
@@ -160,12 +244,13 @@
       {multiple}
       {disabled}
       {required}
-      aria-describedby={rejected.length ? `${id}-rejections` : undefined}
+      aria-describedby={[paste ? `${id}-paste` : "", rejected.length ? `${id}-rejections` : ""].filter(Boolean).join(" ") || undefined}
       onchange={(e) => addFiles([...((e.currentTarget as HTMLInputElement).files ?? [])])}
     />
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m17 8-5-5-5 5" /><path d="M12 3v12" /></svg>
     <label for={`${id}-input`} class="ta-upload-choose">{chooseLabel}</label>
     <span class="ta-upload-drop" aria-hidden="true">{dropLabel}</span>
+    {#if paste}<span class="ta-upload-drop" id={`${id}-paste`}>{pasteLabel}</span>{/if}
   </div>
 
   {#if rejected.length}
@@ -178,6 +263,7 @@
     <ul class="ta-upload-list">
       {#each files as f, i (`${f.name}-${f.size}-${i}`)}
         <li class="ta-upload-file">
+          {#if thumbs[i]}<img class="ta-upload-thumb" src={thumbs[i]} alt="" />{/if}
           <span class="ta-upload-name">{f.name}</span>
           <span class="ta-upload-size">{formatBytes(f.size)}</span>
           <button type="button" class="ta-upload-remove" aria-label={removeLabel(f.name)} {disabled} onclick={() => removeAt(i)}>×</button>
@@ -250,6 +336,15 @@
     background: rgb(var(--ta-surface) / 0.6);
     border: 1px solid rgb(var(--ta-border));
     border-radius: var(--ta-radius);
+  }
+  .ta-upload-thumb {
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    object-fit: cover;
+    border: 1px solid rgb(var(--ta-border));
+    border-radius: var(--ta-radius-sm);
+    background: rgb(var(--ta-surface));
   }
   .ta-upload-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .ta-upload-size { color: rgb(var(--ta-text-dim)); font-variant-numeric: tabular-nums; }

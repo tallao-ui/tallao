@@ -4,6 +4,8 @@ import { tick } from "svelte";
 
 import { Steps, SuggestionChips, CodeBlock, Sources, UsageMeter } from "$lib/components";
 
+import CodeDiffActions from "../fixtures/CodeDiffActions.svelte";
+
 describe("Steps", () => {
   it("marks the running step with aria-current and the states by name", () => {
     render(Steps, {
@@ -50,6 +52,16 @@ describe("CodeBlock", () => {
     expect(screen.getByText("app.ts")).toBeTruthy();
     expect(screen.getByText("ts")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Copy" })).toBeTruthy();
+  });
+});
+
+describe("CodeBlock actions", () => {
+  it("puts the actions snippet in the header, before the copy button", () => {
+    render(CodeDiffActions, { which: "block" });
+    const extra = screen.getByRole("button", { name: "Copy for X" });
+    const copy = screen.getByRole("button", { name: "Copy" });
+    expect(extra.parentElement).toBe(copy.parentElement);
+    expect(extra.compareDocumentPosition(copy) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 

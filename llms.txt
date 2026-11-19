@@ -76,6 +76,90 @@ Props:
 - `type?: string`
 - `disabled?: boolean`
 
+### PasswordInput
+
+A password (or secret key) field with a button that shows and hides what was typed.
+
+```svelte
+<PasswordInput />
+```
+
+Props:
+- `value?: string` — What was typed (bindable).
+- `revealed?: boolean` — The text is shown (bindable).
+- `ref?: HTMLInputElement` — The native element (bind:ref).
+- `disabled?: boolean`
+- `toggleLabel?: string` — Accessible name of the toggle; by default "Show password".
+- `class?: string`
+- `onRevealChange?: (revealed: boolean) => void`
+
+### FloatingScene
+
+A decorative 3D backdrop.
+
+```svelte
+<FloatingScene tiles={["BEG READ", "GOTO", "IF"]} class="page">
+  <form>…</form>
+</FloatingScene>
+```
+
+Props:
+- `clear?: [number, number]` — Horizontal band kept free for the content, as [start, end] percentages of the width. Default [34, 66].
+- `tiles?: string[]` — Short texts drawn on the tiles (a keyword, an icon character). Repeated if there are more tiles.
+- `count?: number` — How many tiles (default: the number of `tiles`, or 8).
+- `seed?: number` — Changes the layout; the same seed always gives the same scene.
+- `parallax?: boolean` — Tilt the layers with the pointer.
+- `drift?: boolean` — A slow continuous float. Off by default.
+- `glow?: boolean` — A soft light under the scene, in the accent colour.
+- `class?: string`
+- `children?: Snippet` — The content, drawn above the scene.
+
+### ScenePlayer
+
+A "video" drawn with components.
+
+```svelte
+<ScenePlayer label="Tutorial" scenes={[{ id: "paste", title: "Paste a capture", duration: 6000, caption: "…" }]}>
+  {#snippet scene(s, progress)}<MyScene id={s.id} {progress} />{/snippet}
+</ScenePlayer>
+```
+
+Props:
+- `scenes: PlayerScene[]`
+- `scene: Snippet<[PlayerScene, number]>` — Draws a scene: gets the scene and its progress (0–1).
+- `label?: string` — Accessible name of the player.
+- `time?: number` — Current time in ms (bindable).
+- `playing?: boolean` — Playing (bindable).
+- `autoplay?: boolean` — Start playing on mount (never under reduced motion).
+- `chapters?: boolean` — Show the chapter list.
+- `playLabel?: string`
+- `pauseLabel?: string`
+- `previousLabel?: string`
+- `nextLabel?: string`
+- `seekLabel?: string`
+- `chaptersLabel?: string`
+- `class?: string`
+- `onSceneChange?: (scene: PlayerScene, index: number) => void`
+- `onEnd?: () => void`
+
+### ChatThread
+
+The scrolling area of a conversation.
+
+```svelte
+<ChatThread label="Conversation">
+  {#each messages as m (m.id)}<ChatMessage role={m.role} content={m.text} />{/each}
+</ChatThread>
+```
+
+Props:
+- `label?: string` — Accessible name of the conversation.
+- `follow?: boolean` — Pinned to the newest content (bindable).
+- `threshold?: number` — Distance in px from the bottom still counted as "at the bottom".
+- `jumpLabel?: string` — Text of the button that jumps back to the newest content.
+- `class?: string`
+- `children?: Snippet`
+
 ### Dialog
 
 Modal dialog built on the native <dialog> with showModal().
@@ -347,6 +431,30 @@ Props:
 - `class?: string`
 - `onchange?: (id: string) => void`
 - `children?: import("svelte").Snippet<[string]>`
+
+### DocumentTabs
+
+Editor-style tabs for open documents or conversations.
+
+```svelte
+<DocumentTabs items={docs} bind:value onclose={(id) => (docs = docs.filter((d) => d.id !== id))} onadd={newDoc} />
+```
+
+Props:
+- `items: DocumentTab[]`
+- `value?: string` — The id of the selected tab (bindable).
+- `ariaLabel?: string` — Accessible name of the tablist.
+- `onclose?: (id: string) => void` — Called with the id of the tab to close; the component does not remove it.
+- `onadd?: () => void` — Renders a "+" button after the tabs when given.
+- `addLabel?: string` — Name of the add button.
+- `closeLabel?: (tab: DocumentTab) => string` — Name of each close button; "Close {label}" by default.
+- `busyLabel?: string` — Hidden text of a busy tab.
+- `dirtyLabel?: string` — Hidden text of a dirty tab.
+- `onchange?: (id: string) => void`
+- `panels?: boolean` — `false`: only the tablist; the page renders the panels (see `controls`).
+- `end?: Snippet` — Controls on the same row as the tabs, on the right (outside the tablist).
+- `children?: Snippet<[string]>` — With `panels`: the active tab's content, given its id.
+- `class?: string`
 
 ### Alert
 
@@ -1034,6 +1142,10 @@ Props:
 - `required?: boolean`
 - `chooseLabel?: string`
 - `dropLabel?: string`
+- `paste?: boolean | "document"` — Takes files from the clipboard: `true` while focus is in the zone, `"document"` anywhere on the page.
+- `previews?: boolean` — Shows a thumbnail for image files.
+- `pasteLabel?: string` — Hint shown under the drop text when `paste` is on.
+- `pastedName?: (n: number) => string` — Name for a pasted file that has none of its own (without extension).
 - `removeLabel?: (name: string) => string`
 - `rejectionText?: (r: FileRejection) => string`
 - `class?: string`
@@ -1431,6 +1543,7 @@ Props:
 - `copiedLabel?: string` — Notice after copying.
 - `maxHeight?: string` — Maximum height before scrolling (CSS).
 - `wrap?: boolean` — Wrap long lines instead of scrolling horizontally.
+- `actions?: Snippet` — Extra controls in the header, before the copy button.
 - `class?: string`
 
 ### Sources
@@ -2075,6 +2188,31 @@ Props:
 - `showMoreLabel?: string`
 - `showLessLabel?: string`
 - `emptyText?: string` — Shown when there is nothing to list.
+- `class?: string`
+
+### CodeDiff
+
+A line diff of two code texts, as a review or a "what did the model change" view shows it.
+
+```svelte
+<CodeDiff before={oldSource} after={newSource} beforeLabel="Current" afterLabel="Proposed" />
+```
+
+Props:
+- `before: string` — The old text.
+- `after: string` — The new text.
+- `mode?: "unified" | "split"` — `split`: two columns, before | after, aligned row by row (unified on a narrow container).
+- `beforeLabel?: string` — Name of the old side.
+- `afterLabel?: string` — Name of the new side.
+- `ariaLabel?: string` — Accessible name of the diff.
+- `lineNumbers?: boolean`
+- `context?: number` — Unchanged lines kept around each change; longer runs fold into a button.
+- `fold?: boolean` — `false` shows every unchanged line.
+- `normalize?: (line: string) => string` — Maps a line before comparing, to ignore trailing spaces, case…
+- `maxHeight?: string` — Maximum height before scrolling (CSS).
+- `wrap?: boolean` — Wrap long lines instead of scrolling sideways.
+- `actions?: Snippet<[{ added: number; removed: number }]>` — Extra controls in the header (copy buttons…), given the counts.
+- `emptyText?: string` — Shown when the texts have no differences.
 - `class?: string`
 
 ### Kbd

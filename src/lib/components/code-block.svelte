@@ -4,8 +4,12 @@
   language and a copy button, monospaced body with scrolling. No syntax
   highlighting on purpose: CodeEditor is for editing; this is only read
   and copied.
+
+  `actions` puts extra controls (a "Copy for X" button…) in the header, before the copy button.
 -->
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   import { useLabels } from "$lib/i18n";
   import { cn } from "$lib/utils";
 
@@ -26,6 +30,8 @@
     maxHeight?: string;
     /** Wrap long lines instead of scrolling horizontally. */
     wrap?: boolean;
+    /** Extra controls in the header, before the copy button. */
+    actions?: Snippet;
     class?: string;
     [key: string]: unknown;
   }
@@ -38,6 +44,7 @@
     copiedLabel = L.copied,
     maxHeight = "24rem",
     wrap = false,
+    actions,
     class: className = "",
     ...rest
   }: Props = $props();
@@ -68,20 +75,23 @@
     {#if language}
       <span class="ta-code-language">{language}</span>
     {/if}
-    <button
-      type="button"
-      class={cn("ta-code-copy", copied && "ta-code-copy--done")}
-      title={copyLabel}
-      aria-label={copied ? copiedLabel : copyLabel}
-      onclick={copy}
-    >
-      {#if copied}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-      {:else}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-      {/if}
-      <span class="ta-code-copy-text">{copied ? copiedLabel : copyLabel}</span>
-    </button>
+    <span class="ta-code-tools">
+      {#if actions}{@render actions()}{/if}
+      <button
+        type="button"
+        class={cn("ta-code-copy", copied && "ta-code-copy--done")}
+        title={copyLabel}
+        aria-label={copied ? copiedLabel : copyLabel}
+        onclick={copy}
+      >
+        {#if copied}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        {:else}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+        {/if}
+        <span class="ta-code-copy-text">{copied ? copiedLabel : copyLabel}</span>
+      </button>
+    </span>
   </figcaption>
   <pre
     class="ta-code-body"
@@ -126,8 +136,14 @@
     color: rgb(var(--ta-text-dim));
   }
 
-  .ta-code-copy {
+  .ta-code-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     margin-left: auto;
+  }
+
+  .ta-code-copy {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;

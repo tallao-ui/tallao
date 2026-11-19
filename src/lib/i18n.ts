@@ -49,6 +49,8 @@ export interface Labels {
   nextMonth: string;
   chooseFiles: string;
   dropFiles: string;
+  pasteFiles: string;
+  pastedFileName: string;
   actions: string;
   breadcrumb: string;
   resize: string;
@@ -90,6 +92,34 @@ export interface Labels {
   suggestions: string;
   /** Accessible name of the source list (Sources). */
   sources: string;
+  showPassword: string;
+  conversation: string;
+  jumpToLatest: string;
+  /** Close button of a document tab; `{label}` is the tab's name (DocumentTabs). */
+  closeTab: string;
+  /** The button that adds a document tab (DocumentTabs). */
+  newTab: string;
+  /** Hidden text of a tab that is working / has unsaved changes (DocumentTabs). */
+  tabBusy: string;
+  tabDirty: string;
+  /** Empty state of a line diff (CodeDiff). */
+  noDifferences: string;
+  /** Row that folds unchanged lines; `{n}` is how many (CodeDiff). */
+  unchangedLines: string;
+  /** Accessible name of a line diff, and its two sides (CodeDiff). */
+  codeDiff: string;
+  diffBefore: string;
+  diffAfter: string;
+  player: string;
+  playerRole: string;
+  play: string;
+  pause: string;
+  previousChapter: string;
+  nextChapter: string;
+  seek: string;
+  chapters: string;
+  /** "{time} of {total}". */
+  timeOf: string;
   /** Label for quota usage (UsageMeter). */
   usage: string;
   /** Accessible name of a one-time code field (InputOTP). */
@@ -302,6 +332,8 @@ export const en: Labels = {
   nextMonth: "Next month",
   chooseFiles: "Choose files",
   dropFiles: "or drop them here",
+  pasteFiles: "or paste them with Ctrl+V",
+  pastedFileName: "Pasted image {n}",
   actions: "Actions",
   breadcrumb: "Breadcrumb",
   resize: "Resize",
@@ -333,6 +365,27 @@ export const en: Labels = {
   skipped: "Skipped",
   suggestions: "Suggestions",
   sources: "Sources",
+  showPassword: "Show password",
+  conversation: "Conversation",
+  jumpToLatest: "Jump to latest",
+  closeTab: "Close {label}",
+  newTab: "New tab",
+  tabBusy: "Working",
+  tabDirty: "Unsaved changes",
+  noDifferences: "No differences",
+  unchangedLines: "{n} unchanged lines",
+  codeDiff: "Differences",
+  diffBefore: "Before",
+  diffAfter: "After",
+  player: "Player",
+  playerRole: "player",
+  play: "Play",
+  pause: "Pause",
+  previousChapter: "Previous chapter",
+  nextChapter: "Next chapter",
+  seek: "Position",
+  chapters: "Chapters",
+  timeOf: "{time} of {total}",
   usage: "Usage",
   oneTimeCode: "One-time code",
   otpDigit: "Digit {n} of {total}",
@@ -485,6 +538,8 @@ export const es: Labels = {
   nextMonth: "Mes siguiente",
   chooseFiles: "Elegir archivos",
   dropFiles: "o suéltalos aquí",
+  pasteFiles: "o pégalos con Ctrl+V",
+  pastedFileName: "Imagen pegada {n}",
   actions: "Acciones",
   breadcrumb: "Ruta de navegación",
   resize: "Redimensionar",
@@ -516,6 +571,27 @@ export const es: Labels = {
   skipped: "Saltado",
   suggestions: "Sugerencias",
   sources: "Fuentes",
+  showPassword: "Mostrar contraseña",
+  conversation: "Conversación",
+  jumpToLatest: "Ir al final",
+  closeTab: "Cerrar {label}",
+  newTab: "Nueva pestaña",
+  tabBusy: "En curso",
+  tabDirty: "Cambios sin guardar",
+  noDifferences: "Sin diferencias",
+  unchangedLines: "{n} líneas sin cambios",
+  codeDiff: "Diferencias",
+  diffBefore: "Antes",
+  diffAfter: "Después",
+  player: "Reproductor",
+  playerRole: "reproductor",
+  play: "Reproducir",
+  pause: "Pausar",
+  previousChapter: "Capítulo anterior",
+  nextChapter: "Capítulo siguiente",
+  seek: "Posición",
+  chapters: "Capítulos",
+  timeOf: "{time} de {total}",
   usage: "Uso",
   oneTimeCode: "Código de un solo uso",
   otpDigit: "Dígito {n} de {total}",

@@ -4,6 +4,80 @@
 
 **Lists, outlines and forms that take them.**
 
+- **CodeBlock**: new optional `actions` snippet, rendered in the header beside the copy button
+  (for buttons such as "Copy for X"). Backwards compatible.
+- **CodeDiff** (new): a line diff of two code texts (DiffView compares the fields of a record).
+  `before`, `after`, `mode` (`unified` | `split`; split falls back to unified on a container
+  narrower than 560 px), `beforeLabel`, `afterLabel`, `ariaLabel`, `lineNumbers`, `context` (3),
+  `fold` (long unchanged runs become a button "N unchanged lines" with `aria-expanded`),
+  `normalize`, `maxHeight`, `wrap`, `emptyText` and an `actions` snippet that gets
+  `{ added, removed }`. The header says `+A −R` in text and in words; every changed line has a
+  sign column and a hidden "Added" / "Removed"; changed characters are an `<ins>` (underlined) or
+  a `<del>` (struck through). A `<figure>` with a `role="list"` of lines; line numbers are
+  `aria-hidden`. Also exports the pure `diffLines(before, after, { normalize })` (Myers O(ND),
+  falls back to "all removed, all added" past 2000 edits; paired lines carry `marks`) and the
+  types `DiffLine` and `CodeDiffKind`. New labels: `noDifferences`, `unchangedLines`, `codeDiff`,
+  `diffBefore`, `diffAfter`.
+- **DocumentTabs** (new): editor-style tabs for open documents or conversations, the companion of
+  Tabs (which is unchanged). `items` (`DocumentTab`: `id`, `label`, `title`, `busy`, `dirty`,
+  `closable`, `controls`, `tabId`), `value` (bindable), `ariaLabel`, `onchange`, `onclose(id)`,
+  `onadd` (draws a "+" button), `addLabel`, `closeLabel(tab)`, `busyLabel`, `dirtyLabel`,
+  `panels` (default `false`: the page renders the panels, as in Tabs), `end` and `children`
+  snippets. Each tab is a `role="tab"` button with a close button as its SIBLING (`tabindex="-1"`,
+  named "Close {label}"); the tablist owns the tabs with `aria-owns`. Arrows (mirrored in RTL),
+  Home and End move focus and select; Delete or Backspace on a tab, the close button and a
+  middle click call `onclose` (the component removes nothing) and, once the tab is gone, focus
+  and selection move to its neighbour. `busy` shows a Spinner and the hidden text "Working",
+  `dirty` a dot and "Unsaved changes". Tabs scroll sideways, the selected one is scrolled into
+  view, labels are cut at 14rem with the full text in `title`. 44px targets under coarse
+  pointers, no transitions under reduced motion. New labels: `closeTab`, `newTab`, `tabBusy`,
+  `tabDirty`.
+- **ChatThread** (new): the scrolling area of a conversation. It follows the newest content
+  (watched with a ResizeObserver, so streamed text and loading images keep it pinned) and stops
+  following when the reader scrolls up; a "Jump to latest" button (`jumpLabel`, label
+  `jumpToLatest`) brings it back. A focusable region with `role="log"`, a name (`label`,
+  label `conversation`) and `aria-live="off"`, so it does not re-read every token. `follow`
+  is bindable; `threshold` (48 px) says how near the bottom still counts. Exposes
+  `scrollToLatest()`. No smooth scrolling under reduced motion.
+- **ScenePlayer** (new): a "video" drawn with components, for tutorials that change with the
+  product. `scenes` (`PlayerScene`: `id`, `title`, `duration` in ms, `caption`) and a `scene`
+  snippet that gets the scene and its progress (0–1). Play / Pause, previous / next chapter,
+  a seek bar (`role="slider"`, value text "0:12 of 1:30"), a chapter list (`aria-current`)
+  and captions shown and read once by a polite live region. Keys with focus in the player:
+  Space or K, ← → (5 s), Home / End, N / P. `time` and `playing` are bindable; `autoplay`
+  never starts under reduced motion, where scenes are drawn at progress 1; it pauses when the
+  tab is hidden. Props: `label`, `chapters`, `playLabel`, `pauseLabel`, `previousLabel`,
+  `nextLabel`, `seekLabel`, `chaptersLabel`, `onSceneChange`, `onEnd`; exports `formatTime`.
+  New labels: `player`, `playerRole`, `play`, `pause`, `previousChapter`, `nextChapter`, `seek`,
+  `chapters`, `timeOf`.
+- **PasswordInput** (new): a password or secret-key field with a show / hide button. A real
+  `<input>` (type `password` or `text`), so password managers, paste, autofill and `name` in a
+  native form keep working; other attributes go to it. The toggle is a `<button type="button">`
+  with `aria-pressed` and the name "Show password" (`toggleLabel`, label `showPassword`), reached
+  with Tab after the field; a click keeps focus in the field. Props: `value`, `revealed` (both
+  bindable), `ref`, `disabled`, `onRevealChange`, `class`. 44px targets and 16px text under
+  `pointer: coarse`.
+- **FloatingScene** (new): a decorative 3D backdrop of frosted glass tiles at four depths behind
+  the content (`children`). `tiles` (texts drawn on them), `count`, `clear` (a horizontal band
+  kept free for the content, `[34, 66]` by default), `seed` (deterministic layout,
+  the same on the server; exported as `layoutScene` with the `SceneTile` type), `parallax`
+  (default on: the pointer tilts the layers through two CSS custom properties, once per frame),
+  `drift` (default off: a slow 10–14 s float), `glow` (a soft accent light). The stage is
+  `aria-hidden` with no pointer events; under reduced motion the tiles stay still. Coloured by
+  `--ta-accent`, `--ta-accent-2` and `--ta-text`.
+- **Install from GitHub with Corepack.** `pnpm add github:tallao-ui/tallao` in a Docker image with
+  Corepack failed in `prepare` with `ERR_PNPM_IGNORED_BUILDS`: the nested install runs in the
+  package's own folder, which named no package manager, so Corepack picked the newest pnpm, which
+  refuses esbuild's build script. `package.json` now declares `"packageManager": "pnpm@10.29.2"`,
+  and `pnpm-workspace.yaml` approves esbuild's build (`onlyBuiltDependencies`).
+- **FileUpload** takes files from the clipboard and shows image thumbnails. `paste` (`true`:
+  while focus is in the zone; `"document"`: anywhere on the page, except a text paste into a
+  field, which is left alone) adds the clipboard's files through the same `accept` / `maxSize` /
+  `maxFiles` checks; a paste with only text is never taken, and nameless pastes ("image.png")
+  are named "Pasted image 1.png"… (`pastedName`). The zone then shows a hint (`pasteLabel`),
+  linked to the input with `aria-describedby`. `previews` draws a decorative thumbnail
+  (`.ta-upload-thumb`, an object URL freed when the file is removed or the component unmounts)
+  for image files. New labels: `pasteFiles`, `pastedFileName`.
 - **SortableList** (new): rows put in another order (`items`, `key`, `label`, a `row` snippet,
   `onReorder(from, to)`; the list moves nothing itself). Drag a row by its handle with the mouse;
   or press the handle (a button with `aria-pressed`) and move it with ↑ ↓ / Home / End or the Move

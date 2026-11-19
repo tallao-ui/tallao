@@ -14,6 +14,10 @@
     Dialog,
     Field,
     Input,
+    PasswordInput,
+    FloatingScene,
+    ScenePlayer,
+    ChatThread,
     PromptInput,
     Select,
     Stat,
@@ -24,6 +28,8 @@
     TableHeader,
     TableRow,
     Tabs,
+    DocumentTabs,
+    CodeDiff,
     Textarea,
     ThemeScope,
     ToolCallCard,
@@ -95,6 +101,12 @@
     <Badge variant="success">ok</Badge>
     <Alert variant="error" title="Error" onDismiss={() => {}}>Something went wrong</Alert>
     <Field label="Name" required><Input /></Field>
+    <Field label="Secret"><PasswordInput name="secret" /></Field>
+    <FloatingScene tiles={["IF", "GOTO"]}><p>Over the scene</p></FloatingScene>
+    <ChatThread label="Chat"><p>One message</p></ChatThread>
+    <ScenePlayer label="Tour" scenes={[{ id: "a", title: "Intro", duration: 3000, caption: "Hello" }, { id: "b", title: "End", duration: 2000 }]}>
+      {#snippet scene(s, p)}<p>{s.title} {Math.round(p * 100)}</p>{/snippet}
+    </ScenePlayer>
     <Field label="Role"><Select options={[{ value: "a", label: "A" }]} /></Field>
     <Field label="Notes"><Textarea /></Field>
     <Checkbox label="Agent" />
@@ -108,6 +120,7 @@
       <TableHeader><TableRow><TableHead>Col</TableHead></TableRow></TableHeader>
       <TableBody><TableRow><TableCell>Value</TableCell></TableRow></TableBody>
     </Table>
+    <DocumentTabs items={[{ id: "a", label: "Notes" }, { id: "b", label: "Chat", busy: true }, { id: "c", label: "Draft", dirty: true }]} ariaLabel="Open documents" onclose={() => {}} onadd={() => {}} />
     <Tabs items={[{ id: "a", label: "One" }, { id: "b", label: "Two", count: 2 }]} ariaLabel="Sections">
       {#snippet children(active)}<p>Panel {active}</p>{/snippet}
     </Tabs>
@@ -121,6 +134,8 @@
     ]} />
     <SuggestionChips suggestions={["Write the recap", "Publish on Cardback"]} onSelect={() => {}} />
     <CodeBlock code={"const x = 1;"} language="ts" fileName="app.ts" />
+    <CodeDiff before={"a\nb\nc\nd\ne\nf\ng\nh"} after={"a\nB\nc\nd\ne\nf\ng\nH"} ariaLabel="Edit" context={1} />
+    <CodeDiff before={"a\nb"} after={"a\nc"} mode="split" ariaLabel="Split edit" />
     <Sources sources={[
       { url: "https://example.com/guide", title: "Tournament guide", domain: "example.com" },
       { url: "https://other.com/note", title: "Patch notes" },

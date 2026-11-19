@@ -26,6 +26,8 @@
     Checkbox,
     Field,
     Tabs,
+    DocumentTabs,
+    type DocumentTab,
     Alert,
     Stat,
     ConfirmDialog,
@@ -83,6 +85,7 @@
     Steps,
     SuggestionChips,
     CodeBlock,
+    CodeDiff,
     Sources,
     UsageMeter,
     InputOTP,
@@ -121,6 +124,43 @@
 
   // The demo is in English, so it keeps the kit's default `en` labels.
 
+  let docTabs = $state<DocumentTab[]>([
+    { id: "notes", label: "Release notes.md" },
+    { id: "chat", label: "Refactor the billing module with the new tax rules", title: "Refactor the billing module with the new tax rules (conversation)", busy: true },
+    { id: "draft", label: "Untitled draft", dirty: true },
+    { id: "pinned", label: "README.md", closable: false },
+  ]);
+  let docTab = $state("notes");
+  let docCount = 0;
+  let diffSplit = $state(false);
+  const planBefore = `import { run } from "./agent";
+
+export async function plan(goal: string) {
+  const steps = await run(goal);
+  for (const step of steps) {
+    console.log("step", step.name);
+  }
+  // Keep the order the model gave.
+  return steps;
+}
+
+export const retries = 1;
+export const timeout = 30;
+`;
+  const planAfter = `import { run } from "./agent";
+
+export async function plan(goal: string, signal?: AbortSignal) {
+  const steps = await run(goal, { signal });
+  for (const step of steps) {
+    console.log("step", step.name);
+  }
+  // Keep the order the model gave.
+  return steps;
+}
+
+export const retries = 3;
+export const timeout = 30;
+`;
   let theme = $state<"dark" | "light">("dark");
   let playersOnline = $state(12480);
   let demoRange = $state<DateRange>({ start: "2026-11-01", end: "2026-11-07" });
@@ -1420,6 +1460,43 @@
     </div>
   </section>
 
+  <section class="section">
+    <h2>DocumentTabs</h2>
+    <p class="section-note">
+      Open documents or conversations: close with the button, Delete or a middle click (the page
+      decides what closing means), add with "+", a spinner while one works and a dot when it has
+      unsaved changes.
+    </p>
+    <DocumentTabs
+      ariaLabel="Open documents"
+      items={docTabs}
+      bind:value={docTab}
+      onclose={(id) => (docTabs = docTabs.filter((t) => t.id !== id))}
+      onadd={() => {
+        const id = `new-${++docCount}`;
+        docTabs = [...docTabs, { id, label: `Untitled ${docCount}` }];
+        docTab = id;
+      }}
+    />
+  </section>
+
+  <section class="section">
+    <h2>CodeDiff</h2>
+    <p class="section-note">
+      A line diff of two texts: counts in the header, a sign and a word on every changed line, the
+      changed characters underlined or struck through, unchanged runs folded. The actions snippet
+      holds extra buttons.
+    </p>
+    <div class="demo-col">
+      <Button variant="secondary" size="sm" onclick={() => (diffSplit = !diffSplit)}>{diffSplit ? "Unified" : "Split"} view</Button>
+      <CodeDiff before={planBefore} after={planAfter} mode={diffSplit ? "split" : "unified"} beforeLabel="plan.ts (current)" afterLabel="plan.ts (proposed)" ariaLabel="Changes to plan.ts" context={2}>
+        {#snippet actions({ added, removed })}
+          <Button variant="ghost" size="sm" onclick={() => sendPrompt(`Apply ${added + removed} changed lines`)}>Apply</Button>
+        {/snippet}
+      </CodeDiff>
+    </div>
+  </section>
+
   <!-- ——— GENERATIVE II: plan, suggestions, code, sources, usage ——— -->
   <section class="section">
     <h2>Steps · SuggestionChips · CodeBlock · Sources · UsageMeter</h2>
@@ -1447,7 +1524,11 @@
           fileName="src/lib/plan.ts"
           language="ts"
           code={"const plan = await agent.plan(goal);\nfor (const step of plan.steps) {\n  await step.run();\n}"}
-        />
+        >
+          {#snippet actions()}
+            <Button variant="ghost" size="sm" onclick={() => sendPrompt("Copy for the agent")}>Copy for agent</Button>
+          {/snippet}
+        </CodeBlock>
         <UsageMeter used={8100} max={10000} cost="$0.42" />
       </div>
     </div>
