@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **SegmentedBar** (new): a total split into its parts, after the analytics and overview pages of the
+  loopo template. Props: `segments` (`BarSegment`: `label`, `value`, `delta?`, `color?`), `title`,
+  `hideTitle`, `total`, `totalLabel`, `locale`, `format`, `deltaFormat`. A named group; the bar is
+  decoration, the rows are a list with the share and the change in words. Segments grow in, staggered;
+  none under reduced motion.
+- **CohortGrid** (new): retention by cohort as a table. Props: `cohorts` (`Cohort`: `label`, `size?`,
+  `values`), `periods`, `title`, `hideTitle`, `cohortLabel`, `sizeLabel`, `max`, `color`, `locale`,
+  `format`. Scrolls sideways in a focusable region; cells fade in along the diagonal; none under
+  reduced motion. New label key: `cohort` (en "Cohort", es "Cohorte").
+
 **Docs, and a landing that shows the kit as it is now.**
 
 - **Docs** (new, `docs/`, published at `/docs/` next to the landing): a page for each of the 133
@@ -17,6 +27,17 @@
   SortableList, TagInput and PasswordInput; a calmer first screen (announcement, stack, inspector
   on demand); a Spanish version (`?lang=es`, `/es/`); a closing call to action; the logos; and each
   catalogue chip opens its docs page. Counts corrected (133 components, 500+ tests).
+- **Brand on the landing and the docs**: the wordmark is big in the first screen and writes itself on
+  load while its orange comma falls into place (the two are separate images, `site/brand/tallao-letters-*`
+  and `tallao-comma.*`; still, with no animation, under reduced motion). The comma is also the headline's
+  streaming cursor, the mark under the section you are in, and the dot of every "new" label (landing and
+  docs). The inspector's panel moves above the wordmark so it covers no text.
+- **Landing rhythm and length**: each section's line draws itself in violet to orange and starts with
+  the comma, and its big number is written with a comma falling beside it; three sections lean on a soft
+  violet / orange glow. Section 01 now tells a story (the "replica" note moved to the end, with a link to
+  the docs); the rest of the specimens in "Controls" and "New" are folded (a link, a chip or the command
+  palette opens the fold it points into); the catalogue shows 6 components per family. The page goes
+  from 17.4 to 14.5 screens at 1366×768. Stale figures in the Stat specimen corrected.
 
 **Lists, outlines and forms that take them.**
 

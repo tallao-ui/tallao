@@ -51,6 +51,8 @@
     ChartCard,
     ChartLegend,
     ComparisonBar,
+    SegmentedBar,
+    CohortGrid,
     DashboardGrid,
     DashboardItem,
     DonutChart,
@@ -174,6 +176,8 @@
     <IconArray value={3} total={5} label="wins" shape="person" showSummary={false} />
     <Timeline ariaLabel="Season" locale="en" items={[{ date: "2026-11-03", title: "Patch 1.2", tag: "Patch", tone: "accent", href: "/patch" }, { date: "Season 3", title: "Ladder reset", current: true }]} />
     <ComparisonBar title="Side win rate" left={{ label: "Blue side", value: 5230 }} right={{ label: "Red side", value: 4770 }} locale="en" />
+    <SegmentedBar title="Revenue by channel" locale="en" segments={[{ label: "Online", value: 26800, delta: 21.6 }, { label: "Subscriptions", value: 16400, delta: -6.8 }, { label: "In-store", value: 12200 }]} />
+    <CohortGrid title="Retention" periods={["M0", "M1", "M2"]} sizeLabel="Size" locale="en" cohorts={[{ label: "Jul", size: 486, values: [100, 64, 52] }, { label: "Aug", size: 512, values: [100, 61] }]} />
     <ChartLegend items={[{ label: "Fire", value: "40%" }, { label: "Water" }]} aria-label="Elements" />
     <PageHeader title="Posts" level={2} description="Everything published.">
       {#snippet status()}<Badge variant="success" dot>Live</Badge>{/snippet}
