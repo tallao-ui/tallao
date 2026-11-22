@@ -20,13 +20,13 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const COMPONENTS = path.join(ROOT, "src/lib/components");
 
 /** `export { default as Name } from "./file.svelte"` lines, in order, for one index file. */
-function exportsOf(indexFile) {
+export function exportsOf(indexFile) {
   const source = fs.readFileSync(indexFile, "utf8");
   return [...source.matchAll(/export \{ default as (\w+)[^}]*\} from "\.\/([\w-]+\.svelte)";/g)].map((m) => ({ name: m[1], file: path.join(path.dirname(indexFile), m[2]) }));
 }
 
 /** The body between the brace at `open` and its match. */
-function braceBody(source, open) {
+export function braceBody(source, open) {
   let depth = 0;
   for (let i = open; i < source.length; i++) {
     if (source[i] === "{") depth++;
@@ -36,7 +36,7 @@ function braceBody(source, open) {
 }
 
 /** The members of the component's props type: `interface Props { … }` or `}: { … } = $props()`. */
-function propsBody(source) {
+export function propsBody(source) {
   const named = source.search(/interface Props\s*\{/);
   if (named >= 0) return braceBody(source, source.indexOf("{", named));
   const call = source.indexOf("= $props()");
@@ -51,7 +51,7 @@ function propsBody(source) {
 }
 
 /** Top-level `name?: type` members with their doc comment. */
-function parseProps(body) {
+export function parseProps(body) {
   const props = [];
   let depth = 0;
   let current = "";
@@ -89,7 +89,7 @@ function parseProps(body) {
 }
 
 /** The header comment's text, without the `tallao — Name` title. */
-function header(source, name) {
+export function header(source, name) {
   const comment = source.match(/^\s*<!--([\s\S]*?)-->/)?.[1] ?? "";
   const lines = comment.split("\n");
   const body = lines
@@ -99,7 +99,7 @@ function header(source, name) {
   return { comment, body };
 }
 
-function purpose(source, name) {
+export function purpose(source, name) {
   const { body } = header(source, name);
   const paragraph = body.split(/\n\s*\n/)[0].replace(/\s+/g, " ").trim();
   if (!paragraph) return "";
@@ -107,7 +107,7 @@ function purpose(source, name) {
   return sentence.replace(/[:]$/, ".").trim();
 }
 
-function example(source, name, props) {
+export function example(source, name, props) {
   const { comment } = header(source, name);
   const lines = comment.split("\n");
   const start = lines.findIndex((l) => new RegExp(`^\\s{2,}<${name}([\\s/>]|$)`).test(l));

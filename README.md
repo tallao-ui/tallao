@@ -15,6 +15,10 @@ A **Svelte 5** UI kit for generative interfaces, extracted from the Kitsuden adm
 decoupled from Tailwind, stores and APIs. Plain CSS on top of tokens, accessible by keyboard
 and screen reader, and SSR-ready (SvelteKit).
 
+**Docs:** every component live, with the code that makes it, its props and how it works with a
+keyboard and a screen reader: <https://tallao-ui.github.io/tallao/docs/>. They are read from the
+component sources, so they do not drift.
+
 ## Install and first use
 
 As a package (it builds on install through `prepare`):
@@ -352,6 +356,7 @@ pnpm test      # vitest: behaviour, keyboard and axe (jsdom) + server rendering 
 pnpm check     # svelte-check
 pnpm package   # builds the package into dist/ and checks it with publint
 pnpm dev       # the demo
+pnpm docs:dev  # the docs (docs/): every component live; pnpm docs:check type-checks every demo
 ```
 
 CI (`.github/workflows/ci.yml`) runs `check`, `test`, `package` and `build:demo` (the demo's
