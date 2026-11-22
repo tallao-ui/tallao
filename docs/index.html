@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" data-tallao-theme="dark" data-accent="lilac">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tallao docs — every component, live, with its code</title>
+    <meta name="description" content="Documentation of tallao, the Svelte 5 UI kit for generative interfaces: every component live, the code that makes it, its props, and how it works with a keyboard and a screen reader." />
+    <meta property="og:title" content="tallao docs" />
+    <meta property="og:image" content="https://tallao-ui.github.io/tallao/brand/og.png" />
+    <meta name="theme-color" content="#09090b" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href="/brand/tallao-mark-32.png" type="image/png" sizes="32x32" />
+    <link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+    <script>
+      /* Theme, accent and language before the first paint. */
+      (function () {
+        var r = document.documentElement;
+        try {
+          var s = JSON.parse(localStorage.getItem("tallao-docs") || "{}");
+          var site = JSON.parse(localStorage.getItem("tallao-site") || "{}");
+          var theme = s.theme || site.theme;
+          var accent = s.accent || site.accent;
+          if (theme === "light" || theme === "dark") r.dataset.tallaoTheme = theme;
+          if (/^(lilac|orange|green|blue)$/.test(accent)) r.dataset.accent = accent;
+          var lang = s.lang || localStorage.getItem("tallao-lang");
+          if (lang === "es") r.lang = "es";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

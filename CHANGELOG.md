@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+**Docs, and a landing that shows the kit as it is now.**
+
+- **Docs** (new, `docs/`, published at `/docs/` next to the landing): a page for each of the 133
+  components (117 pages; parts such as CardHeader live in their parent's), with the live demo and
+  its code (Preview / Code), how to install it, its props with types and defaults, and its contract
+  (keyboard, ARIA, SSR) from the header comment. Hash routes, search (`/`), English and Spanish
+  chrome, theme and accent. Everything but the demos is read from the component sources by
+  `scripts/docs-data.mjs`, which reuses the parsers of `scripts/llms.mjs` (now exported; the
+  output of `llms.txt` does not change). Demos are `docs/demos/<slug>.svelte` and import from
+  `"tallao"` like a user's code. New scripts: `docs:data`, `docs:dev`, `docs:build`, `docs:check`
+  (svelte-check over every demo); CI runs the last two and the Pages workflow builds the docs.
+- **Landing**: the 13 newest components, with live replicas of DocumentTabs, CodeDiff, TreeView,
+  SortableList, TagInput and PasswordInput; a calmer first screen (announcement, stack, inspector
+  on demand); a Spanish version (`?lang=es`, `/es/`); a closing call to action; the logos; and each
+  catalogue chip opens its docs page. Counts corrected (133 components, 500+ tests).
+
 **Lists, outlines and forms that take them.**
 
 - **CodeBlock**: new optional `actions` snippet, rendered in the header beside the copy button

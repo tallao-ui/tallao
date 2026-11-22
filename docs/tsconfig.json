@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "paths": {
+      "$lib": ["../src/lib"],
+      "$lib/*": ["../src/lib/*"],
+      "tallao": ["../src/lib/index.ts"],
+      "tallao/motion": ["../src/lib/motion/index.ts"],
+      "tallao/map": ["../src/lib/map/index.ts"],
+      "tallao/code": ["../src/lib/code/index.ts"]
+    },
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.svelte", "demos/**/*.svelte", "gen/*.json"]
+}

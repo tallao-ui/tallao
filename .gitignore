@@ -9,3 +9,5 @@ generate-landing.mjs
 demo.html
 public-tallao-logo.png
 src/HyperFramesDemo.svelte
+docs/gen/
+site/docs/

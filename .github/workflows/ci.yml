@@ -23,6 +23,9 @@ jobs:
       - run: pnpm test
       - run: pnpm package
       - run: pnpm build:demo
+      # The docs (docs/): every demo type-checked against the real props, and the app builds.
+      - run: pnpm docs:check
+      - run: pnpm docs:build
       # tallao dentro de una app SvelteKit real (kit-check/): prerender sin estado compartido
       # entre peticiones, e hidratación sin desajustes en Chromium.
       - run: pnpm --filter tallao-kit-check build

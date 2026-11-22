@@ -6,27 +6,42 @@
     <title>tallao — Svelte 5 components for the interfaces an agent builds</title>
     <meta
       name="description"
-      content="A Svelte 5 UI kit for generative interfaces: 124 components in plain CSS on tokens, keyboard and screen reader ready, and SSR-ready for SvelteKit. MIT licensed."
+      content="A Svelte 5 UI kit for generative interfaces: 133 components in plain CSS on tokens, keyboard and screen reader ready, and SSR-ready for SvelteKit. MIT licensed."
     />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="tallao — Svelte 5 components for the interfaces an agent builds" />
     <meta
       property="og:description"
-      content="124 components in plain CSS on tokens: an agent's thinking, tool calls, tasks and approvals next to the admin pages, dashboards and forms every app needs."
+      content="133 components in plain CSS on tokens: an agent's thinking, tool calls, tasks and approvals next to the admin pages, dashboards and forms every app needs."
     />
     <meta name="color-scheme" content="dark light" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="brand/tallao-mark-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="brand/tallao-mark-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="brand/tallao-mark-180.png" />
+    <meta property="og:image" content="https://tallao-ui.github.io/tallao/brand/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#09090b" />
+    <link rel="alternate" hreflang="en" href="https://tallao-ui.github.io/tallao/" />
+    <link rel="alternate" hreflang="es" href="https://tallao-ui.github.io/tallao/es/" />
+    <link rel="alternate" hreflang="x-default" href="https://tallao-ui.github.io/tallao/" />
     <link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
     <script>
       /* Theme, accent and radius before the first paint. */
       (function () {
         var r = document.documentElement;
-        r.classList.add("js");
+        r.classList.add("js", "hero-calm");
         try {
           var s = JSON.parse(localStorage.getItem("tallao-site") || "{}");
           if (s.theme === "light" || s.theme === "dark") r.dataset.tallaoTheme = s.theme;
           if (/^(lilac|orange|green|blue)$/.test(s.accent)) r.dataset.accent = s.accent;
         } catch (e) {}
+        /* Language: ?lang= wins, then the visitor's last choice. */
+        var q = /[?&]lang=(en|es)\b/.exec(location.search);
+        var lang = q ? q[1] : null;
+        if (!lang) try { lang = localStorage.getItem("tallao-lang"); } catch (e) {}
+        if (lang === "es") r.lang = "es";
       })();
     </script>
     <style>
@@ -217,7 +232,7 @@
         padding-inline: var(--gut);
       }
       .mono {
-        font: 500 0.6875rem/1.4 var(--mono);
+        font: 500 0.75rem/1.45 var(--mono);
         letter-spacing: 0.07em;
         text-transform: uppercase;
         color: var(--dim);
@@ -270,11 +285,11 @@
         text-decoration: none;
         padding: 0.5rem 0;
       }
-      .brand i {
-        width: 1.35rem;
-        height: 1.35rem;
-        border-radius: 0.35rem;
-        background: linear-gradient(135deg, #9333ea, #fb923c);
+      .brand img {
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px rgb(var(--ta-text) / 0.08), 0 4px 14px -4px rgb(147 51 234 / 0.6);
       }
       .brand-sub {
         margin-right: auto;
@@ -299,12 +314,14 @@
         font: 500 0.6875rem var(--mono);
         color: var(--dim);
       }
-      .bar nav a:hover,
-      .bar nav a[aria-current="true"] {
+      .bar nav a:hover {
         border-bottom-color: var(--tone);
       }
+      .bar nav a[aria-current="true"] {
+        border-bottom-color: var(--tone2);
+      }
       .bar nav a[aria-current="true"] span {
-        color: var(--tone);
+        color: var(--tone2);
       }
       .ctl {
         display: flex;
@@ -383,7 +400,7 @@
         gap: 0.3rem 2rem;
       }
       h1 {
-        margin-top: clamp(3rem, 11vh, 8.5rem);
+        margin-top: clamp(2rem, 7vh, 6rem);
         font-weight: 700;
       }
       .h1-big {
@@ -435,8 +452,8 @@
       }
       .legend {
         display: grid;
-        gap: 0.35rem;
-        margin-top: 1.4rem;
+        gap: 0.25rem;
+        margin-top: 1rem;
       }
       .legend b {
         color: var(--tone);
@@ -498,8 +515,8 @@
       .hero-row {
         display: grid;
         gap: 2rem;
-        margin-top: clamp(2rem, 4vw, 3.5rem);
-        padding-top: 1.6rem;
+        margin-top: clamp(1.25rem, 2.5vw, 2.25rem);
+        padding-top: 1.25rem;
         border-top: 1px solid var(--hair);
         align-items: end;
       }
@@ -580,7 +597,7 @@
       .sec-head {
         display: grid;
         gap: 1rem 4rem;
-        margin-block: clamp(2.5rem, 6vw, 5.5rem) clamp(2rem, 4vw, 3.5rem);
+        margin-block: clamp(2.25rem, 5vw, 4.75rem) clamp(1.75rem, 3.5vw, 3rem);
         align-items: end;
       }
       @media (min-width: 60rem) {
@@ -652,8 +669,8 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 2.4rem;
-        padding: 2.6rem clamp(1.25rem, 2.4vw, 2.5rem) 2.2rem;
+        gap: 2rem;
+        padding: 2.1rem clamp(1.25rem, 2.4vw, 2.5rem) 1.8rem;
         font-size: 0.875rem;
         line-height: 1.5;
       }
@@ -668,7 +685,7 @@
       }
       .note {
         margin-top: auto;
-        font: 400 0.75rem/1.5 var(--mono);
+        font: 400 0.8125rem/1.6 var(--mono);
         color: var(--dim);
       }
       @media (min-width: 62rem) {
@@ -2500,20 +2517,361 @@
         color: var(--ink);
       }
       .wordmark {
-        margin-top: 1.5rem;
-        font-size: clamp(5rem, 27vw, 30rem);
-        font-weight: 800;
-        line-height: 0.8;
-        letter-spacing: -0.07em;
-        width: fit-content;
-        padding: 0 0.08em 0.12em 0;
-        background: linear-gradient(96deg, var(--tone) 5%, var(--tone2) 95%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+        display: block;
+        margin-top: 2.5rem;
+        width: min(40rem, 80vw);
         user-select: none;
       }
+      .wordmark img {
+        display: block;
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 18px 40px rgb(147 51 234 / 0.35));
+      }
 
+      /* ——— 05 New: replicas of the components added since 0.7 (CSS from their .svelte files) ——— */
+      @media (min-width: 62rem) {
+        .b-new .c-l { grid-column: 1 / 7; }
+        .b-new .c-r { grid-column: 7 / 13; }
+      }
+      .chips li.new { position: relative; border-color: rgb(var(--ta-accent) / 0.55); }
+      .chips li.new::after {
+        content: "new";
+        margin-left: 0.4rem;
+        padding: 0 0.3rem;
+        font: 600 0.5625rem/1.5 var(--mono);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: rgb(var(--ta-on-accent));
+        background: rgb(var(--ta-accent));
+        border-radius: 999px;
+        vertical-align: 0.1em;
+      }
+      .new-key { padding: 0 0.35rem; font: 600 0.5625rem/1.5 var(--mono); text-transform: uppercase; color: rgb(var(--ta-on-accent)); background: rgb(var(--ta-accent)); border-radius: 999px; }
+      :root[lang="es"] .chips li.new::after { content: "nuevo"; }
+      .review { border: 1px solid rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); background: rgb(var(--ta-bg)); overflow: hidden; }
+      .review .ta-doctabs-row { background: rgb(var(--ta-bg)); }
+      .review .ta-cd { border: 0; border-radius: 0; }
+      .review-panel { outline: none; }
+      .review-panel:focus-visible { box-shadow: inset 0 0 0 2px rgb(var(--ta-accent) / 0.7); }
+      .mode { display: inline-flex; gap: 0.125rem; margin-inline-end: 0.375rem; }
+      .mode .ta-btn[aria-pressed="true"] { color: rgb(var(--ta-text)); background: rgb(var(--ta-elevated)); }
+      .tree-out { min-height: 1.5em; font: 400 0.75rem var(--mono); color: rgb(var(--ta-text-dim)); }
+      .tree-out b { color: rgb(var(--ta-text)); font-weight: 500; }
+      .also { display: grid; gap: 0.7rem; margin: 0; }
+      .also div { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 0.75rem; align-items: baseline; }
+      .also dt { font: 500 0.8125rem var(--mono); color: rgb(var(--ta-text)); }
+      .also dd { margin: 0; color: rgb(var(--ta-text-dim)); }
+      .also-cta { align-self: flex-start; }
+      /* Split falls back to unified under 560px, so the switch only shows where it can act. */
+      @media (max-width: 40rem) { .mode { display: none; } }
+      @media (max-width: 30rem) { .also div { grid-template-columns: 1fr; gap: 0.1rem; } }
+      .sort-row-t { display: block; font: 500 0.8125rem var(--mono); }
+      .sort-row-m { display: block; font: 400 0.75rem var(--mono); color: rgb(var(--ta-text-dim)); }
+
+      /* DocumentTabs */
+      .ta-doctabs-row { display: flex; align-items: center; gap: 0.25rem; box-shadow: inset 0 -1px 0 rgb(var(--ta-border)); }
+      .ta-doctabs-owner { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+      .ta-doctabs-list { position: relative; display: flex; flex: 0 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: rgb(var(--ta-border)) transparent; }
+      .ta-doctabs-end { display: flex; align-items: center; gap: 0.5rem; margin-inline-start: auto; flex: none; }
+      .ta-doctab { position: relative; display: inline-flex; flex: none; align-items: center; max-width: 14rem; border-bottom: 2px solid transparent; color: rgb(var(--ta-text-dim)); transition: color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out), background-color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .ta-doctab:hover { color: rgb(var(--ta-text)); background: rgb(var(--ta-elevated) / 0.6); }
+      .ta-doctab--selected { color: rgb(var(--ta-text)); font-weight: 600; background: rgb(var(--ta-surface)); border-bottom-color: rgb(var(--ta-accent)); }
+      .ta-doctab-tab { position: relative; display: inline-flex; align-items: center; gap: 0.4rem; min-width: 0; padding: 0.5rem 0.25rem 0.5rem 0.75rem; font: inherit; font-size: 0.8125rem; color: inherit; background: none; border: none; cursor: pointer; }
+      .ta-doctab-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); }
+      .ta-doctab-tab:focus-visible { outline: none; box-shadow: inset 0 0 0 2px rgb(var(--ta-accent) / 0.7); border-radius: var(--ta-radius-sm); }
+      .ta-doctab-dot { flex: none; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: rgb(var(--ta-accent)); box-shadow: 0 0 0 1px rgb(var(--ta-surface)); }
+      .ta-doctab-hidden, .ta-cd-hidden, .ta-sortable-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+      .ta-doctab-close, .ta-doctabs-add { position: relative; display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; margin-inline-end: 0.375rem; padding: 0; color: rgb(var(--ta-text-dim)); background: none; border: none; border-radius: var(--ta-radius-sm); cursor: pointer; transition: color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out), background-color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .ta-doctabs-add { width: 1.75rem; height: 1.75rem; margin: 0 0.25rem; }
+      .ta-doctabs-add:disabled { opacity: 0.4; cursor: not-allowed; }
+      .ta-doctab-close:hover, .ta-doctabs-add:hover:not(:disabled) { color: rgb(var(--ta-text)); background: rgb(var(--ta-elevated)); }
+      .ta-doctab-close:focus-visible, .ta-doctabs-add:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.7); outline-offset: 1px; }
+
+      /* CodeDiff */
+      .ta-cd { margin: 0; border: 1px solid rgb(var(--ta-border)); border-radius: var(--ta-radius-lg); background: rgb(var(--ta-bg)); overflow: hidden; }
+      .ta-cd-header { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; padding: 0.375rem 0.5rem 0.375rem 0.75rem; border-bottom: 1px solid rgb(var(--ta-border)); background: rgb(var(--ta-surface)); font-size: 0.75rem; color: rgb(var(--ta-text-dim)); }
+      .ta-cd-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgb(var(--ta-text)); }
+      .ta-cd-counts { font-family: var(--ta-font-mono); font-weight: 600; }
+      .ta-cd-count--add { color: rgb(var(--ta-success)); }
+      .ta-cd-count--del { color: rgb(var(--ta-danger)); }
+      .ta-cd-body { overflow: auto; max-height: 22rem; font-family: var(--ta-font-mono); font-size: 0.8125rem; line-height: 1.6; color: rgb(var(--ta-text)); tab-size: 8; }
+      .ta-cd-lines { width: max-content; min-width: 100%; }
+      .ta-cd-row, .ta-cd-cell { position: relative; display: flex; align-items: flex-start; min-height: 1.6em; }
+      .ta-cd-row--split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      .ta-cd--split .ta-cd-lines { width: auto; }
+      .ta-cd-cell + .ta-cd-cell { border-inline-start: 1px solid rgb(var(--ta-border)); }
+      .ta-cd-no { flex: none; min-width: 3ch; padding: 0 0.5ch; text-align: end; user-select: none; color: rgb(var(--ta-text-dim)); opacity: 0.85; }
+      .ta-cd-sign { flex: none; width: 2ch; text-align: center; user-select: none; font-weight: 700; }
+      .ta-cd-text { flex: 1 1 auto; min-width: 0; padding-inline-end: 0.75rem; white-space: pre; }
+      .ta-cd--split .ta-cd-text { overflow-x: auto; scrollbar-width: thin; }
+      .ta-cd-row--add, .ta-cd-cell--add { background: rgb(var(--ta-success) / 0.12); }
+      .ta-cd-row--del, .ta-cd-cell--del { background: rgb(var(--ta-danger) / 0.12); }
+      .ta-cd-cell--empty { background: rgb(var(--ta-elevated) / 0.4); }
+      .ta-cd-row--add .ta-cd-sign, .ta-cd-cell--add .ta-cd-sign { background: rgb(var(--ta-success) / 0.3); }
+      .ta-cd-row--del .ta-cd-sign, .ta-cd-cell--del .ta-cd-sign { background: rgb(var(--ta-danger) / 0.3); }
+      .ta-cd-row--add .ta-cd-no, .ta-cd-cell--add .ta-cd-no { background: rgb(var(--ta-success) / 0.2); }
+      .ta-cd-row--del .ta-cd-no, .ta-cd-cell--del .ta-cd-no { background: rgb(var(--ta-danger) / 0.2); }
+      .ta-cd ins, .ta-cd del { color: inherit; font-weight: 700; border-radius: 2px; }
+      .ta-cd ins { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; text-decoration-color: rgb(var(--ta-success)); background: rgb(var(--ta-success) / 0.35); }
+      .ta-cd del { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: rgb(var(--ta-danger)); background: rgb(var(--ta-danger) / 0.35); }
+      .ta-cd-heads { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); position: sticky; top: 0; z-index: 1; border-bottom: 1px solid rgb(var(--ta-border)); background: rgb(var(--ta-surface)); font-family: var(--ta-font-sans); font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgb(var(--ta-text-dim)); }
+      .ta-cd-heads > span { padding: 0.25rem 0.75rem; }
+      .ta-cd-fold { background: rgb(var(--ta-surface)); }
+      .ta-cd-fold-btn { position: relative; display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.125rem 0.75rem; font: inherit; font-size: 0.75rem; text-align: start; color: rgb(var(--ta-text-dim)); background: none; border: none; cursor: pointer; }
+      .ta-cd-fold-btn:hover { color: rgb(var(--ta-text)); background: rgb(var(--ta-elevated)); }
+      .ta-cd-fold-btn:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.7); outline-offset: -2px; }
+      .ta-cd-empty { margin: 0; padding: 1rem; font-size: 0.8125rem; color: rgb(var(--ta-text-dim)); }
+
+      /* TreeView */
+      .ta-tree, .ta-tree-group { margin: 0; padding: 0; list-style: none; }
+      .ta-tree { min-width: 0; font-size: 0.875rem; }
+      .ta-tree-item { outline: none; }
+      .ta-tree-row { display: flex; align-items: center; gap: 0.375rem; min-height: 1.75rem; padding: 0.125rem 0.5rem 0.125rem calc(0.25rem + var(--ta-tree-level, 0) * 1rem); border-radius: var(--ta-radius-sm, 0.375rem); color: rgb(var(--ta-text)); cursor: pointer; user-select: none; transition: background-color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .ta-tree-row:hover { background: rgb(var(--ta-text) / 0.06); }
+      .ta-tree-item:focus-visible > .ta-tree-row { outline: 2px solid rgb(var(--ta-accent)); outline-offset: -2px; }
+      .ta-tree-item--selected > .ta-tree-row { background: rgb(var(--ta-accent) / 0.14); box-shadow: inset 3px 0 0 rgb(var(--ta-accent)); font-weight: 500; }
+      .ta-tree-toggle, .ta-tree-spacer { position: relative; display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1rem; height: 1rem; color: rgb(var(--ta-text-dim)); }
+      .ta-tree-toggle svg { transition: transform var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .ta-tree-toggle--open svg { transform: rotate(90deg); }
+      .ta-tree-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .ta-tree-description { margin-left: auto; padding-left: 0.5rem; font-size: 0.75rem; color: rgb(var(--ta-text-dim)); white-space: nowrap; }
+
+      /* SortableList */
+      .ta-sortable { display: flex; flex-direction: column; gap: 0.375rem; margin: 0; padding: 0; list-style: none; }
+      .ta-sortable-row { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.5rem; background: rgb(var(--ta-surface)); border: 1px solid rgb(var(--ta-border)); border-radius: var(--ta-radius); transition: border-color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out), box-shadow var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .ta-sortable-row[data-grabbed] { border-color: rgb(var(--ta-accent)); box-shadow: 0 0 0 3px rgb(var(--ta-accent) / 0.2); }
+      .ta-sortable-row[data-over] { border-color: rgb(var(--ta-accent)); box-shadow: inset 0 3px 0 rgb(var(--ta-accent)); }
+      .ta-sortable-handle, .ta-sortable-move { position: relative; display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem; padding: 0; font: inherit; color: rgb(var(--ta-text-dim)); background: transparent; border: 1px solid transparent; border-radius: var(--ta-radius); cursor: grab; }
+      .ta-sortable-move { cursor: pointer; border-color: rgb(var(--ta-border)); }
+      .ta-sortable-handle[aria-pressed="true"] { color: rgb(var(--ta-on-accent)); background: rgb(var(--ta-accent)); }
+      .ta-sortable-handle:hover:not(:disabled), .ta-sortable-move:hover:not(:disabled) { color: rgb(var(--ta-text)); background: rgb(var(--ta-text) / 0.08); }
+      .ta-sortable-handle:focus-visible, .ta-sortable-move:focus-visible { outline: 2px solid rgb(var(--ta-accent)); outline-offset: 1px; }
+      .ta-sortable-move:disabled { opacity: 0.5; cursor: not-allowed; }
+      .ta-sortable-content { flex: 1 1 auto; min-width: 0; }
+      .ta-sortable-moves { display: flex; gap: 0.25rem; }
+
+      /* TagInput */
+      .ta-tag-input { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+      .ta-tag-input-list { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; margin: 0; padding: 0.3125rem 0.5rem; list-style: none; background: rgb(var(--ta-surface)); border: 1px solid rgb(var(--ta-border)); border-radius: var(--ta-radius); transition: border-color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .ta-tag-input-list:focus-within { border-color: rgb(var(--ta-accent)); box-shadow: 0 0 0 3px rgb(var(--ta-accent) / 0.2); }
+      .ta-tag-input-chip { display: inline-flex; align-items: center; gap: 0.25rem; max-width: 100%; padding: 0.125rem 0.25rem 0.125rem 0.5rem; font-size: 0.8125rem; font-family: var(--ta-font-mono); color: rgb(var(--ta-text)); background: rgb(var(--ta-text) / 0.06); border: 1px solid rgb(var(--ta-border)); border-radius: 999px; }
+      .ta-tag-input-text { overflow-wrap: anywhere; }
+      .ta-tag-input-remove { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; padding: 0; color: rgb(var(--ta-text-dim)); background: transparent; border: 0; border-radius: 999px; cursor: pointer; }
+      .ta-tag-input-remove:hover { color: rgb(var(--ta-text)); background: rgb(var(--ta-text) / 0.1); }
+      .ta-tag-input-remove:focus-visible { outline: 2px solid rgb(var(--ta-accent)); outline-offset: 1px; }
+      .ta-tag-input-remove::after { content: ""; position: absolute; inset: -0.125rem; }
+      .ta-tag-input-entry { flex: 1 1 8rem; min-width: 6rem; }
+      .ta-tag-input-field { width: 100%; padding: 0.25rem 0; font: inherit; font-size: 0.875rem; color: rgb(var(--ta-text)); background: transparent; border: 0; outline: none; }
+      .ta-tag-input-field::placeholder { color: rgb(var(--ta-text-dim)); }
+      .ta-tag-input-problem { font-size: 0.75rem; color: rgb(var(--ta-danger)); }
+
+      /* PasswordInput */
+      .ta-password { position: relative; display: flex; align-items: center; width: 100%; }
+      .ta-password-input { width: 100%; padding: 0.5rem 2.5rem 0.5rem 0.75rem; font-family: var(--mono); font-size: 0.875rem; color: rgb(var(--ta-text)); background: rgb(var(--ta-bg)); border: 1px solid rgb(var(--ta-border)); border-radius: var(--ta-radius); outline: none; transition: border-color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out), box-shadow var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .ta-password-input:focus { border-color: rgb(var(--ta-accent) / 0.5); box-shadow: 0 0 0 2px rgb(var(--ta-accent) / 0.15); }
+      .ta-password-toggle { position: absolute; right: 0.375rem; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0; color: rgb(var(--ta-text-dim)); background: none; border: none; border-radius: var(--ta-radius-sm); cursor: pointer; transition: color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .ta-password-toggle:hover, .ta-password-toggle[aria-pressed="true"] { color: rgb(var(--ta-text)); }
+      .ta-password-toggle:focus-visible { outline: 2px solid rgb(var(--ta-accent) / 0.6); outline-offset: 1px; }
+
+      @media (pointer: coarse) {
+        .ta-doctab-tab, .ta-tree-row, .ta-cd-fold-btn, .ta-password-input { min-height: 2.75rem; }
+        .ta-doctabs-add, .ta-password-toggle { width: 2.75rem; height: 2.75rem; }
+        .ta-password-toggle { right: 0; }
+        .ta-password-input { padding-right: 3rem; font-size: 1rem; }
+        .ta-tag-input-field { min-height: 2.75rem; font-size: 1rem; }
+        .ta-tag-input-remove::after { inset: -0.75rem; }
+        .ta-doctab-close::after, .ta-sortable-handle::after, .ta-sortable-move::after { content: ""; position: absolute; top: 50%; left: 50%; width: 2.75rem; height: 2.75rem; transform: translate(-50%, -50%); }
+        .ta-tree-toggle::after { content: ""; position: absolute; inset: -0.875rem; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .ta-doctab, .ta-doctab-close, .ta-doctabs-add, .ta-tree-row, .ta-tree-toggle svg, .ta-sortable-row, .ta-tag-input-list, .ta-password-input, .ta-password-toggle { transition: none; }
+      }
+      :root[data-tallao-motion="reduce"] :is(.ta-doctab, .ta-tree-row, .ta-tree-toggle svg, .ta-sortable-row, .ta-tag-input-list) { transition: none; }
+
+      /* ——— First screen: pill, stack, GitHub count, and a calm inspector until you reach for it ——— */
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        max-width: 100%;
+        margin-top: clamp(1.25rem, 4.5vh, 3.5rem);
+        padding: 0.3rem 0.75rem 0.3rem 0.3rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        color: var(--ink);
+        background: rgb(var(--ta-surface) / 0.7);
+        border: 1px solid var(--hair);
+        border-radius: 999px;
+        box-shadow: 0 0 0 4px rgb(var(--ta-accent) / 0.06), 0 8px 28px -12px rgb(var(--ta-accent) / 0.6);
+        transition: border-color var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out), transform var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
+      }
+      .pill:hover { border-color: rgb(var(--ta-accent-2) / 0.7); transform: translateY(-1px); }
+      .pill:hover svg { transform: translateX(2px); }
+      .pill svg { flex: none; color: var(--tone2); transition: transform var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out); }
+      .pill-k {
+        flex: none;
+        padding: 0.15rem 0.55rem;
+        font: 600 0.6875rem/1.4 var(--mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgb(var(--ta-on-accent));
+        background: linear-gradient(96deg, rgb(var(--ta-accent)), rgb(var(--ta-accent-2-dim)));
+        border-radius: 999px;
+      }
+      .pill-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .pill + h1 { margin-top: clamp(1rem, 2.5vh, 2rem); }
+      @media (pointer: coarse) { .pill { min-height: 2.75rem; } }
+
+      .stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.1rem;
+        margin: 1rem 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--dim);
+      }
+      .stack li { display: inline-flex; align-items: center; gap: 0.4rem; }
+      .stack i {
+        display: inline-grid;
+        place-items: center;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        padding: 0 0.15rem;
+        font: 700 0.625rem/1 var(--mono);
+        font-style: normal;
+        color: #fff;
+        border-radius: 0.3rem;
+      }
+      .st-svelte { background: #ff3e00; }
+      .st-kit { background: #18181b; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25); }
+      .st-ts { background: #3178c6; }
+      .st-css { background: rgb(var(--ta-accent)); }
+      .st-a11y { background: rgb(var(--ta-accent-2-dim)); }
+
+      .gh { gap: 0.45rem; }
+      .gh-n { padding-left: 0.45rem; border-left: 1px solid currentColor; opacity: 0.8; }
+
+      /* Calm first look: the measuring guides, the legend and the inspector panel wait for the visitor. */
+      .hero-calm .hero .mk,
+      .hero-calm .hero .legend > span:not(:last-child),
+      .hero-calm .hero #props,
+      .hero-calm #insp { opacity: 0; }
+      .hero .mk,
+      .hero .legend > span,
+      .hero #props,
+      #insp { transition: opacity var(--ta-duration-slow, 240ms) var(--ta-ease-out, ease-out); }
+      .hero-calm .hero .legend > span:last-child { color: var(--tone); }
+      @media (prefers-reduced-motion: reduce) {
+        .pill, .pill svg, .hero .mk, .hero .legend > span, .hero #props, #insp { transition: none; }
+      }
+
+      /* Phones: one meta line, no pointer inspector hint, and the buttons before the paragraph. */
+      @media (max-width: 47.5rem) {
+        .hero-meta span:not(:first-child),
+        .hero .legend,
+        .hero #props { display: none; }
+        .hero-row > :last-child { order: -1; }
+        .hero .cta .ta-btn { flex: 1 1 auto; justify-content: center; }
+      }
+
+      /* ——— First screen, tidied: one idea per row ——— */
+      .hero-meta { justify-content: space-between; }
+      .pill-x { display: none; }
+      @media (min-width: 40rem) { .pill-x { display: inline; } }
+
+      /* The inspector's panel and legend are a desktop show: below 68rem there is no room beside the headline. */
+      @media (max-width: 67.99rem) {
+        .hero .hero-mid { display: none; }
+      }
+      @media (max-width: 89.99rem) { #accent-btn { display: none; } }
+      @media (max-width: 47.5rem) { .docs-link { display: none; } }
+      /* Where the paragraph and the buttons stack, the buttons come first. */
+      @media (max-width: 59.99rem) {
+        .hero-row > :last-child { order: -1; }
+        .hero .cta .ta-btn { flex: 1 1 auto; justify-content: center; }
+        .hero-row { gap: 1.5rem; }
+        .lede { font-size: 1.05rem; }
+      }
+      /* One hint, not three: the legend keeps only the line that says what to do. */
+      .hero .legend > span:not(:last-child) { display: none; }
+      .hero .legend { margin-top: 1.1rem; }
+
+      @media (max-width: 59.99rem) {
+        .trust { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem 1.5rem; }
+        .trust li { flex-wrap: wrap; }
+      }
+      @media (max-width: 36rem) { .trust { grid-template-columns: 1fr; } }
+
+      /* A chip that opens its docs page: a plain link, no marker (the ■ means "specimen on this page"). */
+      .chips a.doc::before { display: none; }
+      .chips li:has(a.doc) { border-color: var(--hair); }
+      .chips li.new:has(a.doc) { border-color: rgb(var(--ta-accent) / 0.55); }
+      .chips a.doc { text-decoration: none; }
+      .chips li:has(a.doc):hover { border-color: rgb(var(--ta-accent-hover) / 0.6); background: rgb(var(--ta-accent) / 0.1); }
+      .lead a { text-decoration-color: var(--tone2); }
+
+      /* ——— Trust strip under the hero ——— */
+      .trust {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 2.25rem;
+        margin: 1.75rem 0 0;
+        padding: 0.9rem 0 0;
+        list-style: none;
+        border-top: 1px dashed var(--hair);
+        text-transform: none;
+        letter-spacing: 0.02em;
+      }
+      .trust li { display: inline-flex; align-items: baseline; gap: 0.5rem; }
+      .trust-k { color: var(--tone2); text-transform: uppercase; letter-spacing: 0.07em; }
+      .trust-v, .trust a { color: var(--ink); }
+      .trust a { text-decoration: none; border-bottom: 1px solid var(--hair); padding-block: 0.35rem; }
+      .trust a:hover { border-bottom-color: var(--tone2); }
+      .trust b { font-weight: 500; }
+
+      /* ——— Closing call to action ——— */
+      .end {
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid var(--hair);
+        padding-block: clamp(4rem, 9vw, 7.5rem);
+        background:
+          radial-gradient(40rem 22rem at 18% 100%, rgb(var(--ta-accent) / 0.22), transparent 70%),
+          radial-gradient(26rem 16rem at 62% 0%, rgb(var(--ta-accent-2) / 0.12), transparent 70%);
+      }
+      .end-in { display: grid; gap: 1.6rem; justify-items: start; }
+      .end-k { color: var(--tone2); }
+      .end-t { max-width: 18ch; font-size: clamp(2.2rem, 5.6vw, 5rem); }
+      .end-cmd { margin: 0; }
+
+      /* ——— Long lists fold: the first ones, then "+N more" ——— */
+      .js .chips.fold-closed > li:nth-child(n + 9),
+      .js .facts.fold-closed > div:nth-child(n + 4) { display: none; }
+      .fold-btn {
+        margin-top: 0.75rem;
+        padding: 0.45rem 0.1rem;
+        font: 500 0.75rem var(--mono);
+        letter-spacing: 0.04em;
+        color: var(--tone);
+        background: none;
+        border: 0;
+        border-bottom: 1px dashed currentColor;
+        cursor: pointer;
+      }
+      .fold-btn:hover { color: var(--ink); }
+      .fold-btn:focus-visible { outline: 2px solid rgb(var(--ta-accent)); outline-offset: 2px; }
+      @media (pointer: coarse) { .fold-btn { min-height: 2.75rem; } }
+
+      /* The Spanish headline is two letters longer. */
+      :root[lang="es"] .h1-big { font-size: clamp(3.9rem, 11.6vw, 13.2rem); }
+
+      /* With eight sections and the language button, the brand subtitle gives way first. */
+      @media (max-width: 96rem) { .brand-sub { display: none; } .bar .brand { margin-right: auto; } }
       /* ——— Small screens: the canvas simplifies ——— */
       @media (max-width: 82.49rem) {
         .bar nav,
@@ -2568,25 +2926,28 @@
 
     <header class="bar">
       <div class="wrap">
-        <a class="brand" href="#top"><i aria-hidden="true"></i>tallao</a>
+        <a class="brand" href="#top"><img src="brand/tallao-mark-64.png" width="28" height="28" alt="" decoding="async" />tallao</a>
         <span class="mono brand-sub">/ Svelte 5 UI kit</span>
         <nav aria-label="Sections">
           <a href="#run"><span>01</span>Agent run</a>
           <a href="#dashboard"><span>02</span>Dashboard</a>
           <a href="#admin"><span>03</span>Admin</a>
           <a href="#specimens"><span>04</span>Controls</a>
-          <a href="#tokens"><span>05</span>Tokens</a>
-          <a href="#kit"><span>06</span>Components</a>
-          <a href="#install"><span>07</span>Install</a>
+          <a href="#new"><span>05</span>New</a>
+          <a href="#tokens"><span>06</span>Tokens</a>
+          <a href="#kit"><span>07</span>Components</a>
+          <a href="#install"><span>08</span>Install</a>
         </nav>
         <div class="ctl">
+          <a class="ic docs-link" href="docs/">Docs</a>
+          <button class="ic" type="button" id="lang-btn" lang="es" aria-label="Ver la página en español">ES</button>
           <button class="ic" type="button" id="theme-btn" aria-label="Switch to the light theme">
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" /></svg>
           </button>
           <button class="ic" type="button" id="accent-btn" aria-label="Accent: lilac. Switch to the next accent"><span class="dot" aria-hidden="true"></span></button>
           <button class="ic" type="button" id="cmd-btn" aria-label="Open the command palette" aria-haspopup="dialog"><span id="cmd-kbd">Ctrl K</span></button>
           <button class="ic" type="button" id="menu-btn" aria-haspopup="dialog">Menu</button>
-          <a class="ic solid" href="https://github.com/tallao-ui/tallao">GitHub</a>
+          <a class="ic solid gh" href="https://github.com/tallao-ui/tallao"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg><span>GitHub</span><span class="gh-n" hidden></span></a>
         </div>
       </div>
       <div class="ruler" aria-hidden="true"><b id="ruler-pos">0%</b></div>
@@ -2598,9 +2959,14 @@
         <div class="wrap">
           <div class="hero-meta mono">
             <span>tallao · Svelte 5 UI kit for generative interfaces</span>
-            <span>Plain CSS on --ta-* tokens</span>
             <span>v0.7.0 · MIT</span>
           </div>
+
+          <a class="pill" href="#new">
+            <span class="pill-k">New</span>
+            <span class="pill-t">13 new components<span class="pill-x">: CodeDiff, TreeView, DocumentTabs and more</span></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
 
           <h1 aria-label="UI for agents. Svelte 5 components for the interfaces an agent builds.">
             <span class="h1-big" data-i="H1" data-mark aria-hidden="true">UI for <span class="grad">agents.</span></span>
@@ -2627,16 +2993,30 @@
             <p class="lede" data-i="P.lede">
               tallao is a UI kit with the parts a generative interface needs — an agent's thinking, its tool calls, tasks
               and approvals — next to the admin pages, dashboards and forms every app needs.
-              <b>124 components, plain CSS on tokens, ready for SvelteKit.</b>
+              <b>133 components, plain CSS on tokens, ready for SvelteKit.</b>
             </p>
             <div>
               <div class="cta">
                 <button class="ta-btn ta-btn--primary ta-btn--lg" type="button" data-i="Button" data-mark data-copy="pnpm add github:tallao-ui/tallao"><span>Copy the install command</span></button>
-                <a class="ta-btn ta-btn--outline ta-btn--lg" data-i="Button" href="https://github.com/tallao-ui/tallao#components">See every component</a>
+                <a class="ta-btn ta-btn--outline ta-btn--lg" data-i="Button" href="docs/">Browse components</a>
               </div>
+              <ul class="stack" aria-label="Built with">
+                <li><i class="st-svelte" aria-hidden="true">S</i>Svelte 5</li>
+                <li><i class="st-kit" aria-hidden="true">K</i>SvelteKit</li>
+                <li><i class="st-ts" aria-hidden="true">TS</i>TypeScript</li>
+                <li><i class="st-css" aria-hidden="true">{}</i>Plain CSS</li>
+                <li><i class="st-a11y" aria-hidden="true">&#9675;</i>WAI-ARIA</li>
+              </ul>
               <p class="fine mono">MIT licensed · Version 0.7 · Needs Svelte 5.29 or later</p>
             </div>
           </div>
+
+          <ul class="trust mono" aria-label="At a glance">
+            <li><span class="trust-k">[ used by ]</span> <a href="https://github.com/Kitsuden/kitsuden">Kitsuden admin &amp; kons</a></li>
+            <li><span class="trust-k">[ github ]</span> <a href="https://github.com/tallao-ui/tallao" id="stars">&#9733; <b>Star it</b></a></li>
+            <li><span class="trust-k">[ tests ]</span> <span class="trust-v">500+ · axe · SSR · hydration</span></li>
+            <li><span class="trust-k">[ a11y ]</span> <span class="trust-v">WAI-ARIA APG · 44px touch</span></li>
+          </ul>
 
         </div>
       </section>
@@ -2646,7 +3026,7 @@
         <div class="wrap">
           <div class="sec-meta mono"><span>[01] Agent run</span><span>Generative UI · hover, tap or Tab: measured from the DOM</span></div>
           <div class="sec-head">
-            <p class="num" aria-hidden="true">01<span>/07</span></p>
+            <p class="num" aria-hidden="true">01<span>/08</span></p>
             <div>
               <h2 data-i="H2">An agent works. A person decides.</h2>
               <p class="lead">
@@ -2737,7 +3117,7 @@
         <div class="wrap">
           <div class="sec-meta mono"><span>[02] Dashboard</span><span>Charts and BI · sample data</span></div>
           <div class="sec-head">
-            <p class="num" aria-hidden="true">02<span>/07</span></p>
+            <p class="num" aria-hidden="true">02<span>/08</span></p>
             <div>
               <h2 data-i="H2">Figures a visitor can read.</h2>
               <p class="lead">
@@ -2778,7 +3158,7 @@
         <div class="wrap">
           <div class="sec-meta mono"><span>[03] Admin list</span><span>Admin building blocks · sample rows</span></div>
           <div class="sec-head">
-            <p class="num" aria-hidden="true">03<span>/07</span></p>
+            <p class="num" aria-hidden="true">03<span>/08</span></p>
             <div>
               <h2 data-i="H2">A list page, from a declaration.</h2>
               <p class="lead">
@@ -2808,7 +3188,7 @@
         <div class="wrap">
           <div class="sec-meta mono"><span>[04] Controls</span><span>Buttons · forms · overlays · data · motion</span></div>
           <div class="sec-head">
-            <p class="num" aria-hidden="true">04<span>/07</span></p>
+            <p class="num" aria-hidden="true">04<span>/08</span></p>
             <div>
               <h2 data-i="H2">And the parts every app needs.</h2>
               <p class="lead">
@@ -3009,12 +3389,121 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
         </div>
       </section>
 
-      <!-- ═════════ 05 Tokens ═════════ -->
+      <!-- ═════════ 05 New ═════════ -->
+      <section class="sec" id="new">
+        <div class="wrap">
+          <div class="sec-meta mono"><span>[05] New</span><span>Unreleased · 13 components since 0.7</span></div>
+          <div class="sec-head">
+            <p class="num" aria-hidden="true">05<span>/08</span></p>
+            <div>
+              <h2 data-i="H2">Just landed.</h2>
+              <p class="lead">
+                A code review, an outline, a list you put in order and fields that take many values: the newest
+                components, replicated the same way. Use them with the mouse, or with the keyboard as the
+                <abbr title="WAI-ARIA Authoring Practices Guide">APG</abbr> pattern says.
+              </p>
+            </div>
+          </div>
+
+          <div class="board b-new">
+            <!-- DocumentTabs + CodeDiff -->
+            <div class="cell c-wide">
+              <div class="cell-h mono"><span>N1 · DocumentTabs · CodeDiff</span><span>document-tabs.svelte · code-diff.svelte</span></div>
+              <div class="cell-b">
+                <div class="review">
+                  <div class="ta-doctabs" id="s-doctabs" data-i="DocumentTabs" data-mark>
+                    <div class="ta-doctabs-row">
+                      <div class="ta-doctabs-list" id="dt-list">
+                        <div class="ta-doctabs-owner" role="tablist" aria-label="Changed files" id="dt-owner"></div>
+                      </div>
+                      <button type="button" class="ta-doctabs-add" id="dt-add" aria-label="New tab" title="Reopen a closed file">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                      </button>
+                      <div class="ta-doctabs-end">
+                        <div class="mode" role="group" aria-label="Diff layout">
+                          <button type="button" class="ta-btn ta-btn--ghost ta-btn--sm" data-mode="unified" aria-pressed="true">Unified</button>
+                          <button type="button" class="ta-btn ta-btn--ghost ta-btn--sm" data-mode="split" aria-pressed="false">Split</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div role="tabpanel" id="dt-panel" tabindex="-1" class="review-panel"></div>
+                </div>
+                <p class="note">Close with × , Delete or a middle click · ← → Home End move · + reopens · the diff folds runs of unchanged lines · changed characters are &lt;ins&gt; / &lt;del&gt;, never colour alone</p>
+              </div>
+            </div>
+
+            <!-- TreeView -->
+            <div class="cell c-l">
+              <div class="cell-h mono"><span>N2 · TreeView</span><span>tree-view.svelte</span></div>
+              <div class="cell-b">
+                <ul class="ta-tree" role="tree" aria-label="Project files" id="s-tree" data-i="TreeView" data-mark></ul>
+                <p class="tree-out" id="tree-out" aria-live="polite"></p>
+                <p class="note">↑ ↓ move · → opens, ← closes · Home End · Enter selects · * opens the siblings · type a letter to jump</p>
+              </div>
+            </div>
+
+            <!-- SortableList -->
+            <div class="cell c-r">
+              <div class="cell-h mono"><span>N3 · SortableList</span><span>sortable-list.svelte</span></div>
+              <div class="cell-b">
+                <ol class="ta-sortable" aria-label="Release checklist" id="s-sort" data-i="SortableList" data-mark></ol>
+                <span id="sort-help" class="ta-sortable-sr">Press the handle to pick the item up, the arrow keys to move it, the handle again to drop it, Escape to cancel.</span>
+                <span class="ta-sortable-sr" role="status" aria-live="assertive" id="sort-live"></span>
+                <p class="note">Drag by the handle · or press it, move with ↑ ↓ Home End, press again to drop, Escape to cancel · every step is announced</p>
+              </div>
+            </div>
+
+            <!-- TagInput + PasswordInput -->
+            <div class="cell c-l">
+              <div class="cell-h mono"><span>N4 · TagInput · PasswordInput</span><span>forms</span></div>
+              <div class="cell-b">
+                <div class="ta-field">
+                  <label class="ta-field-label" for="tg-in">Allowed origins</label>
+                  <div class="ta-tag-input" id="s-tags" data-i="TagInput">
+                    <ul class="ta-tag-input-list" id="tg-list">
+                      <li class="ta-tag-input-entry"><input id="tg-in" type="text" class="ta-tag-input-field" placeholder="https://… then Enter or a comma" autocomplete="off" spellcheck="false" /></li>
+                    </ul>
+                    <span class="ta-tag-input-problem" id="tg-err" role="alert" hidden></span>
+                  </div>
+                </div>
+                <div class="ta-field">
+                  <label class="ta-field-label" for="pw-in">API key</label>
+                  <div class="ta-password" id="s-pass" data-i="PasswordInput">
+                    <input id="pw-in" class="ta-password-input" type="password" value="sk-tallao-demo-0000" autocomplete="off" />
+                    <button type="button" class="ta-password-toggle" id="pw-btn" aria-label="Show password" aria-pressed="false"></button>
+                  </div>
+                </div>
+                <p class="note">TagInput: Enter or "," adds, a pasted list is split, Backspace takes the last one back · checks pattern, repeats and a maximum (5) · PasswordInput is a real &lt;input&gt;: password managers keep working</p>
+              </div>
+            </div>
+
+            <!-- Also new -->
+            <div class="cell c-r">
+              <div class="cell-h mono"><span>N5 · Also new</span><span>README · components</span></div>
+              <div class="cell-b">
+                <dl class="also">
+                  <div><dt>ChatThread</dt><dd>The scroll of a conversation: follows the stream, stops when you scroll up, offers "Jump to latest".</dd></div>
+                  <div><dt>ScenePlayer</dt><dd>A "video" drawn with components, with chapters, seek bar and captions.</dd></div>
+                  <div><dt>FloatingScene</dt><dd>A decorative 3D backdrop of frosted tiles, with parallax.</dd></div>
+                  <div><dt>SankeyChart</dt><dd>Where a quantity comes from and where it goes.</dd></div>
+                  <div><dt>CalendarHeatmap</dt><dd>Activity by day, laid out as a calendar.</dd></div>
+                  <div><dt>CardStack</dt><dd>A deck looked at one card at a time; flick or use the arrows.</dd></div>
+                  <div><dt>DateRangePicker</dt><dd>Two dates typed or picked, with quick ranges.</dd></div>
+                </dl>
+                <a class="ta-btn ta-btn--outline ta-btn--sm also-cta" data-i="Button" href="https://github.com/tallao-ui/tallao/blob/main/CHANGELOG.md">Read the changelog</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════════ 06 Tokens ═════════ -->
       <section class="sec" id="tokens">
         <div class="wrap">
-          <div class="sec-meta mono"><span>[05] Tokens</span><span>No Tailwind · no theme provider</span></div>
+          <div class="sec-meta mono"><span>[06] Tokens</span><span>No Tailwind · no theme provider</span></div>
           <div class="sec-head">
-            <p class="num" aria-hidden="true">05<span>/07</span></p>
+            <p class="num" aria-hidden="true">06<span>/08</span></p>
             <div>
               <h2 data-i="H2">Change three variables, and it's yours.</h2>
               <p class="lead">
@@ -3066,7 +3555,7 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
             <div>
               <span class="mono">F.02</span>
               <dt>Tested like an app</dt>
-              <dd>381 tests in a real DOM and on the server, with automated accessibility checks, plus a SvelteKit app that checks hydration.</dd>
+              <dd>500+ tests in a real DOM and on the server, with automated accessibility checks, plus a SvelteKit app that checks hydration.</dd>
             </div>
             <div>
               <span class="mono">F.03</span>
@@ -3098,21 +3587,21 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
         </div>
       </section>
 
-      <!-- ═════════ 06 Kit ═════════ -->
+      <!-- ═════════ 07 Kit ═════════ -->
       <section class="sec" id="kit">
         <div class="wrap">
-          <div class="sec-meta mono"><span>[06] Components</span><span>124 components · eight families · one import</span></div>
+          <div class="sec-meta mono"><span>[07] Components</span><span>133 components · eight families · one import · 13 new</span></div>
           <div class="sec-head">
-            <p class="num" aria-hidden="true">06<span>/07</span></p>
+            <p class="num" aria-hidden="true">07<span>/08</span></p>
             <div>
               <h2 data-i="H2">What's in the kit</h2>
-              <p class="lead">One import, one look. Every component works with a keyboard and a screen reader, and renders on the server.</p>
+              <p class="lead">One import, one look. Every component works with a keyboard and a screen reader, and renders on the server. <a href="docs/">Each one has a page in the docs</a>, live, with its code.</p>
             </div>
           </div>
 
           <div class="fams">
             <div class="fam">
-              <h3>Generative UI <span>16</span></h3>
+              <h3>Generative UI <span>19</span></h3>
               <p>Show what a model is doing, and let a person decide.</p>
               <ul class="chips">
                 <li>PromptInput</li>
@@ -3131,10 +3620,13 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
                 <li>CodeBlock</li>
                 <li>Sources</li>
                 <li>UsageMeter</li>
+                <li class="new"><a href="#s-diff">CodeDiff</a></li>
+                <li class="new">ChatThread</li>
+                <li class="new">ScenePlayer</li>
               </ul>
             </div>
             <div class="fam">
-              <h3>Charts and BI <span>22</span></h3>
+              <h3>Charts and BI <span>24</span></h3>
               <p>Charts with a legend and a table with all the data, and the figures of a dashboard.</p>
               <ul class="chips">
                 <li><a href="#s-chart">BarChart</a></li>
@@ -3157,6 +3649,8 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
                 <li>DashboardGrid</li>
                 <li>DashboardItem</li>
                 <li>ChartCard</li>
+                <li class="new">SankeyChart</li>
+                <li class="new">CalendarHeatmap</li>
               </ul>
             </div>
             <div class="fam">
@@ -3176,7 +3670,7 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
               </ul>
             </div>
             <div class="fam">
-              <h3>Data <span>15</span></h3>
+              <h3>Data <span>16</span></h3>
               <p>Tables with sorting, filters, density, a column chooser and pinned row actions; drag between zones with the keyboard too.</p>
               <ul class="chips">
                 <li><a href="#s-table">Table</a></li>
@@ -3193,6 +3687,7 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
                 <li>DropZone</li>
                 <li>DragItem</li>
                 <li>GameMap</li>
+                <li class="new"><a href="#s-sort">SortableList</a></li>
               </ul>
             </div>
             <div class="fam">
@@ -3230,7 +3725,7 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
               </ul>
             </div>
             <div class="fam">
-              <h3>Forms <span>23</span></h3>
+              <h3>Forms <span>26</span></h3>
               <p>Native controls, with <code>name</code> so SvelteKit form actions work without JavaScript.</p>
               <ul class="chips">
                 <li><a href="#s-field">Input</a></li>
@@ -3255,10 +3750,13 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
                 <li>DatePicker</li>
                 <li>SchemaForm</li>
                 <li>CodeEditor</li>
+                <li class="new"><a href="#s-tags">TagInput</a></li>
+                <li class="new"><a href="#s-pass">PasswordInput</a></li>
+                <li class="new">DateRangePicker</li>
               </ul>
             </div>
             <div class="fam">
-              <h3>Navigation and layout <span>16</span></h3>
+              <h3>Navigation and layout <span>20</span></h3>
               <p>The app shell. NavMenu, MegaMenu and BottomNav are <code>&lt;details&gt;</code>-based and work with no hydration.</p>
               <ul class="chips">
                 <li>Card</li>
@@ -3277,19 +3775,23 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
                 <li>SplitPane</li>
                 <li>Carousel</li>
                 <li>ThemeScope</li>
+                <li class="new"><a href="#s-tree">TreeView</a></li>
+                <li class="new"><a href="#s-doctabs">DocumentTabs</a></li>
+                <li class="new">CardStack</li>
+                <li class="new">FloatingScene</li>
               </ul>
             </div>
           </div>
-          <p class="mono kit-note"><i aria-hidden="true"></i>Has a specimen on this page · 124 exports, the parts of Card, Table, the menus and the boards counted · GameMap ships in tallao/map, CodeEditor in tallao/code, the transitions in tallao/motion</p>
+          <p class="mono kit-note"><i aria-hidden="true"></i>Has a specimen on this page · <b class="new-key">new</b> since 0.7 · 133 exports, the parts of Card, Table, the menus and the boards counted · GameMap ships in tallao/map, CodeEditor in tallao/code, the transitions in tallao/motion</p>
         </div>
       </section>
 
-      <!-- ═════════ 07 Install ═════════ -->
+      <!-- ═════════ 08 Install ═════════ -->
       <section class="sec" id="install">
         <div class="wrap">
-          <div class="sec-meta mono"><span>[07] Install</span><span>From GitHub · not on npm yet</span></div>
+          <div class="sec-meta mono"><span>[08] Install</span><span>From GitHub · not on npm yet</span></div>
           <div class="sec-head">
-            <p class="num" aria-hidden="true">07<span>/07</span></p>
+            <p class="num" aria-hidden="true">08<span>/08</span></p>
             <div>
               <h2 data-i="H2">Install it, or copy what you need</h2>
             </div>
@@ -3322,7 +3824,7 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
                   Like shadcn: take <code>src/lib/components/&lt;component&gt;.svelte</code>, the components it imports,
                   <code>src/lib/internal/</code>, <code>src/lib/utils.ts</code> and the two CSS files. The code is then yours to change.
                 </p>
-                <a class="ta-btn ta-btn--secondary ta-btn--md" data-i="Button" href="https://github.com/tallao-ui/tallao/tree/main/src/lib/components">Browse the components</a>
+                <a class="ta-btn ta-btn--secondary ta-btn--md" data-i="Button" href="docs/">Browse the components</a>
               </div>
               <div class="ta-tabs-panel panel" role="tabpanel" id="p-agent" aria-labelledby="t-agent" tabindex="-1" hidden>
                 <p>Paste this into Claude Code, Cursor or Codex, in your Svelte project. It points the agent at <code>llms.txt</code>, the kit's reference for coding agents.</p>
@@ -3348,6 +3850,18 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
           </div>
         </div>
       </section>
+      <!-- ═════════ Closing call to action ═════════ -->
+      <section class="end" aria-labelledby="end-t">
+        <div class="wrap end-in">
+          <p class="mono end-k">[ start ] · one command, no build step to learn</p>
+          <h2 id="end-t" class="end-t">Build the interface <span class="grad">your agent needs.</span></h2>
+          <div class="cta">
+            <button class="ta-btn ta-btn--primary ta-btn--lg" type="button" data-i="Button" data-copy="pnpm add github:tallao-ui/tallao"><span>Copy the install command</span></button>
+            <a class="ta-btn ta-btn--outline ta-btn--lg" data-i="Button" href="https://github.com/tallao-ui/tallao">&#9733; Star on GitHub</a>
+          </div>
+          <pre class="code end-cmd" aria-hidden="true"><code>pnpm add github:tallao-ui/tallao</code></pre>
+        </div>
+      </section>
     </main>
 
     <footer>
@@ -3359,7 +3873,10 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
           <a href="https://github.com/Kitsuden/kitsuden">Kitsuden</a>
           <a href="https://github.com/tallao-ui/tallao/issues">Issues</a>
         </div>
-        <div class="wordmark" aria-hidden="true">tallao</div>
+        <picture class="wordmark">
+          <source srcset="brand/tallao-wordmark-320.webp 320w, brand/tallao-wordmark-640.webp 640w" sizes="(min-width: 48rem) 40rem, 80vw" type="image/webp" />
+          <img src="brand/tallao-wordmark-640.png" width="640" height="373" alt="tallao" loading="lazy" decoding="async" />
+        </picture>
       </div>
     </footer>
 
@@ -3705,11 +4222,16 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
         }
         for (const b of $$("[data-copy], [data-copy-from]")) {
           const label = $("span", b);
-          const original = label.textContent;
           b.addEventListener("click", async () => {
             const text = b.dataset.copy ?? $("#" + b.dataset.copyFrom).textContent;
-            label.textContent = (await copy(text.trim())) ? "Copied" : "Select and copy it by hand";
-            setTimeout(() => (label.textContent = original), 2200);
+            const es = root.lang === "es";
+            const original = label.dataset.base || label.textContent;
+            label.dataset.base = original;
+            label.textContent = (await copy(text.trim())) ? (es ? "Copiado" : "Copied") : es ? "Selecciónalo y cópialo a mano" : "Select and copy it by hand";
+            setTimeout(() => {
+              label.textContent = label.dataset.base;
+              delete label.dataset.base;
+            }, 2200);
           });
         }
 
@@ -4950,9 +5472,10 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
           { group: "Sections", label: "Dashboard", badge: "02", run: go("#dashboard", "start"), keywords: "charts bi kpi" },
           { group: "Sections", label: "Admin list", badge: "03", run: go("#admin", "start"), keywords: "filters table" },
           { group: "Sections", label: "Controls", badge: "04", run: go("#specimens", "start"), keywords: "buttons forms overlays" },
-          { group: "Sections", label: "Tokens", badge: "05", run: go("#tokens", "start"), keywords: "theme accent radius" },
-          { group: "Sections", label: "Components", badge: "06", run: go("#kit", "start"), keywords: "kit list families" },
-          { group: "Sections", label: "Install", badge: "07", run: go("#install", "start"), keywords: "pnpm copy agent prompt llms" },
+          { group: "Sections", label: "New", badge: "05", run: go("#new", "start"), keywords: "latest codediff treeview taginput sortable password documenttabs" },
+          { group: "Sections", label: "Tokens", badge: "06", run: go("#tokens", "start"), keywords: "theme accent radius" },
+          { group: "Sections", label: "Components", badge: "07", run: go("#kit", "start"), keywords: "kit list families" },
+          { group: "Sections", label: "Install", badge: "08", run: go("#install", "start"), keywords: "pnpm copy agent prompt llms" },
           spec("Thinking", "A model's reasoning, out of the way", "#s-think", "agent trace"),
           spec("ToolChips", "What an agent did, one line per tool call", "#s-chips", "agent tools"),
           spec("TaskList", "Work in flight, with progress per task", "#s-tasks", "agent progress"),
@@ -4963,9 +5486,712 @@ toast.error("Could not save", { description: "The API returned 503" });</code></
           spec("BigNumber and RollingCounter", "A count-up and digits that roll", "#s-big", "dashboard"),
           spec("FilterBar", "Search, one chip per filter, Clear all", "#s-filter", "admin filterchip search"),
           spec("DataTable", "Density, sorting, a ⋯ row menu, empty and error states", "#s-table", "admin table emptystate menu"),
-          spec("Motion", "Durations, easings and one switch", "#s-motion", "animation reduce")
+          spec("Motion", "Durations, easings and one switch", "#s-motion", "animation reduce"),
+          spec("DocumentTabs", "Editor tabs with close, dirty and add", "#s-doctabs", "new tabs files"),
+          spec("CodeDiff", "A line diff, unified or split, with folds", "#s-diff", "new diff review"),
+          spec("TreeView", "A hierarchy with the APG keyboard", "#s-tree", "new tree outline"),
+          spec("SortableList", "Reorder by drag or with the keyboard", "#s-sort", "new reorder drag"),
+          spec("TagInput", "Many short values as chips", "#s-tags", "new chips tags"),
+          spec("PasswordInput", "A secret with show / hide", "#s-pass", "new password secret")
         );
-        ITEMS.push({ group: "Links", label: "llms.txt", description: "Every component and its props, for coding agents", href: "https://github.com/tallao-ui/tallao/blob/main/llms.txt" });
+        ITEMS.push({ group: "Links", label: "Docs", description: "Every component, live, with its code and props", href: "docs/" },
+          { group: "Links", label: "llms.txt", description: "Every component and its props, for coding agents", href: "https://github.com/tallao-ui/tallao/blob/main/llms.txt" });
+
+        /* ═════════ 05 New: DocumentTabs, CodeDiff, TreeView, SortableList, TagInput, PasswordInput ═════════ */
+        {
+          const NL = {
+            en: { closeTab: "Close {label}", newTab: "New tab", tabDirty: "Unsaved changes", unchangedLines: "{n} unchanged lines", linesAdded: "{n} lines added", linesRemoved: "{n} lines removed", added: "Added", removed: "Removed", diffBefore: "Before", diffAfter: "After", noDifferences: "No differences", moveItem: "Move {item}", moveUp: "Move up", moveDown: "Move down", sortPicked: "{item} picked up, position {position} of {total}.", sortMoved: "{item}, position {position} of {total}.", sortDropped: "{item} dropped at position {position} of {total}.", sortCancelled: "{item} back at position {position} of {total}.", sortInstructions: "Press the handle to pick the item up, the arrow keys to move it, the handle again to drop it, Escape to cancel.", removeItem: "Remove {item}", showPassword: "Show password", selected: "Selected" },
+            es: { closeTab: "Cerrar {label}", newTab: "Pestaña nueva", tabDirty: "Cambios sin guardar", unchangedLines: "{n} líneas sin cambios", linesAdded: "{n} líneas añadidas", linesRemoved: "{n} líneas quitadas", added: "Añadida", removed: "Quitada", diffBefore: "Antes", diffAfter: "Después", noDifferences: "Sin diferencias", moveItem: "Mover {item}", moveUp: "Subir", moveDown: "Bajar", sortPicked: "{item} tomado, posición {position} de {total}.", sortMoved: "{item}, posición {position} de {total}.", sortDropped: "{item} soltado en la posición {position} de {total}.", sortCancelled: "{item} de vuelta en la posición {position} de {total}.", sortInstructions: "Pulsa el asa para tomar el elemento, las flechas para moverlo, el asa otra vez para soltarlo y Escape para cancelar.", removeItem: "Quitar {item}", showPassword: "Mostrar contraseña", selected: "Seleccionado" },
+          };
+          const N = (k, vars = {}) => NL[st.es ? "es" : "en"][k].replace(/\{(\w+)\}/g, (_, v) => vars[v] ?? "");
+
+          /* ——— CodeDiff: a line LCS, paired lines carry character marks ——— */
+          function diffLines(a, b) {
+            const A = a.split("\n"), B = b.split("\n");
+            const m = A.length, n = B.length;
+            const T = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
+            for (let i = m - 1; i >= 0; i--) for (let j = n - 1; j >= 0; j--) T[i][j] = A[i] === B[j] ? T[i + 1][j + 1] + 1 : Math.max(T[i + 1][j], T[i][j + 1]);
+            const out = [];
+            let i = 0, j = 0;
+            while (i < m || j < n) {
+              if (i < m && j < n && A[i] === B[j]) { out.push({ kind: "same", text: A[i], b: i + 1, a: j + 1 }); i++; j++; }
+              else if (i < m && (j === n || T[i + 1][j] >= T[i][j + 1])) { out.push({ kind: "del", text: A[i], b: i + 1 }); i++; }
+              else { out.push({ kind: "add", text: B[j], a: j + 1 }); j++; }
+            }
+            // Pair the removed and added lines of a run and mark what changed between them.
+            for (let k = 0; k < out.length; ) {
+              if (out[k].kind === "same") { k++; continue; }
+              const dels = [], adds = [];
+              while (k < out.length && out[k].kind !== "same") (out[k].kind === "del" ? dels : adds).push(out[k++]);
+              for (let p = 0; p < Math.min(dels.length, adds.length); p++) {
+                const x = dels[p].text, y = adds[p].text;
+                let s = 0;
+                while (s < x.length && s < y.length && x[s] === y[s]) s++;
+                let e = 0;
+                while (e < x.length - s && e < y.length - s && x[x.length - 1 - e] === y[y.length - 1 - e]) e++;
+                if (x.length - s - e > 0) dels[p].marks = [s, x.length - e];
+                if (y.length - s - e > 0) adds[p].marks = [s, y.length - e];
+              }
+            }
+            return out;
+          }
+          const sign = (k) => (k === "add" ? "+" : k === "del" ? "−" : "");
+          const code = (l) => {
+            if (!l.marks) return esc(l.text);
+            const [s, e] = l.marks, tag = l.kind === "add" ? "ins" : "del";
+            return esc(l.text.slice(0, s)) + `<${tag}>${esc(l.text.slice(s, e))}</${tag}>` + esc(l.text.slice(e));
+          };
+          const hidden = (l) => (l.kind === "same" ? "" : `<span class="ta-cd-hidden">${N(l.kind === "add" ? "added" : "removed")}</span>`);
+
+          const FILES = [
+            {
+              id: "tokens", label: "tokens.css", dirty: true,
+              before: `:root {\n  --ta-accent: 147 51 234;\n  --ta-accent-hover: 192 132 252;\n  --ta-on-accent: 255 255 255;\n  --ta-accent-2: 251 146 60;\n  --ta-success: 52 211 153;\n  --ta-warning: 251 191 36;\n  --ta-info: 96 165 250;\n  --ta-danger: 248 113 113;\n  --ta-radius-sm: 0.375rem;\n  --ta-radius: 0.5rem;\n  --ta-radius-lg: 0.75rem;\n  --ta-font-sans: "Inter", system-ui, sans-serif;\n}`,
+              after: `:root {\n  --ta-accent: 124 58 237;\n  --ta-accent-hover: 167 139 250;\n  --ta-on-accent: 255 255 255;\n  --ta-accent-2: 251 146 60;\n  --ta-success: 52 211 153;\n  --ta-warning: 251 191 36;\n  --ta-info: 96 165 250;\n  --ta-danger: 248 113 113;\n  --ta-radius-sm: 0.375rem;\n  --ta-radius: 0.625rem;\n  --ta-radius-lg: 1rem;\n  --ta-font-sans: "Inter", system-ui, sans-serif;\n}`,
+            },
+            {
+              id: "page", label: "+page.svelte",
+              before: `<script>\n  import { Button, Dialog } from "tallao";\n  let open = $state(false);\n<\/script>\n\n<Button onclick={() => (open = true)}>Delete</Button>\n<Dialog bind:open title="Delete the project?">\n  This cannot be undone.\n</Dialog>`,
+              after: `<script>\n  import { Button, ConfirmDialog } from "tallao";\n  let open = $state(false);\n<\/script>\n\n<Button variant="danger" onclick={() => (open = true)}>Delete</Button>\n<ConfirmDialog bind:open title="Delete the project?" onConfirm={remove}>\n  This cannot be undone.\n</ConfirmDialog>`,
+            },
+            {
+              id: "readme", label: "README.md",
+              before: `# My app\n\nBuilt with SvelteKit.\n\n## Run it\n\npnpm install\npnpm dev`,
+              after: `# My app\n\nBuilt with SvelteKit and tallao.\n\n## Run it\n\npnpm install\npnpm dev`,
+            },
+          ];
+          for (const f of FILES) f.lines = diffLines(f.before, f.after);
+          let open = FILES.slice(), sel = "tokens", mode = "unified", folds = {};
+          const owner = $("#dt-owner"), dlist = $("#dt-list"), panel = $("#dt-panel"), addBtn = $("#dt-add");
+          const tid = (f) => `dt-tab-${f.id}`;
+
+          function renderTabs(focusId) {
+            for (const el of $$(".ta-doctab", dlist)) el.remove();
+            for (const f of open) {
+              const on = f.id === sel;
+              const w = document.createElement("div");
+              w.className = "ta-doctab" + (on ? " ta-doctab--selected" : "");
+              w.setAttribute("role", "presentation");
+              w.innerHTML =
+                `<button type="button" role="tab" id="${tid(f)}" class="ta-doctab-tab" aria-selected="${on}" aria-controls="dt-panel" tabindex="${on ? 0 : -1}" title="${esc(f.label)}">` +
+                `<span class="ta-doctab-label">${esc(f.label)}</span>` +
+                (f.dirty ? `<span class="ta-doctab-dot" aria-hidden="true"></span><span class="ta-doctab-hidden">${N("tabDirty")}</span>` : "") +
+                `</button><button type="button" class="ta-doctab-close" tabindex="-1" aria-label="${esc(N("closeTab", { label: f.label }))}">` +
+                `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+              w.querySelector('[role="tab"]').addEventListener("click", () => select(f.id));
+              w.querySelector(".ta-doctab-close").addEventListener("click", () => close(f.id));
+              w.addEventListener("mousedown", (e) => e.button === 1 && e.preventDefault());
+              w.addEventListener("auxclick", (e) => { if (e.button === 1) { e.preventDefault(); close(f.id); } });
+              dlist.append(w);
+            }
+            owner.setAttribute("aria-owns", open.map(tid).join(" "));
+            addBtn.disabled = open.length === FILES.length;
+            addBtn.setAttribute("aria-label", N("newTab"));
+            const cur = open.find((f) => f.id === sel);
+            if (cur) panel.setAttribute("aria-labelledby", tid(cur));
+            if (focusId) document.getElementById(tid({ id: focusId }))?.focus();
+            // Scroll only the tab row, never the page.
+            const selTab = $(".ta-doctab--selected", dlist);
+            if (selTab) {
+              const l = selTab.offsetLeft, r = l + selTab.offsetWidth; // the list is the offset parent
+              if (l < dlist.scrollLeft) dlist.scrollLeft = l;
+              else if (r > dlist.scrollLeft + dlist.clientWidth) dlist.scrollLeft = r - dlist.clientWidth;
+            }
+          }
+          function select(id, focus) {
+            if (id !== sel) { sel = id; folds = {}; renderDiff(); }
+            renderTabs(focus ? id : null);
+          }
+          function close(id) {
+            const i = open.findIndex((f) => f.id === id);
+            if (i < 0) return;
+            const hadFocus = dlist.contains(document.activeElement);
+            const nb = open[i + 1] ?? open[i - 1];
+            open.splice(i, 1);
+            if (sel === id) { sel = nb ? nb.id : ""; folds = {}; renderDiff(); }
+            renderTabs(hadFocus && nb ? nb.id : null);
+          }
+          addBtn.addEventListener("click", () => {
+            const f = FILES.find((x) => !open.includes(x));
+            if (!f) return;
+            open.push(f);
+            select(f.id, true);
+          });
+          dlist.addEventListener("keydown", (e) => {
+            const w = e.target.closest(".ta-doctab");
+            if (!w) return;
+            const i = $$(".ta-doctab", dlist).indexOf(w);
+            if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); close(open[i].id); return; }
+            const to = e.key === "ArrowRight" ? (i + 1) % open.length : e.key === "ArrowLeft" ? (i - 1 + open.length) % open.length : e.key === "Home" ? 0 : e.key === "End" ? open.length - 1 : -1;
+            if (to < 0) return;
+            e.preventDefault();
+            select(open[to].id, true);
+          });
+          for (const b of $$("[data-mode]"))
+            b.addEventListener("click", () => {
+              mode = b.dataset.mode;
+              for (const x of $$("[data-mode]")) x.setAttribute("aria-pressed", String(x === b));
+              renderDiff();
+            });
+
+          function renderDiff() {
+            const f = open.find((x) => x.id === sel);
+            if (!f) { panel.innerHTML = `<p class="ta-cd-empty">${N("noDifferences")}</p>`; return; }
+            const lines = f.lines, C = 2;
+            const added = lines.filter((l) => l.kind === "add").length, removed = lines.filter((l) => l.kind === "del").length;
+            const keep = lines.map(() => false);
+            lines.forEach((l, i) => { if (l.kind !== "same") for (let j = Math.max(0, i - C); j <= Math.min(lines.length - 1, i + C); j++) keep[j] = true; });
+            const entries = [];
+            for (let i = 0; i < lines.length; ) {
+              if (keep[i]) { entries.push({ line: lines[i++] }); continue; }
+              const s = i;
+              while (i < lines.length && !keep[i]) i++;
+              if (i - s < 2) for (let j = s; j < i; j++) entries.push({ line: lines[j] });
+              else { entries.push({ fold: s, count: i - s }); if (folds[s]) for (let j = s; j < i; j++) entries.push({ line: lines[j] }); }
+            }
+            const split = mode === "split" && panel.clientWidth >= 560;
+            const fold = (e) => `<div role="listitem" class="ta-cd-fold"><button type="button" class="ta-cd-fold-btn" data-fold="${e.fold}" aria-expanded="${!!folds[e.fold]}"><span aria-hidden="true">${folds[e.fold] ? "▾" : "▸"}</span><span>${N("unchangedLines", { n: e.count })}</span></button></div>`;
+            const cell = (l, side) =>
+              `<div class="ta-cd-cell ${l ? "ta-cd-cell--" + l.kind : "ta-cd-cell--empty"}"><span class="ta-cd-no" aria-hidden="true">${l ? (side === "b" ? l.b ?? "" : l.a ?? "") : ""}</span><span class="ta-cd-sign" aria-hidden="true">${l ? sign(l.kind) : ""}</span>${l ? hidden(l) : ""}<span class="ta-cd-text">${l ? code(l) : ""}</span></div>`;
+            let rows = "";
+            if (!split) {
+              for (const e of entries)
+                rows += e.line
+                  ? `<div role="listitem" class="ta-cd-row ta-cd-row--${e.line.kind}"><span class="ta-cd-no" aria-hidden="true">${e.line.b ?? ""}</span><span class="ta-cd-no" aria-hidden="true">${e.line.a ?? ""}</span><span class="ta-cd-sign" aria-hidden="true">${sign(e.line.kind)}</span>${hidden(e.line)}<span class="ta-cd-text">${code(e.line)}</span></div>`
+                  : fold(e);
+            } else {
+              let dels = [], adds = [];
+              const flush = () => {
+                for (let i = 0; i < Math.max(dels.length, adds.length); i++) rows += `<div role="listitem" class="ta-cd-row ta-cd-row--split">${cell(dels[i], "b")}${cell(adds[i], "a")}</div>`;
+                dels = []; adds = [];
+              };
+              for (const e of entries) {
+                if (!e.line) { flush(); rows += fold(e); continue; }
+                if (e.line.kind === "del") dels.push(e.line);
+                else if (e.line.kind === "add") adds.push(e.line);
+                else { flush(); rows += `<div role="listitem" class="ta-cd-row ta-cd-row--split">${cell(e.line, "b")}${cell(e.line, "a")}</div>`; }
+              }
+              flush();
+            }
+            panel.innerHTML =
+              `<figure class="ta-cd${split ? " ta-cd--split" : ""}" id="s-diff" data-i="CodeDiff" aria-label="${esc(f.label)}"><figcaption class="ta-cd-header"><span class="ta-cd-title">${esc(f.label)} · ${N("diffBefore")} → ${N("diffAfter")}</span>` +
+              `<span class="ta-cd-counts"><span aria-hidden="true"><span class="ta-cd-count--add">+${added}</span> <span class="ta-cd-count--del">−${removed}</span></span><span class="ta-cd-hidden">${N("linesAdded", { n: added })}, ${N("linesRemoved", { n: removed })}</span></span></figcaption>` +
+              `<div class="ta-cd-body">${split ? `<div class="ta-cd-heads" aria-hidden="true"><span>${N("diffBefore")}</span><span>${N("diffAfter")}</span></div>` : ""}<div class="ta-cd-lines" role="list" aria-label="${esc(f.label)}">${rows}</div></div></figure>`;
+          }
+          panel.addEventListener("click", (e) => {
+            const b = e.target.closest("[data-fold]");
+            if (!b) return;
+            const k = b.dataset.fold;
+            folds[k] = !folds[k];
+            renderDiff();
+            panel.querySelector(`[data-fold="${k}"]`)?.focus();
+          });
+          let lastW = 0;
+          new ResizeObserver(() => { const w = panel.clientWidth; if ((w >= 560) !== (lastW >= 560)) renderDiff(); lastW = w; }).observe(panel);
+
+          /* ——— TreeView (APG tree, single selection) ——— */
+          const TREE = [
+            { id: "src", label: "src", children: [
+              { id: "lib", label: "lib", children: [
+                { id: "components", label: "components", description: "133", children: [
+                  { id: "tree", label: "tree-view.svelte", badge: "new" },
+                  { id: "diff", label: "code-diff.svelte", badge: "new" },
+                  { id: "tabs", label: "document-tabs.svelte", badge: "new" },
+                  { id: "button", label: "button.svelte" },
+                ] },
+                { id: "motion", label: "motion", children: [{ id: "transitions", label: "transitions.ts" }] },
+                { id: "tokens-css", label: "tokens.css" },
+                { id: "i18n", label: "i18n.ts", description: "en · es" },
+              ] },
+              { id: "app", label: "App.svelte" },
+            ] },
+            { id: "tests", label: "tests", children: [{ id: "dom", label: "dom", description: "axe" }, { id: "ssr", label: "ssr" }] },
+            { id: "llms", label: "llms.txt" },
+          ];
+          const tree = $("#s-tree"), treeOut = $("#tree-out");
+          let expanded = new Set(["src", "lib", "components"]), tSel = "tree", tFocus = null;
+          const kids = (n) => !!n.children?.length;
+          const visible = () => {
+            const out = [];
+            const walk = (list, level, parent) => { for (const n of list) { out.push({ n, level, parent }); if (kids(n) && expanded.has(n.id)) walk(n.children, level + 1, n.id); } };
+            walk(TREE, 1, null);
+            return out;
+          };
+          function renderTree(focus) {
+            const vis = visible();
+            const stop = (vis.find((r) => r.n.id === tFocus) ?? vis.find((r) => r.n.id === tSel) ?? vis[0]).n.id;
+            const branch = (list, level) =>
+              list.map((n, i) => {
+                const op = kids(n) && expanded.has(n.id), on = tSel === n.id;
+                return `<li id="tv-${n.id}" role="treeitem" class="ta-tree-item${on ? " ta-tree-item--selected" : ""}" aria-level="${level}" aria-setsize="${list.length}" aria-posinset="${i + 1}"${kids(n) ? ` aria-expanded="${op}"` : ""} aria-selected="${on}" tabindex="${stop === n.id ? 0 : -1}" data-id="${n.id}">` +
+                  `<div class="ta-tree-row" style="--ta-tree-level:${level - 1}">` +
+                  (kids(n) ? `<span class="ta-tree-toggle${op ? " ta-tree-toggle--open" : ""}" aria-hidden="true" data-toggle="${n.id}"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>` : `<span class="ta-tree-spacer" aria-hidden="true"></span>`) +
+                  `<span class="ta-tree-label">${esc(n.label)}</span>` +
+                  (n.badge ? `<span class="ta-badge ta-badge--accent ta-badge--sm">${n.badge}</span>` : "") +
+                  (n.description ? `<span class="ta-tree-description">${esc(n.description)}</span>` : "") +
+                  `</div>${op ? `<ul role="group" class="ta-tree-group">${branch(n.children, level + 1)}</ul>` : ""}</li>`;
+              }).join("");
+            tree.innerHTML = branch(TREE, 1);
+            if (focus) document.getElementById("tv-" + focus)?.focus();
+            const s = vis.find((r) => r.n.id === tSel);
+            treeOut.innerHTML = s ? `${N("selected")}: <b>${esc(s.n.label)}</b>` : "";
+          }
+          const findNode = (id) => visible().find((r) => r.n.id === id);
+          tree.addEventListener("click", (e) => {
+            const t = e.target.closest("[data-toggle]");
+            const item = e.target.closest("[role=treeitem]");
+            if (!item) return;
+            const id = item.dataset.id;
+            tFocus = id;
+            if (t) { expanded.has(id) ? expanded.delete(id) : expanded.add(id); }
+            else tSel = id;
+            renderTree(id);
+          });
+          tree.addEventListener("focusin", (e) => { const it = e.target.closest("[role=treeitem]"); if (it) tFocus = it.dataset.id; });
+          tree.addEventListener("keydown", (e) => {
+            const item = e.target.closest("[role=treeitem]");
+            if (!item || e.target !== item) return;
+            const vis = visible(), i = vis.findIndex((r) => r.n.id === item.dataset.id), row = vis[i], n = row.n;
+            let to = null;
+            switch (e.key) {
+              case "ArrowDown": to = vis[i + 1]?.n.id; break;
+              case "ArrowUp": to = vis[i - 1]?.n.id; break;
+              case "ArrowRight": if (!kids(n)) return; if (!expanded.has(n.id)) { expanded.add(n.id); to = n.id; } else to = n.children[0].id; break;
+              case "ArrowLeft": if (kids(n) && expanded.has(n.id)) { expanded.delete(n.id); to = n.id; } else to = row.parent; break;
+              case "Home": to = vis[0].n.id; break;
+              case "End": to = vis.at(-1).n.id; break;
+              case "Enter": case " ": tSel = n.id; to = n.id; break;
+              case "*": for (const r of vis) if (r.parent === row.parent && kids(r.n)) expanded.add(r.n.id); to = n.id; break;
+              default: {
+                if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+                const order = [...vis.slice(i + 1), ...vis.slice(0, i + 1)];
+                const hit = order.find((r) => r.n.label.toLowerCase().startsWith(e.key.toLowerCase()));
+                if (!hit) return;
+                to = hit.n.id;
+              }
+            }
+            e.preventDefault();
+            if (!to) return;
+            tFocus = to;
+            renderTree(to);
+          });
+
+          /* ——— SortableList ——— */
+          const sortEl = $("#s-sort"), live = $("#sort-live");
+          let SORT = [
+            { id: "check", t: "pnpm check", m: "svelte-check · 0 errors" },
+            { id: "test", t: "pnpm test", m: "dom + ssr · axe" },
+            { id: "pkg", t: "pnpm package", m: "svelte-package + publint" },
+            { id: "kit", t: "pnpm kit:check", m: "prerender + hydration" },
+            { id: "llms", t: "pnpm llms", m: "regenerate llms.txt" },
+          ];
+          let grabbed = null, dragFrom = null, over = null;
+          const say = (k, it) => (live.textContent = N(k, { item: it.t, position: SORT.indexOf(it) + 1, total: SORT.length }));
+          function renderSort(focusId) {
+            sortEl.innerHTML = SORT.map((it, i) => {
+              const g = grabbed?.id === it.id;
+              return `<li class="ta-sortable-row" data-k="${it.id}"${g ? " data-grabbed" : ""}${over === i && dragFrom !== null && dragFrom !== i ? " data-over" : ""}>` +
+                `<button type="button" class="ta-sortable-handle" draggable="true" data-h="${it.id}" aria-label="${esc(N("moveItem", { item: it.t }))}" aria-pressed="${g}" aria-describedby="sort-help">` +
+                `<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">${[4, 8, 12].map((y) => `<circle cx="6" cy="${y}" r="1.1" fill="currentColor"/><circle cx="10" cy="${y}" r="1.1" fill="currentColor"/>`).join("")}</svg></button>` +
+                `<div class="ta-sortable-content"><span class="sort-row-t">${esc(it.t)}</span><span class="sort-row-m">${esc(it.m)}</span></div>` +
+                (g ? `<div class="ta-sortable-moves"><button type="button" class="ta-sortable-move" data-mv="-1" aria-label="${N("moveUp")}"${i === 0 ? " disabled" : ""}>↑</button><button type="button" class="ta-sortable-move" data-mv="1" aria-label="${N("moveDown")}"${i === SORT.length - 1 ? " disabled" : ""}>↓</button></div>` : "") +
+                `</li>`;
+            }).join("");
+            $("#sort-help").textContent = N("sortInstructions");
+            if (focusId) sortEl.querySelector(`[data-h="${focusId}"]`)?.focus();
+          }
+          function moveTo(from, to) {
+            if (to < 0 || to >= SORT.length || from === to) return;
+            const [it] = SORT.splice(from, 1);
+            SORT.splice(to, 0, it);
+          }
+          sortEl.addEventListener("click", (e) => {
+            const mv = e.target.closest("[data-mv]");
+            if (mv && grabbed) {
+              const i = SORT.indexOf(grabbed);
+              moveTo(i, i + Number(mv.dataset.mv));
+              say("sortMoved", grabbed);
+              renderSort(grabbed.id);
+              return;
+            }
+            const h = e.target.closest("[data-h]");
+            if (!h) return;
+            const it = SORT.find((x) => x.id === h.dataset.h);
+            if (grabbed?.id === it.id) { say("sortDropped", it); grabbed = null; }
+            else { grabbed = it; it.from = SORT.indexOf(it); say("sortPicked", it); }
+            renderSort(it.id);
+          });
+          sortEl.addEventListener("keydown", (e) => {
+            const h = e.target.closest("[data-h]");
+            if (!h || !grabbed || h.dataset.h !== grabbed.id) return;
+            const i = SORT.indexOf(grabbed);
+            const to = e.key === "ArrowUp" ? i - 1 : e.key === "ArrowDown" ? i + 1 : e.key === "Home" ? 0 : e.key === "End" ? SORT.length - 1 : null;
+            if (e.key === "Escape") {
+              e.preventDefault();
+              moveTo(i, grabbed.from);
+              say("sortCancelled", grabbed);
+              const id = grabbed.id;
+              grabbed = null;
+              renderSort(id);
+              return;
+            }
+            if (to === null) return;
+            e.preventDefault();
+            moveTo(i, Math.max(0, Math.min(SORT.length - 1, to)));
+            say("sortMoved", grabbed);
+            renderSort(grabbed.id);
+          });
+          sortEl.addEventListener("dragstart", (e) => {
+            const h = e.target.closest("[data-h]");
+            if (!h) return;
+            dragFrom = SORT.findIndex((x) => x.id === h.dataset.h);
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", h.dataset.h);
+            const row = h.closest("li");
+            e.dataTransfer.setDragImage?.(row, 16, 16);
+          });
+          sortEl.addEventListener("dragover", (e) => {
+            if (dragFrom === null) return;
+            const li = e.target.closest("li");
+            if (!li) return;
+            e.preventDefault();
+            const i = SORT.findIndex((x) => x.id === li.dataset.k);
+            if (i !== over) { over = i; for (const [k, r] of $$("li", sortEl).entries()) r.toggleAttribute("data-over", k === over && k !== dragFrom); }
+          });
+          sortEl.addEventListener("drop", (e) => {
+            if (dragFrom === null || over === null) return;
+            e.preventDefault();
+            const it = SORT[dragFrom];
+            moveTo(dragFrom, over);
+            say("sortDropped", it);
+            dragFrom = over = null;
+            renderSort(it.id);
+          });
+          sortEl.addEventListener("dragend", () => { dragFrom = over = null; renderSort(); });
+
+          /* ——— TagInput ——— */
+          const tgList = $("#tg-list"), tgIn = $("#tg-in"), tgErr = $("#tg-err");
+          let tags = ["https://tallao.dev", "http://localhost:5173"];
+          const MAX = 5, PATTERN = /^https?:\/\/[^\s,/]+(:\d+)?$/;
+          function renderTags() {
+            for (const c of $$(".ta-tag-input-chip", tgList)) c.remove();
+            const entry = $(".ta-tag-input-entry", tgList);
+            for (const [i, v] of tags.entries()) {
+              const li = document.createElement("li");
+              li.className = "ta-tag-input-chip";
+              li.innerHTML = `<span class="ta-tag-input-text">${esc(v)}</span><button type="button" class="ta-tag-input-remove" aria-label="${esc(N("removeItem", { item: v }))}"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button>`;
+              li.querySelector("button").addEventListener("click", () => { tags.splice(i, 1); problem(""); renderTags(); tgIn.focus(); });
+              tgList.insertBefore(li, entry);
+            }
+            const full = tags.length >= MAX;
+            tgIn.disabled = full;
+            tgIn.placeholder = full ? "" : "https://… then Enter or a comma";
+          }
+          function problem(msg) {
+            tgErr.textContent = msg;
+            tgErr.hidden = !msg;
+            if (msg) { tgIn.setAttribute("aria-invalid", "true"); tgIn.setAttribute("aria-describedby", "tg-err"); }
+            else { tgIn.removeAttribute("aria-invalid"); tgIn.removeAttribute("aria-describedby"); }
+          }
+          function commit(raw) {
+            const parts = raw.split(/[,\n]/).map((x) => x.trim()).filter(Boolean);
+            const rest = [];
+            for (const p of parts) {
+              if (tags.length >= MAX) { rest.push(p); problem(`At most ${MAX} values.`); continue; }
+              if (!PATTERN.test(p)) { rest.push(p); problem("Enter an origin such as https://example.com"); continue; }
+              if (tags.includes(p)) { rest.push(p); problem(`"${p}" is already in the list.`); continue; }
+              tags.push(p);
+            }
+            if (!rest.length) problem("");
+            tgIn.value = rest.join(", ");
+            renderTags();
+            if (!tgIn.disabled) tgIn.focus();
+          }
+          tgIn.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === ",") { if (tgIn.value.trim()) { e.preventDefault(); commit(tgIn.value); } else if (e.key === ",") e.preventDefault(); }
+            else if (e.key === "Backspace" && !tgIn.value && tags.length) { e.preventDefault(); tgIn.value = tags.pop(); problem(""); renderTags(); tgIn.focus(); }
+          });
+          tgIn.addEventListener("input", () => { if (tgIn.value.includes(",")) commit(tgIn.value); });
+          tgIn.addEventListener("paste", (e) => { const t = e.clipboardData?.getData("text") ?? ""; if (/[,\n]/.test(t)) { e.preventDefault(); commit(tgIn.value + t); } });
+          tgIn.addEventListener("blur", () => tgIn.value.trim() && commit(tgIn.value));
+          tgList.addEventListener("click", (e) => { if (e.target === tgList) tgIn.focus(); });
+
+          /* ——— PasswordInput ——— */
+          const pwIn = $("#pw-in"), pwBtn = $("#pw-btn");
+          const EYE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+          const EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.4 10.4 0 0 1 12 5c7 0 10 7 10 7a13.2 13.2 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.5 13.5 0 0 0 2 12s3 7 10 7a9.7 9.7 0 0 0 5.39-1.61"/><path d="m2 2 20 20"/></svg>';
+          const paintPw = () => {
+            const on = pwIn.type === "text";
+            pwBtn.innerHTML = on ? EYE_OFF : EYE;
+            pwBtn.setAttribute("aria-pressed", String(on));
+            pwBtn.setAttribute("aria-label", N("showPassword"));
+          };
+          pwBtn.addEventListener("mousedown", (e) => e.preventDefault());
+          pwBtn.addEventListener("click", () => { pwIn.type = pwIn.type === "password" ? "text" : "password"; paintPw(); });
+
+          const paintNew = () => { renderTabs(); renderDiff(); renderTree(); renderSort(); renderTags(); paintPw(); };
+          relabel.push(paintNew);
+          paintNew();
+        }
+
+
+        /* ═════════ Folding long lists, GitHub stars, English / Spanish ═════════ */
+        {
+          /* ——— Folds: the kit's chip lists and the facts show their first items, then "+N more" ——— */
+          const folds = [];
+          const addFold = (list, keep, word) => {
+            const items = [...list.children];
+            if (items.length <= keep) return;
+            if (list.matches(".chips")) {
+              // Specimens on this page and new components first, so the fold hides the plain names.
+              const rank = (li) => (li.classList.contains("new") ? 0 : li.querySelector("a") ? 1 : 2);
+              items.sort((a, b) => rank(a) - rank(b)).forEach((li) => list.append(li));
+            }
+            list.id ||= "fold-" + folds.length;
+            list.classList.add("fold-closed");
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "fold-btn";
+            btn.setAttribute("aria-controls", list.id);
+            btn.setAttribute("aria-expanded", "false");
+            list.after(btn);
+            const f = { list, btn, hidden: items.length - keep, word };
+            btn.addEventListener("click", () => {
+              const open = list.classList.toggle("fold-closed") === false;
+              btn.setAttribute("aria-expanded", String(open));
+              paintFold(f);
+              if (!open) btn.scrollIntoView({ block: "nearest" });
+            });
+            folds.push(f);
+          };
+          const paintFold = (f) => {
+            const es = root.lang === "es";
+            const open = !f.list.classList.contains("fold-closed");
+            f.btn.textContent = open
+              ? es ? "Mostrar menos" : "Show fewer"
+              : `+${f.hidden} ${es ? f.word.es : f.word.en}`;
+          };
+          for (const ul of $$(".fam .chips")) addFold(ul, 8, { en: "more", es: "más" });
+          addFold($(".facts"), 3, { en: "more reasons", es: "razones más" });
+
+          /* ——— Every chip without a specimen here opens its page in the docs ——— */
+          {
+            const PARENT = { CardHeader: "card", CardTitle: "card", CardContent: "card", CardFooter: "card", TableHeader: "table", TableBody: "table", TableRow: "table", TableHead: "table", TableCell: "table", MenuItem: "dropdown-menu", MenuSeparator: "dropdown-menu", MenuLabel: "dropdown-menu", DropZone: "drag-board", DragItem: "drag-board", DashboardItem: "dashboard-grid", FilterChip: "filter-bar" };
+            const kebab = (n) => n.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+            for (const li of $$(".chips li")) {
+              const a = $("a", li);
+              const name = (a || li).textContent.replace(/\s*new\s*$/i, "").trim();
+              const href = "docs/#/c/" + (PARENT[name] || kebab(name));
+              if (a) {
+                // A specimen on this page stays; the docs page is one click further, from its own tooltip.
+                a.title = "";
+                continue;
+              }
+              if (li.classList.contains("new")) {
+                li.replaceChildren(Object.assign(document.createElement("a"), { className: "doc", href, textContent: name }));
+              } else {
+                li.replaceChildren(Object.assign(document.createElement("a"), { className: "doc", href, textContent: li.textContent.trim() }));
+              }
+            }
+          }
+          /* ——— GitHub stars, when the API answers; the link works without them ——— */
+          const stars = $("#stars");
+          let starCount = null;
+          const paintStars = () => {
+            const es = root.lang === "es";
+            $("b", stars).textContent = starCount === null ? (es ? "Dale una estrella" : "Star it") : `${starCount.toLocaleString(es ? "es" : "en")} ${es ? "estrellas" : starCount === 1 ? "star" : "stars"}`;
+          };
+          fetch("https://api.github.com/repos/tallao-ui/tallao", { headers: { Accept: "application/vnd.github+json" } })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => {
+              // A count is social proof only once there is one worth showing.
+              if (d && typeof d.stargazers_count === "number" && d.stargazers_count >= 10) {
+                starCount = d.stargazers_count;
+                const n = $(".gh-n");
+                n.textContent = "★ " + starCount.toLocaleString();
+                n.hidden = false;
+                paintStars();
+              }
+            })
+            .catch(() => {});
+
+          /* ——— English / Spanish: the page's own copy; the replicas keep the kit's labels (the "Spanish labels" switch) ——— */
+          const ES = {
+            title: "tallao — Componentes de Svelte 5 para las interfaces que construye un agente",
+            description: "Un kit de UI en Svelte 5 para interfaces generativas: 133 componentes en CSS plano sobre tokens, listos para teclado y lector de pantalla, y para SSR con SvelteKit. Licencia MIT.",
+            nav: ["Agente", "Dashboard", "Admin", "Controles", "Novedades", "Tokens", "Componentes", "Instalar"],
+            heroMeta: ["tallao · Kit de UI en Svelte 5 para interfaces generativas", "CSS plano sobre tokens --ta-*", "v0.7.0 · MIT"],
+            h1: "UI para agentes. Componentes de Svelte 5 para las interfaces que construye un agente.",
+            h1Big: 'UI para <span class="grad">agentes.</span>',
+            h1Sub: "Componentes de Svelte 5 para las interfaces que construye un agente.",
+            legend: ["<b>&#9632;</b> H1 · en Inter", null, "<b>&#9650;</b> Inspector · señala lo que quieras: las guías se ajustan y lo miden"],
+            lede: "tallao es un kit de UI con las piezas que necesita una interfaz generativa —el razonamiento de un agente, sus llamadas a herramientas, tareas y aprobaciones— junto a las páginas de administración, dashboards y formularios que toda app necesita. <b>133 componentes, CSS plano sobre tokens, listo para SvelteKit.</b>",
+            copy: "Copiar el comando de instalación",
+            seeAll: "Explorar componentes",
+            fine: "Licencia MIT · Versión 0.7 · Requiere Svelte 5.29 o superior",
+            trust: ["[ lo usa ]", "Admin y kons de Kitsuden", "[ github ]", null, "[ tests ]", "500+ · axe · SSR · hidratación", "[ a11y ]", "WAI-ARIA APG · 44px táctil"],
+            sections: {
+              run: ["[01] Un agente en marcha", "UI generativa · pasa el cursor, toca o usa Tab: medido desde el DOM", "Un agente trabaja. Una persona decide.", "Su razonamiento, las herramientas que llamó, las tareas en curso y la aprobación que pide: cada cosa es un componente. Esta página no tiene paso de build, así que todo lo de abajo es una réplica en HTML y CSS de los componentes reales de Svelte: mismas clases, mismos tokens <code>--ta-*</code>, mismo comportamiento de teclado. Señala uno y el inspector lo mide."],
+              dashboard: ["[02] Dashboard", "Gráficos y BI · datos de ejemplo", "Cifras que un visitante puede leer.", "Un pequeño dashboard público hecho con la familia de Gráficos y BI. Las cifras son datos de ejemplo, con la forma de los ejemplos de los propios componentes; los colores de las series son la paleta fija de gráficos del kit, así que no siguen el acento."],
+              admin: ["[03] Lista de admin", "Bloques de administración · filas de ejemplo", "Una página de lista, a partir de una declaración.", "FilterBar sobre un DataTable, el orden que usa la demo de administración del kit. Filtra las filas, ordena una columna, cambia la densidad, abre el menú ⋯ de una fila con el teclado o pasa la tabla a sus estados vacío y de error."],
+              specimens: ["[04] Controles", "Botones · formularios · overlays · datos · movimiento", "Y las piezas que toda app necesita.", "Botones, campos, pestañas, diálogos, toasts y un gráfico, replicados igual. Cambia el acento, el radio o el tema y cada muestra de esta página se vuelve a pintar."],
+              new: ["[05] Novedades", "Sin publicar · 13 componentes desde la 0.7", "Recién llegados.", 'Una revisión de código, un árbol, una lista que pones en orden y campos que aceptan muchos valores: los componentes más nuevos, replicados igual. Úsalos con el ratón, o con el teclado como indica el patrón <abbr title="WAI-ARIA Authoring Practices Guide">APG</abbr>.'],
+              tokens: ["[06] Tokens", "Sin Tailwind · sin theme provider", "Cambia tres variables y es tuyo.", "El kit es CSS plano que lee tokens <code>--ta-*</code>. Estos controles los fijan en el <code>&lt;html&gt;</code> de esta página: vuelve arriba y las muestras también habrán cambiado."],
+              kit: ["[07] Componentes", "133 componentes · ocho familias · un import · 13 nuevos", "Qué trae el kit", 'Un import, un estilo. Cada componente funciona con teclado y lector de pantalla, y se renderiza en el servidor. <a href="docs/">Cada uno tiene su página en las docs</a>, en vivo y con su código.'],
+              install: ["[08] Instalar", "Desde GitHub · aún no está en npm", "Instálalo, o copia lo que necesites", null],
+            },
+            fams: [
+              ["UI generativa", "Muestra lo que hace un modelo y deja que una persona decida."],
+              ["Gráficos y BI", "Gráficos con leyenda y una tabla con todos los datos, y las cifras de un dashboard."],
+              ["Páginas de admin", "Los bloques de una página de lista y de una de detalle, dentro de un AppShell o una vista kon."],
+              ["Datos", "Tablas con orden, filtros, densidad, selector de columnas y acciones fijas por fila; arrastra entre zonas también con el teclado."],
+              ["Acciones y feedback", "Botones, estados y cargas, y notificaciones en una región <code>aria-live</code>."],
+              ["Overlays y menús", "Sobre el <code>&lt;dialog&gt;</code> nativo y la Popover API: el foco queda contenido y se restaura."],
+              ["Formularios", "Controles nativos, con <code>name</code> para que las form actions de SvelteKit funcionen sin JavaScript."],
+              ["Navegación y layout", "El esqueleto de la app. NavMenu, MegaMenu y BottomNav se basan en <code>&lt;details&gt;</code> y funcionan sin hidratación."],
+            ],
+            facts: [
+              ["Legible por defecto", "Los controles rellenos se derivan de tu acento y se oscurecen hasta que su texto llega a 4.5:1, así que un color nuevo no te cuesta contraste."],
+              ["Probado como una app", "Más de 500 tests en un DOM real y en el servidor, con comprobaciones automáticas de accesibilidad, más una app de SvelteKit que comprueba la hidratación."],
+              ["Inglés y español de serie", "Cada texto que muestra el kit sale de una tabla que puedes reemplazar o ampliar para un subárbol con <code>setLabels()</code>."],
+              ["44px en pantallas táctiles", "Cada control que dibuja el kit tiene un área táctil de 44px bajo <code>@media (pointer: coarse)</code>, y un test falla si a un componente le falta la regla."],
+              ["Se renderiza en el servidor", "Los ids vienen de <code>$props.id()</code>, nada toca <code>window</code> al importar, y los controles con <code>name</code> se envían en un formulario normal, también sin JavaScript."],
+              ["Un solo sistema de movimiento", "Las transiciones vienen de <code>tallao/motion</code> con tres duraciones y tres curvas, 120–240 ms, sobre opacidad y transform. Reducir el movimiento es un solo interruptor que respetan la librería y los tokens."],
+              ["Escrito también para agentes de código", "<code>llms.txt</code> lista cada componente con sus props, generado desde el código y comprobado por los tests, y una skill <code>build-with-tallao</code> le explica a un agente cómo componer una pantalla de agente, una página de admin o un dashboard."],
+            ],
+            kitNote: '<i aria-hidden="true"></i>Tiene una muestra en esta página · <b class="new-key">nuevo</b> desde la 0.7 · 133 exports, contando las partes de Card, Table, los menús y los tableros · GameMap viene en tallao/map, CodeEditor en tallao/code y las transiciones en tallao/motion',
+            installTabs: ["Como paquete", "Copiar un componente", "Con mi agente de código"],
+            installP: [
+              "Se instala desde GitHub y se compila sola. Aún no está en npm.",
+              "Como shadcn: toma <code>src/lib/components/&lt;componente&gt;.svelte</code>, los componentes que importa, <code>src/lib/internal/</code>, <code>src/lib/utils.ts</code> y los dos archivos CSS. Después el código es tuyo para cambiarlo.",
+              "Pega esto en Claude Code, Cursor o Codex, dentro de tu proyecto Svelte. Le indica al agente <code>llms.txt</code>, la referencia del kit para agentes de código.",
+            ],
+            browse: "Explorar los componentes",
+            copyBtn: "Copiar",
+            end: ["[ empieza ] · un comando, sin build que aprender", 'Construye la interfaz <span class="grad">que tu agente necesita.</span>', "&#9733; Dale una estrella en GitHub"],
+            foot: "tallao tiene licencia MIT.",
+          };
+
+          // Every place the copy lives, as [element, property]; English is read from the page once.
+          const slots = [];
+          const slot = (el, key, prop = "innerHTML") => el && key != null && slots.push({ el, prop, es: key, en: prop === "innerHTML" ? el.innerHTML : el.getAttribute(prop) });
+          $$(".bar nav a").forEach((a, i) => slot(a.lastChild && a.lastChild.nodeType === 3 ? a : null, ES.nav[i], "navText"));
+          $$(".hero-meta span").forEach((el, i) => slot(el, ES.heroMeta[i]));
+          slot($("h1"), ES.h1, "aria-label");
+          slot($(".h1-big"), ES.h1Big);
+          $$(".legend > span").forEach((el, i) => slot(el, ES.legend[i]));
+          slot($(".lede"), ES.lede);
+          slot($(".hero .cta [data-copy] span"), ES.copy);
+          slot($('.hero .cta a[href="docs/"]'), ES.seeAll);
+          slot($(".hero .fine"), ES.fine);
+          $$(".trust > li > *").forEach((el, i) => slot(el.id === "stars" ? null : el, ES.trust[i]));
+          for (const [id, [meta1, meta2, h2, lead]] of Object.entries(ES.sections)) {
+            const sec = document.getElementById(id);
+            const [a, b] = $$(".sec-meta > span", sec);
+            slot(a, meta1);
+            slot(b, meta2);
+            slot($("h2", sec), h2);
+            slot($(".lead", sec), lead);
+          }
+          $$(".fam").forEach((fam, i) => {
+            slot($("h3", fam).firstChild.nodeType === 3 ? $("h3", fam) : null, ES.fams[i][0] + " ", "firstText");
+            slot($("p", fam), ES.fams[i][1]);
+          });
+          $$(".facts > div").forEach((d, i) => {
+            slot($("dt", d), ES.facts[i][0]);
+            slot($("dd", d), ES.facts[i][1]);
+          });
+          slot($(".kit-note"), ES.kitNote);
+          $$('#install [role="tab"]').forEach((t, i) => slot(t, ES.installTabs[i]));
+          $$("#install .panel > p").forEach((p, i) => slot(p, ES.installP[i]));
+          slot($('#install a[href="docs/"]'), ES.browse);
+          $$("#install [data-copy-from] span").forEach((el) => slot(el, ES.copyBtn));
+          slot($(".end-k"), ES.end[0]);
+          slot($(".end-t"), ES.end[1]);
+          slot($('.end .cta a'), ES.end[2]);
+          slot($(".end .cta [data-copy] span"), ES.copy);
+          slot($(".foot-links > span"), ES.foot);
+
+          /* ——— First screen stays calm until the visitor points, scrolls or tabs ——— */
+          {
+            const wake = () => {
+              root.classList.remove("hero-calm");
+              for (const [t, f] of wakers) removeEventListener(t, f, true);
+            };
+            const wakers = [
+              ["pointermove", (e) => e.pointerType !== "touch" && wake()],
+              ["scroll", () => scrollY > 40 && wake()],
+              ["keydown", (e) => e.key === "Tab" && wake()],
+              ["touchstart", wake],
+            ];
+            for (const [t, f] of wakers) addEventListener(t, f, { capture: true, passive: true });
+          }
+          slot($(".pill-k"), "Nuevo");
+          slot($(".pill-t"), '13 componentes nuevos<span class="pill-x">: CodeDiff, TreeView, DocumentTabs y más</span>');
+          slot($(".stack li:nth-child(4)").lastChild ? $(".stack li:nth-child(4)") : null, "CSS plano", "navText");
+          slot($(".gh > span:not(.gh-n)"), "GitHub");
+
+          const EN = { title: document.title, description: $('meta[name="description"]').content, sub: $("#h1-sub").textContent.trim() };
+          const setSub = (text) => {
+            const sub = $("#h1-sub");
+            for (const n of [...sub.childNodes]) if (!n.classList?.contains("mk") && !n.classList?.contains("caret")) sub.removeChild(n);
+            const caret = $(".caret", sub);
+            text.split(" ").forEach((w, i, all) => {
+              const sp = document.createElement("span");
+              sp.className = "w in";
+              sp.textContent = w;
+              sub.insertBefore(sp, caret);
+              if (i < all.length - 1) sub.insertBefore(document.createTextNode(" "), caret);
+            });
+          };
+          let shown = "en";
+          const applyLang = (lang) => {
+            const es = lang === "es";
+            root.lang = lang;
+            if (lang !== shown) {
+              for (const sl of slots) {
+                const v = es ? sl.es : sl.en;
+                if (sl.prop === "navText") sl.el.lastChild.textContent = v;
+                else if (sl.prop === "firstText") sl.el.firstChild.textContent = v;
+                else if (sl.prop === "innerHTML") sl.el.innerHTML = v;
+                else sl.el.setAttribute(sl.prop, v);
+              }
+              setSub(es ? ES.h1Sub : EN.sub);
+              shown = lang;
+            }
+            document.title = es ? ES.title : EN.title;
+            $('meta[name="description"]').content = es ? ES.description : EN.description;
+            const lb = $("#lang-btn");
+            lb.textContent = es ? "EN" : "ES";
+            lb.lang = es ? "en" : "es";
+            lb.setAttribute("aria-label", es ? "View the page in English" : "Ver la página en español");
+            $(".trust").setAttribute("aria-label", es ? "De un vistazo" : "At a glance");
+            $(".stack").setAttribute("aria-label", es ? "Hecho con" : "Built with");
+            for (const f of folds) paintFold(f);
+            paintStars();
+          };
+          // The navText slots keep the English text node's value, not the element's HTML.
+          for (const sl of slots) {
+            if (sl.prop === "navText") sl.en = sl.el.lastChild.textContent;
+            if (sl.prop === "firstText") sl.en = sl.el.firstChild.textContent;
+          }
+
+          $("#lang-btn").addEventListener("click", () => {
+            const next = root.lang === "es" ? "en" : "es";
+            try { localStorage.setItem("tallao-lang", next); } catch (e) {}
+            const url = new URL(location.href);
+            url.searchParams.delete("lang");
+            history.replaceState(null, "", url);
+            applyLang(next);
+            set("es", next === "es"); // the replicas switch to the kit's Spanish labels too
+          });
+          ITEMS.push({ group: "Inspector", label: "Español / English", description: "La página en español · the page in English", run: () => $("#lang-btn").click(), keywords: "idioma language spanish español" });
+          if (root.lang === "es") {
+            st.es = true;
+            applyLang("es");
+          } else applyLang("en");
+        }
+
 
         describe($("[data-copy]"));
         paint();
