@@ -17,6 +17,11 @@
   SortableList, TagInput and PasswordInput; a calmer first screen (announcement, stack, inspector
   on demand); a Spanish version (`?lang=es`, `/es/`); a closing call to action; the logos; and each
   catalogue chip opens its docs page. Counts corrected (133 components, 500+ tests).
+- **Brand on the landing and the docs**: the wordmark is big in the first screen and writes itself on
+  load while its orange comma falls into place (the two are separate images, `site/brand/tallao-letters-*`
+  and `tallao-comma.*`; still, with no animation, under reduced motion). The comma is also the headline's
+  streaming cursor, the mark under the section you are in, and the dot of every "new" label (landing and
+  docs). The inspector's panel moves above the wordmark so it covers no text.
 
 **Lists, outlines and forms that take them.**
 

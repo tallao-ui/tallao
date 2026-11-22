@@ -406,7 +406,7 @@
       .h1-big {
         display: block;
         width: fit-content;
-        font-size: clamp(4.4rem, 13.2vw, 15rem);
+        font-size: clamp(4.4rem, 12.2vw, 14rem);
         line-height: 0.86;
         letter-spacing: -0.068em;
         padding-bottom: 0.08em;
@@ -438,11 +438,11 @@
       }
       .caret {
         display: inline-block;
-        width: 0.08em;
-        height: 0.82em;
-        margin-left: 0.06em;
-        vertical-align: -0.06em;
-        background: var(--tone);
+        width: 0.4em;
+        height: 0.61em;
+        margin-left: 0.08em;
+        vertical-align: -0.04em;
+        background: url("brand/tallao-comma.webp") center / contain no-repeat;
         animation: blink 1s steps(2, jump-none) infinite;
       }
       @keyframes blink {
@@ -2815,6 +2815,97 @@
       .chips li:has(a.doc):hover { border-color: rgb(var(--ta-accent-hover) / 0.6); background: rgb(var(--ta-accent) / 0.1); }
       .lead a { text-decoration-color: var(--tone2); }
 
+      /* ——— The brand: a big wordmark that writes itself, and the orange comma as a motif ——— */
+      .hero-mid { --logo-w: clamp(15rem, 23vw, 28rem); }
+      .hero-logo {
+        position: absolute;
+        right: 0;
+        bottom: calc(100% - 2rem);
+        width: var(--logo-w);
+        aspect-ratio: 1246 / 726;
+        pointer-events: none;
+        filter: drop-shadow(0 22px 48px rgb(147 51 234 / 0.38));
+      }
+      .hl-word {
+        display: block;
+        width: 100%;
+        height: 100%;
+        -webkit-mask-image: linear-gradient(100deg, #000 44%, transparent 56%);
+        mask-image: linear-gradient(100deg, #000 44%, transparent 56%);
+        -webkit-mask-size: 270% 100%;
+        mask-size: 270% 100%;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        animation: hl-write 1.3s cubic-bezier(0.5, 0.1, 0.2, 1) 0.3s both;
+      }
+      /* Where the comma sits in the wordmark: 72.632% from the left, 7.163% from the top, 13.242% wide. */
+      .hl-comma {
+        position: absolute;
+        left: 72.632%;
+        top: 7.163%;
+        width: 13.242%;
+        height: auto;
+        transform-origin: 50% 100%;
+        animation: hl-drop 0.75s cubic-bezier(0.3, 1.4, 0.5, 1) 1.2s both;
+      }
+      @keyframes hl-write {
+        from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+        to { -webkit-mask-position: 0 0; mask-position: 0 0; }
+      }
+      @keyframes hl-drop {
+        0% { opacity: 0; transform: translateY(-160%) rotate(-32deg) scale(0.7); }
+        55% { opacity: 1; }
+        78% { transform: translateY(7%) rotate(3deg) scale(1.04, 0.93); }
+        100% { opacity: 1; transform: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hl-word { animation: none; -webkit-mask-image: none; mask-image: none; }
+        .hl-comma { animation: none; }
+      }
+      :root[data-tallao-motion="reduce"] .hl-word { animation: none; -webkit-mask-image: none; mask-image: none; }
+      :root[data-tallao-motion="reduce"] .hl-comma { animation: none; }
+      /* The inspector's panel makes room: it sits to the left of the wordmark, and only where there is room for both. */
+      @media (max-width: 79.99rem) { .hero #props { display: none; } }
+      @media (min-width: 80rem) {
+        /* Above the wordmark, to the right of the headline: nothing it covers. */
+        .hero .props {
+          right: 0;
+          bottom: calc(100% - 2rem + var(--logo-w) / 1.7163 + 1rem);
+          width: 17rem;
+          z-index: 3;
+          background: rgb(var(--ta-surface) / 0.94);
+          -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 20px 44px -20px rgb(0 0 0 / 0.5);
+        }
+      }
+
+      /* The comma as a marker: the section you are in, and every "new". */
+      .bar nav a { position: relative; }
+      .bar nav a[aria-current="true"]::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -0.5rem;
+        width: 0.55rem;
+        height: 0.84rem;
+        transform: translateX(-50%) rotate(8deg);
+        background: url("brand/tallao-comma.webp") center / contain no-repeat;
+        pointer-events: none;
+      }
+      .pill-k {
+        padding-left: 1.3rem;
+        background: url("brand/tallao-comma.webp") no-repeat 0.5rem center / 0.4rem auto, linear-gradient(96deg, rgb(var(--ta-accent)), rgb(var(--ta-accent-2-dim)));
+      }
+      .chips li.new::after {
+        padding-left: 0.85rem;
+        background: url("brand/tallao-comma.webp") no-repeat 0.28rem center / 0.3rem auto, rgb(var(--ta-accent));
+      }
+      .new-key {
+        padding-left: 0.85rem;
+        background: url("brand/tallao-comma.webp") no-repeat 0.28rem center / 0.3rem auto, rgb(var(--ta-accent));
+      }
+
       /* ——— Trust strip under the hero ——— */
       .trust {
         display: flex;
@@ -2868,7 +2959,7 @@
       @media (pointer: coarse) { .fold-btn { min-height: 2.75rem; } }
 
       /* The Spanish headline is two letters longer. */
-      :root[lang="es"] .h1-big { font-size: clamp(3.9rem, 11.6vw, 13.2rem); }
+      :root[lang="es"] .h1-big { font-size: clamp(3.9rem, 10.8vw, 12.4rem); }
 
       /* With eight sections and the language button, the brand subtitle gives way first. */
       @media (max-width: 96rem) { .brand-sub { display: none; } .bar .brand { margin-right: auto; } }
@@ -2973,6 +3064,13 @@
             <span class="h1-sub" id="h1-sub" data-i="H1.stream" data-mark aria-hidden="true">Svelte 5 components for the interfaces an agent builds.</span>
           </h1>
           <div class="hero-mid" aria-hidden="true">
+            <div class="hero-logo">
+              <picture>
+                <source srcset="brand/tallao-letters-640.webp 640w, brand/tallao-letters-960.webp 960w" sizes="(min-width: 80rem) 22rem, 20rem" type="image/webp" />
+                <img class="hl-word" src="brand/tallao-letters-960.png" width="960" height="559" alt="" decoding="async" fetchpriority="high" />
+              </picture>
+              <img class="hl-comma" src="brand/tallao-comma.webp" width="127" height="193" alt="" decoding="async" />
+            </div>
             <div class="legend mono">
               <span><b>&#9632;</b> H1 · set in Inter</span>
               <span id="h1-legend"><b>&#9670;</b> H1.stream · streamed word by word, like a ChatMessage</span>
