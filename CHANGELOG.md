@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **SegmentedBar** (new): a total split into its parts, after the analytics and overview pages of the
+  loopo template. Props: `segments` (`BarSegment`: `label`, `value`, `delta?`, `color?`), `title`,
+  `hideTitle`, `total`, `totalLabel`, `locale`, `format`, `deltaFormat`. A named group; the bar is
+  decoration, the rows are a list with the share and the change in words. Segments grow in, staggered;
+  none under reduced motion.
+- **CohortGrid** (new): retention by cohort as a table. Props: `cohorts` (`Cohort`: `label`, `size?`,
+  `values`), `periods`, `title`, `hideTitle`, `cohortLabel`, `sizeLabel`, `max`, `color`, `locale`,
+  `format`. Scrolls sideways in a focusable region; cells fade in along the diagonal; none under
+  reduced motion. New label key: `cohort` (en "Cohort", es "Cohorte").
+
 **Effects for agent screens, and an MCP server for the docs.**
 
 - **Terminal** (new): what an agent runs, as a terminal window that writes itself. `lines`

@@ -165,6 +165,8 @@ export interface Labels {
   /** Column headers of the data table (ScatterChart). */
   label: string;
   group: string;
+  /** CohortGrid: heading of the column that names each cohort. */
+  cohort: string;
   /** Accessible name of the filter bar (FilterBar). */
   filters: string;
   /** Menu with the filters that are not shown yet (FilterBar). */
@@ -417,6 +419,7 @@ export const en: Labels = {
   ofPreviousStep: "{percent} of the previous step",
   label: "Label",
   group: "Group",
+  cohort: "Cohort",
   filters: "Filters",
   addFilter: "Add filter",
   clearAll: "Clear all",
@@ -627,6 +630,7 @@ export const es: Labels = {
   ofPreviousStep: "{percent} del paso anterior",
   label: "Etiqueta",
   group: "Grupo",
+  cohort: "Cohorte",
   filters: "Filtros",
   addFilter: "Añadir filtro",
   clearAll: "Quitar todo",

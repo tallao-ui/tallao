@@ -1974,6 +1974,46 @@ Props:
 - `format?: (n: number) => string` — Format of the values.
 - `class?: string`
 
+### SegmentedBar
+
+A total split into its parts.
+
+```svelte
+<SegmentedBar {segments} title="…" />
+```
+
+Props:
+- `segments: BarSegment[]`
+- `title: string` — Names the group.
+- `hideTitle?: boolean` — Hides the title visually; it still names the group.
+- `total?: number` — The headline figure; by default the sum of the parts.
+- `totalLabel?: string` — Text next to the figure ("gross volume").
+- `locale?: string`
+- `format?: (n: number) => string` — Format of values and the total.
+- `deltaFormat?: (n: number) => string` — Format of a change (by default a signed percent: "+21.6%").
+- `class?: string`
+
+### CohortGrid
+
+Retention by cohort.
+
+```svelte
+<CohortGrid {cohorts} periods="…" title="…" />
+```
+
+Props:
+- `cohorts: Cohort[]`
+- `periods: string[]` — Column headings, one per period ("M0", "M1"…).
+- `title: string` — Names the table.
+- `hideTitle?: boolean` — Hides the title visually; it still names the table.
+- `cohortLabel?: string` — Heading of the cohort column.
+- `sizeLabel?: string` — Heading of the size column; with none, the sizes are not shown.
+- `max?: number` — The value that gets the darkest shade (100 for percentages).
+- `color?: string` — Any CSS colour for the shading; by default the first series colour.
+- `locale?: string`
+- `format?: (n: number) => string` — Format of a cell (by default a whole percent: "64%").
+- `class?: string`
+
 ### DashboardGrid
 
 The layout of a dashboard.

@@ -7,6 +7,8 @@
     ChartCard,
     ChartLegend,
     ComparisonBar,
+    SegmentedBar,
+    CohortGrid,
     DashboardGrid,
     DashboardItem,
     DonutChart,
@@ -106,3 +108,5 @@
 <Timeline items={empty ? [] : events} ariaLabel="Season" locale="en" />
 <ComparisonBar title="Side win rate" left={{ label: "Blue side", value: 5230 }} right={{ label: "Red side", value: 4770 }} locale="en" />
 <ChartLegend items={[{ label: "Fire", value: "40%" }, { label: "Water", color: "teal" }]} aria-label="Elements" />
+<SegmentedBar title="Revenue by channel" locale="en" totalLabel="gross" segments={[{ label: "Online", value: 75, delta: 21.6 }, { label: "Subscriptions", value: 25, delta: -6.8 }, { label: "Dormant", value: 0 }]} />
+<CohortGrid title="Retention" periods={["M0", "M1", "M2"]} sizeLabel="Size" locale="en" cohorts={[{ label: "Jul", size: 486, values: [100, 64, 52] }, { label: "Aug", size: 512, values: [100, 61] }]} />
