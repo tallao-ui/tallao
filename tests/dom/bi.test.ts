@@ -305,3 +305,32 @@ describe("accessibility", () => {
     expect(await axeViolations(empty.container)).toEqual([]);
   });
 });
+
+describe("SegmentedBar and CohortGrid", () => {
+  it("SegmentedBar prints each part's share and change in words, and skips the segment of an empty part", () => {
+    render(Bi);
+    const group = screen.getByRole("group", { name: "Revenue by channel" });
+    const rows = within(group).getAllByRole("listitem");
+    expect(rows).toHaveLength(3);
+    expect(rows[0].textContent).toContain("75%");
+    expect(rows[0].textContent?.replace(/\s+/g, " ")).toContain("up +21.6%");
+    expect(rows[1].textContent?.replace(/\s+/g, " ")).toContain("down -6.8%");
+    expect(rows[2].textContent).toContain("0%");
+    expect(group.querySelectorAll(".ta-segbar-segment")).toHaveLength(2);
+    expect(group.textContent).toContain("gross");
+  });
+
+  it("CohortGrid is a table with headers, prints every value and leaves the future blank", () => {
+    render(Bi);
+    const table = within(screen.getByRole("region", { name: "Retention" })).getByRole("table");
+    expect(within(table).getAllByRole("columnheader").map((h) => h.textContent)).toEqual(["Cohort", "Size", "M0", "M1", "M2"]);
+    const aug = within(table).getByRole("row", { name: /Aug/ });
+    expect(within(aug).getAllByRole("cell").map((c) => c.textContent?.trim())).toEqual(["512", "100%", "61%", "—"]);
+    expect(table.querySelectorAll(".ta-cohort-cell")).toHaveLength(5);
+  });
+
+  it("have no axe violations", async () => {
+    const { container } = render(Bi);
+    expect(await axeViolations(container)).toEqual([]);
+  });
+});
