@@ -176,3 +176,8 @@ export { default as TagInput } from "./tag-input.svelte";
 export { default as SortableList } from "./sortable-list.svelte";
 export { default as TreeView } from "./tree-view.svelte";
 export type { TreeNode } from "./tree-view.svelte";
+export { default as Beam } from "./beam.svelte";
+export { default as Terminal } from "./terminal.svelte";
+export type { TerminalKind, TerminalLine } from "./terminal.svelte";
+export { default as EventFeed } from "./event-feed.svelte";
+export type { FeedEvent, FeedTone } from "./event-feed.svelte";

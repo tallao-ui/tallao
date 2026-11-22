@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+**Effects for agent screens, and an MCP server for the docs.**
+
+- **Terminal** (new): what an agent runs, as a terminal window that writes itself. `lines`
+  (`TerminalLine`: `kind` = `command` | `output` | `success` | `error` | `info` | `comment`, `text`),
+  `title`, `label`, `speed` (28 ms per character), `lineDelay` (420 ms), `autoplay` (true), `prompt`
+  ("$"), `replay` (true), `replayLabel`, `onDone`. Commands are typed after the prompt, the others
+  appear whole, each kind with a mark (✓ ✗ i #). The animated lines are `aria-hidden` and a hidden
+  list holds the whole transcript from the start; the group is `aria-busy` while it plays. Reduced
+  motion and the server render the whole text at once. Exports `TerminalLine` and `TerminalKind`.
+  New labels: `terminal`, `terminalReplay`.
+- **EventFeed** (new): an agent's activity as a list where a new event enters at the top and the
+  others glide down. `events` (`FeedEvent`: `id`, `title`, `detail`, `time`, `tone`, `icon`),
+  `limit`, `ariaLabel`, `announce` (a polite live region, off by default), `emptyText` and an
+  `item` snippet. Tones (`default`, `accent`, `success`, `warning`, `error`, `info`) pick an icon as
+  a second cue. 120–240 ms, opacity and transform; still under reduced motion. Exports `FeedEvent`
+  and `FeedTone`. New labels: `eventFeed`, `noEvents`.
+- **Beam** (new): a pulse of light along a line between two elements, drawn as an SVG inside
+  their positioned `container`, from edge to edge (`gap`), redrawn by a ResizeObserver. `from`,
+  `to`, `curvature`, `duration`, `delay`, `reverse`, `active`, `tone`, `width`. `aria-hidden`;
+  under reduced motion only the line.
+- **MCP server** (`pnpm mcp`, `scripts/mcp-server.mjs` + `scripts/mcp-core.mjs`): stdio, JSON-RPC,
+  no dependencies. Tools `list_components`, `search_components`, `get_component` (import line,
+  docs URL, the demo's code or the header example, props table, parts, the accessibility contract)
+  and `get_setup` (from the "Use" section of `llms.txt`), all from `docs/gen/components.json`.
+- Tests: `tests/dom/agent-effects.test.ts`, `tests/ssr/mcp.test.ts`; `tests/setup.ts` stands in for
+  `Element.getAnimations` (jsdom has none; Svelte's `animate:` asks for it).
+
 **Docs, and a landing that shows the kit as it is now.**
 
 - **Docs** (new, `docs/`, published at `/docs/` next to the landing): a page for each of the 133

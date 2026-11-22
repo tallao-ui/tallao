@@ -37,6 +37,9 @@
     TagInput,
     SortableList,
     TreeView,
+    Beam,
+    Terminal,
+    EventFeed,
     SuggestionChips,
     CodeBlock,
     Sources,
@@ -91,6 +94,9 @@
   } from "$lib/components";
 
   let { dialogOpen = false }: { dialogOpen?: boolean } = $props();
+  let beamBox = $state<HTMLElement>();
+  let beamFrom = $state<HTMLElement>();
+  let beamTo = $state<HTMLElement>();
 </script>
 
 <ThemeScope source="tallao">
@@ -268,6 +274,12 @@
       {#snippet row(s)}{s}{/snippet}
     </SortableList>
     <TreeView ariaLabel="Outline" expanded={["a"]} selected="a1" items={[{ id: "a", label: "Commands", badge: "2", children: [{ id: "a1", label: "ping" }, { id: "a2", label: "booth" }] }, { id: "b", label: "Panels" }]} />
+    <div bind:this={beamBox} style="position: relative">
+      <span bind:this={beamFrom}>Agent</span> <span bind:this={beamTo}>Search</span>
+      <Beam container={beamBox} from={beamFrom} to={beamTo} />
+    </div>
+    <Terminal title="agent · ~/app" autoplay={false} lines={[{ kind: "command", text: "pnpm test" }, { text: "506 passed" }, { kind: "success", text: "All checks passed" }]} />
+    <EventFeed events={[{ id: 1, title: "Read post #42", time: "12:03", tone: "info" }, { id: 2, title: "Run started" }]} />
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
   </main>
 </ThemeScope>

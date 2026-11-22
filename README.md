@@ -138,6 +138,9 @@ Requires Svelte 5.29 or later.
 | Combobox | a field with a filterable list (ARIA 1.2, `aria-activedescendant`), ignoring case and accents |
 | FloatingScene | decorative 3D backdrop of frosted glass tiles at four depths behind the content (`tiles`, `clear`, `seed`, `parallax`, `drift`, `glow`); `aria-hidden`, same layout on the server, still under reduced motion |
 | ChatThread | the scrolling area of a conversation: follows the reply while it streams, stops when the reader scrolls up and offers "Jump to latest"; `role="log"` without re-reading every token |
+| Terminal | what an agent runs, as a terminal that writes itself: commands typed after the prompt, output a line at a time, ✓ / ✗ / i / # marks so the kind is never colour alone; screen readers get the whole transcript at once; Replay; still under reduced motion |
+| EventFeed | an agent's activity as a list where each new event enters at the top and the older ones glide down (FLIP); `limit`, tones with icons, an `item` snippet, silent unless `announce` |
+| Beam | a pulse of light along a line between two elements (an agent and its tools), drawn as an SVG inside their container, edge to edge; `curvature`, `reverse`, tones; `aria-hidden`, only the line under reduced motion |
 | ScenePlayer | a "video" drawn with components: timed scenes from data, play / pause, seek bar (`role="slider"`), chapters and captions read aloud; Space, K, ← →, N / P; never autoplays under reduced motion |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
 | PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
@@ -342,6 +345,11 @@ building an app with it: entry points, the component map by family, the conventi
 follows (runes, tokens, labels, SSR, 44px touch targets), commands, tests and the rules a change
 must keep. Claude Code reads it through [CLAUDE.md](CLAUDE.md).
 
+- **MCP server**: `pnpm mcp` (`node scripts/mcp-server.mjs`, no dependencies) answers an agent's
+  questions about the kit over stdio: `list_components`, `search_components`, `get_component`
+  (import line, props, a working example, the accessibility contract) and `get_setup`, from the
+  same data as the docs. In a client's MCP settings, from a clone of this repository:
+  `{ "mcpServers": { "tallao": { "command": "node", "args": ["<path to tallao>/scripts/mcp-server.mjs"] } } }`.
 - [`.claude/settings.json`](.claude/settings.json): shared permissions. The check, test and build
   scripts, commits and pushes on a branch, and opening PRs are allowed; reading `.env` files,
   pushing to `main`, force pushes, merging and publishing are denied.

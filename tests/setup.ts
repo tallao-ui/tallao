@@ -42,6 +42,11 @@ globalThis.ResizeObserver ??= class {
   disconnect() {}
 } as unknown as typeof ResizeObserver;
 
+// Svelte's `animate:` (EventFeed's FLIP) asks an element for its running animations first.
+if (typeof Element.prototype.getAnimations !== "function") {
+  Element.prototype.getAnimations = () => [];
+}
+
 // jsdom has no Web Animations API; Svelte's transitions (the kit's `tallao/motion`) call
 // `element.animate`. This stand-in finishes at once, which is all a behaviour test needs.
 if (typeof Element.prototype.animate !== "function") {
