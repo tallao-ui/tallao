@@ -22,6 +22,12 @@
   and `tallao-comma.*`; still, with no animation, under reduced motion). The comma is also the headline's
   streaming cursor, the mark under the section you are in, and the dot of every "new" label (landing and
   docs). The inspector's panel moves above the wordmark so it covers no text.
+- **Landing rhythm and length**: each section's line draws itself in violet to orange and starts with
+  the comma, and its big number is written with a comma falling beside it; three sections lean on a soft
+  violet / orange glow. Section 01 now tells a story (the "replica" note moved to the end, with a link to
+  the docs); the rest of the specimens in "Controls" and "New" are folded (a link, a chip or the command
+  palette opens the fold it points into); the catalogue shows 6 components per family. The page goes
+  from 17.4 to 14.5 screens at 1366×768. Stale figures in the Stat specimen corrected.
 
 **Lists, outlines and forms that take them.**
 
