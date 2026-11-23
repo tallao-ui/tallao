@@ -1,7 +1,9 @@
 // Pure pieces of the tallao docs MCP server: tool definitions and `callTool`.
-// The protocol lives in scripts/mcp-server.mjs; this file has no I/O beyond reading docs files.
+// The protocol lives in scripts/mcp-server.mjs; this file's only I/O is reading the docs data
+// (and generating it when it is missing).
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -49,9 +51,20 @@ const text = (t, isError) => (isError ? { content: [{ type: "text", text: t }], 
 const norm = (s) => String(s ?? "").trim().toLowerCase();
 const oneLine = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 
-/** Loads docs/gen/components.json. */
+/**
+ * Loads docs/gen/components.json. The file is generated and gitignored, so on a fresh clone
+ * (or in CI) it is built first with scripts/docs-data.mjs.
+ */
 export function loadData(root = ROOT) {
-  return JSON.parse(fs.readFileSync(path.join(root, "docs", "gen", "components.json"), "utf8"));
+  const file = path.join(root, "docs", "gen", "components.json");
+  if (!fs.existsSync(file)) {
+    const r = spawnSync(process.execPath, [path.join(root, "scripts", "docs-data.mjs")], {
+      cwd: root,
+      stdio: ["ignore", "ignore", "inherit"],
+    });
+    if (r.status !== 0 || !fs.existsSync(file)) throw new Error("tallao docs: could not generate docs/gen/components.json");
+  }
+  return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
 function allEntries(data) {

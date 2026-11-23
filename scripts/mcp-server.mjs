@@ -4,7 +4,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { callTool, loadData, tools } from "./mcp-core.mjs";
 
@@ -12,18 +11,14 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const VERSIONS = ["2024-11-05", "2025-03-26", "2025-06-18"];
 const log = (...a) => console.error("[tallao-docs]", ...a);
 
-if (!fs.existsSync(path.join(ROOT, "docs", "gen", "components.json"))) {
-  log("docs/gen/components.json missing, running scripts/docs-data.mjs");
-  const r = spawnSync(process.execPath, [path.join(ROOT, "scripts", "docs-data.mjs")], {
-    cwd: ROOT,
-    stdio: ["ignore", "ignore", "inherit"],
-  });
-  if (r.status !== 0) {
-    log("could not generate docs data");
-    process.exit(1);
-  }
+if (!fs.existsSync(path.join(ROOT, "docs", "gen", "components.json"))) log("docs/gen/components.json missing, generating it");
+let data;
+try {
+  data = loadData(ROOT);
+} catch (e) {
+  log(e instanceof Error ? e.message : e);
+  process.exit(1);
 }
-const data = loadData(ROOT);
 const version = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8")).version;
 
 const send = (msg) => process.stdout.write(JSON.stringify({ jsonrpc: "2.0", ...msg }) + "\n");
