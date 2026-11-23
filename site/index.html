@@ -27,6 +27,7 @@
     <link rel="alternate" hreflang="es" href="https://tallao-ui.github.io/tallao/es/" />
     <link rel="alternate" hreflang="x-default" href="https://tallao-ui.github.io/tallao/" />
     <link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/urbanist.woff2" as="font" type="font/woff2" crossorigin />
     <script>
       /* Theme, accent and radius before the first paint. */
       (function () {
@@ -49,6 +50,20 @@
         font-family: "Inter";
         src: url("fonts/inter.woff2") format("woff2");
         font-weight: 100 900;
+        font-display: swap;
+      }
+      /* Site headings and long text (fonts.md): Urbanist and Lora, OFL-1.1, licenses in fonts/.
+         The component demos keep the kit’s own Inter and JetBrains Mono. */
+      @font-face {
+        font-family: "Urbanist";
+        src: url("fonts/urbanist.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Lora";
+        src: url("fonts/lora.woff2") format("woff2");
+        font-weight: 400 700;
         font-display: swap;
       }
       @font-face {
@@ -155,6 +170,8 @@
         --fill: color-mix(in srgb, rgb(var(--ta-accent)) 88%, black);
         --sans: var(--ta-font-sans);
         --mono: var(--ta-font-mono);
+        --display: "Urbanist", var(--ta-font-sans);
+        --serif: "Lora", Georgia, "Times New Roman", serif;
         --gut: clamp(1rem, 2.4vw, 2.25rem);
         --bar: 3.5rem;
       }
@@ -207,6 +224,11 @@
       h3,
       p {
         margin: 0;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--display);
       }
       a {
         color: inherit;
@@ -526,6 +548,7 @@
         }
       }
       .lede {
+        font-family: var(--serif);
         max-width: 36rem;
         font-size: clamp(1.1rem, 1.5vw, 1.4rem);
         line-height: 1.4;
@@ -626,6 +649,7 @@
         text-wrap: balance;
       }
       .lead {
+        font-family: var(--serif);
         max-width: 44rem;
         margin-top: 1.1rem;
         font-size: 1.125rem;
