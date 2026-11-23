@@ -181,6 +181,8 @@ export { default as SortableList } from "./sortable-list.svelte";
 export { default as TreeView } from "./tree-view.svelte";
 export type { TreeNode } from "./tree-view.svelte";
 export { default as Beam } from "./beam.svelte";
+export { default as ProgressiveBlur } from "./progressive-blur.svelte";
+export { default as ReadingProgress } from "./reading-progress.svelte";
 export { default as Terminal } from "./terminal.svelte";
 export type { TerminalKind, TerminalLine } from "./terminal.svelte";
 export { default as EventFeed } from "./event-feed.svelte";

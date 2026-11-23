@@ -22,7 +22,7 @@ describe("llms.txt", () => {
     expect(text).toContain("### GameMap\n");
     expect(text).toContain("### CodeEditor\n");
     // Types and doc comments come through, also for the inline `$props()` style.
-    expect(text).toContain('- `variant?: "primary" | "secondary" | "danger" | "danger-ghost" | "ghost" | "outline" | "soft"`');
+    expect(text).toContain('- `variant?: "primary" | "secondary" | "danger" | "danger-ghost" | "ghost" | "outline" | "soft" | "aurora"`');
     expect(text).toContain("- `rowKey: keyof T | ((row: T) => string)` — Field or function that gives each row's unique key.");
     expect(text).toContain("- `title: string` — What will happen if approved, as one sentence.");
     // The example is the header comment's own snippet when it has one.
