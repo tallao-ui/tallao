@@ -38,6 +38,8 @@
     SortableList,
     TreeView,
     Beam,
+    ProgressiveBlur,
+    ReadingProgress,
     Terminal,
     EventFeed,
     SuggestionChips,
@@ -283,6 +285,12 @@
       <Beam container={beamBox} from={beamFrom} to={beamTo} />
     </div>
     <Terminal title="agent · ~/app" autoplay={false} lines={[{ kind: "command", text: "pnpm test" }, { text: "506 passed" }, { kind: "success", text: "All checks passed" }]} />
+    <div style="position: relative; height: 6rem">
+      <p>Behind the blur</p>
+      <ProgressiveBlur size="50%" />
+    </div>
+    <ReadingProgress />
+    <Button variant="aurora">Start</Button>
     <EventFeed events={[{ id: 1, title: "Read post #42", time: "12:03", tone: "info" }, { id: 2, title: "Run started" }]} />
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
   </main>

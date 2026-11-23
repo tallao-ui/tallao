@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+- **ProgressiveBlur** (new): a decorative blur that grows toward one edge of its positioned parent:
+  three stacked layers, each a stronger `backdrop-filter: blur()` under a shorter `mask-image`
+  gradient. Props: `side` (`"top"` | `"bottom"`, default `"bottom"`), `size` (CSS length or percent,
+  default `"60%"`), `strength` (px of the strongest layer, default 14; the others are 1/7 and 3/7 of
+  it), `class`, and any other attribute on the root. `aria-hidden`, `pointer-events: none`. Under
+  `pointer: coarse` one layer at half the strength (backdrop filters repaint on every scroll frame);
+  without `backdrop-filter` support it draws nothing. No JavaScript.
+- **ReadingProgress** (new): a 3px accent bar that fills as the reader scrolls. Props: `target`
+  (an element to measure: progress is `-top / (height - innerHeight)`, updated on passive
+  `scroll`/`resize` once per animation frame), `position` (`"fixed"` at the top of the viewport,
+  default, or `"absolute"` on the bottom edge of a sticky header), `class`, and any other attribute
+  on the root. Without `target` it is CSS only (`animation-timeline: scroll(root)`) and hidden where
+  scroll-driven animations are not supported. `aria-hidden`; fills from the start edge, right to
+  left in RTL. `animation-timeline` sits in its own, more specific rule: in the same rule as the
+  `animation` shorthand, lightningcss folds both into one shorthand that browsers reject.
+- **Button** `variant="aurora"` (new value): the primary fill inside a conic gradient border of the
+  accents that turns (a registered `--ta-aurora-angle`, 4 s a turn, 1.6 s on hover) with a soft accent
+  glow, for the one main action of a page. It turns only under `prefers-reduced-motion:
+  no-preference` and not with `data-tallao-motion="reduce"`; the 44px touch rule still applies.
+
 - **SegmentedBar** (new): a total split into its parts, after the analytics and overview pages of the
   loopo template. Props: `segments` (`BarSegment`: `label`, `value`, `delta?`, `color?`), `title`,
   `hideTitle`, `total`, `totalLabel`, `locale`, `format`, `deltaFormat`. A named group; the bar is

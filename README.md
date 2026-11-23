@@ -50,7 +50,7 @@ Requires Svelte 5.29 or later.
 
 | Component | What it is |
 |---|---|
-| Button | 7 variants (including `soft`, tinted with the accent, and `danger-ghost`, the quiet destructive action: red text, no fill) × 4 sizes, `loading`, `href`; passes any attribute and attachment to the element |
+| Button | 8 variants (including `soft`, tinted with the accent, `danger-ghost`, the quiet destructive action: red text, no fill, and `aurora`, the page's one main action in a turning accent border) × 4 sizes, `loading`, `href`; passes any attribute and attachment to the element |
 | Badge | 9 variants (including `accent` and `accent-2`, the second accent) × 2 sizes; `tone="solid"` fills with the colour and uses contrasting text ("LIVE" over an image); `dot` adds a leading status dot in the variant's colour and `pulse` makes it pulse (live, running; still under reduced motion); passes any attribute to the `<span>` |
 | Spinner | a standalone loading indicator: `role="status"` with hidden text (`label`, by default the kit's "Loading" text), `size` sm / md / lg or in pixels, text colour; with reduced motion it pulses instead of spinning |
 | PasswordInput | a password or secret-key field with a show / hide button (`aria-pressed`); password managers, paste and `name` keep working; `revealed` is bindable |
@@ -144,6 +144,8 @@ Requires Svelte 5.29 or later.
 | EventFeed | an agent's activity as a list where each new event enters at the top and the older ones glide down (FLIP); `limit`, tones with icons, an `item` snippet, silent unless `announce` |
 | Beam | a pulse of light along a line between two elements (an agent and its tools), drawn as an SVG inside their container, edge to edge; `curvature`, `reverse`, tones; `aria-hidden`, only the line under reduced motion |
 | ScenePlayer | a "video" drawn with components: timed scenes from data, play / pause, seek bar (`role="slider"`), chapters and captions read aloud; Space, K, ← →, N / P; never autoplays under reduced motion |
+| ProgressiveBlur | a blur that grows toward one edge of its positioned parent (`side`, `size`, `strength`): three stacked backdrop-filter layers with shorter masks, one layer on touch screens, nothing without `backdrop-filter`; `aria-hidden`, no JavaScript |
+| ReadingProgress | a thin accent bar that fills as the reader scrolls: the whole page with CSS alone (scroll-driven animation), or one `target` element measured once per frame; `fixed` at the top or `absolute` under a sticky header; `aria-hidden`, fills from the start edge in RTL too |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
 | PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
 | Thinking | a model's reasoning as one quiet line: a soft shimmer, a live `summary` and the elapsed time while `running`, "Thought for 12 s" when done, and the trace (`steps`, content) behind a disclosure; the end is announced once |

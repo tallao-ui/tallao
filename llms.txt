@@ -32,7 +32,7 @@ Extracted from the Kitsuden admin and decoupled from Tailwind.
 ```
 
 Props:
-- `variant?: "primary" | "secondary" | "danger" | "danger-ghost" | "ghost" | "outline" | "soft"` — `danger-ghost`: the quiet destructive action (red text, no fill until hover), for a row or a bar where a filled red button would weigh too much.
+- `variant?: "primary" | "secondary" | "danger" | "danger-ghost" | "ghost" | "outline" | "soft" | "aurora"` — `danger-ghost`: the quiet destructive action (red text, no fill until hover), for a row or a bar where a filled red button would weigh too much. `aurora`: the primary fill inside a slowly turning accent border with a soft glow, for the ONE main action of a page (a landing's call to action); still under reduced motion.
 - `size?: "sm" | "md" | "lg" | "icon"`
 - `type?: "button" | "submit" | "reset"`
 - `disabled?: boolean`
@@ -2811,6 +2811,33 @@ Props:
 - `tone?: "accent" | "accent-2" | "success" | "warning" | "danger" | "info"` — Colour of the pulse.
 - `width?: number` — Width of the line in px.
 - `gap?: number` — Distance in px between each element's edge and the beam.
+- `class?: string`
+
+### ProgressiveBlur
+
+A blur that grows toward one edge of a box.
+
+```svelte
+<ProgressiveBlur side="bottom" size="40%" />
+```
+
+Props:
+- `side?: "top" | "bottom"` — The edge the blur grows toward.
+- `size?: string` — How far it reaches from that edge: a CSS length or a percent of the parent.
+- `strength?: number` — Blur in px of the strongest layer, at the edge; the other layers scale from it.
+- `class?: string`
+
+### ReadingProgress
+
+A thin bar that fills as the reader moves down a page or an article.
+
+```svelte
+<ReadingProgress position="absolute" target={article} />
+```
+
+Props:
+- `target?: HTMLElement | null` — The element to measure; without it the bar follows the whole page (CSS only).
+- `position?: "fixed" | "absolute"` — `fixed`: top of the viewport. `absolute`: bottom edge of the positioned parent (a sticky header).
 - `class?: string`
 
 ### Terminal

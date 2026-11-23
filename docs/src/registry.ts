@@ -42,7 +42,7 @@ export const docs = data as unknown as {
 };
 
 /** Components added since 0.7: they carry a "new" mark. */
-export const NEW = new Set(["password-input", "floating-scene", "scene-player", "chat-thread", "document-tabs", "code-diff", "tag-input", "sortable-list", "tree-view", "date-range-picker", "sankey-chart", "calendar-heatmap", "card-stack", "beam", "terminal", "event-feed", "segmented-bar", "cohort-grid"]);
+export const NEW = new Set(["password-input", "floating-scene", "scene-player", "chat-thread", "document-tabs", "code-diff", "tag-input", "sortable-list", "tree-view", "date-range-picker", "sankey-chart", "calendar-heatmap", "card-stack", "beam", "terminal", "event-feed", "segmented-bar", "cohort-grid", "progressive-blur", "reading-progress"]);
 
 /** Every page in reading order, with its family and its place in it. */
 export const order = docs.families.flatMap((f) => f.items.map((slug, i) => ({ slug, family: f, index: i + 1, of: f.items.length })));

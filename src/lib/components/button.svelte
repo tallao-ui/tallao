@@ -7,8 +7,10 @@
 
   interface Props {
     /** `danger-ghost`: the quiet destructive action (red text, no fill until hover),
-        for a row or a bar where a filled red button would weigh too much. */
-    variant?: "primary" | "secondary" | "danger" | "danger-ghost" | "ghost" | "outline" | "soft";
+        for a row or a bar where a filled red button would weigh too much.
+        `aurora`: the primary fill inside a slowly turning accent border with a soft glow, for the
+        ONE main action of a page (a landing's call to action); still under reduced motion. */
+    variant?: "primary" | "secondary" | "danger" | "danger-ghost" | "ghost" | "outline" | "soft" | "aurora";
     size?: "sm" | "md" | "lg" | "icon";
     type?: "button" | "submit" | "reset";
     disabled?: boolean;
@@ -186,6 +188,54 @@
   }
   .ta-btn--outline:hover:not(:disabled) {
     background: rgb(var(--ta-elevated));
+  }
+
+  /* The one main action of a page: the primary fill (padding-box) over a conic gradient of the two
+     accents (border-box) that turns through a registered angle. It only turns when motion is
+     allowed: under prefers-reduced-motion or data-tallao-motion="reduce" the border stays still. */
+  .ta-btn--aurora {
+    --ta-aurora-fill: var(--ta-accent-fill, color-mix(in srgb, rgb(var(--ta-accent)) 88%, black));
+    border: 1.5px solid transparent;
+    background:
+      linear-gradient(var(--ta-aurora-fill), var(--ta-aurora-fill)) padding-box,
+      conic-gradient(
+          from var(--ta-aurora-angle),
+          rgb(var(--ta-accent-hover)),
+          rgb(var(--ta-accent-2)),
+          rgb(var(--ta-accent-hover))
+        )
+        border-box;
+    color: rgb(var(--ta-on-accent));
+    box-shadow: 0 0 18px -4px rgb(var(--ta-accent) / 0.55);
+  }
+  .ta-btn--aurora:hover:not(:disabled) {
+    --ta-aurora-fill: var(--ta-accent-fill-hover, color-mix(in srgb, rgb(var(--ta-accent)) 76%, black));
+    box-shadow: 0 0 24px -4px rgb(var(--ta-accent) / 0.7);
+  }
+  .ta-btn--aurora:focus-visible {
+    box-shadow: 0 0 0 2px rgb(var(--ta-bg)), 0 0 0 4px rgb(var(--ta-accent) / 0.6), 0 0 18px -4px rgb(var(--ta-accent) / 0.55);
+  }
+
+  @property --ta-aurora-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  @keyframes ta-aurora-spin {
+    to { --ta-aurora-angle: 360deg; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ta-btn--aurora {
+      animation: ta-aurora-spin 4s linear infinite;
+    }
+    .ta-btn--aurora:hover:not(:disabled) {
+      animation-duration: 1.6s;
+    }
+    :global([data-tallao-motion="reduce"]) .ta-btn--aurora {
+      animation: none;
+    }
   }
 
   .ta-btn-spinner {
