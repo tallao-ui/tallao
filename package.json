@@ -54,6 +54,7 @@
     "test": "vitest run",
     "llms": "node scripts/llms.mjs",
     "kit:check": "pnpm --filter tallao-kit-check build && pnpm --filter tallao-kit-check test",
+    "mcp": "node scripts/mcp-server.mjs",
     "docs:data": "node scripts/docs-data.mjs",
     "docs:dev": "node scripts/docs-data.mjs && vite --config vite.docs.config.js",
     "docs:build": "node scripts/docs-data.mjs && vite build --config vite.docs.config.js",

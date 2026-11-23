@@ -5,6 +5,9 @@
   Follows the kit's brand rules: bars 24px thick at most (32px stacked), rounded data end
   (4px) and a straight base, 2px between neighbours, thin and discreet grid and axes, a
   single scale that starts at zero.
+  - Negative values grow the other way from the zero line (below it, or to its left), so
+    money in and money out read as one chart; stacked, the positives pile up and the
+    negatives pile down, and the total is the net sum.
   - With two or more series there is a legend; with one, the title says what is measured.
   - Hovering or stepping with the arrows (the chart takes focus; Home / End / Escape too)
     shows the category with each series' value, and the total when stacked; a screen
@@ -18,7 +21,7 @@
 <script lang="ts">
   import ChartFigure from "$lib/internal/chart-figure.svelte";
   import { useLabels } from "$lib/i18n";
-  import { compactNumber, niceScale, seriesColor, valueOf, type ChartSeries } from "$lib/internal/chart";
+  import { compactNumber, niceDomain, niceScale, seriesColor, valueOf, type ChartSeries } from "$lib/internal/chart";
 
   const L = useLabels();
   const {
@@ -82,13 +85,21 @@
   const plotWidth = $derived(Math.max(40, chartWidth - M.left - M.right));
   const plotHeight = $derived(Math.max(40, fullHeight - M.top - M.bottom));
 
-  const positive = (row: Record<string, unknown>, key: string) => Math.max(0, valueOf(row, key) ?? 0);
-  const totalOf = (row: Record<string, unknown>) => series.reduce((sum, s) => sum + positive(row, s.key), 0);
-  const maxValue = $derived(Math.max(0, ...data.map((d) => (piles ? totalOf(d) : Math.max(0, ...series.map((s) => positive(d, s.key)))))));
-  const scale = $derived(niceScale(maxValue, horizontal ? Math.max(2, Math.min(4, Math.floor(plotWidth / 70))) : 4));
+  const num = (row: Record<string, unknown>, key: string) => valueOf(row, key) ?? 0;
+  /** Net sum of a row: what a stacked bar totals. */
+  const totalOf = (row: Record<string, unknown>) => series.reduce((sum, s) => sum + num(row, s.key), 0);
+  const sumOf = (row: Record<string, unknown>, sign: 1 | -1) => series.reduce((sum, s) => sum + (Math.sign(num(row, s.key)) === sign ? num(row, s.key) : 0), 0);
+  const maxValue = $derived(Math.max(0, ...data.map((d) => (piles ? sumOf(d, 1) : Math.max(0, ...series.map((s) => num(d, s.key)))))));
+  const minValue = $derived(Math.min(0, ...data.map((d) => (piles ? sumOf(d, -1) : Math.min(0, ...series.map((s) => num(d, s.key)))))));
+  const tickCount = $derived(horizontal ? Math.max(2, Math.min(4, Math.floor(plotWidth / 70))) : 4);
+  // Only positives: zero to a round maximum, as before. With negatives: round bounds on both sides of zero.
+  const scale = $derived(minValue < 0 ? niceDomain(minValue, maxValue, tickCount) : { min: 0, ...niceScale(maxValue, tickCount) });
 
   /** Position of a value along the value axis (y for columns, x for horizontal bars). */
-  const at = (v: number) => (horizontal ? M.left + (v / scale.max) * plotWidth : M.top + plotHeight - (v / scale.max) * plotHeight);
+  const at = (v: number) => {
+    const t = (v - scale.min) / (scale.max - scale.min);
+    return horizontal ? M.left + t * plotWidth : M.top + plotHeight - t * plotHeight;
+  };
 
   const band = $derived((horizontal ? plotHeight : plotWidth) / Math.max(1, data.length));
   const thick = $derived(Math.min(piles ? 32 : horizontal ? 20 : 24, Math.max(2, (band * 0.7 - (lanes - 1) * 2) / lanes)));
@@ -107,28 +118,35 @@
     if (length <= 0) return "";
     const r = cap ? Math.min(4, length, thick / 2) : 0;
     // 1px off the start of a piled segment keeps the neighbours apart.
-    const gap = from > 0 ? Math.min(1, length / 2) : 0;
+    const gap = from !== 0 ? Math.min(1, length / 2) : 0;
     if (horizontal) {
-      const s = a + gap;
-      return `M${s},${lane}H${b - r}Q${b},${lane} ${b},${lane + r}V${lane + thick - r}Q${b},${lane + thick} ${b - r},${lane + thick}H${s}Z`;
+      const dir = b >= a ? 1 : -1; // right for positives, left for negatives
+      const s = a + dir * gap;
+      return `M${s},${lane}H${b - dir * r}Q${b},${lane} ${b},${lane + r}V${lane + thick - r}Q${b},${lane + thick} ${b - dir * r},${lane + thick}H${s}Z`;
     }
-    const s = a - gap;
-    return `M${lane},${s}V${b + r}Q${lane},${b} ${lane + r},${b}H${lane + thick - r}Q${lane + thick},${b} ${lane + thick},${b + r}V${s}Z`;
+    const dir = b <= a ? 1 : -1; // up for positives, down for negatives
+    const s = a - dir * gap;
+    return `M${lane},${s}V${b + dir * r}Q${lane},${b} ${lane + r},${b}H${lane + thick - r}Q${lane + thick},${b} ${lane + thick},${b + dir * r}V${s}Z`;
   }
 
   const bars = $derived(
     data.map((row, i) => {
       const start = bandStart(i) + (band - groupSize) / 2;
-      let pile = 0;
-      let last = -1;
+      // Positives pile up from zero and negatives pile down; the outermost segment of each side is rounded.
+      const pile = { up: 0, down: 0 };
+      const last = { up: -1, down: -1 };
       series.forEach((s, si) => {
-        if (positive(row, s.key) > 0) last = si;
+        const v = num(row, s.key);
+        if (v > 0) last.up = si;
+        else if (v < 0) last.down = si;
       });
       return series.map((s, si) => {
-        const v = positive(row, s.key);
-        const from = piles ? pile : 0;
-        pile += v;
-        return v > 0 ? bar(start + (piles ? 0 : si * (thick + 2)), from, from + v, !piles || si === last) : "";
+        const v = num(row, s.key);
+        if (v === 0) return "";
+        const side = v > 0 ? "up" : "down";
+        const from = piles ? pile[side] : 0;
+        pile[side] += v;
+        return bar(start + (piles ? 0 : si * (thick + 2)), from, from + v, !piles || si === last[side]);
       });
     })
   );

@@ -2,6 +2,51 @@
 
 ## Unreleased
 
+- **SegmentedBar** (new): a total split into its parts, after the analytics and overview pages of the
+  loopo template. Props: `segments` (`BarSegment`: `label`, `value`, `delta?`, `color?`), `title`,
+  `hideTitle`, `total`, `totalLabel`, `locale`, `format`, `deltaFormat`. A named group; the bar is
+  decoration, the rows are a list with the share and the change in words. Segments grow in, staggered;
+  none under reduced motion.
+- **CohortGrid** (new): retention by cohort as a table. Props: `cohorts` (`Cohort`: `label`, `size?`,
+  `values`), `periods`, `title`, `hideTitle`, `cohortLabel`, `sizeLabel`, `max`, `color`, `locale`,
+  `format`. Scrolls sideways in a focusable region; cells fade in along the diagonal; none under
+  reduced motion. New label key: `cohort` (en "Cohort", es "Cohorte").
+- **LineChart** `compare` (new prop, a `ChartSeries`): a previous period or a target drawn as a dashed,
+  quieter line behind the series, in the text colour. It enters the scale, the legend (a dashed mark),
+  the tooltip, the readout and the data table. **ChartLegend** items take `dashed` for that mark.
+- **BarChart** draws negative values: they grow the other way from the zero line, and the scale gets
+  round bounds on both sides of zero. Stacked, positives pile up and negatives pile down (money in and
+  money out in one chart), and the total in the tooltip and the table is now the net sum. Before, a
+  negative value was drawn as nothing and left out of a stacked total; charts with only positive values
+  are unchanged.
+
+**Effects for agent screens, and an MCP server for the docs.**
+
+- **Terminal** (new): what an agent runs, as a terminal window that writes itself. `lines`
+  (`TerminalLine`: `kind` = `command` | `output` | `success` | `error` | `info` | `comment`, `text`),
+  `title`, `label`, `speed` (28 ms per character), `lineDelay` (420 ms), `autoplay` (true), `prompt`
+  ("$"), `replay` (true), `replayLabel`, `onDone`. Commands are typed after the prompt, the others
+  appear whole, each kind with a mark (✓ ✗ i #). The animated lines are `aria-hidden` and a hidden
+  list holds the whole transcript from the start; the group is `aria-busy` while it plays. Reduced
+  motion and the server render the whole text at once. Exports `TerminalLine` and `TerminalKind`.
+  New labels: `terminal`, `terminalReplay`.
+- **EventFeed** (new): an agent's activity as a list where a new event enters at the top and the
+  others glide down. `events` (`FeedEvent`: `id`, `title`, `detail`, `time`, `tone`, `icon`),
+  `limit`, `ariaLabel`, `announce` (a polite live region, off by default), `emptyText` and an
+  `item` snippet. Tones (`default`, `accent`, `success`, `warning`, `error`, `info`) pick an icon as
+  a second cue. 120–240 ms, opacity and transform; still under reduced motion. Exports `FeedEvent`
+  and `FeedTone`. New labels: `eventFeed`, `noEvents`.
+- **Beam** (new): a pulse of light along a line between two elements, drawn as an SVG inside
+  their positioned `container`, from edge to edge (`gap`), redrawn by a ResizeObserver. `from`,
+  `to`, `curvature`, `duration`, `delay`, `reverse`, `active`, `tone`, `width`. `aria-hidden`;
+  under reduced motion only the line.
+- **MCP server** (`pnpm mcp`, `scripts/mcp-server.mjs` + `scripts/mcp-core.mjs`): stdio, JSON-RPC,
+  no dependencies. Tools `list_components`, `search_components`, `get_component` (import line,
+  docs URL, the demo's code or the header example, props table, parts, the accessibility contract)
+  and `get_setup` (from the "Use" section of `llms.txt`), all from `docs/gen/components.json`.
+- Tests: `tests/dom/agent-effects.test.ts`, `tests/ssr/mcp.test.ts`; `tests/setup.ts` stands in for
+  `Element.getAnimations` (jsdom has none; Svelte's `animate:` asks for it).
+
 **Docs, and a landing that shows the kit as it is now.**
 
 - **Docs** (new, `docs/`, published at `/docs/` next to the landing): a page for each of the 133
@@ -17,6 +62,17 @@
   SortableList, TagInput and PasswordInput; a calmer first screen (announcement, stack, inspector
   on demand); a Spanish version (`?lang=es`, `/es/`); a closing call to action; the logos; and each
   catalogue chip opens its docs page. Counts corrected (133 components, 500+ tests).
+- **Brand on the landing and the docs**: the wordmark is big in the first screen and writes itself on
+  load while its orange comma falls into place (the two are separate images, `site/brand/tallao-letters-*`
+  and `tallao-comma.*`; still, with no animation, under reduced motion). The comma is also the headline's
+  streaming cursor, the mark under the section you are in, and the dot of every "new" label (landing and
+  docs). The inspector's panel moves above the wordmark so it covers no text.
+- **Landing rhythm and length**: each section's line draws itself in violet to orange and starts with
+  the comma, and its big number is written with a comma falling beside it; three sections lean on a soft
+  violet / orange glow. Section 01 now tells a story (the "replica" note moved to the end, with a link to
+  the docs); the rest of the specimens in "Controls" and "New" are folded (a link, a chip or the command
+  palette opens the fold it points into); the catalogue shows 6 components per family. The page goes
+  from 17.4 to 14.5 screens at 1366×768. Stale figures in the Stat specimen corrected.
 
 **Lists, outlines and forms that take them.**
 

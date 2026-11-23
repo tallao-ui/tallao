@@ -1270,6 +1270,7 @@ Props:
 - `area?: boolean` — Fill under the line, at 10% of the series color.
 - `stacked?: boolean` — Stacked areas: every series is drawn on top of the previous ones.
 - `domain?: [number, number]` — Lower and upper bound of the scale, instead of zero to the maximum (ignored when stacked).
+- `compare?: ChartSeries` — A previous period or a target, drawn as a dashed line behind the series (never stacked).
 - `locale?: string`
 - `format?: (n: number) => string`
 - `emptyText?: string` — Text shown when `data` is empty.
@@ -1972,6 +1973,46 @@ Props:
 - `showShare?: boolean` — Shows each side's percentage of the sum next to its value.
 - `locale?: string`
 - `format?: (n: number) => string` — Format of the values.
+- `class?: string`
+
+### SegmentedBar
+
+A total split into its parts.
+
+```svelte
+<SegmentedBar {segments} title="…" />
+```
+
+Props:
+- `segments: BarSegment[]`
+- `title: string` — Names the group.
+- `hideTitle?: boolean` — Hides the title visually; it still names the group.
+- `total?: number` — The headline figure; by default the sum of the parts.
+- `totalLabel?: string` — Text next to the figure ("gross volume").
+- `locale?: string`
+- `format?: (n: number) => string` — Format of values and the total.
+- `deltaFormat?: (n: number) => string` — Format of a change (by default a signed percent: "+21.6%").
+- `class?: string`
+
+### CohortGrid
+
+Retention by cohort.
+
+```svelte
+<CohortGrid {cohorts} periods="…" title="…" />
+```
+
+Props:
+- `cohorts: Cohort[]`
+- `periods: string[]` — Column headings, one per period ("M0", "M1"…).
+- `title: string` — Names the table.
+- `hideTitle?: boolean` — Hides the title visually; it still names the table.
+- `cohortLabel?: string` — Heading of the cohort column.
+- `sizeLabel?: string` — Heading of the size column; with none, the sizes are not shown.
+- `max?: number` — The value that gets the darkest shade (100 for percentages).
+- `color?: string` — Any CSS colour for the shading; by default the first series colour.
+- `locale?: string`
+- `format?: (n: number) => string` — Format of a cell (by default a whole percent: "64%").
 - `class?: string`
 
 ### DashboardGrid
@@ -2749,6 +2790,70 @@ Props:
 - `class?: string`
 - `onselect?: (id: string, node: TreeNode) => void`
 - `node?: Snippet<[TreeNode, { level: number; selected: boolean }]>` — Draws a node's content instead of label + description + badge.
+
+### Beam
+
+A pulse of light that travels along a line between two elements.
+
+```svelte
+<Beam container={box} from={agent} to={search} />
+```
+
+Props:
+- `container: HTMLElement | null | undefined` — The positioned element both ends live in.
+- `from: HTMLElement | null | undefined` — Where the beam starts.
+- `to: HTMLElement | null | undefined` — Where it ends.
+- `curvature?: number` — Offset in px of the control point, at right angles to the straight line; 0 is straight.
+- `duration?: number` — Seconds a pulse takes, rest included.
+- `delay?: number` — Seconds before the first pulse.
+- `reverse?: boolean` — The pulse goes from `to` to `from`.
+- `active?: boolean` — Runs the pulse; false leaves only the line.
+- `tone?: "accent" | "accent-2" | "success" | "warning" | "danger" | "info"` — Colour of the pulse.
+- `width?: number` — Width of the line in px.
+- `gap?: number` — Distance in px between each element's edge and the beam.
+- `class?: string`
+
+### Terminal
+
+What an agent runs, as a terminal window that writes itself.
+
+```svelte
+<Terminal title="agent · ~/app" lines={[
+  { kind: "command", text: "pnpm test" },
+  { kind: "output", text: "36 files, 506 tests" },
+  { kind: "success", text: "All checks passed" },
+]} />
+```
+
+Props:
+- `lines: TerminalLine[]`
+- `title?: string` — Shown in the window's bar (a path, a command); also the name of the group when `label` is not given.
+- `label?: string` — Accessible name of the transcript.
+- `speed?: number` — Milliseconds per typed character.
+- `lineDelay?: number` — Milliseconds before the next line starts.
+- `autoplay?: boolean` — Plays when it mounts and when `lines` change; false shows the whole text until Replay.
+- `prompt?: string` — The mark before a command.
+- `replay?: boolean` — Shows the Replay button once it has finished.
+- `replayLabel?: string` — Name of the Replay button.
+- `onDone?: () => void` — It reached the end of `lines`.
+- `class?: string`
+
+### EventFeed
+
+The activity of an agent (or of anything) as a list where each new event enters at the top and the older ones slide down to make room.
+
+```svelte
+<EventFeed events={events} limit={6} />      the page unshifts a new event onto `events`
+```
+
+Props:
+- `events: FeedEvent[]`
+- `limit?: number` — Shows only the first N events (the newest).
+- `ariaLabel?: string` — Accessible name of the list.
+- `announce?: boolean` — Reads each new event aloud, politely.
+- `emptyText?: string` — Shown when there are no events.
+- `item?: Snippet<[FeedEvent]>` — Draws an event instead of the default row.
+- `class?: string`
 
 ## Components (`tallao/map`)
 

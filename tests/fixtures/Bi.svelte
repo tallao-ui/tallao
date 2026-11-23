@@ -7,6 +7,8 @@
     ChartCard,
     ChartLegend,
     ComparisonBar,
+    SegmentedBar,
+    CohortGrid,
     DashboardGrid,
     DashboardItem,
     DonutChart,
@@ -89,6 +91,23 @@
 <BarChart title="Roles across" data={roles} x="patch" series={roleSeries} orientation="horizontal" locale="en" />
 <LineChart title="Stacked roles" data={empty ? [] : roles} x="patch" series={roleSeries} stacked locale="en" />
 <LineChart title="Win rate trend" data={[{ d: "Mon", w: 49 }, { d: "Tue", w: 52 }]} x="d" series={[{ key: "w", label: "Win rate" }]} domain={[45, 55]} format={pct} />
+<LineChart
+  title="Visits against last month"
+  data={[{ d: "W1", now: 120, prev: 100 }, { d: "W2", now: 140, prev: 150 }, { d: "W3", now: 180, prev: null }]}
+  x="d"
+  series={[{ key: "now", label: "This month" }]}
+  compare={{ key: "prev", label: "Last month" }}
+  locale="en"
+/>
+<BarChart
+  title="Cash flow"
+  data={[{ m: "Jan", in: 300, out: -120 }, { m: "Feb", in: 200, out: -260 }]}
+  x="m"
+  series={[{ key: "in", label: "In" }, { key: "out", label: "Out" }]}
+  stacked
+  locale="en"
+/>
+<BarChart title="Net change" data={[{ m: "Jan", net: 40 }, { m: "Feb", net: -25 }]} x="m" series={[{ key: "net", label: "Net" }]} locale="en" />
 
 <DonutChart title="Picks by element" data={empty ? [] : elements} locale="en" />
 <DonutChart title="Many slices" data={Array.from({ length: 10 }, (_, i) => ({ label: `S${i + 1}`, value: 10 }))} maxSlices={4} innerRadius={0} legend="bottom" locale="en" />
@@ -106,3 +125,5 @@
 <Timeline items={empty ? [] : events} ariaLabel="Season" locale="en" />
 <ComparisonBar title="Side win rate" left={{ label: "Blue side", value: 5230 }} right={{ label: "Red side", value: 4770 }} locale="en" />
 <ChartLegend items={[{ label: "Fire", value: "40%" }, { label: "Water", color: "teal" }]} aria-label="Elements" />
+<SegmentedBar title="Revenue by channel" locale="en" totalLabel="gross" segments={[{ label: "Online", value: 75, delta: 21.6 }, { label: "Subscriptions", value: 25, delta: -6.8 }, { label: "Dormant", value: 0 }]} />
+<CohortGrid title="Retention" periods={["M0", "M1", "M2"]} sizeLabel="Size" locale="en" cohorts={[{ label: "Jul", size: 486, values: [100, 64, 52] }, { label: "Aug", size: 512, values: [100, 61] }]} />

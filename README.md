@@ -114,7 +114,7 @@ Requires Svelte 5.29 or later.
 | MegaMenu | a wide header menu: a featured tile (art, title, one line and a call to action) next to columns of grouped links with an icon, label and one-line description, and an optional footer link; same contract as NavMenu (native `<details>`, works with no JavaScript, opens on click or tap, never on hover), a list of links rather than an ARIA `menu` |
 | BottomNav | a mobile tab bar fixed to the bottom, above the safe area: up to 5 links with icon and visible label, the current one marked, badges, an optional raised central `action`; `hideAbove` keeps desktop untouched; works with no JavaScript |
 | SplitPane | two panes with an accessible separator (APG "window splitter" pattern): arrows, Home/End, Enter collapses |
-| BarChart · LineChart | bar and line charts with the kit's series colours: a legend with two or more series, a tooltip on hover **or when stepping through with the keyboard**, a table with all the data, a labelled empty state. BarChart: grouped or `stacked`, columns or `orientation="horizontal"`. LineChart: `area`, `stacked` areas, `domain` for a scale that does not start at zero. `hideTitle` inside a ChartCard |
+| BarChart · LineChart | bar and line charts with the kit's series colours: a legend with two or more series, a tooltip on hover **or when stepping through with the keyboard**, a table with all the data, a labelled empty state. BarChart: grouped or `stacked`, columns or `orientation="horizontal"`, negative values below zero (money in and out). LineChart: `area`, `stacked` areas, `domain` for a scale that does not start at zero, `compare` for a dashed previous period. `hideTitle` inside a ChartCard |
 | DonutChart | parts of a whole as a ring, or a pie with `innerRadius={0}`: the total in the centre, a legend with every label, value and percentage in text, the slices past `maxSlices` grouped into "Other" |
 | ScatterChart | two measures against each other, one point per item; a colour **and a shape** per `group`, reference lines (`xRef`, `yRef`), optional point labels, arrows step through the points, a table with all the data |
 | Heatmap | a matrix shaded by value, as a real `<table>` with row and column headers and the value printed in every cell; scrolls sideways in a focusable region with the row headers fixed; a scale under it |
@@ -124,6 +124,8 @@ Requires Svelte 5.29 or later.
 | KpiCard | a headline figure: value and unit, the change with its direction (▲ ▼) and its meaning (`goodWhen="down"` when falling is good; good and bad differ by shape and are spelled out for screen readers), an optional sparkline and progress to a `target` |
 | Gauge | a value inside a range as a half dial or a ring (`role="meter"`), with an optional `target` tick |
 | BigNumber · IconArray · Timeline · ComparisonBar | infographic pieces: a headline figure that counts up when it scrolls into view (the server renders the final value; no count under reduced motion), a unit chart ("7 of 10", filled against hollow marks), dated events with `<time>`, and two values against each other on one split bar |
+| SegmentedBar | a total split into its parts: the figure, one bar cut into segments that grow in, and a row per part with its value, share and change (up / down, spelled out for screen readers); the bar is decoration, the rows are the data |
+| CohortGrid | retention by cohort as a real `<table>`: a row per starting group with its size, a column per period, each cell shaded by the share still active and printed in full; later cohorts leave the future blank; cells fade in along the diagonal |
 | DashboardGrid · DashboardItem · ChartCard | a dashboard layout that answers to its container's width (4 → 2 → 1 columns, `span` per item), and the frame of a chart: title, description, `toolbar` snippet, note and source |
 | RadarChart | several measures on one shape (a character's stats), for one item or up to four compared; series differ by colour, point shape and line style; same contract as the other charts (legend, empty state, "Show data" table) |
 | SankeyChart | where a quantity comes from and where it goes: nodes in columns joined by ribbons as thick as the flow, laid out without a library (columns by longest path, order by the barycentre heuristic, proportional heights); names and totals in text, a node's flows highlighted on hover or focus, the "Show data" table; readable for about 5–25 nodes |
@@ -138,6 +140,9 @@ Requires Svelte 5.29 or later.
 | Combobox | a field with a filterable list (ARIA 1.2, `aria-activedescendant`), ignoring case and accents |
 | FloatingScene | decorative 3D backdrop of frosted glass tiles at four depths behind the content (`tiles`, `clear`, `seed`, `parallax`, `drift`, `glow`); `aria-hidden`, same layout on the server, still under reduced motion |
 | ChatThread | the scrolling area of a conversation: follows the reply while it streams, stops when the reader scrolls up and offers "Jump to latest"; `role="log"` without re-reading every token |
+| Terminal | what an agent runs, as a terminal that writes itself: commands typed after the prompt, output a line at a time, ✓ / ✗ / i / # marks so the kind is never colour alone; screen readers get the whole transcript at once; Replay; still under reduced motion |
+| EventFeed | an agent's activity as a list where each new event enters at the top and the older ones glide down (FLIP); `limit`, tones with icons, an `item` snippet, silent unless `announce` |
+| Beam | a pulse of light along a line between two elements (an agent and its tools), drawn as an SVG inside their container, edge to edge; `curvature`, `reverse`, tones; `aria-hidden`, only the line under reduced motion |
 | ScenePlayer | a "video" drawn with components: timed scenes from data, play / pause, seek bar (`role="slider"`), chapters and captions read aloud; Space, K, ← →, N / P; never autoplays under reduced motion |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
 | PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
@@ -342,6 +347,11 @@ building an app with it: entry points, the component map by family, the conventi
 follows (runes, tokens, labels, SSR, 44px touch targets), commands, tests and the rules a change
 must keep. Claude Code reads it through [CLAUDE.md](CLAUDE.md).
 
+- **MCP server**: `pnpm mcp` (`node scripts/mcp-server.mjs`, no dependencies) answers an agent's
+  questions about the kit over stdio: `list_components`, `search_components`, `get_component`
+  (import line, props, a working example, the accessibility contract) and `get_setup`, from the
+  same data as the docs. In a client's MCP settings, from a clone of this repository:
+  `{ "mcpServers": { "tallao": { "command": "node", "args": ["<path to tallao>/scripts/mcp-server.mjs"] } } }`.
 - [`.claude/settings.json`](.claude/settings.json): shared permissions. The check, test and build
   scripts, commits and pushes on a branch, and opening PRs are allowed; reading `.env` files,
   pushing to `main`, force pushes, merging and publishing are denied.

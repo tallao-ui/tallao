@@ -144,6 +144,8 @@
   .ta-chart :global(.ta-chart-tooltip-row span:last-child) { color: rgb(var(--ta-text-dim)); }
   .ta-chart :global(.ta-chart-key) { width: 0.625rem; height: 0.625rem; border-radius: 2px; flex-shrink: 0; }
   .ta-chart :global(.ta-chart-line) { width: 0.875rem; height: 2px; border-radius: 1px; flex-shrink: 0; }
+  /* A comparison line: dashes in the text colour, the same in the tooltip as on the chart. */
+  .ta-chart :global(.ta-chart-line--dashed) { background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 6px); }
 
   .ta-chart-data {
     align-self: flex-start;

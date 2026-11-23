@@ -74,6 +74,7 @@ code, pre, kbd { font-family: var(--mono); }
 .results li a { justify-content: space-between; padding-left: 0.5rem; }
 .empty { padding: 0.5rem; }
 .new { display: inline-block; padding: 0 0.35rem; font: 600 0.5625rem/1.6 var(--mono); font-style: normal; letter-spacing: 0.06em; text-transform: uppercase; color: rgb(var(--ta-on-accent)); background: rgb(var(--ta-accent)); border-radius: 999px; }
+.new { padding-left: 0.85rem; background: url("/brand/tallao-comma.webp") no-repeat 0.28rem center / 0.3rem auto, rgb(var(--ta-accent)); }
 .new-lg { margin-left: 0.6rem; font-size: 0.75rem; vertical-align: 0.5em; }
 .scrim { display: none; }
 

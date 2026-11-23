@@ -77,7 +77,7 @@ All under `src/lib/components/` (kebab-case file, PascalCase export in `componen
 | Admin pages | AppShell, PageHeader, FilterBar + FilterChip, SavedViews, EmptyState, SaveBar, DiffView, DescriptionList, Kbd |
 | Data | Table (+ TableHeader / TableBody / TableRow / TableHead / TableCell), DataTable, MonthView, CompareSlider, SelectionBar, DragBoard + DropZone / DragItem, GameMap (`tallao/map`) |
 | Charts and BI | BarChart, LineChart, DonutChart, ScatterChart, RadarChart, SankeyChart, Heatmap, CalendarHeatmap, Funnel, BarList, Sparkline, Gauge, ChartLegend, KpiCard, BigNumber, RollingCounter, IconArray, Timeline, ComparisonBar, DashboardGrid + DashboardItem, ChartCard |
-| Generative UI | PromptInput, ChatMessage, Thinking, StreamingText, ToolChips, ToolCallCard, TaskList, Steps, ApprovalCard, ContextCards, RecommendationCard, InsightCard, SuggestionChips, CodeBlock, Sources, UsageMeter |
+| Generative UI | PromptInput, ChatMessage, Thinking, StreamingText, Terminal, EventFeed, Beam, ToolChips, ToolCallCard, TaskList, Steps, ApprovalCard, ContextCards, RecommendationCard, InsightCard, SuggestionChips, CodeBlock, Sources, UsageMeter |
 
 Shared code: `src/lib/internal/` (floating layer: top layer + Floating UI positioning + layer
 stack in `layers.ts`, `position.ts`, `menu.ts`; focus, scroll lock, dates, charts, drag board),
@@ -168,6 +168,9 @@ When the user asks for a commit or a PR: work on a branch (never commit to `main
 that branch and open the PR against `main` with `gh pr create`. The PR body lists what changed
 and the checks that ran (and the ones that did not). A human merges; agents never merge, force
 push or publish.
+- `scripts/mcp-server.mjs` (`pnpm mcp`): an MCP server over stdio, no dependencies, for agents building
+  with the kit: `list_components`, `search_components`, `get_component` (import, props, a working
+  example, the accessibility contract) and `get_setup`, all read from the same data as the docs.
 - `.claude/skills/`: step-by-step skills, usable by any agent that reads Markdown:
   - `build-with-tallao`: pick and compose components for an agent run screen, an admin
     list / detail page or a public dashboard, with the motion rules (for agents using the kit);

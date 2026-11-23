@@ -37,6 +37,9 @@
     TagInput,
     SortableList,
     TreeView,
+    Beam,
+    Terminal,
+    EventFeed,
     SuggestionChips,
     CodeBlock,
     Sources,
@@ -51,6 +54,8 @@
     ChartCard,
     ChartLegend,
     ComparisonBar,
+    SegmentedBar,
+    CohortGrid,
     DashboardGrid,
     DashboardItem,
     DonutChart,
@@ -91,6 +96,9 @@
   } from "$lib/components";
 
   let { dialogOpen = false }: { dialogOpen?: boolean } = $props();
+  let beamBox = $state<HTMLElement>();
+  let beamFrom = $state<HTMLElement>();
+  let beamTo = $state<HTMLElement>();
 </script>
 
 <ThemeScope source="tallao">
@@ -174,6 +182,8 @@
     <IconArray value={3} total={5} label="wins" shape="person" showSummary={false} />
     <Timeline ariaLabel="Season" locale="en" items={[{ date: "2026-11-03", title: "Patch 1.2", tag: "Patch", tone: "accent", href: "/patch" }, { date: "Season 3", title: "Ladder reset", current: true }]} />
     <ComparisonBar title="Side win rate" left={{ label: "Blue side", value: 5230 }} right={{ label: "Red side", value: 4770 }} locale="en" />
+    <SegmentedBar title="Revenue by channel" locale="en" segments={[{ label: "Online", value: 26800, delta: 21.6 }, { label: "Subscriptions", value: 16400, delta: -6.8 }, { label: "In-store", value: 12200 }]} />
+    <CohortGrid title="Retention" periods={["M0", "M1", "M2"]} sizeLabel="Size" locale="en" cohorts={[{ label: "Jul", size: 486, values: [100, 64, 52] }, { label: "Aug", size: 512, values: [100, 61] }]} />
     <ChartLegend items={[{ label: "Fire", value: "40%" }, { label: "Water" }]} aria-label="Elements" />
     <PageHeader title="Posts" level={2} description="Everything published.">
       {#snippet status()}<Badge variant="success" dot>Live</Badge>{/snippet}
@@ -268,6 +278,12 @@
       {#snippet row(s)}{s}{/snippet}
     </SortableList>
     <TreeView ariaLabel="Outline" expanded={["a"]} selected="a1" items={[{ id: "a", label: "Commands", badge: "2", children: [{ id: "a1", label: "ping" }, { id: "a2", label: "booth" }] }, { id: "b", label: "Panels" }]} />
+    <div bind:this={beamBox} style="position: relative">
+      <span bind:this={beamFrom}>Agent</span> <span bind:this={beamTo}>Search</span>
+      <Beam container={beamBox} from={beamFrom} to={beamTo} />
+    </div>
+    <Terminal title="agent · ~/app" autoplay={false} lines={[{ kind: "command", text: "pnpm test" }, { text: "506 passed" }, { kind: "success", text: "All checks passed" }]} />
+    <EventFeed events={[{ id: 1, title: "Read post #42", time: "12:03", tone: "info" }, { id: 2, title: "Run started" }]} />
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
   </main>
 </ThemeScope>

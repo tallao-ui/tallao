@@ -165,6 +165,8 @@ export interface Labels {
   /** Column headers of the data table (ScatterChart). */
   label: string;
   group: string;
+  /** CohortGrid: heading of the column that names each cohort. */
+  cohort: string;
   /** Accessible name of the filter bar (FilterBar). */
   filters: string;
   /** Menu with the filters that are not shown yet (FilterBar). */
@@ -293,6 +295,12 @@ export interface Labels {
   sortMoved: string;
   sortDropped: string;
   sortCancelled: string;
+  /** Default name of a Terminal's transcript, and its Replay button. */
+  terminal: string;
+  terminalReplay: string;
+  /** Default name of an EventFeed, and what it says when it has no events. */
+  eventFeed: string;
+  noEvents: string;
 }
 
 export const en: Labels = {
@@ -411,6 +419,7 @@ export const en: Labels = {
   ofPreviousStep: "{percent} of the previous step",
   label: "Label",
   group: "Group",
+  cohort: "Cohort",
   filters: "Filters",
   addFilter: "Add filter",
   clearAll: "Clear all",
@@ -499,6 +508,10 @@ export const en: Labels = {
   sortMoved: "{item}, position {position} of {total}.",
   sortDropped: "{item} dropped at position {position} of {total}.",
   sortCancelled: "{item} back at position {position} of {total}.",
+  terminal: "Terminal output",
+  terminalReplay: "Replay",
+  eventFeed: "Activity",
+  noEvents: "No events yet",
 };
 
 export const es: Labels = {
@@ -617,6 +630,7 @@ export const es: Labels = {
   ofPreviousStep: "{percent} del paso anterior",
   label: "Etiqueta",
   group: "Grupo",
+  cohort: "Cohorte",
   filters: "Filtros",
   addFilter: "Añadir filtro",
   clearAll: "Quitar todo",
@@ -705,6 +719,10 @@ export const es: Labels = {
   sortMoved: "{item}, posición {position} de {total}.",
   sortDropped: "{item} soltado en la posición {position} de {total}.",
   sortCancelled: "{item} vuelve a la posición {position} de {total}.",
+  terminal: "Salida de terminal",
+  terminalReplay: "Repetir",
+  eventFeed: "Actividad",
+  noEvents: "Aún no hay eventos",
 };
 
 const KEY = Symbol("tallao-labels");
