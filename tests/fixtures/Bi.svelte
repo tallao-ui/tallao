@@ -91,6 +91,23 @@
 <BarChart title="Roles across" data={roles} x="patch" series={roleSeries} orientation="horizontal" locale="en" />
 <LineChart title="Stacked roles" data={empty ? [] : roles} x="patch" series={roleSeries} stacked locale="en" />
 <LineChart title="Win rate trend" data={[{ d: "Mon", w: 49 }, { d: "Tue", w: 52 }]} x="d" series={[{ key: "w", label: "Win rate" }]} domain={[45, 55]} format={pct} />
+<LineChart
+  title="Visits against last month"
+  data={[{ d: "W1", now: 120, prev: 100 }, { d: "W2", now: 140, prev: 150 }, { d: "W3", now: 180, prev: null }]}
+  x="d"
+  series={[{ key: "now", label: "This month" }]}
+  compare={{ key: "prev", label: "Last month" }}
+  locale="en"
+/>
+<BarChart
+  title="Cash flow"
+  data={[{ m: "Jan", in: 300, out: -120 }, { m: "Feb", in: 200, out: -260 }]}
+  x="m"
+  series={[{ key: "in", label: "In" }, { key: "out", label: "Out" }]}
+  stacked
+  locale="en"
+/>
+<BarChart title="Net change" data={[{ m: "Jan", net: 40 }, { m: "Feb", net: -25 }]} x="m" series={[{ key: "net", label: "Net" }]} locale="en" />
 
 <DonutChart title="Picks by element" data={empty ? [] : elements} locale="en" />
 <DonutChart title="Many slices" data={Array.from({ length: 10 }, (_, i) => ({ label: `S${i + 1}`, value: 10 }))} maxSlices={4} innerRadius={0} legend="bottom" locale="en" />

@@ -11,6 +11,14 @@
   `values`), `periods`, `title`, `hideTitle`, `cohortLabel`, `sizeLabel`, `max`, `color`, `locale`,
   `format`. Scrolls sideways in a focusable region; cells fade in along the diagonal; none under
   reduced motion. New label key: `cohort` (en "Cohort", es "Cohorte").
+- **LineChart** `compare` (new prop, a `ChartSeries`): a previous period or a target drawn as a dashed,
+  quieter line behind the series, in the text colour. It enters the scale, the legend (a dashed mark),
+  the tooltip, the readout and the data table. **ChartLegend** items take `dashed` for that mark.
+- **BarChart** draws negative values: they grow the other way from the zero line, and the scale gets
+  round bounds on both sides of zero. Stacked, positives pile up and negatives pile down (money in and
+  money out in one chart), and the total in the tooltip and the table is now the net sum. Before, a
+  negative value was drawn as nothing and left out of a stacked total; charts with only positive values
+  are unchanged.
 
 **Effects for agent screens, and an MCP server for the docs.**
 

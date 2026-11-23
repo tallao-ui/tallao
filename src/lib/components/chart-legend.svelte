@@ -18,6 +18,8 @@
     color?: string;
     /** Mark of this entry when it differs from the legend's `marker`. */
     shape?: PointShape;
+    /** A dashed line mark: a comparison series (a previous period, a target). */
+    dashed?: boolean;
   }
 </script>
 
@@ -42,11 +44,15 @@
 <ul {...rest} class={cn("ta-legend", `ta-legend--${orientation}`, className)}>
   {#each items as item, i (i)}
     <li class="ta-legend-item">
-      <span
-        class={cn("ta-legend-mark", `ta-legend-mark--${item.shape ?? marker}`)}
-        style:background={item.color ?? seriesColor(i)}
-        aria-hidden="true"
-      ></span>
+      {#if item.dashed}
+        <span class="ta-legend-mark ta-legend-mark--line ta-legend-mark--dashed" style:color={item.color ?? seriesColor(i)} aria-hidden="true"></span>
+      {:else}
+        <span
+          class={cn("ta-legend-mark", `ta-legend-mark--${item.shape ?? marker}`)}
+          style:background={item.color ?? seriesColor(i)}
+          aria-hidden="true"
+        ></span>
+      {/if}
       <span class="ta-legend-label">{item.label}</span>
       {#if item.value != null}<span class="ta-legend-value">{item.value}</span>{/if}
     </li>
@@ -63,6 +69,7 @@
 
   .ta-legend-mark { flex-shrink: 0; width: 0.625rem; height: 0.625rem; border-radius: 2px; }
   .ta-legend-mark--line { width: 0.875rem; height: 2px; border-radius: 1px; }
+  .ta-legend-mark--dashed { background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 6px); }
   .ta-legend-mark--dot,
   .ta-legend-mark--circle { border-radius: 9999px; }
   .ta-legend-mark--triangle { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }

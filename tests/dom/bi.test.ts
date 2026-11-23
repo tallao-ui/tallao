@@ -66,6 +66,55 @@ describe("LineChart: stacked areas and a domain", () => {
     expect(ticks).toContain("55%");
     expect(ticks).not.toContain("0%");
   });
+
+  it("draws `compare` as a dashed line and reads it in the legend, the readout and the table", async () => {
+    render(Bi);
+    const chart = figure("Visits against last month");
+    expect(within(chart).getAllByRole("listitem").map((li) => li.textContent?.trim())).toEqual(["This month", "Last month"]);
+    expect(chart.querySelectorAll(".ta-legend-mark--dashed")).toHaveLength(1);
+    expect(chart.querySelectorAll("path[stroke-dasharray]")).toHaveLength(1);
+    const line = screen.getByRole("slider", { name: "Visits against last month" });
+    line.focus();
+    await tick();
+    expect(line.getAttribute("aria-valuetext")).toBe("W1: This month 120, Last month 100");
+    await userEvent.keyboard("{End}");
+    expect(line.getAttribute("aria-valuetext")).toBe("W3: This month 180, Last month —");
+    await userEvent.click(within(chart).getByRole("button", { name: "Show data" }));
+    expect(within(chart).getAllByRole("columnheader").map((h) => h.textContent)).toEqual(["d", "This month", "Last month"]);
+  });
+});
+
+describe("BarChart: negative values", () => {
+  /** Where a vertical bar starts and where its data end is, from its path. */
+  const ends = (d: string) => {
+    const [, start] = /^M[\d.-]+,([\d.-]+)/.exec(d)!;
+    const [, end] = /V([\d.-]+)/.exec(d)!;
+    return { start: Number(start), end: Number(end) };
+  };
+
+  it("piles money in up and money out down, totals the net and puts zero inside the scale", async () => {
+    render(Bi);
+    const bars = screen.getByRole("slider", { name: "Cash flow" });
+    bars.focus();
+    await tick();
+    expect(bars.getAttribute("aria-valuetext")).toBe("Jan: In 300, Out -120, Total 180");
+    await userEvent.keyboard("{End}");
+    expect(bars.getAttribute("aria-valuetext")).toBe("Feb: In 200, Out -260, Total -60");
+    const ticks = [...figure("Cash flow").querySelectorAll("text.ta-chart-axis")].map((t) => t.textContent);
+    expect(ticks).toContain("0");
+    expect(ticks.some((t) => t?.startsWith("-"))).toBe(true);
+  });
+
+  it("grows a negative bar below the zero line and a positive one above it", () => {
+    render(Bi);
+    const chart = figure("Net change");
+    const [up, down] = [...chart.querySelectorAll(".ta-chart-group path")].map((p) => ends(p.getAttribute("d")!));
+    const zero = Number(chart.querySelector("line.ta-chart-base")!.getAttribute("y1"));
+    expect(up.start).toBeCloseTo(zero);
+    expect(up.end).toBeLessThan(zero);
+    expect(down.start).toBeCloseTo(zero);
+    expect(down.end).toBeGreaterThan(zero);
+  });
 });
 
 describe("DonutChart", () => {

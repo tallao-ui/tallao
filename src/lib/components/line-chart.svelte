@@ -7,6 +7,9 @@
   - A vertical line follows the pointer and snaps to the nearest point; the tooltip
     lists every series at that point. With focus on the chart, ← → (Home / End / Escape)
     do the same and a screen reader hears it.
+  - `compare={{ key: "lastMonth", label: "Last month" }}` adds a previous period (or a
+    target) as a dashed, quieter line behind the series: dashed, so it does not rely on
+    its colour; it is in the legend, the tooltip and the table too.
   - "Show data" opens the table with every value.
   - The scale starts at zero; `domain={[45, 55]}` narrows it for values that live far from
     zero (a win rate). With no rows it shows a labelled empty state (`emptyText`).
@@ -31,6 +34,7 @@
     area = false,
     stacked = false,
     domain,
+    compare,
     locale,
     format = (n: number) => compactNumber(n, locale),
     emptyText = L.noData,
@@ -53,6 +57,8 @@
     stacked?: boolean;
     /** Lower and upper bound of the scale, instead of zero to the maximum (ignored when stacked). */
     domain?: [number, number];
+    /** A previous period or a target, drawn as a dashed line behind the series (never stacked). */
+    compare?: ChartSeries;
     locale?: string;
     format?: (n: number) => string;
     /** Text shown when `data` is empty. */
@@ -82,18 +88,21 @@
     return sum;
   }
 
-  const maxValue = $derived(Math.max(0, ...data.map((d) => (piles ? totalOf(d) : Math.max(0, ...series.map((s) => valueOf(d, s.key) ?? 0))))));
+  const compareOf = (row: Record<string, unknown>) => (compare ? valueOf(row, compare.key) : null);
+  const maxValue = $derived(
+    Math.max(0, ...data.map((d) => Math.max(compareOf(d) ?? 0, piles ? totalOf(d) : Math.max(0, ...series.map((s) => valueOf(d, s.key) ?? 0)))))
+  );
   const scale = $derived(domain && !piles ? niceDomain(domain[0], domain[1]) : { min: 0, ...niceScale(maxValue) });
   const yOf = (v: number) => M.top + plotHeight - ((Math.min(scale.max, Math.max(scale.min, v)) - scale.min) / (scale.max - scale.min)) * plotHeight;
   const xOf = (i: number) => M.left + (data.length <= 1 ? plotWidth / 2 : (i / (data.length - 1)) * plotWidth);
   const labelStep = $derived(Math.max(1, Math.ceil(data.length / Math.max(1, Math.floor(plotWidth / 64)))));
 
   /** A series' path; a gap (missing value) breaks the line instead of inventing a zero. */
-  function linePath(si: number) {
+  function linePath(si: number, valueAt: (i: number) => number | null = (i) => drawn(i, si)) {
     let d = "";
     let open = false;
     data.forEach((_, i) => {
-      const v = drawn(i, si);
+      const v = valueAt(i);
       if (v == null) {
         open = false;
         return;
@@ -135,13 +144,30 @@
   const readout = $derived(
     active == null || !data[active]
       ? ""
-      : `${category(active)}: ${series.map((s) => `${s.label} ${fmt(valueOf(data[active!], s.key))}`).join(", ")}${piles ? `, ${totalLabel} ${format(totalOf(data[active]))}` : ""}`
+      : `${category(active)}: ${series.map((s) => `${s.label} ${fmt(valueOf(data[active!], s.key))}`).join(", ")}${piles ? `, ${totalLabel} ${format(totalOf(data[active]))}` : ""}${compare ? `, ${compare.label} ${fmt(compareOf(data[active]))}` : ""}`
   );
 
   const table = $derived({
-    columns: [{ label: xLabel ?? x }, ...series.map((s) => ({ label: s.label, numeric: true })), ...(piles ? [{ label: totalLabel, numeric: true }] : [])],
-    rows: data.map((row, i) => [category(i), ...series.map((s) => fmt(valueOf(row, s.key))), ...(piles ? [format(totalOf(row))] : [])]),
+    columns: [
+      { label: xLabel ?? x },
+      ...series.map((s) => ({ label: s.label, numeric: true })),
+      ...(piles ? [{ label: totalLabel, numeric: true }] : []),
+      ...(compare ? [{ label: compare.label, numeric: true }] : []),
+    ],
+    rows: data.map((row, i) => [
+      category(i),
+      ...series.map((s) => fmt(valueOf(row, s.key))),
+      ...(piles ? [format(totalOf(row))] : []),
+      ...(compare ? [fmt(compareOf(row))] : []),
+    ]),
   });
+
+  const COMPARE_COLOR = "rgb(var(--ta-text-dim))";
+  const legend = $derived(
+    series.length > 1 || compare
+      ? [...series.map((s) => ({ label: s.label })), ...(compare ? [{ label: compare.label, color: COMPARE_COLOR, dashed: true }] : [])]
+      : undefined
+  );
 
   function onKey(e: KeyboardEvent) {
     if (!data.length) return;
@@ -158,7 +184,7 @@
 <ChartFigure
   {title}
   {hideTitle}
-  legend={series.length > 1 ? series.map((s) => ({ label: s.label })) : undefined}
+  {legend}
   legendMarker={piles ? "square" : "line"}
   empty={data.length === 0}
   {emptyText}
@@ -199,6 +225,9 @@
       {#if area || piles}
         {#each series as s, si (s.key)}<path d={areaPath(si)} fill={seriesColor(si)} fill-opacity={piles ? 0.35 : 0.1} />{/each}
       {/if}
+      {#if compare}
+        <path d={linePath(-1, (i) => compareOf(data[i]))} fill="none" stroke={COMPARE_COLOR} stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="round" stroke-linecap="round" class="ta-chart-compare" />
+      {/if}
       {#each series as s, si (s.key)}
         <path d={linePath(si)} fill="none" stroke={seriesColor(si)} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
         {@const u = lastIndex(si)}
@@ -213,6 +242,9 @@
           {@const v = drawn(active, si)}
           {#if v != null}<circle cx={xOf(active)} cy={yOf(v)} r="4" fill={seriesColor(si)} class="ta-chart-dot" />{/if}
         {/each}
+        {#if compare && compareOf(data[active]) != null}
+          <circle cx={xOf(active)} cy={yOf(compareOf(data[active])!)} r="3" fill={COMPARE_COLOR} class="ta-chart-dot" />
+        {/if}
       {/if}
     </svg>
 
@@ -234,6 +266,13 @@
           <span class="ta-chart-tooltip-row ta-chart-tooltip-total">
             <strong>{format(totalOf(data[active]))}</strong>
             <span>{totalLabel}</span>
+          </span>
+        {/if}
+        {#if compare}
+          <span class="ta-chart-tooltip-row">
+            <span class="ta-chart-line ta-chart-line--dashed" style:color={COMPARE_COLOR}></span>
+            <strong>{fmt(compareOf(data[active]))}</strong>
+            <span>{compare.label}</span>
           </span>
         {/if}
       </div>

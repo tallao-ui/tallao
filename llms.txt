@@ -1270,6 +1270,7 @@ Props:
 - `area?: boolean` — Fill under the line, at 10% of the series color.
 - `stacked?: boolean` — Stacked areas: every series is drawn on top of the previous ones.
 - `domain?: [number, number]` — Lower and upper bound of the scale, instead of zero to the maximum (ignored when stacked).
+- `compare?: ChartSeries` — A previous period or a target, drawn as a dashed line behind the series (never stacked).
 - `locale?: string`
 - `format?: (n: number) => string`
 - `emptyText?: string` — Text shown when `data` is empty.
