@@ -30,7 +30,7 @@ pnpm add github:tallao-ui/tallao   # builds dist/ on install through `prepare`
 | `tallao` | every component, `toast()` / `toasts`, `setLabels`, `setDefaultLabels`, `useLabels`, `en`, `es`, `cn`, and the public types |
 | `tallao/map` | `GameMap` (optional peers `leaflet`, `sveaflet`) |
 | `tallao/code` | `CodeEditor` (optional peers `@codemirror/*`, `@lezer/highlight`) |
-| `tallao/motion` | transitions (`fade`, `rise`, `scaleIn`, `slide`, `collapse`, `stagger`, `crossfade`), attachments (`press`, `shimmer`, `drawCheck`, `rollNumber`, `tabIndicator`) and `shake`, `viewTransition`, `prefersReducedMotion` |
+| `tallao/motion` | transitions (`fade`, `rise`, `scaleIn`, `slide`, `collapse`, `stagger`, `crossfade`), attachments (`press`, `shimmer`, `drawCheck`, `rollNumber`, `tabIndicator`, `impact`) and `shake`, `viewTransition`, `themeTransition`, `playImpact`, `prefersReducedMotion` |
 | `tallao/tokens.css` | every `--ta-*` variable; dark by default, `data-tallao-theme="light"` on `<html>` for light |
 | `tallao/base.css` | base styles |
 

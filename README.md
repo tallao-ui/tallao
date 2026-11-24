@@ -177,11 +177,18 @@ Requires Svelte 5.29 or later.
 | Kind | What there is |
 | --- | --- |
 | Svelte transitions | `fade`, `rise`, `scaleIn` (overlays), `slide` (sheets), `collapse` (height auto), `stagger(i)` for a list, `crossfade()` for an item that changes place |
-| Attachments | `press()`, `shimmer()`, `drawCheck()` (a stroke that draws itself), `rollNumber(value)`, `tabIndicator(active)` |
-| Functions | `shake(node)`, `viewTransition(update)`, `prefersReducedMotion()` |
+| Attachments | `press()`, `shimmer()`, `drawCheck()` (a stroke that draws itself), `rollNumber(value)`, `tabIndicator(active)`, `impact()` (an anime impact frame on a confirm) |
+| Functions | `shake(node)`, `viewTransition(update)`, `themeTransition(update, { from, style, duration })`, `playImpact(el)`, `prefersReducedMotion()` |
 
-Everything is 120–240 ms, on opacity and transform, interruptible and safe to import on the
-server. Reduced motion is one switch: the system setting, or `data-tallao-motion="reduce"` on
+`themeTransition` switches the theme inside a View Transition revealed from the click: a clean
+`circle`, an `ink` blot with a ragged edge, or a `fade`. Its CSS is in `tallao/base.css`; a site
+swaps the ink brush with its own `--ta-ink-mask`. `impact()` squashes the element while pressed
+and plays a burst on one shared canvas over the page on click: `flavor: "manga"` (clouds and
+ドン!) or `"nordic"` (frost, slashes and runes), `intensity: "light"` for secondary actions,
+`words`, `color` (or `--ta-impact-color`). Inspired by sakuga-vfx (MIT), written from scratch.
+
+Everything else is 120–240 ms, on opacity and transform, interruptible and safe to import on the
+server (a reveal lasts 650 ms by default, an impact about a second). Reduced motion is one switch: the system setting, or `data-tallao-motion="reduce"` on
 `<html>` (an app setting; `"full"` overrides the system). The tokens drop to no duration, the
 library stops moving, and the kit's own components (dialogs, sheets, menus, toasts, the Tabs
 underline, the Accordion, new DataTable rows) follow.
