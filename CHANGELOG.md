@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+- **`themeTransition(update, options)`** (new, `tallao/motion`): runs a page-wide change (a theme
+  switch) inside a View Transition revealed from a point. Options: `from` (a mouse or pointer event,
+  `{ x, y }` or an element's centre; default the viewport centre; a keyboard click reveals from its
+  target), `style` (`"circle"` default, `"ink"`, `"fade"`), `duration` (ms, default 650). It sets
+  `data-ta-theme-transition="<style>"` and the inline `--ta-vt-x`, `--ta-vt-y`, `--ta-vt-r` (distance
+  to the farthest corner) and `--ta-vt-duration` on `<html>` for the length of the transition, skips
+  a reveal still running, and clears them after. Without View Transitions or under reduced motion it
+  just runs `update`. Exports `ThemeTransitionStyle` and `ThemeTransitionOptions`.
+- **`tallao/base.css`**: the theme-transition CSS, scoped by `html[data-ta-theme-transition]` (a
+  `ta-vt-circle` clip-path, a `ta-vt-ink` mask, a `ta-vt-fade` cross-fade), and the new custom
+  property `--ta-ink-mask` on `:root`: an inline SVG blot (a circle displaced by `feTurbulence` +
+  `feDisplacementMap`) that a site can replace with its own brush.
+- **`impact(options)`** attachment and **`playImpact(el, options)`** (new, `tallao/motion`): an anime
+  impact frame on a confirm, inspired by finktheartist/sakuga-vfx (MIT) and written from scratch.
+  The element squashes on `pointerdown` and springs back on release (Web Animations, token
+  durations); a click (keyboard too) plays a burst on one shared, `aria-hidden`, click-through
+  canvas over the viewport, removed after 1.5 s idle. Options: `flavor` (`"manga"`: spiky burst,
+  cloud puffs, speed wedges, a word such as ドン!; `"nordic"`: burst, frost shards, crossed slashes,
+  a ring of Elder Futhark runes drawn as lines, a word such as SKÁL!), `words` (`[]` for none),
+  `intensity` (`"full"` or `"light"`: small squash and three wedges, no lettering), `color` (default
+  `--ta-impact-color`, then `--ta-accent`). Nothing under reduced motion. Exports `ImpactFlavor` and
+  `ImpactOptions`. Shown in the motion demo with the three theme transitions.
+
 - **ProgressiveBlur** (new): a decorative blur that grows toward one edge of its positioned parent:
   three stacked layers, each a stronger `backdrop-filter: blur()` under a shorter `mask-image`
   gradient. Props: `side` (`"top"` | `"bottom"`, default `"bottom"`), `size` (CSS length or percent,

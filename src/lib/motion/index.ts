@@ -8,8 +8,9 @@
  *                           <li in:rise={stagger(i)}>        stagger (a delay per index)
  *                           const [send, receive] = crossfade()   an item that moves between lists
  *   Attachments             <button {@attach press()}>       press, shimmer, rollNumber,
- *                           <div {@attach tabIndicator(...)}  tabIndicator, drawCheck
- *   Functions               shake(node), viewTransition(update), prefersReducedMotion()
+ *                           <div {@attach tabIndicator(...)}  tabIndicator, drawCheck, impact
+ *   Functions               shake(node), viewTransition(update), themeTransition(update, opts),
+ *                           playImpact(el), prefersReducedMotion()
  *
  * Rules every piece keeps:
  * - Reduced motion (the system setting, or `data-tallao-motion="reduce"` on <html>) turns the
@@ -312,3 +313,82 @@ export async function viewTransition(update: () => void | Promise<void>): Promis
     // A transition that is skipped (a newer one started) is not an error for the caller.
   }
 }
+
+export type ThemeTransitionStyle = "fade" | "circle" | "ink";
+
+export interface ThemeTransitionOptions {
+  /** Where the reveal starts: a pointer/mouse event, a point, or an element (its centre). Default: viewport centre. */
+  from?: MouseEvent | PointerEvent | { x: number; y: number } | Element | null;
+  /** Default "circle" (neutral). "ink": the circle edge broken by a noise mask. */
+  style?: ThemeTransitionStyle;
+  /** ms; default from the tokens' slow scale but a reveal needs longer: default 650. */
+  duration?: number;
+}
+
+type ViewTransitionLike = { finished: Promise<void>; skipTransition?: () => void };
+type DocumentWithVT = Document & { startViewTransition?: (cb: () => void | Promise<void>) => ViewTransitionLike };
+
+const VT_PROPS = ["--ta-vt-x", "--ta-vt-y", "--ta-vt-r", "--ta-vt-duration"] as const;
+let runningTheme: ViewTransitionLike | undefined;
+
+function revealOrigin(from: ThemeTransitionOptions["from"]): { x: number; y: number } {
+  const centre = { x: innerWidth / 2, y: innerHeight / 2 };
+  if (!from) return centre;
+  if (typeof Element !== "undefined" && from instanceof Element) {
+    const r = from.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+  if ("clientX" in from) {
+    // A keyboard "click" has no position (0, 0 with detail 0): reveal from the target instead.
+    if (from.detail === 0 && from.clientX === 0 && from.clientY === 0 && from.currentTarget instanceof Element) return revealOrigin(from.currentTarget);
+    return { x: from.clientX, y: from.clientY };
+  }
+  if ("x" in from) return { x: from.x, y: from.y };
+  return centre;
+}
+
+/**
+ * Switches the theme (or anything page-wide) inside a View Transition whose new state is
+ * revealed from a point: a circle growing from the click (`circle`), the same with an inked,
+ * ragged edge (`ink`), or a cross-fade (`fade`). `update` is what changes the page, typically
+ * setting `data-tallao-theme` on <html>. The CSS lives in `tallao/base.css`, scoped by
+ * `data-ta-theme-transition` on <html>; `--ta-ink-mask` swaps the ink blot for a site's own brush.
+ *
+ *   <Button onclick={(e) => themeTransition(() => toggleTheme(), { from: e, style: "ink" })}>
+ *
+ * Without View Transitions, or with reduced motion, it just runs `update`. Resolves when done.
+ */
+export async function themeTransition(update: () => void | Promise<void>, options: ThemeTransitionOptions = {}): Promise<void> {
+  const doc = typeof document === "undefined" ? undefined : (document as DocumentWithVT);
+  if (!doc?.startViewTransition || prefersReducedMotion()) {
+    await update();
+    return;
+  }
+  const { from = null, style = "circle", duration = 650 } = options;
+  const { x, y } = revealOrigin(from);
+  const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  // A reveal still running is cut short: the new one starts from the page as it is now.
+  runningTheme?.skipTransition?.();
+  const root = doc.documentElement;
+  root.style.setProperty("--ta-vt-x", `${Math.round(x)}px`);
+  root.style.setProperty("--ta-vt-y", `${Math.round(y)}px`);
+  root.style.setProperty("--ta-vt-r", `${Math.ceil(r)}px`);
+  root.style.setProperty("--ta-vt-duration", `${duration}ms`);
+  root.setAttribute("data-ta-theme-transition", style);
+  const transition = doc.startViewTransition(update);
+  runningTheme = transition;
+  try {
+    await transition.finished;
+  } catch {
+    // Skipped by a newer reveal: not an error for the caller.
+  } finally {
+    // A newer reveal owns the attribute and the properties now: leave them to it.
+    if (runningTheme === transition) {
+      runningTheme = undefined;
+      root.removeAttribute("data-ta-theme-transition");
+      for (const p of VT_PROPS) root.style.removeProperty(p);
+    }
+  }
+}
+
+export { impact, playImpact, type ImpactFlavor, type ImpactOptions } from "./impact";

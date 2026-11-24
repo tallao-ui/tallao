@@ -366,6 +366,11 @@ describe("server rendering of the motion pieces, RadarChart and RollingCounter",
     const motion = await import("$lib/motion");
     expect(motion.prefersReducedMotion()).toBe(true);
     await motion.viewTransition(() => {});
+    const update = vi.fn();
+    await motion.themeTransition(update, { style: "ink" });
+    expect(update).toHaveBeenCalledOnce();
+    expect(typeof motion.impact()).toBe("function");
+    expect(() => motion.playImpact({} as Element)).not.toThrow();
   });
 });
 

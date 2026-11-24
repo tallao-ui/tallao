@@ -20,6 +20,9 @@
     slide,
     stagger,
     viewTransition,
+    impact,
+    themeTransition,
+    type ThemeTransitionStyle,
   } from "$lib/motion";
 
   // One counter per stage: bumping it re-creates the stage's content, which replays it.
@@ -38,6 +41,13 @@
   let tab = $state("overview");
   let field: HTMLInputElement | undefined = $state();
   let order = $state(["Kaela", "Oskar", "Tide"]);
+
+  // The theme flips on <html>; App's own toggle keeps working (it writes the same attribute).
+  const flipTheme = (style: ThemeTransitionStyle) => (e: MouseEvent) =>
+    themeTransition(() => {
+      const html = document.documentElement;
+      html.dataset.tallaoTheme = html.dataset.tallaoTheme === "light" ? "dark" : "light";
+    }, { from: e, style });
 
   const [send, receive] = crossfade();
   let left = $state(["Fire", "Water"]);
@@ -213,9 +223,38 @@
       </ol>
     </div>
   </article>
+
+  <article class="motion-card">
+    <div class="motion-head">
+      <div>
+        <h3>impact</h3>
+        <p>An impact frame on a confirm (inspired by sakuga-vfx)</p>
+      </div>
+    </div>
+    <div class="motion-stage motion-stage--row">
+      <Button {@attach impact()}>Confirm</Button>
+      <Button variant="secondary" {@attach impact({ flavor: "nordic" })}>Skál</Button>
+      <Button variant="ghost" {@attach impact({ intensity: "light" })}>Apply</Button>
+    </div>
+  </article>
+
+  <article class="motion-card">
+    <div class="motion-head">
+      <div>
+        <h3>themeTransition</h3>
+        <p>The other theme revealed from the click</p>
+      </div>
+    </div>
+    <div class="motion-stage motion-stage--row">
+      <Button variant="secondary" size="sm" onclick={flipTheme("circle")}>Circle</Button>
+      <Button variant="secondary" size="sm" onclick={flipTheme("ink")}>Ink</Button>
+      <Button variant="secondary" size="sm" onclick={flipTheme("fade")}>Fade</Button>
+    </div>
+  </article>
 </div>
 
 <style>
+  .motion-stage.motion-stage--row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.5rem; }
   .motion-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem 1.5rem; margin-bottom: 1rem; }
   .motion-note { font-size: 0.8125rem; color: rgb(var(--ta-text-dim)); }
   .motion-note code { font-family: var(--ta-font-mono); font-size: 0.75rem; }
