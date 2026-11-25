@@ -441,7 +441,11 @@ export function impact(options: ImpactOptions = {}): Attachment {
     const light = options.intensity === "light";
     let held: Animation | undefined;
     let pressed = false;
-    const down = () => {
+    // A disabled control (a disabled <button> can still get pointer events, a disabled link still
+    // gets clicks) must not look like an action that worked; a right-click is not a press.
+    const off = () => node.matches(":disabled, [aria-disabled='true']");
+    const down = (e: Event) => {
+      if ((e as PointerEvent).button > 0 || off()) return;
       if (prefersReducedMotion() || typeof node.animate !== "function") return;
       held?.cancel();
       pressed = true;
@@ -469,13 +473,13 @@ export function impact(options: ImpactOptions = {}): Attachment {
       pressed = false;
     };
     const click = () => {
-      if (prefersReducedMotion()) return;
+      if (prefersReducedMotion() || off()) return;
       // A pointer press already squashed and released; a keyboard click gets the whole pulse.
       if (!pressed) pulse(node, light);
       pressed = false;
       burstOn(node, options);
     };
-    const events: [string, () => void][] = [
+    const events: [string, (e: Event) => void][] = [
       ["pointerdown", down],
       ["pointerup", up],
       ["pointerleave", abort],

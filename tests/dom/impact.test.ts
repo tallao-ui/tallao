@@ -1,6 +1,6 @@
 import fs from "node:fs";
 
-import { render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 
 import { impact, playImpact, themeTransition } from "$lib/motion";
@@ -74,6 +74,22 @@ describe("impact", () => {
     await userEvent.keyboard("{Enter}");
     expect(canvases()).toHaveLength(1);
     expect(animate).toHaveBeenCalledOnce();
+  });
+
+  it("a disabled control neither squashes nor bursts, and a right-click does not squash", async () => {
+    systemReduces(false);
+    stubCanvas();
+    render(ImpactButton);
+    // A disabled <button> still gets pointer events in some browsers; a disabled link (no href,
+    // aria-disabled) still gets clicks. Neither may look like an action that worked.
+    // jsdom's PointerEvent drops `button`; a MouseEvent named pointerdown carries it, as a real
+    // PointerEvent (a MouseEvent subclass) does.
+    const press = (el: Element, button: number) => fireEvent(el, new MouseEvent("pointerdown", { bubbles: true, button }));
+    await press(screen.getByRole("button", { name: "Locked" }), 0);
+    await fireEvent.click(screen.getByRole("link", { name: "Gone" }));
+    await press(screen.getByRole("button", { name: "Confirm" }), 2);
+    expect(animate).not.toHaveBeenCalled();
+    expect(canvases()).toHaveLength(0);
   });
 
   it("does nothing under reduced motion, from the system or from data-tallao-motion", async () => {
@@ -182,6 +198,39 @@ describe("themeTransition", () => {
     await themeTransition(() => {}, { from: el });
     await themeTransition(() => {}, { from: new MouseEvent("click", { clientX: 300, clientY: 40, detail: 1 }) });
     expect(xs).toEqual(["30px 30px", "300px 40px"]);
+  });
+
+  it("a keyboard click handled on the document reveals from the clicked element, not the corner", async () => {
+    systemReduces(false);
+    const xs: string[] = [];
+    setStart((cb) => {
+      xs.push(root.style.getPropertyValue("--ta-vt-x") + " " + root.style.getPropertyValue("--ta-vt-y"));
+      void cb();
+      return { finished: Promise.resolve(), skipTransition() {} };
+    });
+    const button = document.createElement("button");
+    document.body.append(button);
+    vi.spyOn(button, "getBoundingClientRect").mockReturnValue({ left: 10, top: 20, width: 40, height: 20 } as DOMRect);
+    // A delegated listener: currentTarget is the document, so only the target says where.
+    let pending: Promise<void> | undefined;
+    const onClick = (e: Event) => (pending = themeTransition(() => {}, { from: e as MouseEvent }));
+    document.addEventListener("click", onClick);
+    button.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 0, clientX: 0, clientY: 0 }));
+    document.removeEventListener("click", onClick);
+    await pending;
+    expect(xs).toEqual(["30px 30px"]);
+  });
+
+  it("an error in the update reaches the caller, as it does without View Transitions", async () => {
+    systemReduces(false);
+    const error = new Error("update failed");
+    setStart((cb) => {
+      const done = Promise.resolve().then(cb);
+      // The browser rejects `finished` with the update's own error.
+      return { finished: done.then(() => {}), skipTransition() {} };
+    });
+    await expect(themeTransition(() => { throw error; }, { style: "ink" })).rejects.toBe(error);
+    expect(root.hasAttribute("data-ta-theme-transition")).toBe(false);
   });
 
   it("defaults to a circle from the viewport centre, and skips a reveal still running", async () => {

@@ -4,12 +4,12 @@
 
 - **`themeTransition(update, options)`** (new, `tallao/motion`): runs a page-wide change (a theme
   switch) inside a View Transition revealed from a point. Options: `from` (a mouse or pointer event,
-  `{ x, y }` or an element's centre; default the viewport centre; a keyboard click reveals from its
-  target), `style` (`"circle"` default, `"ink"`, `"fade"`), `duration` (ms, default 650). It sets
+  `{ x, y }` or an element's centre; default the viewport centre; a keyboard click reveals from the
+  clicked element, also when the listener sits on the document), `style` (`"circle"` default, `"ink"`, `"fade"`), `duration` (ms, default 650). It sets
   `data-ta-theme-transition="<style>"` and the inline `--ta-vt-x`, `--ta-vt-y`, `--ta-vt-r` (distance
   to the farthest corner) and `--ta-vt-duration` on `<html>` for the length of the transition, skips
   a reveal still running, and clears them after. Without View Transitions or under reduced motion it
-  just runs `update`. Exports `ThemeTransitionStyle` and `ThemeTransitionOptions`.
+  just runs `update`. An error thrown by `update` rejects the returned promise in both paths. Exports `ThemeTransitionStyle` and `ThemeTransitionOptions`.
 - **`tallao/base.css`**: the theme-transition CSS, scoped by `html[data-ta-theme-transition]` (a
   `ta-vt-circle` clip-path, a `ta-vt-ink` mask, a `ta-vt-fade` cross-fade), and the new custom
   property `--ta-ink-mask` on `:root`: an inline SVG blot (a circle displaced by `feTurbulence` +
@@ -22,7 +22,8 @@
   cloud puffs, speed wedges, a word such as ドン!; `"nordic"`: burst, frost shards, crossed slashes,
   a ring of Elder Futhark runes drawn as lines, a word such as SKÁL!), `words` (`[]` for none),
   `intensity` (`"full"` or `"light"`: small squash and three wedges, no lettering), `color` (default
-  `--ta-impact-color`, then `--ta-accent`). Nothing under reduced motion. Exports `ImpactFlavor` and
+  `--ta-impact-color`, then `--ta-accent`). Nothing under reduced motion, on a disabled control
+  (`:disabled` or `aria-disabled="true"`) or on a right-click. Exports `ImpactFlavor` and
   `ImpactOptions`. Shown in the motion demo with the three theme transitions.
 
 - **ProgressiveBlur** (new): a decorative blur that grows toward one edge of its positioned parent:

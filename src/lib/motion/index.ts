@@ -339,8 +339,12 @@ function revealOrigin(from: ThemeTransitionOptions["from"]): { x: number; y: num
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
   if ("clientX" in from) {
-    // A keyboard "click" has no position (0, 0 with detail 0): reveal from the target instead.
-    if (from.detail === 0 && from.clientX === 0 && from.clientY === 0 && from.currentTarget instanceof Element) return revealOrigin(from.currentTarget);
+    // A keyboard "click" has no position (0, 0 with detail 0): reveal from the clicked element.
+    // With a listener on the document, currentTarget is the document: the target says where.
+    if (from.detail === 0 && from.clientX === 0 && from.clientY === 0) {
+      const el = from.currentTarget instanceof Element ? from.currentTarget : from.target instanceof Element ? from.target : null;
+      return el ? revealOrigin(el) : centre;
+    }
     return { x: from.clientX, y: from.clientY };
   }
   if ("x" in from) return { x: from.x, y: from.y };
@@ -378,9 +382,9 @@ export async function themeTransition(update: () => void | Promise<void>, option
   const transition = doc.startViewTransition(update);
   runningTheme = transition;
   try {
+    // A skipped reveal still fulfils `finished`; it rejects only when `update` threw, and that
+    // error is the caller's, as it is without View Transitions.
     await transition.finished;
-  } catch {
-    // Skipped by a newer reveal: not an error for the caller.
   } finally {
     // A newer reveal owns the attribute and the properties now: leave them to it.
     if (runningTheme === transition) {
