@@ -44,3 +44,69 @@ body {
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
 }
+
+/* Theme transitions (`themeTransition()` in tallao/motion). The function sets
+   `data-ta-theme-transition="circle | ink | fade"` on <html> for the length of one View
+   Transition, with `--ta-vt-x`, `--ta-vt-y` (where the reveal starts), `--ta-vt-r` (distance to
+   the farthest corner) and `--ta-vt-duration`. Nothing here applies outside that window. */
+html[data-ta-theme-transition]::view-transition-old(root),
+html[data-ta-theme-transition]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* circle: the new page grows from the point as a clean circle. */
+html[data-ta-theme-transition="circle"]::view-transition-new(root) {
+  animation: ta-vt-circle var(--ta-vt-duration, 650ms) var(--ta-ease-out, ease-out) both;
+}
+@keyframes ta-vt-circle {
+  from { clip-path: circle(0 at var(--ta-vt-x, 50%) var(--ta-vt-y, 50%)); }
+  to { clip-path: circle(var(--ta-vt-r, 150vmax) at var(--ta-vt-x, 50%) var(--ta-vt-y, 50%)); }
+}
+
+/* ink: the same reveal through a blot with a ragged edge. The blot is an SVG circle pushed out of
+   shape by feTurbulence + feDisplacementMap; it is smaller than its box, so the mask grows to 2.6
+   times the radius to cover the corners. A site swaps the brush with its own `--ta-ink-mask`
+   (any mask image, ideally a centred shape on a transparent square). */
+:root {
+  --ta-ink-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='i' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.035' numOctaves='3' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='14' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Ccircle cx='100' cy='100' r='84' filter='url(%23i)'/%3E%3C/svg%3E");
+}
+html[data-ta-theme-transition="ink"]::view-transition-new(root) {
+  -webkit-mask-image: var(--ta-ink-mask);
+  mask-image: var(--ta-ink-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: ta-vt-ink var(--ta-vt-duration, 650ms) var(--ta-ease-out, ease-out) both;
+}
+@keyframes ta-vt-ink {
+  from {
+    -webkit-mask-size: 0 0;
+    mask-size: 0 0;
+    -webkit-mask-position: var(--ta-vt-x, 50%) var(--ta-vt-y, 50%);
+    mask-position: var(--ta-vt-x, 50%) var(--ta-vt-y, 50%);
+  }
+  to {
+    -webkit-mask-size: calc(var(--ta-vt-r, 150vmax) * 2.6) calc(var(--ta-vt-r, 150vmax) * 2.6);
+    mask-size: calc(var(--ta-vt-r, 150vmax) * 2.6) calc(var(--ta-vt-r, 150vmax) * 2.6);
+    -webkit-mask-position: calc(var(--ta-vt-x, 50%) - var(--ta-vt-r, 150vmax) * 1.3) calc(var(--ta-vt-y, 50%) - var(--ta-vt-r, 150vmax) * 1.3);
+    mask-position: calc(var(--ta-vt-x, 50%) - var(--ta-vt-r, 150vmax) * 1.3) calc(var(--ta-vt-y, 50%) - var(--ta-vt-r, 150vmax) * 1.3);
+  }
+}
+
+/* fade: a plain cross-fade, for when a reveal from a point would say nothing. */
+html[data-ta-theme-transition="fade"]::view-transition-old(root) {
+  animation: ta-vt-fade-out var(--ta-vt-duration, 650ms) var(--ta-ease-in-out, ease-in-out) both;
+}
+html[data-ta-theme-transition="fade"]::view-transition-new(root) {
+  animation: ta-vt-fade-in var(--ta-vt-duration, 650ms) var(--ta-ease-in-out, ease-in-out) both;
+}
+@keyframes ta-vt-fade-out { to { opacity: 0; } }
+@keyframes ta-vt-fade-in { from { opacity: 0; } }
+
+/* The function never starts a reveal under reduced motion; this keeps a stray one still too. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-ta-theme-transition]::view-transition-old(root),
+  html[data-ta-theme-transition]::view-transition-new(root) {
+    animation: none;
+  }
+}

@@ -157,7 +157,7 @@ export function generate() {
     "- Texts are English by default; `setLabels(es)` in the root component switches them, and a label prop on a component wins.",
     "- Popover, Tooltip and DropdownMenu take their trigger as a snippet: `{#snippet trigger(props)}<Button {...props}>…</Button>{/snippet}`.",
     "- Compositions to copy: `src/AgentDemo.svelte` (an agent run screen), `src/AdminDemo.svelte` (a model list page and a record detail page), the `#dashboard` section of `src/App.svelte` (a public dashboard).",
-    "- Motion: `tallao/motion` (fade, rise, scaleIn, slide, collapse, stagger, crossfade, press, shimmer, shake, drawCheck, rollNumber, tabIndicator, viewTransition) on the tokens `--ta-duration-fast | base | slow` and `--ta-ease-out | in-out | spring`; all of it stops under reduced motion.",
+    "- Motion: `tallao/motion` (fade, rise, scaleIn, slide, collapse, stagger, crossfade, press, shimmer, shake, drawCheck, rollNumber, tabIndicator, impact, playImpact, viewTransition, themeTransition) on the tokens `--ta-duration-fast | base | slow` and `--ta-ease-out | in-out | spring`; all of it stops under reduced motion.",
     "",
   ];
   let count = 0;
