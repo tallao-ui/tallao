@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS_URL = "https://tallao-ui.github.io/tallao/docs/#/c/";
+const SOURCE_URL = "https://github.com/tallao-ui/tallao/blob/main/";
 
 export const tools = [
   {
@@ -53,7 +54,8 @@ const oneLine = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
 
 /**
  * Loads docs/gen/components.json. The file is generated and gitignored, so on a fresh clone
- * (or in CI) it is built first with scripts/docs-data.mjs.
+ * (or in CI) it is built first with scripts/docs-data.mjs. The npm package ships it ready
+ * (`prepack`), since it has no component sources to build it from.
  */
 export function loadData(root = ROOT) {
   const file = path.join(root, "docs", "gen", "components.json");
@@ -173,7 +175,7 @@ function getComponent(args, data, root) {
   const names = [c.name, ...(c.parts ?? []).map((p) => p.name)];
   const out = [`# ${c.name}`, oneLine(c.purpose)];
   if (part) out.push(`(${part.name} is a part of ${c.name}; this is ${c.name}'s page.)`);
-  out.push("", `Import: \`import { ${names.join(", ")} } from "${c.entry}";\``, `Docs: ${DOCS_URL}${c.slug}`, `Source: ${c.file}`);
+  out.push("", `Import: \`import { ${names.join(", ")} } from "${c.entry}";\``, `Docs: ${DOCS_URL}${c.slug}`, `Source: ${SOURCE_URL}${c.file}`);
   const demo = demoCode(c.slug, root);
   out.push("", "## Usage", "```svelte", demo ?? c.example, "```");
   out.push("", "## Props", propsTable(c.props));
@@ -185,7 +187,7 @@ function getComponent(args, data, root) {
 
 function getSetup(root) {
   const file = path.join(root, "llms.txt");
-  if (!fs.existsSync(file)) return text("llms.txt not found in the repository root.", true);
+  if (!fs.existsSync(file)) return text("llms.txt not found in the package root.", true);
   const src = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
   const start = src.indexOf("\n## Use\n");
   if (start < 0) return text('No "## Use" section in llms.txt.', true);
@@ -195,7 +197,7 @@ function getSetup(root) {
   return text(
     [
       "# Setup",
-      "Install: `pnpm add github:tallao-ui/tallao` (builds dist/ on install). Requires Svelte 5.29 or later.",
+      "Install: `pnpm add tallao` (or `npm install tallao`). Requires Svelte 5.29 or later.",
       "",
       section,
       "",

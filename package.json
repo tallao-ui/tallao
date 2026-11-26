@@ -1,18 +1,40 @@
 {
   "name": "tallao",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Svelte 5 UI kit for generative interfaces, extracted from the Kitsuden admin",
+  "keywords": [
+    "svelte",
+    "svelte5",
+    "sveltekit",
+    "ui",
+    "components",
+    "ui-kit",
+    "design-system",
+    "accessibility",
+    "generative-ui",
+    "ai",
+    "mcp"
+  ],
   "license": "MIT",
+  "homepage": "https://tallao-ui.github.io/tallao/",
+  "bugs": {
+    "url": "https://github.com/tallao-ui/tallao/issues"
+  },
   "author": "Victor Antinori Broce (https://github.com/vigogami)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tallao-ui/tallao.git"
   },
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "packageManager": "pnpm@10.29.2",
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "tallao": "bin/tallao.mjs"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -36,11 +58,19 @@
     },
     "./tokens.css": "./dist/tokens.css",
     "./base.css": "./dist/base.css",
+    "./llms.txt": "./llms.txt",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "!dist/**/*.test.*"
+    "!dist/**/*.test.*",
+    "bin",
+    "scripts/mcp-server.mjs",
+    "scripts/mcp-core.mjs",
+    "docs/gen/components.json",
+    "docs/demos",
+    "llms.txt",
+    "CHANGELOG.md"
   ],
   "sideEffects": [
     "**/*.css"
@@ -50,6 +80,8 @@
     "build:demo": "vite build",
     "package": "svelte-package -o dist && publint",
     "prepare": "svelte-package -o dist",
+    "prepack": "svelte-package -o dist && node scripts/docs-data.mjs && node scripts/llms.mjs --check",
+    "prepublishOnly": "pnpm check && pnpm test && publint",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
     "llms": "node scripts/llms.mjs",
@@ -133,5 +165,8 @@
     "typescript": "^5.9.3",
     "vite": "^6.0.0",
     "vitest": "^3.2.7"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

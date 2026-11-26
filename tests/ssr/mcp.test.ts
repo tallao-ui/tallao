@@ -40,7 +40,7 @@ describe("mcp tools", () => {
     const text = out(run("get_component", { name: "button" }));
     expect(text).toContain('import { Button } from "tallao"');
     expect(text).toContain("https://tallao-ui.github.io/tallao/docs/#/c/button");
-    expect(text).toContain("src/lib/components/button.svelte");
+    expect(text).toContain("https://github.com/tallao-ui/tallao/blob/main/src/lib/components/button.svelte");
     expect(text).toContain("## Usage");
     expect(text).not.toContain("<!-- layout:");
     expect(text).toContain("| Prop | Type | Default | Description |");
@@ -59,7 +59,7 @@ describe("mcp tools", () => {
 
   it("get_setup comes from llms.txt", () => {
     const text = out(run("get_setup"));
-    expect(text).toContain("pnpm add github:tallao-ui/tallao");
+    expect(text).toContain("pnpm add tallao");
     expect(text).toContain("tallao/tokens.css");
     expect(text).toContain("tallao/base.css");
     expect(text).toContain("setLabels");

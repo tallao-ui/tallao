@@ -7,7 +7,7 @@
 <text class="s" x="56" y="150" font-size="24" fill="#a8b3c4">A Svelte 5 UI kit for generative interfaces.</text>
 <text class="s" x="56" y="184" font-size="24" fill="#a8b3c4">Plain CSS on tokens, keyboard and screen reader ready, SSR-ready.</text>
 <rect x="670.3" y="66" width="473.7" height="56" rx="14" fill="#161e2c" stroke="#2a3446" stroke-width="2"/>
-<text class="m" x="692.3" y="101" font-size="21" fill="#f1f5f9"><tspan fill="#c084fc">$</tspan> pnpm add github:tallao-ui/tallao</text>
+<text class="m" x="692.3" y="101" font-size="21" fill="#f1f5f9"><tspan fill="#c084fc">$</tspan> pnpm add tallao</text>
 <line x1="56" y1="206" x2="1144" y2="206" stroke="#2a3446" stroke-width="2"/>
 <rect x="57.0" y="227" width="97.2" height="40" rx="11" fill="#161e2c" stroke="#ff8a4c" stroke-width="2"/>
 <text class="s" x="105.6" y="254" font-size="20" font-weight="600" text-anchor="middle" fill="#f1f5f9">Button</text>

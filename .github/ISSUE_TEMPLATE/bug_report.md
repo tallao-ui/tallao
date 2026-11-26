@@ -18,7 +18,7 @@ labels: bug
 
 - Svelte version, and SvelteKit or Astro version if used:
 - Browser and OS, and the input (mouse, touch, keyboard, screen reader):
-- How tallao was installed (`pnpm add github:tallao-ui/tallao`, copied component):
+- How tallao was installed (`pnpm add tallao`, copied component):
 
 **Console output or errors**
 

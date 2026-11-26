@@ -18,6 +18,9 @@ the user asks (and never tag or publish: a human releases).
 3. **Package.** `pnpm package` (svelte-package + publint) passes, and `dist/` holds every entry
    point in `package.json` `exports`: `index.js`, `map/index.js`, `code/index.js`, `tokens.css`,
    `base.css`, each with its `.d.ts` where `exports` names one.
+   Then `npm pack --dry-run`: the tarball holds `dist/`, `bin/tallao.mjs`, the two
+   `scripts/mcp-*.mjs`, `docs/gen/components.json`, `docs/demos/`, `llms.txt` and no tests, and
+   `node bin/tallao.mjs --version` prints the `package.json` version.
 4. **Demo.** `pnpm build:demo`
 5. **Real app.** `pnpm kit:check` (needs Chromium:
    `pnpm --filter tallao-kit-check exec playwright install chromium`).

@@ -1,6 +1,21 @@
 # Changelog
 
-## Unreleased
+## 0.8.0 — 2026-11-26
+
+The first release on npm.
+
+- **On npm as `tallao`.** `pnpm add tallao` (or `npm install tallao`) replaces
+  `pnpm add github:tallao-ui/tallao`, which still installs `main` and builds `dist/` through
+  `prepare`. The package ships `dist/`, the docs MCP server, its data and `llms.txt`; no tests and
+  no sources. `package.json` gains `keywords`, `homepage`, `bugs` and `publishConfig.access`.
+- **`npx tallao mcp`** (new `bin/tallao.mjs`): starts the docs MCP server from the package, with
+  no clone. MCP client settings: `{ "command": "npx", "args": ["-y", "tallao", "mcp"] }`.
+  `tallao --version` and `tallao --help` too. `get_setup` gives the npm install command, and
+  `get_component` links each source file on GitHub.
+- **`tallao/llms.txt`** (new export): the component index for agents, inside the package.
+- **`prepack`** builds `dist/`, regenerates `docs/gen/components.json` and checks `llms.txt`, so a
+  packed tarball never carries stale files; **`prepublishOnly`** runs `check`, `test` and
+  publint.
 
 - **`themeTransition(update, options)`** (new, `tallao/motion`): runs a page-wide change (a theme
   switch) inside a View Transition revealed from a point. Options: `from` (a mouse or pointer event,

@@ -14,7 +14,7 @@ Kitsuden admin views and kons use it, and so do Astro sites as islands.
 ## Using the kit in an app
 
 ```bash
-pnpm add github:tallao-ui/tallao   # builds dist/ on install through `prepare`
+pnpm add tallao   # from npm; `pnpm add github:tallao-ui/tallao` builds main through `prepare`
 ```
 
 ```svelte
@@ -168,7 +168,8 @@ When the user asks for a commit or a PR: work on a branch (never commit to `main
 that branch and open the PR against `main` with `gh pr create`. The PR body lists what changed
 and the checks that ran (and the ones that did not). A human merges; agents never merge, force
 push or publish.
-- `scripts/mcp-server.mjs` (`pnpm mcp`): an MCP server over stdio, no dependencies, for agents building
+- `scripts/mcp-server.mjs` (`pnpm mcp` here, `npx tallao mcp` from the package, through
+  `bin/tallao.mjs`): an MCP server over stdio, no dependencies, for agents building
   with the kit: `list_components`, `search_components`, `get_component` (import, props, a working
   example, the accessibility contract) and `get_setup`, all read from the same data as the docs.
 - `.claude/skills/`: step-by-step skills, usable by any agent that reads Markdown:
