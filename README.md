@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="assets/readme/hero.svg" width="100%" alt="tallao: a Svelte 5 UI kit for generative interfaces. Plain CSS on tokens, keyboard and screen reader ready, SSR-ready. Install with pnpm add github:tallao-ui/tallao. Components by family: actions and feedback (Button, Badge, Spinner, Alert, Progress, Skeleton, Toaster, CopyButton, Stat, Icon, Avatar), forms (Input, Textarea, Select, Checkbox, Label, Field, SearchInput, NumberInput, Slider, Switch, Toggle, ToggleGroup, RadioGroup, Rating, InputOTP, Combobox, KeyValueEditor, TagInput, FileUpload, Calendar, DatePicker, SchemaForm, CodeEditor), overlays and menus (Dialog, Sheet, ConfirmDialog, Popover, Tooltip, DropdownMenu, ContextMenu, Command), navigation and layout (Card, Tabs, Accordion, Breadcrumb, Pagination, Sidebar, TreeView, NavMenu, MegaMenu, BottomNav, SplitPane, Carousel, ThemeScope), data (Table, DataTable, BarChart, LineChart, MonthView, CompareSlider, SelectionBar, DragBoard, GameMap) and generative UI (PromptInput, ToolCallCard, ChatMessage, Steps, SuggestionChips, CodeBlock, Sources, UsageMeter).">
+  <img src="assets/readme/hero.svg" width="100%" alt="tallao: a Svelte 5 UI kit for generative interfaces. Plain CSS on tokens, keyboard and screen reader ready, SSR-ready. Install with pnpm add tallao. Components by family: actions and feedback (Button, Badge, Spinner, Alert, Progress, Skeleton, Toaster, CopyButton, Stat, Icon, Avatar), forms (Input, Textarea, Select, Checkbox, Label, Field, SearchInput, NumberInput, Slider, Switch, Toggle, ToggleGroup, RadioGroup, Rating, InputOTP, Combobox, KeyValueEditor, TagInput, FileUpload, Calendar, DatePicker, SchemaForm, CodeEditor), overlays and menus (Dialog, Sheet, ConfirmDialog, Popover, Tooltip, DropdownMenu, ContextMenu, Command), navigation and layout (Card, Tabs, Accordion, Breadcrumb, Pagination, Sidebar, TreeView, NavMenu, MegaMenu, BottomNav, SplitPane, Carousel, ThemeScope), data (Table, DataTable, BarChart, LineChart, MonthView, CompareSlider, SelectionBar, DragBoard, GameMap) and generative UI (PromptInput, ToolCallCard, ChatMessage, Steps, SuggestionChips, CodeBlock, Sources, UsageMeter).">
 </p>
 
 <p align="center">
   <a href="https://github.com/tallao-ui/tallao/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/tallao-ui/tallao/ci.yml?branch=main&label=CI"></a>
-  <img alt="Version 0.7.0" src="https://img.shields.io/badge/version-0.7.0-orange">
+  <img alt="Version 0.8.0" src="https://img.shields.io/badge/version-0.8.0-orange">
   <img alt="Svelte 5.29 or later" src="https://img.shields.io/badge/svelte-%E2%89%A55.29-ff3e00">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
 </p>
@@ -21,11 +21,14 @@ component sources, so they do not drift.
 
 ## Install and first use
 
-As a package (it builds on install through `prepare`):
+From npm:
 
 ```bash
-pnpm add github:tallao-ui/tallao
+pnpm add tallao        # or: npm install tallao
 ```
+
+The `main` branch, before a release, installs from GitHub with `pnpm add github:tallao-ui/tallao`
+(it builds `dist/` on install through `prepare`).
 
 ```svelte
 <script>
@@ -196,7 +199,7 @@ underline, the Accordion, new DataTable rows) follow.
 ## How an app uses it
 
 <p align="center">
-  <img src="assets/readme/how-it-is-used.svg" width="100%" alt="How an app uses tallao. The package exports tallao (components, toast, setLabels), tallao/map (GameMap, with leaflet and sveaflet), tallao/code (CodeEditor, with CodeMirror 6), tallao/tokens.css (every --ta-* variable) and tallao/base.css. An app installs it with pnpm add github:tallao-ui/tallao, or copies a component with internal/, utils.ts and the two CSS files. It needs Svelte 5.29 or later. It runs in SvelteKit (server rendering and hydration, stable ids from $props.id(), controls that submit with name), in Astro islands (setDefaultLabels; NavMenu and BottomNav need no hydration) and in Kitsuden kon views (custom elements in a Shadow DOM, wrapped in ThemeScope, which maps --kitsuden-* to --ta-*).">
+  <img src="assets/readme/how-it-is-used.svg" width="100%" alt="How an app uses tallao. The package exports tallao (components, toast, setLabels), tallao/map (GameMap, with leaflet and sveaflet), tallao/code (CodeEditor, with CodeMirror 6), tallao/tokens.css (every --ta-* variable) and tallao/base.css. An app installs it with pnpm add tallao, or copies a component with internal/, utils.ts and the two CSS files. It needs Svelte 5.29 or later. It runs in SvelteKit (server rendering and hydration, stable ids from $props.id(), controls that submit with name), in Astro islands (setDefaultLabels; NavMenu and BottomNav need no hydration) and in Kitsuden kon views (custom elements in a Shadow DOM, wrapped in ThemeScope, which maps --kitsuden-* to --ta-*).">
 </p>
 
 The sections below explain each path in the diagram: texts, server-rendered navigation, the
@@ -356,11 +359,12 @@ building an app with it: entry points, the component map by family, the conventi
 follows (runes, tokens, labels, SSR, 44px touch targets), commands, tests and the rules a change
 must keep. Claude Code reads it through [CLAUDE.md](CLAUDE.md).
 
-- **MCP server**: `pnpm mcp` (`node scripts/mcp-server.mjs`, no dependencies) answers an agent's
+- **MCP server**: `npx tallao mcp` (no dependencies; `pnpm mcp` in a clone) answers an agent's
   questions about the kit over stdio: `list_components`, `search_components`, `get_component`
   (import line, props, a working example, the accessibility contract) and `get_setup`, from the
-  same data as the docs. In a client's MCP settings, from a clone of this repository:
-  `{ "mcpServers": { "tallao": { "command": "node", "args": ["<path to tallao>/scripts/mcp-server.mjs"] } } }`.
+  same data as the docs, which ship in the package. In a client's MCP settings:
+  `{ "mcpServers": { "tallao": { "command": "npx", "args": ["-y", "tallao", "mcp"] } } }`.
+  The same index for agents that read files is `llms.txt`, also exported as `tallao/llms.txt`.
 - [`.claude/settings.json`](.claude/settings.json): shared permissions. The check, test and build
   scripts, commits and pushes on a branch, and opening PRs are allowed; reading `.env` files,
   pushing to `main`, force pushes, merging and publishing are denied.

@@ -129,8 +129,8 @@
     <h2>{t.install}</h2>
     <p class="muted">{t.installLead}</p>
     <div class="copy">
-      <pre class="code"><code>pnpm add github:tallao-ui/tallao</code></pre>
-      <button type="button" class="mini" onclick={() => copy("pkg", "pnpm add github:tallao-ui/tallao")}>{label("pkg")}</button>
+      <pre class="code"><code>pnpm add tallao</code></pre>
+      <button type="button" class="mini" onclick={() => copy("pkg", "pnpm add tallao")}>{label("pkg")}</button>
     </div>
     <div class="copy">
       <pre class="code"><code>{@html highlight(`import "tallao/tokens.css";\nimport "tallao/base.css";\n${importLine}`)}</code></pre>
