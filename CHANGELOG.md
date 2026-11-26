@@ -12,6 +12,9 @@ The first release on npm.
   no clone. MCP client settings: `{ "command": "npx", "args": ["-y", "tallao", "mcp"] }`.
   `tallao --version` and `tallao --help` too. `get_setup` gives the npm install command, and
   `get_component` links each source file on GitHub.
+- **MCP input limit.** `get_component`, `search_components` and `list_components` refuse a name,
+  query or family longer than 200 characters (`MAX_INPUT`) before matching: a 200,000-character
+  name kept the server busy for about 11 s in the closest-name search.
 - **`tallao/llms.txt`** (new export): the component index for agents, inside the package.
 - **`prepack`** builds `dist/`, regenerates `docs/gen/components.json` and checks `llms.txt`, so a
   packed tarball never carries stale files; **`prepublishOnly`** runs `check`, `test` and

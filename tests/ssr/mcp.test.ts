@@ -5,7 +5,7 @@
 import { spawn } from "node:child_process";
 
 // @ts-expect-error a plain Node script, with no type declarations
-import { callTool, loadData, tools } from "../../scripts/mcp-core.mjs";
+import { MAX_INPUT, callTool, loadData, tools } from "../../scripts/mcp-core.mjs";
 
 type Result = { content: { type: string; text: string }[]; isError?: boolean };
 const data = loadData();
@@ -55,6 +55,19 @@ describe("mcp tools", () => {
     const bad = run("get_component", { name: "Buton2" });
     expect(bad.isError).toBe(true);
     expect(out(bad)).toContain("Button");
+  });
+
+  it("refuses names and queries longer than MAX_INPUT before matching", () => {
+    const big = "x".repeat(200_000);
+    const t0 = Date.now();
+    for (const [tool, key] of [["get_component", "name"], ["search_components", "query"], ["list_components", "family"]]) {
+      const r = run(tool, { [key]: big });
+      expect(r.isError).toBe(true);
+      expect(out(r)).toContain(`at most ${MAX_INPUT}`);
+    }
+    expect(Date.now() - t0).toBeLessThan(1000);
+    expect(run("get_component", { name: "x".repeat(MAX_INPUT) }).isError).toBe(true);
+    expect(out(run("get_component", { name: "x".repeat(MAX_INPUT) }))).toContain("Closest:");
   });
 
   it("get_setup comes from llms.txt", () => {
