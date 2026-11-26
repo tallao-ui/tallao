@@ -51,6 +51,10 @@ export const tools = [
 const text = (t, isError) => (isError ? { content: [{ type: "text", text: t }], isError: true } : { content: [{ type: "text", text: t }] });
 const norm = (s) => String(s ?? "").trim().toLowerCase();
 const oneLine = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
+/** Longest name or query a tool accepts: longer input is refused before any matching, so a huge
+ * argument cannot keep the server busy (the closest-name search is quadratic). */
+export const MAX_INPUT = 200;
+const tooLong = (field, s) => text(`"${field}" is too long (${s.length} characters, at most ${MAX_INPUT}).`, true);
 
 /**
  * Loads docs/gen/components.json. The file is generated and gitignored, so on a fresh clone
@@ -75,6 +79,7 @@ function allEntries(data) {
 
 function listComponents(args, data) {
   const fam = norm(args.family);
+  if (fam.length > MAX_INPUT) return tooLong("family", fam);
   let families = data.families;
   if (fam) {
     families = families.filter((f) => norm(f.id) === fam || norm(f.title) === fam);
@@ -99,6 +104,7 @@ function listComponents(args, data) {
 function searchComponents(args, data) {
   const q = norm(args.query);
   if (!q) return text("Give a non-empty query.", true);
+  if (q.length > MAX_INPUT) return tooLong("query", q);
   const scored = [];
   for (const c of allEntries(data)) {
     const name = norm(c.name);
@@ -169,6 +175,7 @@ function demoCode(slug, root) {
 
 function getComponent(args, data, root) {
   const q = norm(args.name);
+  if (q.length > MAX_INPUT) return tooLong("name", q);
   const hit = q && find(q, data);
   if (!hit) return text(`Unknown component "${args.name}". Closest: ${closest(q, data).join(", ")}. Use search_components or list_components.`, true);
   const { c, part } = hit;
