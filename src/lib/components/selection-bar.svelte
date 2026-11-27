@@ -147,7 +147,7 @@
     backdrop-filter: blur(var(--ta-float-blur, 0px));
     border: 1px solid rgb(var(--ta-float-edge, var(--ta-border)) / var(--ta-float-edge-alpha, 1));
     box-shadow: var(--ta-float-ring, 0 0 #0000), 0 12px 32px -8px rgb(0 0 0 / 0.45);
-    animation: ta-selection-rise var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out);
+    animation: ta-selection-rise var(--ta-duration-enter, 200ms) var(--ta-ease-enter, ease-out);
   }
   @keyframes ta-selection-rise {
     from {
