@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { tick } from "svelte";
 
-import { diffKind, filtersFromQuery, filtersToQuery, type FilterDef } from "$lib/components";
+import { DiffView, diffKind, filtersFromQuery, filtersToQuery, type FilterDef } from "$lib/components";
 import { es } from "$lib/i18n";
 
 import { axeViolations } from "../axe";
@@ -238,6 +238,19 @@ describe("SaveBar", () => {
 });
 
 describe("DiffView", () => {
+  it("keeps two changes of the same field (a record's own field and a column in a log)", () => {
+    const changes = [
+      { field: "ownerId", label: "Owner", before: null, after: "u1" },
+      { field: "ownerId", label: "Owner", before: null, after: "u1" },
+      { field: "name", label: "Name", before: null, after: "Alpha" },
+    ];
+    for (const compact of [false, true]) {
+      const { unmount } = render(DiffView, { props: { changes, compact, ariaLabel: "Log" } });
+      expect(within(screen.getByRole("list", { name: "Log" })).getAllByRole("listitem")).toHaveLength(3);
+      unmount();
+    }
+  });
+
   it("works out the kind of each change", () => {
     expect(diffKind({ field: "a", before: null, after: "x" })).toBe("added");
     expect(diffKind({ field: "a", before: "x", after: "" })).toBe("removed");
