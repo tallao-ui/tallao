@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- **Motion by what it does** (new tokens): `--ta-duration-enter` (200 ms), `--ta-duration-exit`
+  (150 ms), `--ta-duration-move` (240 ms), with `--ta-ease-enter` (decelerates),
+  `--ta-ease-exit` (accelerates) and `--ta-ease-move` (both ends). Reduced motion zeroes them
+  like the others. `DURATION` and `EASE` (`tallao/motion`) carry the same values, plus
+  `easeIn`.
+- **`fade`, `rise`, `scaleIn`, `slide`, `collapse`** pick `enter` or `exit` from their
+  direction (Svelte's third argument) when no `duration` is given: things arrive a little
+  slower and settle, and leave quicker. `crossfade` uses `move`. Dialog, Sheet, DropdownMenu,
+  Popover, DateRangePicker, Toaster and TableRow now enter and leave with these instead of
+  fixed `fast` / `base` / `slow`.
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.

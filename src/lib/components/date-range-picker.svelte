@@ -227,7 +227,7 @@
       <Icon name="calendar" size={16} />
     </button>
     {#if open}
-      <div bind:this={panel} id={`${id}-panel`} role="dialog" aria-label={buttonLabel} popover="manual" class="ta-daterange-panel ta-daterange-panel--floating" out:scaleIn={{ duration: "fast", from: 0.98 }}>
+      <div bind:this={panel} id={`${id}-panel`} role="dialog" aria-label={buttonLabel} popover="manual" class="ta-daterange-panel ta-daterange-panel--floating" out:scaleIn={{ from: 0.98 }}>
         {@render content()}
       </div>
     {/if}
@@ -297,7 +297,7 @@
     border-radius: var(--ta-radius-lg);
     box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
     font: inherit;
-    animation: ta-daterange-enter var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
+    animation: ta-daterange-enter var(--ta-duration-enter, 200ms) var(--ta-ease-enter, ease-out);
   }
   @keyframes ta-daterange-enter {
     from { opacity: 0; transform: translateY(-2px) scale(0.98); }

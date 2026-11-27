@@ -51,6 +51,15 @@
   --ta-duration-fast: 120ms;
   --ta-duration-base: 180ms;
   --ta-duration-slow: 240ms;
+  /* By what the movement does: something arriving takes a little longer and settles
+     (decelerates), something leaving goes quicker and gets out of the way (accelerates),
+     something moving from one place to another eases at both ends. */
+  --ta-duration-enter: 200ms;
+  --ta-duration-exit: 150ms;
+  --ta-duration-move: 240ms;
+  --ta-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ta-ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --ta-ease-move: cubic-bezier(0.65, 0, 0.35, 1);
   --ta-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ta-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ta-ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1);
@@ -69,6 +78,9 @@
     --ta-duration-fast: 0.01ms;
     --ta-duration-base: 0.01ms;
     --ta-duration-slow: 0.01ms;
+    --ta-duration-enter: 0.01ms;
+    --ta-duration-exit: 0.01ms;
+    --ta-duration-move: 0.01ms;
     --ta-motion: 0;
   }
 }
@@ -76,6 +88,9 @@
   --ta-duration-fast: 0.01ms;
   --ta-duration-base: 0.01ms;
   --ta-duration-slow: 0.01ms;
+  --ta-duration-enter: 0.01ms;
+  --ta-duration-exit: 0.01ms;
+  --ta-duration-move: 0.01ms;
   --ta-motion: 0;
 }
 

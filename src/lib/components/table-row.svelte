@@ -10,7 +10,7 @@
     [key: string]: unknown;
   }
   const { class: className = "", exit, children, ...rest }: Props = $props();
-  const leave = (node: Element) => (exit?.() ? fade(node, { duration: "fast" }) : { duration: 0 });
+  const leave = (node: Element) => (exit?.() ? fade(node, {}, { direction: "out" }) : { duration: 0 });
 </script>
 
 <tr {...rest} class={cn("ta-table-row", className)} out:leave|global>

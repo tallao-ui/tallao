@@ -23,11 +23,19 @@
  */
 import { crossfade as svelteCrossfade, type CrossfadeParams, type TransitionConfig } from "svelte/transition";
 
-/** The kit's durations in ms; the same as `--ta-duration-fast | base | slow`. */
-export const DURATION = { fast: 120, base: 180, slow: 240 } as const;
+/**
+ * The kit's durations in ms; the same as `--ta-duration-*`. `enter`, `exit` and `move` are
+ * by what the movement does: arriving takes a little longer, leaving is quicker, moving from
+ * one place to another is the longest. The transitions below pick `enter` or `exit` from
+ * their direction (`in:` / `out:` / `transition:`) unless a `duration` is given.
+ */
+export const DURATION = { fast: 120, base: 180, slow: 240, enter: 200, exit: 150, move: 240 } as const;
 
 /** The kit's easings as CSS, for the Web Animations API; the same as `--ta-ease-*`. */
 export const EASE = {
+  enter: "cubic-bezier(0.16, 1, 0.3, 1)",
+  exit: "cubic-bezier(0.7, 0, 0.84, 0)",
+  move: "cubic-bezier(0.65, 0, 0.35, 1)",
   out: "cubic-bezier(0.16, 1, 0.3, 1)",
   inOut: "cubic-bezier(0.65, 0, 0.35, 1)",
   spring:
@@ -42,6 +50,8 @@ const ms = (speed: Speed | undefined, fallback: Speed) => {
 
 /** The curve of `--ta-ease-out` as a function (cubic-bezier(0.16, 1, 0.3, 1) is close to 1 - (1 - t)^5). */
 export const easeOut = (t: number) => 1 - Math.pow(1 - t, 5);
+/** The curve of `--ta-ease-exit` as a function (cubic-bezier(0.7, 0, 0.84, 0) is close to t^5). */
+export const easeIn = (t: number) => Math.pow(t, 5);
 export const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 /**
@@ -57,37 +67,47 @@ export function prefersReducedMotion(): boolean {
 }
 
 export interface MotionParams {
-  /** "fast" (120 ms), "base" (180 ms), "slow" (240 ms) or a number of ms. */
+  /**
+   * "enter" (200 ms), "exit" (150 ms), "move" (240 ms), "fast" (120 ms), "base" (180 ms),
+   * "slow" (240 ms) or a number of ms. Without it, `enter` on the way in, `exit` on the way out.
+   */
   duration?: Speed;
   delay?: number;
 }
 
+/** Svelte passes the direction of a transition as its third argument. */
+type Direction = { direction?: "in" | "out" | "both" };
+const leaving = (options?: Direction) => options?.direction === "out";
+/** The default speed and curve for a direction: settle on the way in, accelerate out. */
+const byDirection = (options: Direction | undefined, duration: Speed | undefined) => ({
+  duration: ms(duration, leaving(options) ? "exit" : "enter"),
+  easing: leaving(options) ? easeIn : easeOut,
+});
+
 const still = (delay = 0): TransitionConfig => ({ delay, duration: 0 });
 
 /** Opacity only: for anything that appears in place. */
-export function fade(_node: Element, { duration, delay = 0 }: MotionParams = {}): TransitionConfig {
+export function fade(_node: Element, { duration, delay = 0 }: MotionParams = {}, options?: Direction): TransitionConfig {
   if (prefersReducedMotion()) return still();
-  return { delay, duration: ms(duration, "fast"), css: (t) => `opacity: ${t}` };
+  return { delay, duration: byDirection(options, duration).duration, css: (t) => `opacity: ${t}` };
 }
 
 /** Fades in while rising a few pixels: list items, cards, messages. `y` is the distance. */
-export function rise(_node: Element, { duration, delay = 0, y = 6 }: MotionParams & { y?: number } = {}): TransitionConfig {
+export function rise(_node: Element, { duration, delay = 0, y = 6 }: MotionParams & { y?: number } = {}, options?: Direction): TransitionConfig {
   if (prefersReducedMotion()) return still();
   return {
     delay,
-    duration: ms(duration, "base"),
-    easing: easeOut,
+    ...byDirection(options, duration),
     css: (t, u) => `opacity: ${t}; transform: translateY(${u * y}px)`,
   };
 }
 
 /** Grows from slightly smaller while fading in: dialogs, popovers, menus. */
-export function scaleIn(_node: Element, { duration, delay = 0, from = 0.96 }: MotionParams & { from?: number } = {}): TransitionConfig {
+export function scaleIn(_node: Element, { duration, delay = 0, from = 0.96 }: MotionParams & { from?: number } = {}, options?: Direction): TransitionConfig {
   if (prefersReducedMotion()) return still();
   return {
     delay,
-    duration: ms(duration, "fast"),
-    easing: easeOut,
+    ...byDirection(options, duration),
     css: (t) => `opacity: ${t}; transform: scale(${from + (1 - from) * t})`,
   };
 }
@@ -95,27 +115,26 @@ export function scaleIn(_node: Element, { duration, delay = 0, from = 0.96 }: Mo
 /** Slides in from an edge: sheets and drawers. `distance` is a CSS length (its own size by default). */
 export function slide(
   _node: Element,
-  { duration, delay = 0, from = "right", distance = "100%" }: MotionParams & { from?: "left" | "right" | "top" | "bottom"; distance?: string } = {}
+  { duration, delay = 0, from = "right", distance = "100%" }: MotionParams & { from?: "left" | "right" | "top" | "bottom"; distance?: string } = {},
+  options?: Direction
 ): TransitionConfig {
   if (prefersReducedMotion()) return still();
   const axis = from === "left" || from === "right" ? "X" : "Y";
   const sign = from === "left" || from === "top" ? "-" : "";
   return {
     delay,
-    duration: ms(duration, "slow"),
-    easing: easeOut,
+    ...byDirection(options, duration),
     css: (_t, u) => `transform: translate${axis}(calc(${sign}${distance} * ${u}))`,
   };
 }
 
 /** Opens and closes a block of unknown height (an accordion panel, a details row). */
-export function collapse(node: Element, { duration, delay = 0 }: MotionParams = {}): TransitionConfig {
+export function collapse(node: Element, { duration, delay = 0 }: MotionParams = {}, options?: Direction): TransitionConfig {
   if (prefersReducedMotion()) return still();
   const height = (node as HTMLElement).offsetHeight;
   return {
     delay,
-    duration: ms(duration, "base"),
-    easing: easeOut,
+    ...byDirection(options, duration),
     css: (t) => `overflow: hidden; height: ${t * height}px; opacity: ${Math.min(1, t * 1.5)}`,
   };
 }
@@ -136,8 +155,8 @@ export function stagger(index: number, { step = 30, max = 8, ...params }: Motion
  */
 export function crossfade({ duration }: { duration?: Speed } = {}) {
   const [send, receive] = svelteCrossfade({
-    duration: () => (prefersReducedMotion() ? 0 : ms(duration, "slow")),
-    easing: easeOut,
+    duration: () => (prefersReducedMotion() ? 0 : ms(duration, "move")),
+    easing: easeInOut,
     fallback: (node) => scaleIn(node),
   });
   const quiet =
