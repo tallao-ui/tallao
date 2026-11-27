@@ -11,7 +11,7 @@ const press = async (target: Element, key: string) => {
   return event;
 };
 const activeRows = (container: HTMLElement) =>
-  [...container.querySelectorAll("tr[data-active]")].map((tr) => tr.textContent?.trim());
+  [...container.querySelectorAll("tr[data-active] a")].map((a) => a.textContent?.trim());
 
 describe("DataTable keyboard", () => {
   it("j / k and the arrows move the focus between rows, and mark the row", async () => {
@@ -76,6 +76,26 @@ describe("DataTable keyboard", () => {
     await press(document.body, "j");
     expect(document.activeElement).toBe(link("Alpha"));
     expect((await press(screen.getByTestId("outside"), "j")).defaultPrevented).toBe(false);
+  });
+
+  it("a button in the row, in the header or on the page keeps its own Enter and arrows", async () => {
+    const onRowOpen = vi.fn();
+    render(DataTableKeys, { props: { onRowOpen, keyboard: "page" } });
+    link("Beta").focus();
+    await press(link("Beta"), "j"); // Gamma is the active row now
+    const actions = screen.getByRole("button", { name: "Actions: Gamma" });
+    actions.focus();
+    // Enter opens the button's menu, not the row; ↓ is the menu's too.
+    expect((await press(actions, "Enter")).defaultPrevented).toBe(false);
+    expect((await press(actions, "ArrowDown")).defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(actions);
+    const sort = screen.getByRole("button", { name: /Name/ });
+    expect((await press(sort, "Enter")).defaultPrevented).toBe(false);
+    expect((await press(screen.getByTestId("outside-button"), "Enter")).defaultPrevented).toBe(false);
+    expect(onRowOpen).not.toHaveBeenCalled();
+    // j and k still move from a button: no button does anything with a letter.
+    await press(actions, "k");
+    expect(document.activeElement).toBe(link("Beta"));
   });
 
   it("Escape lets the row go", async () => {

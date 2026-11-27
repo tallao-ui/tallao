@@ -37,6 +37,8 @@
   - Enter opens it (`onRowOpen`, else its link), x toggles its selection, e calls `onRowEdit`,
     Escape lets it go. Every key the table acts on is `preventDefault`ed, so a page-level
     handler that skips `defaultPrevented` events does not act twice.
+  - A control of its own (the row's "⋯" button, a header's sort button, any button on the
+    page) keeps Enter and the arrows: they open its menu, not the row. Letters still move.
 
   For an admin list:
   - `rowHref`: the first column's cell (or `linkColumn`) is a real link to the record, so the
@@ -414,6 +416,14 @@
     if (!keyboard || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
     const target = event.target as HTMLElement | null;
     if (target?.closest?.('input:not([type="checkbox"]), textarea, select, [contenteditable="true"], [role="textbox"]')) return;
+    // Enter and the arrows belong to a control of its own (a "⋯" menu, a sort button), not to
+    // the row: only the row, its link, its checkbox or nothing in particular hand them over.
+    const own =
+      target instanceof Element &&
+      target !== document.body &&
+      !target.matches("tr[data-ta-row], a.ta-datatable-link, input.ta-datatable-checkbox") &&
+      !!target.closest('a[href], button, summary, select, [role="button"], [role="menuitem"], [role="tab"], [role="switch"], [role="combobox"], [tabindex]:not(tr)');
+    if (own && (event.key === "Enter" || event.key === "ArrowDown" || event.key === "ArrowUp")) return;
     const rows = rowEls();
     if (rows.length === 0) return;
     const focused = rows.findIndex((tr) => tr.contains(document.activeElement));
