@@ -1581,6 +1581,8 @@ Props:
 - `warnAt?: number` — Percentage from which to warn (default 80).
 - `cost?: string` — Cost in currency, if known (shown as is, e.g. "$0.42").
 - `compact?: boolean` — Only the numbers, no bar.
+- `format?: Intl.NumberFormatOptions` — How `used` and `max` are written (`Intl.NumberFormat` options; whole numbers by default). A currency (`{ style: "currency", currency: "USD" }`) leaves `unit` out: the symbol says it.
+- `locale?: string`
 - `class?: string`
 
 ### InputOTP

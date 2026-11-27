@@ -114,6 +114,13 @@ describe("Stat rolling", () => {
   });
 });
 
+describe("UsageMeter format", () => {
+  it("writes a currency with its symbol and no unit", () => {
+    const { container } = render(HudParts);
+    expect(container.querySelector(".ta-usage-count")?.textContent).toBe("$4.20 / $5.00");
+  });
+});
+
 describe("HUD parts", () => {
   it("have no axe violations", async () => {
     const { container } = render(HudParts, { live: true, onRefresh: () => {}, updatedAt: Date.now() });

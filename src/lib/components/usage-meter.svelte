@@ -23,6 +23,12 @@
     cost?: string;
     /** Only the numbers, no bar. */
     compact?: boolean;
+    /**
+     * How `used` and `max` are written (`Intl.NumberFormat` options; whole numbers by default).
+     * A currency (`{ style: "currency", currency: "USD" }`) leaves `unit` out: the symbol says it.
+     */
+    format?: Intl.NumberFormatOptions;
+    locale?: string;
     class?: string;
     [key: string]: unknown;
   }
@@ -35,6 +41,8 @@
     warnAt = 80,
     cost,
     compact = false,
+    format,
+    locale,
     class: className = "",
     ...rest
   }: Props = $props();
@@ -42,8 +50,10 @@
   const percentage = $derived(max > 0 ? Math.min(100, (used / max) * 100) : 0);
   const level = $derived(percentage >= 100 ? "exhausted" : percentage >= warnAt ? "warning" : "ok");
 
-  const numberFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 });
-  const count = $derived(`${numberFormat.format(used)} / ${numberFormat.format(max)} ${unit}`);
+  const numberFormat = $derived(new Intl.NumberFormat(locale, format ?? { maximumFractionDigits: 0 }));
+  const count = $derived(
+    `${numberFormat.format(used)} / ${numberFormat.format(max)}${format?.style === "currency" ? "" : ` ${unit}`}`
+  );
 </script>
 
 <div {...rest} class={cn("ta-usage", `ta-usage--${level}`, compact && "ta-usage--compact", className)}>

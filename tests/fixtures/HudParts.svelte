@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Card, ShortcutList, Stat, SyncStatus } from "$lib/components";
+  import { Card, ShortcutList, Stat, SyncStatus, UsageMeter } from "$lib/components";
 
   let {
     status = "ready",
@@ -29,3 +29,4 @@
 <Card><p>Plain</p></Card>
 <Stat label="Waiting" value={waiting} rolling variant="warning" />
 <Stat label="Plain figure" value={12} />
+<UsageMeter label="Spent today" used={4.2} max={5} format={{ style: "currency", currency: "USD" }} locale="en-US" />

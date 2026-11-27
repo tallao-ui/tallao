@@ -19,6 +19,8 @@
 - **Stat `rolling`**: a number `value` rolls to each new value with RollingCounter, for a reading
   that keeps changing (a queue, people online), in the variant's colour; `locale` and `format`
   format it. A screen reader gets the plain number.
+- **UsageMeter `format` and `locale`**: how `used` and `max` are written (`Intl.NumberFormat`
+  options, whole numbers by default). With a currency the symbol replaces `unit`: "$4.20 / $5.00".
 - New labels: `synced`, `syncing`, `syncFailed`, `syncReady`, `justNow`, `secondsAgo`,
   `minutesAgo`, `refresh`, `live`, `keyboardShortcuts` (English and Spanish).
 
