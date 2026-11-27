@@ -2,6 +2,8 @@
 <script lang="ts">
   import {
     Alert,
+    FlowNode,
+    ThemeToggle,
     Badge,
     Button,
     Card,
@@ -279,6 +281,14 @@
     <SortableList ariaLabel="Steps" items={["Reply", "Give coins"]} key={(s) => s} label={(s) => s} onReorder={() => {}}>
       {#snippet row(s)}{s}{/snippet}
     </SortableList>
+    <SortableList ariaLabel="Flow" variant="bare" items={["Cooldown", "Give coins"]} key={(s) => s} label={(s) => s} onReorder={() => {}}>
+      {#snippet row(s, i)}<FlowNode index={i + 1} label={s} description="Once a day" status={i === 0 ? "done" : "skipped"} onclick={() => {}} color="rgb(var(--ta-series-3))" />{/snippet}
+    </SortableList>
+    <ol><li><FlowNode label="Reply" description="Only the member sees it" status="running" invalid>
+      <span>embed.title: too long</span>
+      {#snippet actions()}<Button variant="ghost" size="icon" ariaLabel="More for Reply">…</Button>{/snippet}
+    </FlowNode></li></ol>
+    <ThemeToggle storageKey={null} transition="none" />
     <TreeView ariaLabel="Outline" expanded={["a"]} selected="a1" items={[{ id: "a", label: "Commands", badge: "2", children: [{ id: "a1", label: "ping" }, { id: "a2", label: "booth" }] }, { id: "b", label: "Panels" }]} />
     <div bind:this={beamBox} style="position: relative">
       <span bind:this={beamFrom}>Agent</span> <span bind:this={beamTo}>Search</span>

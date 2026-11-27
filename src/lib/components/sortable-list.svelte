@@ -16,6 +16,11 @@
     Enter, Space) drops it. Escape puts it back where it was. Each step is announced in an
     `aria-live` region; the instructions are hidden text the handles point at.
   On the server the rows render as a plain list; moving needs JavaScript.
+
+  `variant="bare"` drops the row's own card (surface, border, padding) for content that is its own
+  card, such as a FlowNode: the grabbed and drop-target states then mark the content, and the
+  handle rests dimmed until the row is hovered or focused (always full on touch). The gap between
+  rows is `--ta-sortable-gap`.
 -->
 <script lang="ts" generics="T">
   import { tick } from "svelte";
@@ -43,6 +48,8 @@
     moveUpLabel?: string;
     moveDownLabel?: string;
     instructions?: string;
+    /** `card` (default): each row is a card. `bare`: the row draws nothing; the content is the card. */
+    variant?: "card" | "bare";
     class?: string;
     /** Other attributes go to the <ol>. */
     [key: string]: unknown;
@@ -60,6 +67,7 @@
     moveUpLabel = L.moveUp,
     moveDownLabel = L.moveDown,
     instructions = L.sortInstructions,
+    variant = "card",
     class: className = "",
     ...rest
   }: Props = $props();
@@ -146,7 +154,7 @@
   }
 </script>
 
-<ol bind:this={listEl} class={cn("ta-sortable", className)} aria-label={ariaLabel} {...rest}>
+<ol bind:this={listEl} class={cn("ta-sortable", variant === "bare" && "ta-sortable--bare", className)} aria-label={ariaLabel} {...rest}>
   {#each items as item, i (key(item, i))}
     {@const k = key(item, i)}
     {@const isGrabbed = grabbed?.key === k}
@@ -200,7 +208,7 @@
   .ta-sortable {
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
+    gap: var(--ta-sortable-gap, 0.375rem);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -281,6 +289,42 @@
     min-width: 0;
   }
 
+  /* Bare rows: the content is the card, so the states mark it instead of the row. */
+  .ta-sortable--bare .ta-sortable-row {
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .ta-sortable--bare .ta-sortable-content {
+    border-radius: var(--ta-radius-lg);
+    transition: box-shadow var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
+  }
+
+  .ta-sortable--bare .ta-sortable-row[data-grabbed] .ta-sortable-content {
+    box-shadow:
+      0 0 0 1px rgb(var(--ta-accent)),
+      0 0 0 4px rgb(var(--ta-accent) / 0.2);
+  }
+
+  .ta-sortable--bare .ta-sortable-row[data-over] .ta-sortable-content {
+    box-shadow: 0 -3px 0 rgb(var(--ta-accent));
+  }
+
+  .ta-sortable--bare .ta-sortable-handle {
+    opacity: 0.45;
+    transition: opacity var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
+  }
+
+  .ta-sortable--bare .ta-sortable-row:hover .ta-sortable-handle,
+  .ta-sortable--bare .ta-sortable-row:focus-within .ta-sortable-handle,
+  .ta-sortable--bare .ta-sortable-handle[aria-pressed="true"] {
+    opacity: 1;
+  }
+
   .ta-sortable-moves {
     display: flex;
     gap: 0.25rem;
@@ -305,10 +349,17 @@
       height: 2.75rem;
       transform: translate(-50%, -50%);
     }
+
+    /* No hover on touch: a dimmed handle would stay dimmed. */
+    .ta-sortable--bare .ta-sortable-handle {
+      opacity: 1;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ta-sortable-row {
+    .ta-sortable-row,
+    .ta-sortable--bare .ta-sortable-content,
+    .ta-sortable--bare .ta-sortable-handle {
       transition: none;
     }
   }

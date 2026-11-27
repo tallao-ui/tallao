@@ -520,6 +520,26 @@ Props:
 - `class?: string`
 - `children?: import("svelte").Snippet`
 
+### ThemeToggle
+
+The button that switches the page between the dark and the light theme.
+
+```svelte
+<ThemeToggle />                                   remembered as "tallao-theme"
+<ThemeToggle storageKey="my-app-theme" transition="ink" bind:theme />
+```
+
+Props:
+- `theme?: Theme` — The current theme; bind it to follow or set it.
+- `storageKey?: string | null` — Where the choice is remembered in localStorage; `null` remembers nothing.
+- `transition?: ThemeTransitionStyle | "none"` — How the new theme appears; `"none"` switches at once.
+- `variant?: "ghost" | "outline" | "soft" | "secondary"`
+- `size?: "sm" | "icon"`
+- `lightLabel?: string` — Name of the button while the theme is dark.
+- `darkLabel?: string` — Name of the button while the theme is light.
+- `onchange?: (theme: Theme) => void` — Called after the theme changed.
+- `class?: string`
+
 ### Popover
 
 Floating panel anchored to a trigger.
@@ -1510,6 +1530,30 @@ Props:
 - `label?: string` — Accessible name of the list.
 - `labels?: Partial<Record<StepStatus, string>>` — Text per status; defaults to the kit's labels.
 - `orientation?: "vertical" | "horizontal"` — Vertical (default) or a row that scrolls on narrow screens.
+- `class?: string`
+
+### FlowNode
+
+One step of a flow you build or watch run.
+
+```svelte
+<FlowNode label="…">…</FlowNode>
+```
+
+Props:
+- `label: string` — What the step is ("Give coins").
+- `description?: string` — What it does with its settings ("100 coins to the member").
+- `index?: number | string` — The number drawn at the start; the list around the nodes gives the order to screen readers.
+- `status?: FlowNodeStatus`
+- `statusLabel?: string` — The status word; defaults to the kit's label for `status`.
+- `selected?: boolean`
+- `invalid?: boolean` — Marks the node as having a problem (danger border); say what in `children`.
+- `color?: string` — Any CSS colour for the icon and its tint, e.g. `rgb(var(--ta-series-3))`.
+- `onclick?: (event: MouseEvent) => void` — Makes the body a button.
+- `icon?: Snippet` — The step's icon (decorative: the label names it).
+- `children?: Snippet` — Text under the description: a condition, a problem. No controls.
+- `actions?: Snippet` — Controls beside the body: a menu, a remove button.
+- `ref?: HTMLElement` — The root element, e.g. to anchor a Beam between nodes.
 - `class?: string`
 
 ### SuggestionChips
@@ -2772,6 +2816,7 @@ Props:
 - `moveUpLabel?: string`
 - `moveDownLabel?: string`
 - `instructions?: string`
+- `variant?: "card" | "bare"` — `card` (default): each row is a card. `bare`: the row draws nothing; the content is the card.
 - `class?: string`
 
 ### TreeView

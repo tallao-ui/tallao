@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Icon } from "tallao";
 
-  const names = ["check", "x", "plus", "search", "home", "user", "trash", "edit", "copy", "download", "calendar", "clock", "info", "alert", "settings", "bot", "terminal", "sparkle", "database", "shield"] as const;
+  const names = ["check", "x", "plus", "search", "home", "user", "trash", "edit", "copy", "download", "calendar", "clock", "info", "alert", "settings", "bot", "terminal", "sparkle", "database", "shield", "message", "hash", "coin", "branch", "chip", "slash", "pill", "form", "bolt", "play", "sun", "moon"] as const;
 </script>
 
 {#each names as name}

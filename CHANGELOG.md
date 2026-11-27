@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased
+
+Parts of the KTG Studio bot builder (kon-dc) that any builder can use.
+
+- **`FlowNode`** (new, Generative UI): one editable step of a flow you build or watch run. Props:
+  `label`, `description`, `index`, `status` (`FlowNodeStatus`: Steps' `pending`, `running`,
+  `done`, `failed`, `skipped`, plus `stopped`), `statusLabel`, `selected`, `invalid`, `color`
+  (any CSS colour for the icon and its tint), `onclick` (makes the body one button with
+  `aria-pressed`), `ref` (bindable root, e.g. for a Beam), `class`, and the `icon`, `children`
+  (text under the description) and `actions` (controls beside the body) snippets. Every run state
+  but `pending` shows its word; `running` sets `aria-current="step"`. Tokens
+  `--ta-flow-node-glow` and `--ta-flow-node-tone`. Exports `FlowNodeStatus`.
+- **`ThemeToggle`** (new, Navigation and layout): the dark/light button. It sets
+  `data-tallao-theme` on `<html>`, remembers the choice in localStorage (`storageKey`, default
+  `"tallao-theme"`; `null` remembers nothing) and reveals it with `themeTransition` from the click
+  (`transition`: `"circle"` default, `"ink"`, `"fade"`, `"none"`). Props: bindable `theme`,
+  `variant`, `size`, `lightLabel`, `darkLabel`, `onchange`. On mount it takes the stored choice,
+  else the attribute already on `<html>`, else dark. Exports `Theme`.
+- **`SortableList` `variant="bare"`**: rows draw no card of their own, for content that is its own
+  card (FlowNode). The grabbed and drop-target states mark the content; the handle rests dimmed
+  until the row is hovered or focused, and stays full on touch. New token `--ta-sortable-gap` sets
+  the gap between rows in both variants.
+- **Icon**: 13 new strokes: `message`, `hash`, `coin`, `branch`, `chip`, `slash`, `pill`, `form`,
+  `bolt`, `play`, `sun`, `moon` and `more`.
+- **Labels**: new keys `stopped`, `themeToLight` and `themeToDark`, in English and Spanish. A
+  `Labels` object of your own (another language) needs them.
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.

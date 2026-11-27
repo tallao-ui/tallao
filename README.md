@@ -112,7 +112,7 @@ Requires Svelte 5.29 or later.
 | Icon | the kit's own icons by name (`check`, `search`, `bot`…) or your own drawing; decorative unless it has a `label` |
 | Sidebar | side navigation with groups, badges and expandable branches; marks the current page and opens its branch; collapses to icons with a Tooltip per item; your own icons (`icon` snippet), tinted and pulsing badges, `persistKey` to remember the collapsed state, a `footer(collapsed)` for the current user |
 | TreeView | a hierarchy to move through and pick from (APG tree view): arrows open, close and move, Home/End, `*` opens the siblings, type-ahead; one tab stop; `selected` and `expanded` are bindable; badges, descriptions, disabled nodes, or your own `node` snippet |
-| SortableList | rows you put in another order: drag by the handle, or press the handle and move with the arrows or the Move up / Move down buttons (touch); Escape puts it back; every step announced; it calls `onReorder(from, to)` and your data moves |
+| SortableList | rows you put in another order: drag by the handle, or press the handle and move with the arrows or the Move up / Move down buttons (touch); Escape puts it back; every step announced; it calls `onReorder(from, to)` and your data moves; `variant="bare"` for rows that are their own card (FlowNode) |
 | NavMenu | a disclosure menu for a site header: a trigger opens a panel of grouped links (icon, label, one-line description, badge, "coming soon" entries) in 1–3 columns; native `<details>`, so it works with no JavaScript; with JavaScript, Escape and a click outside close it and the panel stays inside the viewport |
 | MegaMenu | a wide header menu: a featured tile (art, title, one line and a call to action) next to columns of grouped links with an icon, label and one-line description, and an optional footer link; same contract as NavMenu (native `<details>`, works with no JavaScript, opens on click or tap, never on hover), a list of links rather than an ARIA `menu` |
 | BottomNav | a mobile tab bar fixed to the bottom, above the safe area: up to 5 links with icon and visible label, the current one marked, badges, an optional raised central `action`; `hideAbove` keeps desktop untouched; works with no JavaScript |
@@ -150,6 +150,7 @@ Requires Svelte 5.29 or later.
 | ProgressiveBlur | a blur that grows toward one edge of its positioned parent (`side`, `size`, `strength`): three stacked backdrop-filter layers with shorter masks, one layer on touch screens, nothing without `backdrop-filter`; `aria-hidden`, no JavaScript |
 | ReadingProgress | a thin accent bar that fills as the reader scrolls: the whole page with CSS alone (scroll-driven animation), or one `target` element measured once per frame; `fixed` at the top or `absolute` under a sticky header; `aria-hidden`, fills from the start edge in RTL too |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
+| ThemeToggle | the dark/light switch: sets `data-tallao-theme` on `<html>`, remembers it, reveals it with `themeTransition` |
 | PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
 | Thinking | a model's reasoning as one quiet line: a soft shimmer, a live `summary` and the elapsed time while `running`, "Thought for 12 s" when done, and the trace (`steps`, content) behind a disclosure; the end is announced once |
 | StreamingText | an answer drawn as it arrives (`text` that grows, or an async iterable in `stream`): new words fade in, a caret follows, no layout jump; screen readers get it sentence by sentence from a hidden live region, never from the start again |
@@ -159,6 +160,7 @@ Requires Svelte 5.29 or later.
 | ContextCards | what the model was given (files, records, links) as small cards with a type icon, a note and a remove button that hands the focus on |
 | RecommendationCard · InsightCard | a suggestion with its reasons, a confidence in bars and words and one primary action; and something noticed in the data: a sentence, the figure with its change and sparkline (a KpiCard without its frame) and a link |
 | Steps · SuggestionChips · CodeBlock · Sources · UsageMeter | an agent's plan step by step, single-use suggestions, code with a copy button, cited sources and quota usage |
+| FlowNode | one editable step of a flow you build or watch run (a bot command, a workflow): number, tinted icon, detail, actions, and run states in words |
 | GameMap (`tallao/map`) | Leaflet with the kit's theme |
 | CodeEditor (`tallao/code`) | CodeMirror 6 with the kit's theme (Markdown, JSON, JS/TS); before it loads, and without JavaScript, it is a `<textarea>` submitted with the form |
 
