@@ -77,6 +77,8 @@
     FilterBar,
     FilterChip,
     Kbd,
+    ShortcutList,
+    SyncStatus,
     PageHeader,
     SaveBar,
     SavedViews,
@@ -214,6 +216,8 @@
     ]} />
     <DiffView compact ariaLabel="Compact changes" changes={[{ field: "status", label: "Status", before: "Draft", after: "Published" }]} />
     <p>Search with <Kbd keys={["Mod", "K"]} /> or <Kbd>Esc</Kbd></p>
+    <SyncStatus status="ready" live onRefresh={() => {}} refreshKey="R" />
+    <ShortcutList shortcuts={[{ keys: ["R"], label: "Refresh" }, { keys: ["J", "K"], label: "Next / previous row", alternatives: true, group: "Rows" }]} />
     <DescriptionList ariaLabel="About" items={[{ label: "Created", value: "3 Nov 2026" }, { label: "Author", value: "Ana", href: "/users/ana" }, { label: "API path", value: "/api/posts/42", copy: true }, { label: "Deleted" }]} />
     <DataTable
       caption="Admin list"

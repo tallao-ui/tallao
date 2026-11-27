@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+- **SyncStatus** (new): the status line of a data view. It says whether the data is in sync and how
+  long ago it was read ("Synced 12 s ago", ticking once a second in the browser), `Syncing`, or
+  the error in words, in a polite live region. It has a pulsing Live badge (`live`), a Refresh
+  button (`onRefresh`, disabled while reading) that shows its key (`refreshKey`, also in
+  `aria-keyshortcuts`), and an `actions` snippet. Props: `status`, `updatedAt`, `live`,
+  `onRefresh`, `refreshKey`, `text`, `actions`, `class`, rest.
+- **ShortcutList** (new): a view's keys and what each does, as description lists of Kbd. `keys` is
+  one combination (`["Mod", "S"]`), or separate alternatives with `alternatives`; `group` lists
+  items under a heading. It does not listen to the keys. Type `ShortcutItem`.
+- **Card `tone`**: `accent`, `live`, `success`, `warning` or `danger` lights the card's leading
+  edge for a section that matters now (new classes `ta-card--tone`, `ta-card--<tone>`).
+- New labels: `synced`, `syncing`, `syncFailed`, `syncReady`, `justNow`, `secondsAgo`,
+  `minutesAgo`, `refresh`, `live`, `keyboardShortcuts` (English and Spanish).
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.

@@ -2273,6 +2273,43 @@ Props:
 - `class?: string`
 - `children?: import("svelte").Snippet` — A single key as content, instead of `keys`.
 
+### ShortcutList
+
+The keys of a view and what each does, as a description list.
+
+```svelte
+<ShortcutList shortcuts={[
+  { keys: ["R"], label: "Refresh" },
+  { keys: ["J", "K"], label: "Next / previous row", alternatives: true },
+  { keys: ["Mod", "S"], label: "Save draft" },
+]} />
+```
+
+Props:
+- `shortcuts: ShortcutItem[]`
+- `ariaLabel?: string` — Accessible name of the list; "Keyboard shortcuts" by default.
+- `class?: string`
+
+### SyncStatus
+
+The instrument line of a data view.
+
+```svelte
+<SyncStatus status={phase} updatedAt={load.updatedAt} live={onAir} onRefresh={reload} refreshKey="R">
+  {#snippet actions()}<Button size="sm" variant="ghost">Shortcuts</Button>{/snippet}
+</SyncStatus>
+```
+
+Props:
+- `status?: "loading" | "syncing" | "ready" | "error"`
+- `updatedAt?: number | Date | null` — When the data on screen was read (ms since the epoch, or a Date); null: not yet.
+- `live?: boolean | string` — The view drives something on air: a pulsing badge (`true` says "Live", a string says that).
+- `onRefresh?: () => unknown` — Draws the Refresh button.
+- `refreshKey?: string` — The key the page binds to refresh: shown on the button and in `aria-keyshortcuts`.
+- `text?: string` — Overrides the state text.
+- `actions?: import("svelte").Snippet` — Buttons after Refresh, on the right.
+- `class?: string`
+
 ### DescriptionList
 
 Label / value pairs of a record (its "About" panel.
