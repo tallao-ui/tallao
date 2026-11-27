@@ -59,8 +59,8 @@ Requires Svelte 5.29 or later.
 | PasswordInput | a password or secret-key field with a show / hide button (`aria-pressed`); password managers, paste and `name` keep working; `revealed` is bindable |
 | Input · Textarea · Select · Checkbox | native controls styled with the kit's tokens (for a number bound as `number \| null`, use NumberInput) |
 | Label | a standalone `<label>`: `for`, `required` (a visible "*" plus a hidden "Required" for screen readers), `disabled` styling; passes any attribute |
-| Field | label + control + error, required marker |
-| Card | container + header / title (`level`) / content / footer |
+| Field | label + control + error, required marker; `hint` adds a description under the control |
+| Card | container + header / title (`level`) / content / footer; `tone` lights its leading edge (accent, live, success, warning, danger) |
 | Table | scrolling container + header / body / row / head / cell (`colspan`); `density="compact"` (less padding and smaller text, headers without uppercase) and `stickyFirstColumn` (first column fixed while scrolling, background from `--ta-table-sticky-bg`) for matrices with many columns; every part passes any attribute to its element |
 | DocumentTabs | editor-style tabs for open documents or conversations: a close button beside each tab (a sibling, never nested), an add button, Delete / middle click close, `busy` and `dirty` marks said in words, scrolls sideways, long names cut with the full text in `title`; the parent decides what closing means |
 | Tabs | accessible tablist: arrows, Home and End, counter, stable ids in SSR; `panels={false}` renders only the tablist, with `controls` (and `tabId`) per tab pointing at the panels the page renders |
@@ -102,6 +102,8 @@ Requires Svelte 5.29 or later.
 | CodeDiff · diffLines | a line diff of two code texts, unified or split (two columns aligned row by row, unified on a narrow container): `+A −R` counts in text, a sign and a hidden word on every changed line, the changed characters in `<ins>` / `<del>`, long unchanged runs folded into a button (`context`, `aria-expanded`), `normalize` to ignore trailing spaces, an `actions` snippet; `diffLines` is the pure Myers diff behind it |
 | DiffView | before and after of a record as a list of field changes: added / removed / changed by sign, word and `<ins>` / `<del>`, text that wraps, indented JSON, long values folded; `compact` for one line per change; `redacted` for a secret that changed, its values hidden |
 | DescriptionList | a record's label / value pairs as a `<dl>`: copyable values, links, monospace, your own `value` snippet; side by side or stacked by its own width, or in `columns` |
+| SyncStatus | the status line of a data view: "Synced 12 s ago" (ticking), Syncing, an error in words, a Live badge and a Refresh button with its key |
+| ShortcutList | a view's keys and what each does, as a description list of Kbd, with optional groups |
 | Kbd | a keyboard shortcut hint (`<kbd>` per key); `Mod` is ⌘ on Apple devices and Ctrl elsewhere, with the key names for screen readers |
 | Pagination | Previous / numbers with "…" / Next, `aria-current="page"` |
 | Calendar · DatePicker | pick a day with the keyboard (APG pattern), ISO dates, `min`/`max`, localized names; the DatePicker can also be typed into |

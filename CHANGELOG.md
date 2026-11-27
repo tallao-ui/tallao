@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+- **SyncStatus** (new): the status line of a data view. It says whether the data is in sync and how
+  long ago it was read ("Synced 12 s ago", ticking once a second in the browser), `Syncing`, or
+  the error in words, in a polite live region. It has a pulsing Live badge (`live`), a Refresh
+  button (`onRefresh`, disabled while reading) that shows its key (`refreshKey`, also in
+  `aria-keyshortcuts`), and an `actions` snippet. Props: `status`, `updatedAt`, `live`,
+  `onRefresh`, `refreshKey`, `variant` (`bare`: no frame, one 2rem line at 12px, for inside
+  another bar such as a StatusBar's `end`), `text`, `actions`, `class`, rest.
+- **ShortcutList** (new): a view's keys and what each does, as description lists of Kbd. `keys` is
+  one combination (`["Mod", "S"]`), or separate alternatives with `alternatives`; `group` lists
+  items under a heading. It does not listen to the keys. Type `ShortcutItem`.
+- **Card `tone`**: `accent`, `live`, `success`, `warning` or `danger` lights the card's leading
+  edge for a section that matters now (new classes `ta-card--tone`, `ta-card--<tone>`).
+- **Field `hint`**: a quiet line under the control. It is the control's accessible description
+  (`aria-describedby`, next to an error's id) and stays out of its name.
+- **Stat `rolling`**: a number `value` rolls to each new value with RollingCounter, for a reading
+  that keeps changing (a queue, people online), in the variant's colour; `locale` and `format`
+  format it. A screen reader gets the plain number.
+- **UsageMeter `format` and `locale`**: how `used` and `max` are written (`Intl.NumberFormat`
+  options, whole numbers by default). With a currency the symbol replaces `unit`: "$4.20 / $5.00".
+- New labels: `synced`, `syncing`, `syncFailed`, `syncReady`, `justNow`, `secondsAgo`,
+  `minutesAgo`, `refresh`, `live`, `keyboardShortcuts` (English and Spanish).
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.

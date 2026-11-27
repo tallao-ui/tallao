@@ -301,6 +301,23 @@ export interface Labels {
   /** Default name of an EventFeed, and what it says when it has no events. */
   eventFeed: string;
   noEvents: string;
+  /** SyncStatus: when the data was last read; `{time}` is the relative time ("12 s ago"). */
+  synced: string;
+  syncing: string;
+  /** SyncStatus when the last read failed. */
+  syncFailed: string;
+  /** SyncStatus before the first read finishes. */
+  syncReady: string;
+  /** Relative times of SyncStatus: under 5 s, seconds and minutes (`{n}`). */
+  justNow: string;
+  secondsAgo: string;
+  minutesAgo: string;
+  /** SyncStatus' refresh button. */
+  refresh: string;
+  /** SyncStatus' badge for a view that drives something on air. */
+  live: string;
+  /** Accessible name of a ShortcutList. */
+  keyboardShortcuts: string;
 }
 
 export const en: Labels = {
@@ -512,6 +529,16 @@ export const en: Labels = {
   terminalReplay: "Replay",
   eventFeed: "Activity",
   noEvents: "No events yet",
+  synced: "Synced {time}",
+  syncing: "Syncing",
+  syncFailed: "Cannot reach the server",
+  syncReady: "Ready",
+  justNow: "just now",
+  secondsAgo: "{n} s ago",
+  minutesAgo: "{n} min ago",
+  refresh: "Refresh",
+  live: "Live",
+  keyboardShortcuts: "Keyboard shortcuts",
 };
 
 export const es: Labels = {
@@ -723,6 +750,16 @@ export const es: Labels = {
   terminalReplay: "Repetir",
   eventFeed: "Actividad",
   noEvents: "Aún no hay eventos",
+  synced: "Sincronizado {time}",
+  syncing: "Sincronizando",
+  syncFailed: "No se puede contactar con el servidor",
+  syncReady: "Listo",
+  justNow: "ahora mismo",
+  secondsAgo: "hace {n} s",
+  minutesAgo: "hace {n} min",
+  refresh: "Actualizar",
+  live: "En directo",
+  keyboardShortcuts: "Atajos de teclado",
 };
 
 const KEY = Symbol("tallao-labels");

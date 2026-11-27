@@ -28,6 +28,8 @@
     Icon,
     Input,
     Kbd,
+    ShortcutList,
+    SyncStatus,
     MenuItem,
     MenuSeparator,
     PageHeader,
@@ -83,6 +85,17 @@
 
   // ——— Navigation between the two pages (a router in a real admin) ———
   let view = $state<"list" | "detail">("list");
+  // The list's status line: a pretend read from the server.
+  let syncing = $state(false);
+  let syncedAt = $state(Date.now());
+  function resync() {
+    syncing = true;
+    setTimeout(() => {
+      syncing = false;
+      syncedAt = Date.now();
+    }, 600);
+  }
+
   let recordId = $state("42");
   const record = $derived(posts.find((p) => p.id === recordId) ?? posts[0]);
 
@@ -260,6 +273,21 @@
           <Button onclick={() => open("42")}>New post</Button>
         {/snippet}
       </PageHeader>
+
+      <SyncStatus status={syncing ? "syncing" : "ready"} updatedAt={syncedAt} onRefresh={resync} refreshKey="R">
+        {#snippet actions()}
+          <details class="admin-keys">
+            <summary>Shortcuts</summary>
+            <ShortcutList
+              shortcuts={[
+                { keys: ["R"], label: "Refresh" },
+                { keys: ["J", "K"], label: "Next / previous row", alternatives: true },
+                { keys: ["Enter"], label: "Open the row" },
+              ]}
+            />
+          </details>
+        {/snippet}
+      </SyncStatus>
 
       <div class="admin-stack">
         <FilterBar filters={filterDefs} bind:value={query} onchange={setQuery} searchPlaceholder="Search posts…">
@@ -506,5 +534,28 @@
     .admin-command-text,
     .admin-command-keys { display: none; }
     .admin-frame { max-height: none; height: 46rem; }
+  }
+  .admin-keys {
+    position: relative;
+  }
+  .admin-keys > summary {
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--ta-radius-sm);
+  }
+  .admin-keys[open] > :global(.ta-shortcuts) {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.375rem);
+    z-index: 5;
+    padding: 0.75rem;
+    border: 1px solid rgb(var(--ta-border));
+    border-radius: var(--ta-radius-md, 0.5rem);
+    background: rgb(var(--ta-surface));
+  }
+  @media (pointer: coarse) {
+    .admin-keys > summary {
+      min-height: 2.75rem;
+    }
   }
 </style>

@@ -406,6 +406,7 @@ Label + control + error.
 Props:
 - `label: string`
 - `error?: string` — Error message under the control; it also marks the field.
+- `hint?: string` — Help under the control: its accessible description, not part of its name.
 - `required?: boolean`
 - `class?: string`
 - `children: import("svelte").Snippet`
@@ -484,6 +485,9 @@ Props:
 - `label: string`
 - `value: string | number`
 - `variant?: "default" | "success" | "warning" | "error"`
+- `rolling?: boolean` — A number `value` rolls to each new value (RollingCounter).
+- `locale?: string`
+- `format?: Intl.NumberFormatOptions` — Options for `Intl.NumberFormat` when `rolling`.
 - `class?: string`
 
 ### ConfirmDialog
@@ -1577,6 +1581,8 @@ Props:
 - `warnAt?: number` — Percentage from which to warn (default 80).
 - `cost?: string` — Cost in currency, if known (shown as is, e.g. "$0.42").
 - `compact?: boolean` — Only the numbers, no bar.
+- `format?: Intl.NumberFormatOptions` — How `used` and `max` are written (`Intl.NumberFormat` options; whole numbers by default). A currency (`{ style: "currency", currency: "USD" }`) leaves `unit` out: the symbol says it.
+- `locale?: string`
 - `class?: string`
 
 ### InputOTP
@@ -2272,6 +2278,44 @@ Props:
 - `size?: "sm" | "md"`
 - `class?: string`
 - `children?: import("svelte").Snippet` — A single key as content, instead of `keys`.
+
+### ShortcutList
+
+The keys of a view and what each does, as a description list.
+
+```svelte
+<ShortcutList shortcuts={[
+  { keys: ["R"], label: "Refresh" },
+  { keys: ["J", "K"], label: "Next / previous row", alternatives: true },
+  { keys: ["Mod", "S"], label: "Save draft" },
+]} />
+```
+
+Props:
+- `shortcuts: ShortcutItem[]`
+- `ariaLabel?: string` — Accessible name of the list; "Keyboard shortcuts" by default.
+- `class?: string`
+
+### SyncStatus
+
+The instrument line of a data view.
+
+```svelte
+<SyncStatus status={phase} updatedAt={load.updatedAt} live={onAir} onRefresh={reload} refreshKey="R">
+  {#snippet actions()}<Button size="sm" variant="ghost">Shortcuts</Button>{/snippet}
+</SyncStatus>
+```
+
+Props:
+- `status?: "loading" | "syncing" | "ready" | "error"`
+- `updatedAt?: number | Date | null` — When the data on screen was read (ms since the epoch, or a Date); null: not yet.
+- `live?: boolean | string` — The view drives something on air: a pulsing badge (`true` says "Live", a string says that).
+- `onRefresh?: () => unknown` — Draws the Refresh button.
+- `refreshKey?: string` — The key the page binds to refresh: shown on the button and in `aria-keyshortcuts`.
+- `variant?: "default" | "bare"` — `bare`: no frame of its own, one 2rem line, for inside another bar.
+- `text?: string` — Overrides the state text.
+- `actions?: import("svelte").Snippet` — Buttons after Refresh, on the right.
+- `class?: string`
 
 ### DescriptionList
 
