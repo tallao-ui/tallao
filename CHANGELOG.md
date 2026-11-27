@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- **DataTable `keyboard`** (new prop, off by default): row keys. `true` listens inside the table,
+  `"page"` anywhere on the page (not in a text field, with a modifier or while a dialog is
+  open). j / ↓ and k / ↑ move the focus to the next or previous row (its link, else its checkbox,
+  else the row), which carries `data-active`; Enter opens it (`onRowOpen`, new, else its link),
+  x toggles its selection, e calls `onRowEdit` (new), Escape lets it go. Every key the table acts
+  on is `preventDefault`ed, so a page handler that skips `defaultPrevented` events does not act
+  twice. Rows carry `data-ta-row`; the active one gets an accent bar. A control of its own (a
+  row's "⋯" button, a header's sort button, a button elsewhere on the page) keeps Enter and the
+  arrows: they open its menu, not the row; j and k still move.
+- **DataTable selection checkboxes**: each sits in a 24 px label (`.ta-datatable-hit`, WCAG
+  2.5.8), so a click beside the 16 px box toggles it; the header's "Select all" was the one
+  target in the admin's lists under 24 px with no room around it. Row height is unchanged.
+- **SelectionBar `floating`** (new prop): sticky at the bottom of the scroll, on the floating level
+  (`--ta-float*`), centred and only as wide as it needs, so checking a row does not push the
+  list down. It rises in, still under reduced motion. Put it after the list.
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.

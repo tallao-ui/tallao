@@ -5,6 +5,9 @@
   the actions, which only appear when something is checked: a button that can do
   nothing gets in the way more than it helps. The caller provides each row's checkboxes.
   The counter is announced (aria-live) for those who cannot see the list.
+  `floating`: it rides at the bottom of the scroll (sticky), on the floating level, centred and
+  only as wide as it needs, so checking a row does not push the list down; put it after the
+  list. It rises in, except under reduced motion.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -23,6 +26,8 @@
     countLabel?: (selected: number) => string;
     /** Name of the group for screen readers. */
     ariaLabel?: string;
+    /** Sticky at the bottom of the scroll, on the floating level. */
+    floating?: boolean;
     class?: string;
     /** The bulk actions; rendered only when something is checked. */
     actions?: Snippet;
@@ -35,6 +40,7 @@
     selectAllLabel = "Select all",
     countLabel = (n: number) => `${n} selected`,
     ariaLabel = "Selection",
+    floating = false,
     class: className = "",
     actions,
   }: Props = $props();
@@ -44,7 +50,12 @@
 </script>
 
 <div
-  class={cn("ta-selection-bar", selected > 0 && "ta-selection-bar--active", className)}
+  class={cn(
+    "ta-selection-bar",
+    selected > 0 && "ta-selection-bar--active",
+    floating && "ta-selection-bar--floating",
+    className
+  )}
   role="group"
   aria-label={ariaLabel}
 >
@@ -120,5 +131,33 @@
   }
   @media (pointer: coarse) {
     .ta-selection-bar-all { min-height: 2.75rem; }
+  }
+
+  .ta-selection-bar--floating {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 20;
+    width: fit-content;
+    max-width: calc(100% - 2rem);
+    margin: 0.75rem auto 0;
+    padding: 0.5rem 0.75rem 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgb(var(--ta-float, var(--ta-surface)) / var(--ta-float-alpha, 1));
+    -webkit-backdrop-filter: blur(var(--ta-float-blur, 0px));
+    backdrop-filter: blur(var(--ta-float-blur, 0px));
+    border: 1px solid rgb(var(--ta-float-edge, var(--ta-border)) / var(--ta-float-edge-alpha, 1));
+    box-shadow: var(--ta-float-ring, 0 0 #0000), 0 12px 32px -8px rgb(0 0 0 / 0.45);
+    animation: ta-selection-rise var(--ta-duration-enter, 200ms) var(--ta-ease-enter, ease-out);
+  }
+  @keyframes ta-selection-rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ta-selection-bar--floating {
+      animation: none;
+    }
   }
 </style>

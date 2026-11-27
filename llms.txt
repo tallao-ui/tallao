@@ -849,6 +849,7 @@ Props:
 - `selectAllLabel?: string`
 - `countLabel?: (selected: number) => string` — Text of the counter.
 - `ariaLabel?: string` — Name of the group for screen readers.
+- `floating?: boolean` — Sticky at the bottom of the scroll, on the floating level.
 - `class?: string`
 - `actions?: Snippet` — The bulk actions; rendered only when something is checked.
 
@@ -1027,6 +1028,9 @@ Props:
 - `columnChooser?: boolean` — Shows the column menu in the toolbar.
 - `rowHref?: (row: T) => string | undefined` — Where a row leads: its first cell (or `linkColumn`) becomes a link.
 - `linkColumn?: string` — Key of the column that carries the row's link; the first one shown by default.
+- `keyboard?: boolean | "page"` — Row keys (j/k, ↑/↓, Enter, x, e, Escape): inside the table, or anywhere on the page.
+- `onRowOpen?: (row: T) => void` — Enter on a row (by default it follows the row's link).
+- `onRowEdit?: (row: T) => void` — e on a row.
 - `loadingRows?: number` — How many skeleton rows `loading` draws (by default the page size, 5 at most).
 - `error?: string | null` — The load failed: this message replaces the rows.
 - `onRetry?: () => void` — Adds "Retry" to the error state.

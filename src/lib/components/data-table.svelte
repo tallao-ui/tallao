@@ -29,6 +29,17 @@
   so a page can read it or keep it in the URL. With `manual` nothing is filtered here:
   `onFiltersChange` hands the state to whoever asks the API.
 
+  Keyboard (`keyboard`, off by default, so a page with keys of its own is not disturbed):
+  - `true` listens inside the table; `"page"` anywhere on the page (an admin list), except in
+    a text field, with a modifier, or while a dialog is open.
+  - j / ↓ and k / ↑ move the focus to the next or previous row (its link, else its checkbox,
+    else the row itself), so a screen reader reads it; the row carries `data-active`.
+  - Enter opens it (`onRowOpen`, else its link), x toggles its selection, e calls `onRowEdit`,
+    Escape lets it go. Every key the table acts on is `preventDefault`ed, so a page-level
+    handler that skips `defaultPrevented` events does not act twice.
+  - A control of its own (the row's "⋯" button, a header's sort button, any button on the
+    page) keeps Enter and the arrows: they open its menu, not the row. Letters still move.
+
   For an admin list:
   - `rowHref`: the first column's cell (or `linkColumn`) is a real link to the record, so the
     row opens with a click, a middle click or Enter, and reads as a link.
@@ -147,6 +158,9 @@
     columnChooser = false,
     rowHref,
     linkColumn,
+    keyboard = false,
+    onRowOpen,
+    onRowEdit,
     loadingRows,
     error,
     onRetry,
@@ -199,6 +213,12 @@
     rowHref?: (row: T) => string | undefined;
     /** Key of the column that carries the row's link; the first one shown by default. */
     linkColumn?: string;
+    /** Row keys (j/k, ↑/↓, Enter, x, e, Escape): inside the table, or anywhere on the page. */
+    keyboard?: boolean | "page";
+    /** Enter on a row (by default it follows the row's link). */
+    onRowOpen?: (row: T) => void;
+    /** e on a row. */
+    onRowEdit?: (row: T) => void;
     /** How many skeleton rows `loading` draws (by default the page size, 5 at most). */
     loadingRows?: number;
     /** The load failed: this message replaces the rows. */
@@ -373,6 +393,90 @@
     setSelected(selected.includes(k) ? selected.filter((x) => x !== k) : [...selected, k]);
   }
 
+  // ── Keyboard ─────────────────────────────────────────────────────────────────────
+  let rootEl: HTMLElement | undefined = $state();
+  let active = $state<number | null>(null);
+  const rowEls = () => [...(rootEl?.querySelectorAll<HTMLElement>("tbody tr[data-ta-row]") ?? [])];
+
+  /** Puts the focus on row `i`: its link, else its checkbox, else the row itself. */
+  function focusRow(i: number) {
+    const tr = rowEls()[i];
+    if (!tr) return;
+    active = i;
+    const target =
+      tr.querySelector<HTMLElement>("a.ta-datatable-link") ??
+      tr.querySelector<HTMLElement>("input.ta-datatable-checkbox") ??
+      tr;
+    if (target === tr) tr.tabIndex = -1;
+    target.focus();
+    tr.scrollIntoView?.({ block: "nearest" });
+  }
+
+  function onRowKey(event: KeyboardEvent) {
+    if (!keyboard || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest?.('input:not([type="checkbox"]), textarea, select, [contenteditable="true"], [role="textbox"]')) return;
+    // Enter and the arrows belong to a control of its own (a "⋯" menu, a sort button), not to
+    // the row: only the row, its link, its checkbox or nothing in particular hand them over.
+    const own =
+      target instanceof Element &&
+      target !== document.body &&
+      !target.matches("tr[data-ta-row], a.ta-datatable-link, input.ta-datatable-checkbox") &&
+      !!target.closest('a[href], button, summary, select, [role="button"], [role="menuitem"], [role="tab"], [role="switch"], [role="combobox"], [tabindex]:not(tr)');
+    if (own && (event.key === "Enter" || event.key === "ArrowDown" || event.key === "ArrowUp")) return;
+    const rows = rowEls();
+    if (rows.length === 0) return;
+    const focused = rows.findIndex((tr) => tr.contains(document.activeElement));
+    const at = focused >= 0 ? focused : active;
+    const row = at === null ? undefined : visible[at];
+    switch (event.key) {
+      case "j":
+      case "ArrowDown":
+        focusRow(at === null ? 0 : Math.min(rows.length - 1, at + 1));
+        break;
+      case "k":
+      case "ArrowUp":
+        focusRow(at === null ? 0 : Math.max(0, at - 1));
+        break;
+      case "Enter": {
+        if (!row || at === null) return;
+        if (onRowOpen) onRowOpen(row);
+        else {
+          const link = rows[at]!.querySelector<HTMLElement>("a.ta-datatable-link");
+          // On the link itself the browser follows it already.
+          if (!link || link === target) return;
+          link.click();
+        }
+        break;
+      }
+      case "x":
+        if (!selectable || !row) return;
+        toggle(keyOf(row));
+        break;
+      case "e":
+        if (!onRowEdit || !row) return;
+        onRowEdit(row);
+        break;
+      case "Escape":
+        if (at === null) return;
+        active = null;
+        (document.activeElement as HTMLElement | null)?.blur?.();
+        break;
+      default:
+        return;
+    }
+    event.preventDefault();
+  }
+
+  /** "page": the same keys from anywhere, unless a dialog is open or another table has the focus. */
+  function onPageKey(event: KeyboardEvent) {
+    if (keyboard !== "page") return;
+    if (event.target instanceof Node && rootEl?.contains(event.target)) return; // the table's own listener has it
+    if ((event.target as HTMLElement | null)?.closest?.(".ta-datatable")) return;
+    if (document.querySelector("dialog[open]")) return;
+    onRowKey(event);
+  }
+
   // ——— Columns shown, density ———
   const shownColumns = $derived(
     visibleColumns ? columns.filter((c) => c.hideable === false || visibleColumns!.includes(c.key)) : columns
@@ -402,7 +506,9 @@
     [col.width ? `width: ${col.width}` : "", col.align ? `text-align: ${col.align}` : ""].filter(Boolean).join("; ") || undefined;
 </script>
 
-<div class={cn("ta-datatable", density === "compact" && "ta-datatable--compact", className)} aria-busy={loading || undefined} data-density={density}>
+<svelte:window onkeydown={keyboard === "page" ? onPageKey : undefined} />
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div bind:this={rootEl} class={cn("ta-datatable", density === "compact" && "ta-datatable--compact", className)} aria-busy={loading || undefined} data-density={density} onkeydown={keyboard ? onRowKey : undefined}>
   {#if toolbar || densityToggle || columnChooser}
     <div class="ta-datatable-toolbar">
       <div class="ta-datatable-toolbar-start">{@render toolbar?.()}</div>
@@ -440,17 +546,20 @@
       <TableRow>
         {#if selectable}
           <TableHead class="ta-datatable-check">
-            <input
-              type="checkbox"
-              class="ta-datatable-checkbox"
-              aria-label={L.selectAll}
-              checked={allChecked}
-              disabled={visibleKeys.length === 0}
-              {@attach (el: HTMLInputElement) => {
-                el.indeterminate = partial;
-              }}
-              onchange={toggleAll}
-            />
+            <!-- A 24px target (WCAG 2.5.8) around the 16px box: a click anywhere in it toggles. -->
+            <label class="ta-datatable-hit">
+              <input
+                type="checkbox"
+                class="ta-datatable-checkbox"
+                aria-label={L.selectAll}
+                checked={allChecked}
+                disabled={visibleKeys.length === 0}
+                {@attach (el: HTMLInputElement) => {
+                  el.indeterminate = partial;
+                }}
+                onchange={toggleAll}
+              />
+            </label>
           </TableHead>
         {/if}
         {#each shownColumns as col (col.key)}
@@ -544,18 +653,20 @@
           </TableRow>
         {/each}
       {:else}
-        {#each visible as row (keyOf(row))}
+        {#each visible as row, i (keyOf(row))}
           {@const k = keyOf(row)}
-          <TableRow data-selected={selected.includes(k) || undefined} exit={() => rowsLeaving}>
+          <TableRow data-ta-row="" data-selected={selected.includes(k) || undefined} data-active={(keyboard && active === i) || undefined} exit={() => rowsLeaving}>
             {#if selectable}
               <TableCell class="ta-datatable-check">
-                <input
-                  type="checkbox"
-                  class="ta-datatable-checkbox"
-                  aria-label={`${L.selectRow}: ${rowLabel ? rowLabel(row) : k}`}
-                  checked={selected.includes(k)}
-                  onchange={() => toggle(k)}
-                />
+                <label class="ta-datatable-hit">
+                  <input
+                    type="checkbox"
+                    class="ta-datatable-checkbox"
+                    aria-label={`${L.selectRow}: ${rowLabel ? rowLabel(row) : k}`}
+                    checked={selected.includes(k)}
+                    onchange={() => toggle(k)}
+                  />
+                </label>
               </TableCell>
             {/if}
             {#each shownColumns as col (col.key)}
@@ -603,6 +714,15 @@
 
   .ta-datatable :global(.ta-datatable-check) { width: 2.5rem; }
 
+  .ta-datatable-hit {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+    margin: -0.25rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+  }
   .ta-datatable-checkbox {
     width: 1rem;
     height: 1rem;
@@ -632,6 +752,16 @@
 
   .ta-datatable-arrow { font-size: 0.625rem; opacity: 0.7; }
 
+  /* The row the keyboard is on: an accent bar, and the halo of what is active where the app
+     sets --ta-glow. */
+  .ta-datatable :global(tr[data-active]) {
+    background: rgb(var(--ta-accent) / 0.06);
+    box-shadow: inset 2px 0 0 rgb(var(--ta-accent));
+  }
+  .ta-datatable :global(tr[data-ta-row]:focus) {
+    outline: 2px solid rgb(var(--ta-accent) / 0.7);
+    outline-offset: -2px;
+  }
   .ta-datatable :global(tr[data-selected]) { background: rgb(var(--ta-accent) / 0.08); }
 
   .ta-datatable :global(.ta-datatable-actions) { text-align: right; white-space: nowrap; }
