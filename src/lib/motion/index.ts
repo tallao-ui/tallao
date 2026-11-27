@@ -307,8 +307,12 @@ export async function viewTransition(update: () => void | Promise<void>): Promis
     await update();
     return;
   }
+  const transition = doc.startViewTransition(update) as { finished: Promise<void>; ready?: Promise<void> };
+  // A transition that is skipped (a newer one started) rejects `ready` too: not an error here,
+  // and not an "Uncaught (in promise)" in the console.
+  transition.ready?.catch(() => {});
   try {
-    await doc.startViewTransition(update).finished;
+    await transition.finished;
   } catch {
     // A transition that is skipped (a newer one started) is not an error for the caller.
   }

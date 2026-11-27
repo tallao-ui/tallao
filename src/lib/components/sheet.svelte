@@ -2,7 +2,7 @@
   tallao — Sheet
   Modal side panel (a record's detail, settings, a cart): it is a
   Dialog attached to an edge, with everything that comes with it (contained focus, Escape,
-  locked scroll, focus restored).
+  locked scroll, focus restored, `canClose` to keep it open over unsaved changes).
 -->
 <script lang="ts">
   import Dialog from "./dialog.svelte";
@@ -17,6 +17,7 @@
     ariaLabel,
     class: className = "",
     onClose,
+    canClose,
     children,
     footer,
   }: {
@@ -30,6 +31,8 @@
     ariaLabel?: string;
     class?: string;
     onClose?: () => void;
+    /** Asked before closing; `false` (or a promise of it) keeps the panel open. */
+    canClose?: () => boolean | Promise<boolean>;
     children?: import("svelte").Snippet;
     footer?: import("svelte").Snippet;
   } = $props();
@@ -45,6 +48,7 @@
   {ariaLabel}
   class={className}
   {onClose}
+  {canClose}
   {children}
   {footer}
 />
