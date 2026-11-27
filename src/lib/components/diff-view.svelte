@@ -24,6 +24,8 @@
     values are not known. It is listed as changed, and both sides read `redactedLabel`
     ("hidden") in italics, with no `<del>` / `<ins>` and no strike-through.
   - With no changes it shows `emptyText`. Same HTML on the server.
+  - Two changes may name the same field (a record's own field and a column, in a log): each
+    row is kept by its place, so neither breaks the list nor folds the other.
 -->
 <script lang="ts" module>
   export interface DiffChange {
@@ -149,7 +151,7 @@
   <p {...rest} class={cn("ta-diff-empty", className)}>{emptyText}</p>
 {:else if compact}
   <ul {...rest} class={cn("ta-diff ta-diff--compact", className)} aria-label={ariaLabel}>
-    {#each rows as row (row.change.field)}
+    {#each rows as row, i (`${i}:${row.change.field}`)}
       <li class={cn("ta-diff-line", `ta-diff-line--${row.kind}`)}>
         <span class="ta-diff-sign" aria-hidden="true">{SIGN[row.kind]}</span>
         <span class="ta-diff-field">{row.label}<span class="ta-diff-hidden">{" (" + (kindLabel(row.kind) || "=") + ")"}</span>:</span>
@@ -171,9 +173,9 @@
   </ul>
 {:else}
   <ul {...rest} class={cn("ta-diff", className)} aria-label={ariaLabel}>
-    {#each rows as row, i (row.change.field)}
+    {#each rows as row, i (`${i}:${row.change.field}`)}
       {@const long = isLong(row)}
-      {@const open = !long || !!expanded[row.change.field]}
+      {@const open = !long || !!expanded[`${i}:${row.change.field}`]}
       <li class={cn("ta-diff-item", `ta-diff-item--${row.kind}`)}>
         <div class="ta-diff-head">
           <span class="ta-diff-field">{row.label}</span>
@@ -223,7 +225,7 @@
             aria-expanded={open}
             aria-controls={`${id}-v${i}`}
             aria-label={`${open ? showLessLabel : showMoreLabel}: ${row.label}`}
-            onclick={() => (expanded[row.change.field] = !open)}
+            onclick={() => (expanded[`${i}:${row.change.field}`] = !open)}
           >
             {open ? showLessLabel : showMoreLabel}
           </button>

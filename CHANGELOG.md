@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **DiffView** keeps each change by its place: two changes naming the same field (a record's
+  own field and a column, as an audit log can list them) threw Svelte's
+  `each_key_duplicate` and broke the page around it; "Show more" now unfolds only its row.
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.
