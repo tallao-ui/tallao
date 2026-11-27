@@ -225,6 +225,26 @@ describe("attachments and functions", () => {
       delete (document as unknown as { startViewTransition?: unknown }).startViewTransition;
     }
   });
+
+  it("viewTransition leaves no unhandled rejection when a newer transition skips it", async () => {
+    const skipped = () => Promise.reject(new DOMException("Transition was skipped", "AbortError"));
+    const start = vi.fn((cb: () => void) => {
+      cb();
+      return { finished: skipped(), ready: skipped(), updateCallbackDone: Promise.resolve() };
+    });
+    (document as unknown as { startViewTransition: unknown }).startViewTransition = start;
+    const unhandled = vi.fn();
+    process.on("unhandledRejection", unhandled);
+    try {
+      systemReduces(false);
+      await viewTransition(() => {});
+      await new Promise((r) => setTimeout(r, 0));
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      process.off("unhandledRejection", unhandled);
+      delete (document as unknown as { startViewTransition?: unknown }).startViewTransition;
+    }
+  });
 });
 
 describe("motion in the kit's components", () => {

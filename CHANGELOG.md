@@ -8,6 +8,9 @@
   the user did something in between): the dialog is shown again with the focus where it was.
   The `close` event the dialog fires itself (on closing or unmounting) is no longer treated as
   a request to close.
+- **`viewTransition`**: a transition a newer one skips no longer leaves its `ready` promise
+  rejected with nobody listening (an "Uncaught (in promise) AbortError" on every quick
+  repeat, such as moving through records with j).
 
 ## 0.8.0 — 2026-11-26
 
