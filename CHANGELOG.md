@@ -12,6 +12,10 @@ Parts of the KTG Studio bot builder (kon-dc) that any builder can use.
   (text under the description) and `actions` (controls beside the body) snippets. Every run state
   but `pending` shows its word; `running` sets `aria-current="step"`. Tokens
   `--ta-flow-node-glow` and `--ta-flow-node-tone`, read with a fallback, so an ancestor can set them. Exports `FlowNodeStatus`.
+- **`Field` fix: `required` now reaches the control as `aria-required="true"`** (and leaves when
+  `required` turns false). The asterisk is `aria-hidden`, so a screen reader never heard that the
+  field must be filled; every `SchemaForm` required field goes through `Field` and gets it too.
+  Tested in `tests/dom/field.test.ts` (fails without the fix).
 - **`FlowNode` `change`** (`FlowNodeChange`: `added`, `changed`, `removed`) and `changeLabel`: an
   edit under review, such as an AI's proposal. A coloured edge on the leading side and the change's
   word (the kit's "Added", "Changed", "Removed" by default); a removed node is dashed, faded and
