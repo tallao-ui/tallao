@@ -280,10 +280,12 @@
     max-height: calc(100dvh - 2rem);
     display: flex;
     flex-direction: column;
-    background: rgb(var(--ta-surface));
-    border: 1px solid rgb(var(--ta-border));
+    background: rgb(var(--ta-float, var(--ta-surface)) / var(--ta-float-alpha, 1));
+    -webkit-backdrop-filter: blur(var(--ta-float-blur, 0px));
+    backdrop-filter: blur(var(--ta-float-blur, 0px));
+    border: 1px solid rgb(var(--ta-float-edge, var(--ta-border)) / var(--ta-float-edge-alpha, 1));
     border-radius: var(--ta-radius-lg);
-    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+    box-shadow: var(--ta-float-ring, 0 0 #0000), 0 25px 50px -12px rgb(0 0 0 / 0.5);
     animation: ta-dialog-enter var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out);
     outline: none;
   }

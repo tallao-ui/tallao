@@ -126,10 +126,12 @@
     padding: 0.75rem 1rem;
     overflow: visible;
     color: rgb(var(--ta-text));
-    background: rgb(var(--ta-surface));
-    border: 1px solid rgb(var(--ta-border));
+    background: rgb(var(--ta-float, var(--ta-surface)) / var(--ta-float-alpha, 1));
+    -webkit-backdrop-filter: blur(var(--ta-float-blur, 0px));
+    backdrop-filter: blur(var(--ta-float-blur, 0px));
+    border: 1px solid rgb(var(--ta-float-edge, var(--ta-border)) / var(--ta-float-edge-alpha, 1));
     border-radius: var(--ta-radius-lg);
-    box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
+    box-shadow: var(--ta-float-ring, 0 0 #0000), 0 12px 32px -8px rgb(0 0 0 / 0.45);
     font: inherit;
     outline: none;
     animation: ta-popover-enter var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);

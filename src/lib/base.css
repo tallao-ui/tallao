@@ -110,3 +110,16 @@ html[data-ta-theme-transition="fade"]::view-transition-new(root) {
     animation: none;
   }
 }
+
+/* Figures that line up and identifiers that read as identifiers, for the data an admin scans:
+   `.ta-num` for counts, money and times in a column; `.ta-data` for IDs, slugs, keys and dates
+   (monospace, tabular, a touch smaller so it sits on the sans line). */
+.ta-num {
+  font-variant-numeric: tabular-nums;
+}
+.ta-data {
+  font-family: var(--ta-font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.92em;
+  letter-spacing: -0.01em;
+}

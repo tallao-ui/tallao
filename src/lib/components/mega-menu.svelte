@@ -297,10 +297,12 @@
     width: max-content;
     max-width: min(calc(100vw - 1rem), 62rem);
     padding: 0.75rem;
-    background: rgb(var(--ta-surface));
-    border: 1px solid rgb(var(--ta-border));
+    background: rgb(var(--ta-float, var(--ta-surface)) / var(--ta-float-alpha, 1));
+    -webkit-backdrop-filter: blur(var(--ta-float-blur, 0px));
+    backdrop-filter: blur(var(--ta-float-blur, 0px));
+    border: 1px solid rgb(var(--ta-float-edge, var(--ta-border)) / var(--ta-float-edge-alpha, 1));
     border-radius: var(--ta-radius-lg);
-    box-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.55);
+    box-shadow: var(--ta-float-ring, 0 0 #0000), 0 16px 40px -12px rgb(0 0 0 / 0.55);
   }
   .ta-megamenu-panel--start { left: 0; }
   .ta-megamenu-panel--end { right: 0; }

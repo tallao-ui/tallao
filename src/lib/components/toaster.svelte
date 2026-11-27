@@ -154,11 +154,13 @@
     gap: 0.75rem;
     padding: 0.75rem 0.875rem;
     color: rgb(var(--ta-text));
-    background: rgb(var(--ta-surface));
-    border: 1px solid rgb(var(--ta-border));
+    background: rgb(var(--ta-float, var(--ta-surface)) / var(--ta-float-alpha, 1));
+    -webkit-backdrop-filter: blur(var(--ta-float-blur, 0px));
+    backdrop-filter: blur(var(--ta-float-blur, 0px));
+    border: 1px solid rgb(var(--ta-float-edge, var(--ta-border)) / var(--ta-float-edge-alpha, 1));
     border-left-width: 3px;
     border-radius: var(--ta-radius);
-    box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
+    box-shadow: var(--ta-float-ring, 0 0 #0000), 0 12px 32px -8px rgb(0 0 0 / 0.45);
     animation: ta-toast-enter var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out);
   }
 

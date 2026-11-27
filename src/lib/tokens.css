@@ -59,6 +59,25 @@
   /* Coloured text on a tint of its own colour (a soft Badge): how much of the text colour is
      mixed in so it reaches 4.5:1. Nothing on the dark theme, where the tones are light. */
   --ta-tone-ink: 0%;
+
+  /* Depth. Three levels: the page (--ta-bg), its cards (--ta-surface) and what floats over
+     them (menus, popovers, dialogs, toasts). The floating level reads these; the defaults draw
+     it as an opaque card, and an app that wants glass sets, for example:
+       --ta-float-alpha: 0.78; --ta-float-blur: 16px;
+       --ta-float-edge: 255 255 255; --ta-float-edge-alpha: 0.1;
+       --ta-float-ring: inset 0 1px 0 rgb(255 255 255 / 0.06);
+     The surface colour stays readable without the blur (a browser without backdrop-filter). */
+  --ta-float: var(--ta-surface);
+  --ta-float-alpha: 1;
+  --ta-float-blur: 0px;
+  --ta-float-edge: var(--ta-border);
+  --ta-float-edge-alpha: 1;
+  --ta-float-ring: 0 0 #0000;
+
+  /* The halo of what is active or selected (an app's focus ring, the current row, the chosen
+     card). The kit's components do not draw it on their own; it is here so every surface that
+     wants it uses the same one. */
+  --ta-glow: 0 0 0 3px rgb(var(--ta-accent) / 0.28), 0 0 18px -2px rgb(var(--ta-accent) / 0.45);
 }
 
 /* Reduced motion, in one place: the system setting, or `data-tallao-motion="reduce"` on <html>
