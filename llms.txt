@@ -2391,6 +2391,7 @@ Props:
 - `height?: string` — Height of the frame (a CSS length), or "auto" to let the document scroll.
 - `landmarks?: boolean` — `false`: no <header> / <main> / skip link, for a shell inside a page that has them.
 - `mainId?: string` — Id of the content region (the skip link's target).
+- `flush?: boolean` — The content fills the main area edge to edge: no padding, no scroll of its own.
 - `menuLabel?: string` — Accessible name of the menu button.
 - `navLabel?: string` — Accessible name of the phone sheet.
 - `skipLabel?: string`

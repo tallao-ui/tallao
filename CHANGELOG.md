@@ -22,6 +22,9 @@ Parts of the KTG Studio bot builder (kon-dc) that any builder can use.
   card (FlowNode). The grabbed and drop-target states mark the content; the handle rests dimmed
   until the row is hovered or focused, and stays full on touch. New token `--ta-sortable-gap` sets
   the gap between rows in both variants.
+- **`AppShell` `flush`**: the content fills the main area edge to edge, with no padding and no
+  scroll of its own, for a page that lays itself out to the full height (an editor, a canvas, a
+  map).
 - **Icon**: 13 new strokes: `message`, `hash`, `coin`, `branch`, `chip`, `slash`, `pill`, `form`,
   `bolt`, `play`, `sun`, `moon` and `more`.
 - **Labels**: new keys `stopped`, `themeToLight` and `themeToDark`, in English and Spanish. A
