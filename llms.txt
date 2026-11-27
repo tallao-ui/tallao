@@ -485,6 +485,9 @@ Props:
 - `label: string`
 - `value: string | number`
 - `variant?: "default" | "success" | "warning" | "error"`
+- `rolling?: boolean` — A number `value` rolls to each new value (RollingCounter).
+- `locale?: string`
+- `format?: Intl.NumberFormatOptions` — Options for `Intl.NumberFormat` when `rolling`.
 - `class?: string`
 
 ### ConfirmDialog

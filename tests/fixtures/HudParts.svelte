@@ -1,16 +1,18 @@
 <script lang="ts">
-  import { Card, ShortcutList, SyncStatus } from "$lib/components";
+  import { Card, ShortcutList, Stat, SyncStatus } from "$lib/components";
 
   let {
     status = "ready",
     updatedAt = null,
     live = false,
     onRefresh,
+    waiting = 7,
   }: {
     status?: "loading" | "syncing" | "ready" | "error";
     updatedAt?: number | Date | null;
     live?: boolean | string;
     onRefresh?: () => unknown;
+    waiting?: number;
   } = $props();
 </script>
 
@@ -25,3 +27,5 @@
 />
 <Card tone="live"><p>On air</p></Card>
 <Card><p>Plain</p></Card>
+<Stat label="Waiting" value={waiting} rolling variant="warning" />
+<Stat label="Plain figure" value={12} />

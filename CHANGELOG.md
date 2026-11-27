@@ -16,6 +16,9 @@
   edge for a section that matters now (new classes `ta-card--tone`, `ta-card--<tone>`).
 - **Field `hint`**: a quiet line under the control. It is the control's accessible description
   (`aria-describedby`, next to an error's id) and stays out of its name.
+- **Stat `rolling`**: a number `value` rolls to each new value with RollingCounter, for a reading
+  that keeps changing (a queue, people online), in the variant's colour; `locale` and `format`
+  format it. A screen reader gets the plain number.
 - New labels: `synced`, `syncing`, `syncFailed`, `syncReady`, `justNow`, `secondsAgo`,
   `minutesAgo`, `refresh`, `live`, `keyboardShortcuts` (English and Spanish).
 

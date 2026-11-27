@@ -100,6 +100,20 @@ describe("Card tone", () => {
   });
 });
 
+describe("Stat rolling", () => {
+  it("rolls a number with RollingCounter and reads it as plain text; a plain Stat stays text", async () => {
+    const { container, rerender } = render(HudParts, { waiting: 7 });
+    const [rolling, plain] = container.querySelectorAll(".ta-stat");
+    expect(rolling.querySelector(".ta-roll")).not.toBeNull();
+    expect(rolling.querySelector(".ta-roll-wheels")?.getAttribute("aria-hidden")).toBe("true");
+    expect(rolling.querySelector(".ta-roll-text")?.textContent).toBe("7");
+    expect(plain.querySelector(".ta-roll")).toBeNull();
+    expect(plain.querySelector(".ta-stat-value")?.textContent).toBe("12");
+    await rerender({ waiting: 1204 });
+    expect(rolling.querySelector(".ta-roll-text")?.textContent).toBe("1,204");
+  });
+});
+
 describe("HUD parts", () => {
   it("have no axe violations", async () => {
     const { container } = render(HudParts, { live: true, onRefresh: () => {}, updatedAt: Date.now() });
