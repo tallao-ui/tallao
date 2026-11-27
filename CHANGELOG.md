@@ -9,6 +9,8 @@
   glyph and its word for screen readers; `live` adds a pulsing dot, still under reduced motion.
   It never wraps (narrow screens scroll it sideways) and draws on the floating level. New label
   `statusBar` (en "Status", es "Estado").
+- **AppShell `footer`** (new snippet): drawn under `<main>`, outside its scroll, the full width of
+  the content column, for a StatusBar that is always in view.
 - **`StatusTile`** (new, Charts and BI): one watched thing and its verdict, for a wall of health
   tiles. Props: `label`, `status` (`"ok" | "warn" | "down" | "unknown"`), `value` (a figure next to
   the verdict; `0` is shown), `description`, `statusLabel` (replaces the verdict's word), `href`

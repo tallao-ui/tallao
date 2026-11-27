@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/svelte";
 
 import { axeViolations } from "../axe";
+import ShellWithStatusBar from "../fixtures/ShellWithStatusBar.svelte";
 import StatusBars from "../fixtures/StatusBars.svelte";
 
 const item = (id: string) => screen.getByTestId("bar").querySelector(`[data-id="${id}"]`) as HTMLElement;
@@ -38,5 +39,13 @@ describe("StatusBar", () => {
   it("has no axe violations", async () => {
     const { container } = render(StatusBars);
     expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it("sits in AppShell's footer, under <main> and outside its scroll", () => {
+    render(ShellWithStatusBar);
+    const main = screen.getByRole("main");
+    const bar = screen.getByRole("region", { name: "Status" });
+    expect(main.contains(bar)).toBe(false);
+    expect(bar.closest(".ta-shell-foot")?.previousElementSibling).toBe(main);
   });
 });
