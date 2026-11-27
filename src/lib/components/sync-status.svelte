@@ -16,6 +16,8 @@
   - `refreshKey` only labels the button (`aria-keyshortcuts` and a Kbd): the page listens to
     the key itself, as Kbd does.
   - Refresh is disabled while `loading` or `syncing`.
+  - `variant="bare"`: no border, background or padding, one 2rem line at 12px, to sit inside
+    another bar (a StatusBar's `end`).
 -->
 <script lang="ts">
   import { useLabels } from "$lib/i18n";
@@ -32,6 +34,8 @@
     onRefresh?: () => unknown;
     /** The key the page binds to refresh: shown on the button and in `aria-keyshortcuts`. */
     refreshKey?: string;
+    /** `bare`: no frame of its own, one 2rem line, for inside another bar. */
+    variant?: "default" | "bare";
     /** Overrides the state text. */
     text?: string;
     /** Buttons after Refresh, on the right. */
@@ -48,6 +52,7 @@
     live = false,
     onRefresh,
     refreshKey,
+    variant = "default",
     text,
     actions,
     class: className = "",
@@ -87,7 +92,7 @@
   const busy = $derived(status === "loading" || status === "syncing");
 </script>
 
-<div {...rest} class={cn("ta-sync", className)} data-state={status}>
+<div {...rest} class={cn("ta-sync", variant === "bare" && "ta-sync--bare", className)} data-state={status}>
   <span class="ta-sync-signal" role="status" aria-live="polite">
     <span class="ta-sync-dot" aria-hidden="true"></span>
     <span class="ta-sync-text">{stateText}</span>
@@ -124,6 +129,19 @@
     font-size: 0.75rem;
     color: rgb(var(--ta-text-dim));
     font-variant-numeric: tabular-nums;
+  }
+
+  .ta-sync--bare {
+    flex-wrap: nowrap;
+    min-height: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    white-space: nowrap;
+  }
+  .ta-sync--bare .ta-sync-btn {
+    min-height: 1.5rem;
   }
 
   .ta-sync-signal {

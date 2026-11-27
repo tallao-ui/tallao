@@ -2307,6 +2307,7 @@ Props:
 - `live?: boolean | string` — The view drives something on air: a pulsing badge (`true` says "Live", a string says that).
 - `onRefresh?: () => unknown` — Draws the Refresh button.
 - `refreshKey?: string` — The key the page binds to refresh: shown on the button and in `aria-keyshortcuts`.
+- `variant?: "default" | "bare"` — `bare`: no frame of its own, one 2rem line, for inside another bar.
 - `text?: string` — Overrides the state text.
 - `actions?: import("svelte").Snippet` — Buttons after Refresh, on the right.
 - `class?: string`

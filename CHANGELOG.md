@@ -7,7 +7,8 @@
   the error in words, in a polite live region. It has a pulsing Live badge (`live`), a Refresh
   button (`onRefresh`, disabled while reading) that shows its key (`refreshKey`, also in
   `aria-keyshortcuts`), and an `actions` snippet. Props: `status`, `updatedAt`, `live`,
-  `onRefresh`, `refreshKey`, `text`, `actions`, `class`, rest.
+  `onRefresh`, `refreshKey`, `variant` (`bare`: no frame, one 2rem line at 12px, for inside
+  another bar such as a StatusBar's `end`), `text`, `actions`, `class`, rest.
 - **ShortcutList** (new): a view's keys and what each does, as description lists of Kbd. `keys` is
   one combination (`["Mod", "S"]`), or separate alternatives with `alternatives`; `group` lists
   items under a heading. It does not listen to the keys. Type `ShortcutItem`.

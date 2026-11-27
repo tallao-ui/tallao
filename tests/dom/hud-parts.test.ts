@@ -61,6 +61,15 @@ describe("SyncStatus", () => {
   });
 });
 
+describe("SyncStatus bare", () => {
+  it("drops its frame for a line inside another bar", async () => {
+    const { render: r } = await import("@testing-library/svelte");
+    const { default: SyncStatus } = await import("$lib/components/sync-status.svelte");
+    const { container } = r(SyncStatus, { variant: "bare", status: "ready" });
+    expect(container.querySelector(".ta-sync")!.className).toMatch(/ta-sync--bare/);
+  });
+});
+
 describe("ShortcutList", () => {
   it("is a named group of description lists, with groups as headings", () => {
     render(HudParts);
