@@ -74,7 +74,7 @@ All under `src/lib/components/` (kebab-case file, PascalCase export in `componen
 | Forms | Input, Textarea, Select, Checkbox, Label, Field, SearchInput, NumberInput, Slider, Switch, Toggle, ToggleGroup, RadioGroup, Rating, InputOTP, Combobox, KeyValueEditor, TagInput, FileUpload, Calendar, DatePicker, DateRangePicker, SchemaForm, CodeEditor (`tallao/code`) |
 | Overlays and menus | Dialog, Sheet, ConfirmDialog, Popover, Tooltip, DropdownMenu + MenuItem / MenuSeparator / MenuLabel, ContextMenu, Command |
 | Navigation and layout | Card (+ CardHeader / CardTitle / CardContent / CardFooter), Tabs, Accordion, Breadcrumb, Pagination, Sidebar, TreeView, NavMenu, MegaMenu, BottomNav, SplitPane, Carousel, CardStack, ThemeScope |
-| Admin pages | AppShell, PageHeader, FilterBar + FilterChip, SavedViews, EmptyState, SaveBar, DiffView, DescriptionList, Kbd |
+| Admin pages | AppShell, StatusBar, PageHeader, FilterBar + FilterChip, SavedViews, EmptyState, SaveBar, DiffView, DescriptionList, Kbd |
 | Data | Table (+ TableHeader / TableBody / TableRow / TableHead / TableCell), DataTable, MonthView, CompareSlider, SelectionBar, DragBoard + DropZone / DragItem, GameMap (`tallao/map`) |
 | Charts and BI | BarChart, LineChart, DonutChart, ScatterChart, RadarChart, SankeyChart, Heatmap, CalendarHeatmap, Funnel, BarList, Sparkline, Gauge, ChartLegend, KpiCard, StatusTile, BigNumber, RollingCounter, IconArray, Timeline, ComparisonBar, DashboardGrid + DashboardItem, ChartCard |
 | Generative UI | PromptInput, ChatMessage, Thinking, StreamingText, Terminal, EventFeed, Beam, ToolChips, ToolCallCard, TaskList, Steps, ApprovalCard, ContextCards, RecommendationCard, InsightCard, SuggestionChips, CodeBlock, Sources, UsageMeter |

@@ -30,6 +30,8 @@
   - `height` (100dvh by default) is the frame's height: the page scrolls inside `<main>`, so
     a sticky SaveBar stays at the bottom of the window. `height="auto"` lets the document
     scroll instead.
+  - `footer` is drawn under `<main>`, outside its scroll, the full width of the content column:
+    the place for a StatusBar that is always in view.
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -69,6 +71,8 @@
     /** Anything else in the top bar, between the command button and the user. */
     topbar?: Snippet;
     /** The page. */
+    /** Below the content, outside its scroll (a StatusBar): always in view. */
+    footer?: Snippet;
     children?: Snippet;
   }
 
@@ -90,6 +94,7 @@
     command,
     user,
     topbar,
+    footer,
     children,
   }: Props = $props();
 
@@ -137,6 +142,7 @@
     <svelte:element this={landmarks ? "main" : "div"} id={mainId} class="ta-shell-main" tabindex={landmarks ? -1 : undefined}>
       {@render children?.()}
     </svelte:element>
+    {#if footer}<div class="ta-shell-foot">{@render footer()}</div>{/if}
   </div>
   {#if sidebar}
     <Dialog bind:open={sidebarOpen} placement="left" ariaLabel={navLabel} {closeLabel} showCloseAlone class="ta-shell-sheet">
@@ -212,6 +218,7 @@
   .ta-shell-trail :global(li:last-child > span) { overflow: hidden; text-overflow: ellipsis; }
   .ta-shell-tools { display: flex; align-items: center; flex: 0 0 auto; gap: 0.5rem; }
 
+  .ta-shell-foot { flex: none; min-width: 0; }
   .ta-shell-main {
     flex: 1 1 auto;
     min-width: 0;

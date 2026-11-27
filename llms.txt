@@ -1895,6 +1895,20 @@ Props:
 - `span?: 1 | 2 | 3 | 4 | "full"` — Columns it takes inside a DashboardGrid (`"full"`: the whole row).
 - `class?: string`
 
+### StatusBar
+
+A thin bar of live readings at the edge of an app (API, database, queue, last sync, environment), like an editor's status bar.
+
+```svelte
+<StatusBar {items} />
+```
+
+Props:
+- `items: StatusBarItem[]`
+- `ariaLabel?: string` — The region's name; by default the labels' `statusBar`.
+- `end?: Snippet` — Drawn at the far end of the bar.
+- `class?: string`
+
 ### Gauge
 
 One value inside a known range, as a half dial (`variant="semi"`) or a full ring (`variant="ring"`, a radial progress).
@@ -2376,7 +2390,8 @@ Props:
 - `command?: Snippet` — End of the top bar: the button that opens the command palette.
 - `user?: Snippet` — End of the top bar, last: the user menu.
 - `topbar?: Snippet` — Anything else in the top bar, between the command button and the user.
-- `children?: Snippet` — The page.
+- `footer?: Snippet` — Below the content, outside its scroll (a StatusBar): always in view.
+- `children?: Snippet`
 
 ### Thinking
 

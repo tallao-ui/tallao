@@ -8,6 +8,7 @@ import { render } from "svelte/server";
 import GameMap from "$lib/map/game-map.svelte";
 import Floating from "../fixtures/Floating.svelte";
 import AllComponents from "../fixtures/AllComponents.svelte";
+import StatusBars from "../fixtures/StatusBars.svelte";
 import StatusTiles from "../fixtures/StatusTiles.svelte";
 
 describe("server rendering", () => {
@@ -402,5 +403,15 @@ describe("server rendering of StatusTile", () => {
     expect(body).toContain('data-status="down"');
     expect(body).toContain("Unknown");
     expect(render(StatusTiles).body).toBe(body);
+  });
+});
+
+describe("server rendering of StatusBar", () => {
+  it("renders the readings, the link and the live dot, the same every time", () => {
+    const { body } = render(StatusBars);
+    expect(body).toContain('aria-label="Status"');
+    expect(body).toContain('href="/health"');
+    expect(body).toContain("ta-statusbar-live");
+    expect(render(StatusBars).body).toBe(body);
   });
 });

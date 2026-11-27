@@ -306,6 +306,8 @@ export interface Labels {
   statusWarn: string;
   statusDown: string;
   statusUnknown: string;
+  /** Default name of a StatusBar's region. */
+  statusBar: string;
 }
 
 export const en: Labels = {
@@ -521,6 +523,7 @@ export const en: Labels = {
   statusWarn: "Check",
   statusDown: "Down",
   statusUnknown: "Unknown",
+  statusBar: "Status",
 };
 
 export const es: Labels = {
@@ -736,6 +739,7 @@ export const es: Labels = {
   statusWarn: "Revisar",
   statusDown: "Caído",
   statusUnknown: "Desconocido",
+  statusBar: "Estado",
 };
 
 const KEY = Symbol("tallao-labels");
