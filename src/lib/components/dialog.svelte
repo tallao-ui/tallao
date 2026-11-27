@@ -78,7 +78,7 @@
   }
 
   // Leaving: a dialog shrinks back, a sheet slides out to its edge (nothing under reduced motion).
-  const exit = (node: Element) => (placement === "center" ? scaleIn(node, { duration: "fast" }) : slide(node, { from: placement, duration: "base" }));
+  const exit = (node: Element) => (placement === "center" ? scaleIn(node, {}, { direction: "out" }) : slide(node, { from: placement }, { direction: "out" }));
 
   /** `autofocus` if there is one; otherwise the first control in the content; otherwise the panel. */
   function focusInitial(d: HTMLDialogElement) {
@@ -258,7 +258,7 @@
   [data-placement="left"] .ta-dialog,
   [data-placement="right"] .ta-dialog,
   [data-placement="top"] .ta-dialog,
-  [data-placement="bottom"] .ta-dialog { animation-duration: var(--ta-duration-slow, 240ms); }
+  [data-placement="bottom"] .ta-dialog { animation-duration: var(--ta-duration-move, 240ms); }
 
   .ta-dialog-overlay[open]::backdrop { animation: ta-dialog-backdrop var(--ta-duration-base, 180ms) ease-out; }
   @keyframes ta-dialog-backdrop {
@@ -284,7 +284,7 @@
     border: 1px solid rgb(var(--ta-border));
     border-radius: var(--ta-radius-lg);
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-    animation: ta-dialog-enter var(--ta-duration-base, 180ms) var(--ta-ease-out, ease-out);
+    animation: ta-dialog-enter var(--ta-duration-enter, 200ms) var(--ta-ease-enter, ease-out);
     outline: none;
   }
 

@@ -58,8 +58,13 @@ describe("the reduced motion switch", () => {
     expect(css).toContain(`--ta-ease-out: ${EASE.out}`);
     expect(css).toContain(`--ta-ease-in-out: ${EASE.inOut}`);
     expect(css).toContain(`--ta-ease-spring: ${EASE.spring}`);
+    for (const kind of ["enter", "exit", "move"] as const) {
+      expect(css).toContain(`--ta-duration-${kind}: ${DURATION[kind]}ms`);
+      expect(css).toContain(`--ta-ease-${kind}: ${EASE[kind]}`);
+    }
     const reduced = css.match(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?--ta-motion: 0;/)?.[0] ?? "";
     expect(reduced).toContain("--ta-duration-slow: 0.01ms");
+    for (const kind of ["enter", "exit", "move"]) expect(reduced).toContain(`--ta-duration-${kind}: 0.01ms`);
     expect(css).toMatch(/:root\[data-tallao-motion="reduce"\] \{[\s\S]*?--ta-motion: 0;/);
   });
 });
@@ -81,6 +86,23 @@ describe("transitions", () => {
     expect(slide(node, { from: "bottom", distance: "2rem" }).css!(0, 1)).toBe("transform: translateY(calc(2rem * 1))");
     expect(fade(node, { duration: "slow" }).duration).toBe(240);
     expect(rise(node, { duration: 150 }).duration).toBe(150);
+  });
+
+  it("enter settles, exit is quicker and accelerates, unless a duration is given", () => {
+    systemReduces(false);
+    for (const t of [fade, rise, scaleIn, slide, collapse]) {
+      const enter = t(node, {}, { direction: "in" });
+      const exit = t(node, {}, { direction: "out" });
+      expect(enter.duration).toBe(DURATION.enter);
+      expect(exit.duration).toBe(DURATION.exit);
+      expect(exit.duration!).toBeLessThan(enter.duration!);
+      expect(t(node, { duration: "slow" }, { direction: "out" }).duration).toBe(240);
+    }
+    // Leaving accelerates: a quarter of the way through it has barely started.
+    const out = rise(node, {}, { direction: "out" });
+    const into = rise(node, {}, { direction: "in" });
+    expect(out.easing!(0.25)).toBeLessThan(0.05);
+    expect(into.easing!(0.25)).toBeGreaterThan(0.7);
   });
 
   it("reduced motion: every transition lasts 0 ms and sets no styles", () => {

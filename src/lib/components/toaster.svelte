@@ -83,7 +83,7 @@
     {#each toasts as t (t.id)}
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <li
-        out:fade={{ duration: "base" }}
+        out:fade
         class={cn("ta-toast", `ta-toast--${t.variant}`)}
         role={t.variant === "error" ? "alert" : undefined}
         onpointerenter={() => pause(t)}

@@ -108,7 +108,7 @@
     aria-labelledby={title ? `${id}-title` : undefined}
     aria-label={title ? undefined : ariaLabel}
     class={cn("ta-popover", className)}
-    out:scaleIn={{ duration: "fast", from: 0.98 }}
+    out:scaleIn={{ from: 0.98 }}
   >
     {#if title}<p class="ta-popover-title" id={`${id}-title`}>{title}</p>{/if}
     {@render children?.()}
@@ -132,7 +132,7 @@
     box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
     font: inherit;
     outline: none;
-    animation: ta-popover-enter var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
+    animation: ta-popover-enter var(--ta-duration-enter, 200ms) var(--ta-ease-enter, ease-out);
   }
 
   .ta-popover-title {

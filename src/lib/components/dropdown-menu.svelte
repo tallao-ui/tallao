@@ -123,7 +123,7 @@
     popover="manual"
     class={cn("ta-menu", className)}
     onkeydown={(e) => keyboard(e, menuEl)}
-    out:scaleIn={{ duration: "fast", from: 0.98 }}
+    out:scaleIn={{ from: 0.98 }}
   >
     {@render children?.()}
   </div>
@@ -147,7 +147,7 @@
     border-radius: var(--ta-radius);
     box-shadow: 0 12px 32px -8px rgb(0 0 0 / 0.45);
     font: inherit;
-    animation: ta-menu-enter var(--ta-duration-fast, 120ms) var(--ta-ease-out, ease-out);
+    animation: ta-menu-enter var(--ta-duration-enter, 200ms) var(--ta-ease-enter, ease-out);
   }
 
   @keyframes ta-menu-enter {
