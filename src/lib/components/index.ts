@@ -125,6 +125,8 @@ export type { BarListItem } from "./bar-list.svelte";
 export { default as Sparkline } from "./sparkline.svelte";
 export { default as KpiCard } from "./kpi-card.svelte";
 export { default as StatusTile } from "./status-tile.svelte";
+export { default as StatusBar } from "./status-bar.svelte";
+export type { StatusBarItem } from "./status-bar.svelte";
 export { default as Gauge } from "./gauge.svelte";
 export { default as BigNumber } from "./big-number.svelte";
 export { default as IconArray } from "./icon-array.svelte";
