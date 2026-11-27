@@ -1876,6 +1876,25 @@ Props:
 - `span?: 1 | 2 | 3 | 4 | "full"` — Columns it takes inside a DashboardGrid (`"full"`: the whole row).
 - `class?: string`
 
+### StatusTile
+
+One thing being watched (a service, a queue, a database) and its verdict, for a wall of health tiles.
+
+```svelte
+<StatusTile label="…" {status} />
+```
+
+Props:
+- `label: string` — What is being watched ("Database", "Job queue").
+- `status: Status`
+- `value?: string | number` — A figure next to the verdict ("1 ms", "3 / 20", 0).
+- `description?: string` — One line under it ("Nothing waiting").
+- `statusLabel?: string` — Replaces the verdict's word ("Running", "Paused").
+- `href?: string` — Makes the whole tile a link to the detail.
+- `icon?: Snippet` — The thing's own icon.
+- `span?: 1 | 2 | 3 | 4 | "full"` — Columns it takes inside a DashboardGrid (`"full"`: the whole row).
+- `class?: string`
+
 ### Gauge
 
 One value inside a known range, as a half dial (`variant="semi"`) or a full ring (`variant="ring"`, a radial progress).

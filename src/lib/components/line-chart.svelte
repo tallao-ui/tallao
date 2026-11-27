@@ -96,6 +96,16 @@
   const yOf = (v: number) => M.top + plotHeight - ((Math.min(scale.max, Math.max(scale.min, v)) - scale.min) / (scale.max - scale.min)) * plotHeight;
   const xOf = (i: number) => M.left + (data.length <= 1 ? plotWidth / 2 : (i / (data.length - 1)) * plotWidth);
   const labelStep = $derived(Math.max(1, Math.ceil(data.length / Math.max(1, Math.floor(plotWidth / 64)))));
+  /**
+   * Which x labels are drawn: every `labelStep`-th one and always the last. The last is anchored
+   * at its end, so it reaches back about a label's width; a regular label closer than one and a
+   * half steps would print over it ("02:27 AM02:32 AM"), and gives way.
+   */
+  const labelled = (i: number) => {
+    const last = data.length - 1;
+    if (i === last) return true;
+    return i % labelStep === 0 && last - i >= Math.ceil(labelStep * 1.5);
+  };
 
   /** A series' path; a gap (missing value) breaks the line instead of inventing a zero. */
   function linePath(si: number, valueAt: (i: number) => number | null = (i) => drawn(i, si)) {
@@ -217,7 +227,7 @@
         <text x={M.left - 8} y={yOf(t)} class="ta-chart-axis" text-anchor="end" dominant-baseline="middle">{format(t)}</text>
       {/each}
       {#each data as _, i (i)}
-        {#if i % labelStep === 0 || i === data.length - 1}
+        {#if labelled(i)}
           <text x={xOf(i)} y={height - 8} class="ta-chart-axis" text-anchor={i === data.length - 1 && data.length > 1 ? "end" : "middle"}>{category(i)}</text>
         {/if}
       {/each}

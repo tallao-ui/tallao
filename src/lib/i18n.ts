@@ -301,6 +301,11 @@ export interface Labels {
   /** Default name of an EventFeed, and what it says when it has no events. */
   eventFeed: string;
   noEvents: string;
+  /** The verdicts of a StatusTile, read out with its label (never by colour alone). */
+  statusOk: string;
+  statusWarn: string;
+  statusDown: string;
+  statusUnknown: string;
 }
 
 export const en: Labels = {
@@ -512,6 +517,10 @@ export const en: Labels = {
   terminalReplay: "Replay",
   eventFeed: "Activity",
   noEvents: "No events yet",
+  statusOk: "OK",
+  statusWarn: "Check",
+  statusDown: "Down",
+  statusUnknown: "Unknown",
 };
 
 export const es: Labels = {
@@ -723,6 +732,10 @@ export const es: Labels = {
   terminalReplay: "Repetir",
   eventFeed: "Actividad",
   noEvents: "Aún no hay eventos",
+  statusOk: "Bien",
+  statusWarn: "Revisar",
+  statusDown: "Caído",
+  statusUnknown: "Desconocido",
 };
 
 const KEY = Symbol("tallao-labels");

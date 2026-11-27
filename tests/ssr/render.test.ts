@@ -8,6 +8,7 @@ import { render } from "svelte/server";
 import GameMap from "$lib/map/game-map.svelte";
 import Floating from "../fixtures/Floating.svelte";
 import AllComponents from "../fixtures/AllComponents.svelte";
+import StatusTiles from "../fixtures/StatusTiles.svelte";
 
 describe("server rendering", () => {
   it("renders every component without touching window", () => {
@@ -391,5 +392,15 @@ describe("server rendering of the flow chart, the calendar heatmap, the card sta
     expect(body).toContain("ta-checkbox-mark");
     expect(body).not.toContain("ta-daterange-panel");
     expect(render(Round3).body).toBe(body);
+  });
+});
+
+describe("server rendering of StatusTile", () => {
+  it("renders every verdict in words and the link, the same every time", () => {
+    const { body } = render(StatusTiles);
+    expect(body).toContain('href="/health/db"');
+    expect(body).toContain('data-status="down"');
+    expect(body).toContain("Unknown");
+    expect(render(StatusTiles).body).toBe(body);
   });
 });

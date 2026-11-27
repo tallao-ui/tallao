@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- **`StatusTile`** (new, Charts and BI): one watched thing and its verdict, for a wall of health
+  tiles. Props: `label`, `status` (`"ok" | "warn" | "down" | "unknown"`), `value` (a figure next to
+  the verdict; `0` is shown), `description`, `statusLabel` (replaces the verdict's word), `href`
+  (the whole tile becomes one link named by its text), the `icon` snippet, `span` (DashboardGrid
+  columns), `class` and any other attribute on the root. Each verdict has its own glyph (check,
+  warning triangle, cross, dash) and its word, never colour alone; `warn` and `down` also tint the
+  border. 44px touch rule on the link and a reduced-motion rule.
+- **LineChart:** a regular x label no longer prints over the last one. The last label (always
+  drawn, anchored at its end) used to land next to the step before it ("02:27 AM02:32 AM" with 60
+  minutes); a regular label closer than one and a half steps now gives way.
+- **Labels:** `statusOk`, `statusWarn`, `statusDown`, `statusUnknown` (en "OK" / "Check" / "Down" /
+  "Unknown", es "Bien" / "Revisar" / "Caído" / "Desconocido").
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.
