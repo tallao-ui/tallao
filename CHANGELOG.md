@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- **DataTable `keyboard`** (new prop, off by default): row keys. `true` listens inside the table,
+  `"page"` anywhere on the page (not in a text field, with a modifier or while a dialog is
+  open). j / ↓ and k / ↑ move the focus to the next or previous row (its link, else its checkbox,
+  else the row), which carries `data-active`; Enter opens it (`onRowOpen`, new, else its link),
+  x toggles its selection, e calls `onRowEdit` (new), Escape lets it go. Every key the table acts
+  on is `preventDefault`ed, so a page handler that skips `defaultPrevented` events does not act
+  twice. Rows carry `data-ta-row`; the active one gets an accent bar.
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.
