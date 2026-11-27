@@ -17,6 +17,7 @@
 
 <style>
   .ta-table-td {
+    font-variant-numeric: tabular-nums;
     padding: 0.75rem 1rem;
     color: rgb(var(--ta-text));
     vertical-align: middle;

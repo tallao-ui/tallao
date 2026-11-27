@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+- **Depth tokens** (new, `tallao/tokens.css`): three levels (page `--ta-bg`, cards
+  `--ta-surface`, and what floats over them). The floating level reads `--ta-float` (colour,
+  default `--ta-surface`), `--ta-float-alpha` (default `1`), `--ta-float-blur` (default `0px`),
+  `--ta-float-edge` / `--ta-float-edge-alpha` (its 1px border, default `--ta-border` at `1`) and
+  `--ta-float-ring` (an extra shadow drawn first, for an inner luminous line; default none). The
+  defaults keep today's opaque card; setting them gives glass panels with a luminous edge.
+- **`--ta-glow`** (new token): the halo of what is active or selected, for an app's focus ring,
+  current row or chosen card. No component draws it on its own.
+- **Floating panels on the depth tokens:** Popover, DropdownMenu, ContextMenu, Combobox's list,
+  Dialog, Toaster, DatePicker's calendar and MegaMenu's panel. Each token has a fallback in the
+  component, so a view inside a shadow DOM without `tokens.css` still draws an opaque card.
+- **Tabular figures** in `TableCell` (`font-variant-numeric: tabular-nums`), and two utilities
+  in `tallao/base.css`: `.ta-num` (tabular figures) and `.ta-data` (monospace and tabular, for
+  IDs, slugs, keys and dates).
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.
