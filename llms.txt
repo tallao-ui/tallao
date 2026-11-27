@@ -184,6 +184,7 @@ Props:
 - `class?: string`
 - `onClose?: () => void`
 - `onOpenChange?: (v: boolean) => void`
+- `canClose?: () => boolean | Promise<boolean>` — Asked before closing; `false` (or a promise of it) keeps the dialog open.
 - `children?: import("svelte").Snippet`
 - `footer?: import("svelte").Snippet`
 
@@ -703,6 +704,7 @@ Props:
 - `ariaLabel?: string`
 - `class?: string`
 - `onClose?: () => void`
+- `canClose?: () => boolean | Promise<boolean>` — Asked before closing; `false` (or a promise of it) keeps the panel open.
 - `children?: import("svelte").Snippet`
 - `footer?: import("svelte").Snippet`
 

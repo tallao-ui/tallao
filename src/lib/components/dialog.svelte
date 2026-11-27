@@ -6,6 +6,11 @@
   topmost one. tallao adds scroll locking, closing on the backdrop, initial
   focus and returning focus on close. With no content (only a title, a
   description and a footer, as a confirmation) it draws no body.
+
+  `canClose`: asked before every close (Escape, the X, the backdrop); `false` keeps it open, for
+  a form with unsaved changes. A second Escape in a row cannot be cancelled (the browser closes
+  the <dialog> itself unless the user did something in between): it is shown again, with the
+  focus where it was.
 -->
 <script lang="ts">
   import { untrack } from "svelte";
@@ -39,6 +44,8 @@
     class?: string;
     onClose?: () => void;
     onOpenChange?: (v: boolean) => void;
+    /** Asked before closing; `false` (or a promise of it) keeps the dialog open. */
+    canClose?: () => boolean | Promise<boolean>;
     children?: import("svelte").Snippet;
     footer?: import("svelte").Snippet;
   }
@@ -60,6 +67,7 @@
     class: className = "",
     onClose,
     onOpenChange,
+    canClose,
     children,
     footer,
   }: Props = $props();
@@ -70,8 +78,34 @@
 
   const widths = { sm: "24rem", md: "28rem", lg: "32rem", xl: "36rem", "2xl": "48rem" };
 
-  function close() {
-    if (!open) return;
+  let asking = false;
+  /** The dialog closed the <dialog> itself (closed, or unmounted): its `close` event is not a request. */
+  let selfClosed = false;
+
+  async function close() {
+    if (!open || asking) return;
+    if (canClose) {
+      const d = dialogEl;
+      const focused = d && d.contains(document.activeElement) ? (document.activeElement as HTMLElement) : null;
+      asking = true;
+      let ok = false;
+      try {
+        ok = await canClose();
+      } catch {
+        ok = false;
+      } finally {
+        asking = false;
+      }
+      if (!ok) {
+        // The browser may have closed the <dialog> already: show it again, focus where it was.
+        if (d && open && !d.open) {
+          if (typeof d.showModal === "function") d.showModal();
+          else d.setAttribute("open", "");
+          (focused?.isConnected ? focused : d.querySelector<HTMLElement>(".ta-dialog"))?.focus({ preventScroll: true });
+        }
+        return;
+      }
+    }
     open = false;
     onOpenChange?.(false);
     onClose?.();
@@ -101,6 +135,7 @@
     return () => {
       unlock();
       if (d.open) {
+        selfClosed = true;
         if (typeof d.close === "function") d.close();
         else d.removeAttribute("open");
       }
@@ -130,7 +165,10 @@
   aria-describedby={title && description ? `${id}-description` : undefined}
   aria-label={title ? undefined : ariaLabel}
   oncancel={handleCancel}
-  onclose={close}
+  onclose={() => {
+    if (selfClosed) selfClosed = false;
+    else void close();
+  }}
   onclick={handleClick}
 >
   {#if open}
