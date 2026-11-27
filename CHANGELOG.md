@@ -11,7 +11,7 @@ Parts of the KTG Studio bot builder (kon-dc) that any builder can use.
   `aria-pressed`), `ref` (bindable root, e.g. for a Beam), `class`, and the `icon`, `children`
   (text under the description) and `actions` (controls beside the body) snippets. Every run state
   but `pending` shows its word; `running` sets `aria-current="step"`. Tokens
-  `--ta-flow-node-glow` and `--ta-flow-node-tone`. Exports `FlowNodeStatus`.
+  `--ta-flow-node-glow` and `--ta-flow-node-tone`, read with a fallback, so an ancestor can set them. Exports `FlowNodeStatus`.
 - **`ThemeToggle`** (new, Navigation and layout): the dark/light button. It sets
   `data-tallao-theme` on `<html>`, remembers the choice in localStorage (`storageKey`, default
   `"tallao-theme"`; `null` remembers nothing) and reveals it with `themeTransition` from the click

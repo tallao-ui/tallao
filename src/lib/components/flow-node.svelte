@@ -22,7 +22,8 @@
     is never the only cue; `pending` (default) is the resting state and shows none.
   - Put nodes in an ordered list (yours, or SortableList `variant="bare"` to reorder them): the
     number is drawn for the eye and the list gives the order to screen readers.
-  - Tokens: `--ta-flow-node-glow` (selected and running), `--ta-flow-node-tone` (set by `color`).
+  - Tokens: `--ta-flow-node-glow` (selected and running; set it on any ancestor) and
+    `--ta-flow-node-tone` (set by `color`).
 -->
 <script lang="ts" module>
   import type { StepStatus } from "./steps.svelte";
@@ -121,7 +122,6 @@
 
 <style>
   .ta-flow-node {
-    --ta-flow-node-glow: 0 0 0 3px rgb(var(--ta-accent) / 0.2);
     position: relative;
     display: flex;
     align-items: stretch;
@@ -147,7 +147,7 @@
   .ta-flow-node[data-selected],
   .ta-flow-node--running {
     border-color: rgb(var(--ta-accent));
-    box-shadow: var(--ta-flow-node-glow);
+    box-shadow: var(--ta-flow-node-glow, 0 0 0 3px rgb(var(--ta-accent) / 0.2));
   }
 
   .ta-flow-node--failed {
