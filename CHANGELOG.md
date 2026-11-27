@@ -8,7 +8,9 @@
   else the row), which carries `data-active`; Enter opens it (`onRowOpen`, new, else its link),
   x toggles its selection, e calls `onRowEdit` (new), Escape lets it go. Every key the table acts
   on is `preventDefault`ed, so a page handler that skips `defaultPrevented` events does not act
-  twice. Rows carry `data-ta-row`; the active one gets an accent bar.
+  twice. Rows carry `data-ta-row`; the active one gets an accent bar. A control of its own (a
+  row's "⋯" button, a header's sort button, a button elsewhere on the page) keeps Enter and the
+  arrows: they open its menu, not the row; j and k still move.
 - **SelectionBar `floating`** (new prop): sticky at the bottom of the scroll, on the floating level
   (`--ta-float*`), centred and only as wide as it needs, so checking a row does not push the
   list down. It rises in, still under reduced motion. Put it after the list.
