@@ -461,7 +461,7 @@
   /** "page": the same keys from anywhere, unless a dialog is open or another table has the focus. */
   function onPageKey(event: KeyboardEvent) {
     if (keyboard !== "page") return;
-    if (rootEl?.contains(event.target as Node)) return; // the table's own listener has it
+    if (event.target instanceof Node && rootEl?.contains(event.target)) return; // the table's own listener has it
     if ((event.target as HTMLElement | null)?.closest?.(".ta-datatable")) return;
     if (document.querySelector("dialog[open]")) return;
     onRowKey(event);
