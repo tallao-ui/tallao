@@ -20,6 +20,9 @@
   - `status` follows a run: `running` (aria-current="step"), `done`, `failed`, `skipped`,
     `stopped` (the run ended on purpose here, like a cooldown). Each one shows its word, so colour
     is never the only cue; `pending` (default) is the resting state and shows none.
+  - `change` shows an edit under review (an AI's proposal, a version against the last one):
+    `added`, `changed` or `removed`, as a coloured edge and its word; a removed node is struck
+    through. It sits beside `status`, so a reviewed flow can also be run.
   - Put nodes in an ordered list (yours, or SortableList `variant="bare"` to reorder them): the
     number is drawn for the eye and the list gives the order to screen readers.
   - Tokens: `--ta-flow-node-glow` (selected and running; set it on any ancestor) and
@@ -29,6 +32,8 @@
   import type { StepStatus } from "./steps.svelte";
 
   export type FlowNodeStatus = StepStatus | "stopped";
+  /** What an edit under review does to the node. */
+  export type FlowNodeChange = "added" | "changed" | "removed";
 </script>
 
 <script lang="ts">
@@ -50,6 +55,10 @@
     /** The status word; defaults to the kit's label for `status`. */
     statusLabel?: string;
     selected?: boolean;
+    /** An edit under review: the node is new, changed or removed. */
+    change?: FlowNodeChange;
+    /** The change's word; defaults to the kit's "Added", "Changed", "Removed". */
+    changeLabel?: string;
     /** Marks the node as having a problem (danger border); say what in `children`. */
     invalid?: boolean;
     /** Any CSS colour for the icon and its tint, e.g. `rgb(var(--ta-series-3))`. */
@@ -74,6 +83,8 @@
     index,
     status = "pending",
     statusLabel,
+    change,
+    changeLabel,
     selected = false,
     invalid = false,
     color,
@@ -90,6 +101,7 @@
     statusLabel ??
       ({ pending: "", running: L.running, done: L.done, failed: L.failed, skipped: L.skipped, stopped: L.stopped } as Record<FlowNodeStatus, string>)[status],
   );
+  const changeWord = $derived(change ? (changeLabel ?? { added: L.added, changed: L.changed, removed: L.removed }[change]) : "");
 </script>
 
 {#snippet inner()}
@@ -100,6 +112,7 @@
     {#if description}<span class="ta-flow-node-description">{description}</span>{/if}
     {#if children}{@render children()}{/if}
   </span>
+  {#if changeWord}<span class="ta-flow-node-change">{changeWord}</span>{/if}
   {#if word}<span class="ta-flow-node-status">{word}</span>{/if}
 {/snippet}
 
@@ -109,6 +122,7 @@
   class={cn("ta-flow-node", `ta-flow-node--${status}`, className)}
   data-selected={selected || undefined}
   data-invalid={invalid || undefined}
+  data-change={change}
   aria-current={status === "running" ? "step" : undefined}
   style:--ta-flow-node-tone={color}
 >
@@ -161,6 +175,41 @@
   .ta-flow-node--skipped {
     opacity: 0.6;
     border-style: dashed;
+  }
+
+  /* An edit under review: a coloured edge on the leading side, and the change's word. */
+  .ta-flow-node[data-change] {
+    --change: var(--ta-accent);
+    box-shadow: inset 3px 0 0 rgb(var(--change));
+  }
+  .ta-flow-node[data-change="added"] {
+    --change: var(--ta-success);
+  }
+  .ta-flow-node[data-change="changed"] {
+    --change: var(--ta-warning);
+  }
+  .ta-flow-node[data-change="removed"] {
+    --change: var(--ta-danger);
+    border-style: dashed;
+    opacity: 0.7;
+  }
+  .ta-flow-node[data-change="removed"] .ta-flow-node-label {
+    text-decoration: line-through;
+  }
+  .ta-flow-node[data-change][data-selected] {
+    box-shadow:
+      inset 3px 0 0 rgb(var(--change)),
+      var(--ta-flow-node-glow, 0 0 0 3px rgb(var(--ta-accent) / 0.2));
+  }
+  .ta-flow-node-change {
+    flex: none;
+    align-self: center;
+    padding: 0.0625rem 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: rgb(var(--change));
+    background: rgb(var(--change) / 0.12);
+    border-radius: var(--ta-radius-sm);
   }
 
   .ta-flow-node-body {

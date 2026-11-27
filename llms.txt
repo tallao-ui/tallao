@@ -1550,6 +1550,8 @@ Props:
 - `status?: FlowNodeStatus`
 - `statusLabel?: string` — The status word; defaults to the kit's label for `status`.
 - `selected?: boolean`
+- `change?: FlowNodeChange` — An edit under review: the node is new, changed or removed.
+- `changeLabel?: string` — The change's word; defaults to the kit's "Added", "Changed", "Removed".
 - `invalid?: boolean` — Marks the node as having a problem (danger border); say what in `children`.
 - `color?: string` — Any CSS colour for the icon and its tint, e.g. `rgb(var(--ta-series-3))`.
 - `onclick?: (event: MouseEvent) => void` — Makes the body a button.
@@ -2488,6 +2490,7 @@ Props:
 - `labels?: Partial<Record<TaskStatus, string>>` — Word per status, read by screen readers; the kit's labels by default.
 - `class?: string`
 - `details?: Snippet<[TaskItem]>` — Draws a row's details yourself; gets the task.
+- `current?: string` — The id of the row being looked at (a replay): marked like a running row.
 
 ### ApprovalCard
 

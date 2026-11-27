@@ -25,3 +25,10 @@
   {/snippet}
 </SortableList>
 <Button variant="outline" size="sm" onclick={() => (run = ["done", "done", "stopped"])}>Finish the run</Button>
+
+<p style="margin: 0.75rem 0 0; font-size: 0.8125rem; color: rgb(var(--ta-text-dim))">An AI's proposed edit, under review:</p>
+<ol style="display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none">
+  <li><FlowNode label="Cooldown" description="Once every 12 hours" change="changed" /></li>
+  <li><FlowNode label="Give coins" description="250 coins to the member" change="added" /></li>
+  <li><FlowNode label="Reply" description="+100 coins" change="removed" /></li>
+</ol>

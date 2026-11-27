@@ -100,7 +100,7 @@ export { default as CompareSlider } from "./compare-slider.svelte";
 export { default as Steps } from "./steps.svelte";
 export type { Step, StepStatus } from "./steps.svelte";
 export { default as FlowNode } from "./flow-node.svelte";
-export type { FlowNodeStatus } from "./flow-node.svelte";
+export type { FlowNodeChange, FlowNodeStatus } from "./flow-node.svelte";
 export { default as SuggestionChips } from "./suggestion-chips.svelte";
 export { default as CodeBlock } from "./code-block.svelte";
 export { default as Sources } from "./sources.svelte";

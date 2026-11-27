@@ -12,6 +12,14 @@ Parts of the KTG Studio bot builder (kon-dc) that any builder can use.
   (text under the description) and `actions` (controls beside the body) snippets. Every run state
   but `pending` shows its word; `running` sets `aria-current="step"`. Tokens
   `--ta-flow-node-glow` and `--ta-flow-node-tone`, read with a fallback, so an ancestor can set them. Exports `FlowNodeStatus`.
+- **`FlowNode` `change`** (`FlowNodeChange`: `added`, `changed`, `removed`) and `changeLabel`: an
+  edit under review, such as an AI's proposal. A coloured edge on the leading side and the change's
+  word (the kit's "Added", "Changed", "Removed" by default); a removed node is dashed, faded and
+  struck through. `data-change` on the root. Exports `FlowNodeChange`.
+- **`TaskList`**: two states, `skipped` (a condition passed the task over) and `stopped` (the run
+  ended there on purpose), with their words from the kit's labels; and `current`, the id of the row
+  being looked at while a finished run is replayed (`aria-current="step"` and a highlight).
+  `TaskStatus` gains `"skipped" | "stopped"`: a `Record<TaskStatus, …>` of your own needs both.
 - **`PromptInput` mentions**: `mentions` (`PromptMentionSource[]`: a `trigger` character, its
   `items` as `PromptMention` `{ id, label, hint?, color? }`, and the list's `label`), `maxMentions`
   (default 8) and `onMention(trigger, item)`. A trigger at the start of a word opens a listbox of
