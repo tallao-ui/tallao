@@ -13,6 +13,8 @@
   items under a heading. It does not listen to the keys. Type `ShortcutItem`.
 - **Card `tone`**: `accent`, `live`, `success`, `warning` or `danger` lights the card's leading
   edge for a section that matters now (new classes `ta-card--tone`, `ta-card--<tone>`).
+- **Field `hint`**: a quiet line under the control. It is the control's accessible description
+  (`aria-describedby`, next to an error's id) and stays out of its name.
 - New labels: `synced`, `syncing`, `syncFailed`, `syncReady`, `justNow`, `secondsAgo`,
   `minutesAgo`, `refresh`, `live`, `keyboardShortcuts` (English and Spanish).
 

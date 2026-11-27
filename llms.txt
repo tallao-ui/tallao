@@ -406,6 +406,7 @@ Label + control + error.
 Props:
 - `label: string`
 - `error?: string` — Error message under the control; it also marks the field.
+- `hint?: string` — Help under the control: its accessible description, not part of its name.
 - `required?: boolean`
 - `class?: string`
 - `children: import("svelte").Snippet`

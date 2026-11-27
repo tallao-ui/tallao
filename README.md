@@ -59,7 +59,7 @@ Requires Svelte 5.29 or later.
 | PasswordInput | a password or secret-key field with a show / hide button (`aria-pressed`); password managers, paste and `name` keep working; `revealed` is bindable |
 | Input · Textarea · Select · Checkbox | native controls styled with the kit's tokens (for a number bound as `number \| null`, use NumberInput) |
 | Label | a standalone `<label>`: `for`, `required` (a visible "*" plus a hidden "Required" for screen readers), `disabled` styling; passes any attribute |
-| Field | label + control + error, required marker |
+| Field | label + control + error, required marker; `hint` adds a description under the control |
 | Card | container + header / title (`level`) / content / footer; `tone` lights its leading edge (accent, live, success, warning, danger) |
 | Table | scrolling container + header / body / row / head / cell (`colspan`); `density="compact"` (less padding and smaller text, headers without uppercase) and `stickyFirstColumn` (first column fixed while scrolling, background from `--ta-table-sticky-bg`) for matrices with many columns; every part passes any attribute to its element |
 | DocumentTabs | editor-style tabs for open documents or conversations: a close button beside each tab (a sibling, never nested), an add button, Delete / middle click close, `busy` and `dirty` marks said in words, scrolls sideways, long names cut with the full text in `title`; the parent decides what closing means |
