@@ -11,6 +11,9 @@
   twice. Rows carry `data-ta-row`; the active one gets an accent bar. A control of its own (a
   row's "⋯" button, a header's sort button, a button elsewhere on the page) keeps Enter and the
   arrows: they open its menu, not the row; j and k still move.
+- **DataTable selection checkboxes**: each sits in a 24 px label (`.ta-datatable-hit`, WCAG
+  2.5.8), so a click beside the 16 px box toggles it; the header's "Select all" was the one
+  target in the admin's lists under 24 px with no room around it. Row height is unchanged.
 - **SelectionBar `floating`** (new prop): sticky at the bottom of the scroll, on the floating level
   (`--ta-float*`), centred and only as wide as it needs, so checking a row does not push the
   list down. It rises in, still under reduced motion. Put it after the list.

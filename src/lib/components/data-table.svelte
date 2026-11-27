@@ -546,17 +546,20 @@
       <TableRow>
         {#if selectable}
           <TableHead class="ta-datatable-check">
-            <input
-              type="checkbox"
-              class="ta-datatable-checkbox"
-              aria-label={L.selectAll}
-              checked={allChecked}
-              disabled={visibleKeys.length === 0}
-              {@attach (el: HTMLInputElement) => {
-                el.indeterminate = partial;
-              }}
-              onchange={toggleAll}
-            />
+            <!-- A 24px target (WCAG 2.5.8) around the 16px box: a click anywhere in it toggles. -->
+            <label class="ta-datatable-hit">
+              <input
+                type="checkbox"
+                class="ta-datatable-checkbox"
+                aria-label={L.selectAll}
+                checked={allChecked}
+                disabled={visibleKeys.length === 0}
+                {@attach (el: HTMLInputElement) => {
+                  el.indeterminate = partial;
+                }}
+                onchange={toggleAll}
+              />
+            </label>
           </TableHead>
         {/if}
         {#each shownColumns as col (col.key)}
@@ -655,13 +658,15 @@
           <TableRow data-ta-row="" data-selected={selected.includes(k) || undefined} data-active={(keyboard && active === i) || undefined} exit={() => rowsLeaving}>
             {#if selectable}
               <TableCell class="ta-datatable-check">
-                <input
-                  type="checkbox"
-                  class="ta-datatable-checkbox"
-                  aria-label={`${L.selectRow}: ${rowLabel ? rowLabel(row) : k}`}
-                  checked={selected.includes(k)}
-                  onchange={() => toggle(k)}
-                />
+                <label class="ta-datatable-hit">
+                  <input
+                    type="checkbox"
+                    class="ta-datatable-checkbox"
+                    aria-label={`${L.selectRow}: ${rowLabel ? rowLabel(row) : k}`}
+                    checked={selected.includes(k)}
+                    onchange={() => toggle(k)}
+                  />
+                </label>
               </TableCell>
             {/if}
             {#each shownColumns as col (col.key)}
@@ -709,6 +714,15 @@
 
   .ta-datatable :global(.ta-datatable-check) { width: 2.5rem; }
 
+  .ta-datatable-hit {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+    margin: -0.25rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+  }
   .ta-datatable-checkbox {
     width: 1rem;
     height: 1rem;

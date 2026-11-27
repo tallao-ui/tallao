@@ -1,4 +1,7 @@
+import fs from "node:fs";
+
 import { fireEvent, render, screen } from "@testing-library/svelte";
+import { compile } from "svelte/compiler";
 import { tick } from "svelte";
 
 import DataTableKeys from "../fixtures/DataTableKeys.svelte";
@@ -104,5 +107,26 @@ describe("DataTable keyboard", () => {
     await press(link("Alpha"), "j");
     await press(link("Beta"), "Escape");
     expect(activeRows(container)).toEqual([]);
+  });
+});
+
+describe("DataTable selection targets (WCAG 2.5.8)", () => {
+  it("each checkbox sits in a 24px label: a click beside the box toggles it", async () => {
+    render(DataTableKeys);
+    const box = screen.getByRole("checkbox", { name: /b$/ }) as HTMLInputElement;
+    const hit = box.closest("label.ta-datatable-hit") as HTMLElement;
+    expect(hit).toBeTruthy();
+    await fireEvent.click(hit);
+    expect(box.checked).toBe(true);
+    const all = screen.getByRole("checkbox", { name: "Select all" });
+    expect(all.closest("label.ta-datatable-hit")).toBeTruthy();
+  });
+
+  it("the label is at least 24px each way", () => {
+    const file = "src/lib/components/data-table.svelte";
+    const css = compile(fs.readFileSync(file, "utf8"), { filename: file, generate: "client", css: "external" }).css?.code ?? "";
+    const rule = css.match(/\.ta-datatable-hit[^{]*\{([^}]*)\}/)?.[1] ?? "";
+    expect(rule).toMatch(/min-width:\s*1\.5rem/);
+    expect(rule).toMatch(/min-height:\s*1\.5rem/);
   });
 });
