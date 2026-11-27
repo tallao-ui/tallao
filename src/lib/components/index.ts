@@ -152,6 +152,7 @@ export { default as SaveBar } from "./save-bar.svelte";
 export type { SaveBarAction } from "./save-bar.svelte";
 export { default as DiffView, diffKind } from "./diff-view.svelte";
 export type { DiffChange, DiffKind } from "./diff-view.svelte";
+export type { PromptMention, PromptMentionSource } from "./prompt-input.svelte";
 export { default as CodeDiff, diffLines } from "./code-diff.svelte";
 export type { CodeDiffKind, DiffLine } from "./code-diff.svelte";
 export { default as Kbd } from "./kbd.svelte";

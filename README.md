@@ -151,7 +151,7 @@ Requires Svelte 5.29 or later.
 | ReadingProgress | a thin accent bar that fills as the reader scrolls: the whole page with CSS alone (scroll-driven animation), or one `target` element measured once per frame; `fixed` at the top or `absolute` under a sticky header; `aria-hidden`, fills from the start edge in RTL too |
 | ThemeScope | tokens on a container: Shadow DOM and a bridge to `--kitsuden-*` |
 | ThemeToggle | the dark/light switch: sets `data-tallao-theme` on `<html>`, remembers it, reveals it with `themeTransition` |
-| PromptInput · ToolCallCard | chat input, and a tool call with approve / reject |
+| PromptInput · ToolCallCard | chat input with # and @ mentions, and a tool call with approve / reject |
 | Thinking | a model's reasoning as one quiet line: a soft shimmer, a live `summary` and the elapsed time while `running`, "Thought for 12 s" when done, and the trace (`steps`, content) behind a disclosure; the end is announced once |
 | StreamingText | an answer drawn as it arrives (`text` that grows, or an async iterable in `stream`): new words fade in, a caret follows, no layout jump; screen readers get it sentence by sentence from a hidden live region, never from the start again |
 | ToolChips | a run of tool calls as compact chips (icon, verb, target, `+74 −41` for files) under a "4 tool calls, 2 messages" disclosure; a chip with a tool `name` unfolds a ToolCallCard |

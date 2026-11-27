@@ -12,6 +12,13 @@ Parts of the KTG Studio bot builder (kon-dc) that any builder can use.
   (text under the description) and `actions` (controls beside the body) snippets. Every run state
   but `pending` shows its word; `running` sets `aria-current="step"`. Tokens
   `--ta-flow-node-glow` and `--ta-flow-node-tone`, read with a fallback, so an ancestor can set them. Exports `FlowNodeStatus`.
+- **`PromptInput` mentions**: `mentions` (`PromptMentionSource[]`: a `trigger` character, its
+  `items` as `PromptMention` `{ id, label, hint?, color? }`, and the list's `label`), `maxMentions`
+  (default 8) and `onMention(trigger, item)`. A trigger at the start of a word opens a listbox of
+  matches above the box (names that start with what was typed first); the field keeps focus with
+  `aria-activedescendant`; arrows move, Enter or Tab insert `trigger + label + space`, Escape
+  closes, and Enter with the list closed still sends. Exports `PromptMention` and
+  `PromptMentionSource`.
 - **`ThemeToggle`** (new, Navigation and layout): the dark/light button. It sets
   `data-tallao-theme` on `<html>`, remembers the choice in localStorage (`storageKey`, default
   `"tallao-theme"`; `null` remembers nothing) and reveals it with `themeTransition` from the click
