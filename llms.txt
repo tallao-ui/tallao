@@ -849,6 +849,7 @@ Props:
 - `selectAllLabel?: string`
 - `countLabel?: (selected: number) => string` — Text of the counter.
 - `ariaLabel?: string` — Name of the group for screen readers.
+- `floating?: boolean` — Sticky at the bottom of the scroll, on the floating level.
 - `class?: string`
 - `actions?: Snippet` — The bulk actions; rendered only when something is checked.
 

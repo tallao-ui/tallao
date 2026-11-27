@@ -9,6 +9,9 @@
   x toggles its selection, e calls `onRowEdit` (new), Escape lets it go. Every key the table acts
   on is `preventDefault`ed, so a page handler that skips `defaultPrevented` events does not act
   twice. Rows carry `data-ta-row`; the active one gets an accent bar.
+- **SelectionBar `floating`** (new prop): sticky at the bottom of the scroll, on the floating level
+  (`--ta-float*`), centred and only as wide as it needs, so checking a row does not push the
+  list down. It rises in, still under reduced motion. Put it after the list.
 
 ## 0.8.0 — 2026-11-26
 
