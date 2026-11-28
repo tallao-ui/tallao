@@ -1,5 +1,68 @@
 # Changelog
 
+## Unreleased
+
+Parts of the KTG Studio bot builder (kon-dc) that any builder can use.
+
+- **`FlowNode`** (new, Generative UI): one editable step of a flow you build or watch run. Props:
+  `label`, `description`, `index`, `status` (`FlowNodeStatus`: Steps' `pending`, `running`,
+  `done`, `failed`, `skipped`, plus `stopped`), `statusLabel`, `selected`, `invalid`, `color`
+  (any CSS colour for the icon and its tint), `onclick` (makes the body one button with
+  `aria-pressed`), `ref` (bindable root, e.g. for a Beam), `class`, and the `icon`, `children`
+  (text under the description) and `actions` (controls beside the body) snippets. Every run state
+  but `pending` shows its word; `running` sets `aria-current="step"`. Tokens
+  `--ta-flow-node-glow` and `--ta-flow-node-tone`, read with a fallback, so an ancestor can set them. Exports `FlowNodeStatus`.
+- **`Field` fix: `required` now reaches the control as `aria-required="true"`** (and leaves when
+  `required` turns false). The asterisk is `aria-hidden`, so a screen reader never heard that the
+  field must be filled; every `SchemaForm` required field goes through `Field` and gets it too.
+  Tested in `tests/dom/field.test.ts` (fails without the fix).
+- **`FlowNode` `change`** (`FlowNodeChange`: `added`, `changed`, `removed`) and `changeLabel`: an
+  edit under review, such as an AI's proposal. A coloured edge on the leading side and the change's
+  word (the kit's "Added", "Changed", "Removed" by default); a removed node is dashed, faded and
+  struck through. `data-change` on the root. Exports `FlowNodeChange`.
+- **`TaskList`**: two states, `skipped` (a condition passed the task over) and `stopped` (the run
+  ended there on purpose), with their words from the kit's labels; and `current`, the id of the row
+  being looked at while a finished run is replayed (`aria-current="step"` and a highlight).
+  `TaskStatus` gains `"skipped" | "stopped"`: a `Record<TaskStatus, …>` of your own needs both.
+- **`PromptInput` mentions**: `mentions` (`PromptMentionSource[]`: a `trigger` character, its
+  `items` as `PromptMention` `{ id, label, hint?, color? }`, and the list's `label`), `maxMentions`
+  (default 8) and `onMention(trigger, item)`. A trigger at the start of a word opens a listbox of
+  matches above the box (names that start with what was typed first); the field keeps focus with
+  `aria-activedescendant`; arrows move, Enter or Tab insert `trigger + label + space`, Escape
+  closes, and Enter with the list closed still sends. Exports `PromptMention` and
+  `PromptMentionSource`.
+- **`ThemeToggle`** (new, Navigation and layout): the dark/light button. It sets
+  `data-tallao-theme` on `<html>`, remembers the choice in localStorage (`storageKey`, default
+  `"tallao-theme"`; `null` remembers nothing) and reveals it with `themeTransition` from the click
+  (`transition`: `"circle"` default, `"ink"`, `"fade"`, `"none"`). Props: bindable `theme`,
+  `variant`, `size`, `lightLabel`, `darkLabel`, `onchange`. On mount it takes the stored choice,
+  else the attribute already on `<html>`, else dark. Exports `Theme`.
+- **`SortableList` `variant="bare"`**: rows draw no card of their own, for content that is its own
+  card (FlowNode). The grabbed and drop-target states mark the content; the handle rests dimmed
+  until the row is hovered or focused, and stays full on touch. New token `--ta-sortable-gap` sets
+  the gap between rows in both variants.
+- **`AppShell` `flush`**: the content fills the main area edge to edge, with no padding and no
+  scroll of its own, for a page that lays itself out to the full height (an editor, a canvas, a
+  map).
+- **Icon**: 13 new strokes: `message`, `hash`, `coin`, `branch`, `chip`, `slash`, `pill`, `form`,
+  `bolt`, `play`, `sun`, `moon` and `more`.
+- **Labels**: new keys `stopped`, `themeToLight`, `themeToDark` and `categories`, in English and
+  Spanish. A `Labels` object of your own (another language) needs them.
+- **`GlassPanel`** (new, Effects): a pane of liquid glass. Props: `as` (the element, default
+  `div`), `liquid` (an SVG feTurbulence + feDisplacementMap through `backdrop-filter: url()`,
+  Chromium only; other engines drop that value and keep the frosted blur), `strength` (px, 24),
+  `follow` (the rim's highlight follows the pointer: one passive window listener, at most once a
+  frame, writing `--mx`/`--my`), `tint` (sets `--ta-glass-tint`), `class`, `children`, and any
+  attribute. Token `--ta-glass-blur`. Purely presentational: no role. A solid surface where
+  `backdrop-filter` is unsupported.
+- **`CategoryNav`** (new, Navigation): the categories of a catalogue, one open at a time. Props:
+  `items` (`CategoryNavItem`: `id`, `label`, `href` or `onclick`, `icon` by name or snippet,
+  `count`, `lit`, `current`), `current` (id or href; `null` marks none, e.g. while a search spans
+  every category), `ariaLabel` (default: the new `categories` label), `chipsBelow` (px, default
+  900; `0` = always a rail) and `linkProps` (extra attributes for every link). A vertical rail of
+  44px links that becomes a row of chips scrolling sideways, scrolled so the open chip is in view.
+  Exports `CategoryNavItem`.
+
 ## 0.8.0 — 2026-11-26
 
 The first release on npm.

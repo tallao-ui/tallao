@@ -1,8 +1,12 @@
+import fs from "node:fs";
+
 import { render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { tick } from "svelte";
+import { compile } from "svelte/compiler";
 
 import { diffKind, filtersFromQuery, filtersToQuery, type FilterDef } from "$lib/components";
+import AppShellAlone from "$lib/components/app-shell.svelte";
 import { es } from "$lib/i18n";
 
 import { axeViolations } from "../axe";
@@ -568,6 +572,17 @@ describe("AppShell", () => {
     await userEvent.click(within(nav).getByRole("link", { name: "Users" }));
     expect(screen.queryByRole("dialog", { name: "Navigation" })).toBeNull();
     expect(button.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("flush: the content fills the main area, with no padding of its own", () => {
+    const flush = render(AppShellAlone, { props: { flush: true } });
+    expect(document.querySelector(".ta-shell-main")!.classList.contains("ta-shell-main--flush")).toBe(true);
+    flush.unmount();
+    render(AppShellAlone);
+    expect(document.querySelector(".ta-shell-main")!.classList.contains("ta-shell-main--flush")).toBe(false);
+    const file = "src/lib/components/app-shell.svelte";
+    const css = compile(fs.readFileSync(file, "utf8"), { filename: file, generate: "client", css: "external" }).css?.code ?? "";
+    expect(css).toMatch(/\.ta-shell-main--flush[^{]*\{[^}]*padding:\s*0/);
   });
 
   it("with landmarks it is a header, a focusable main and a skip link to it", () => {

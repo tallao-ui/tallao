@@ -41,6 +41,18 @@
       else control.setAttribute("aria-invalid", hadInvalid);
     };
   });
+  // `required` reaches the control as aria-required: the asterisk is hidden from screen readers,
+  // so without it they never hear that the field must be filled.
+  $effect(() => {
+    const control = root?.querySelector<HTMLElement>(CONTROL);
+    if (!control || !required) return;
+    const had = control.getAttribute("aria-required");
+    control.setAttribute("aria-required", "true");
+    return () => {
+      if (had === null) control.removeAttribute("aria-required");
+      else control.setAttribute("aria-required", had);
+    };
+  });
 </script>
 
 <label bind:this={root} class={cn("ta-field", error && "ta-field--error", className)}>

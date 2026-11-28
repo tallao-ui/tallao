@@ -322,8 +322,11 @@ Props:
 - `ariaLabel?: string` — Accessible name of the field (defaults to the placeholder).
 - `sendLabel?: string`
 - `attachLabel?: string`
+- `mentions?: PromptMentionSource[]` — What a trigger character mentions; a list of matches opens as the person types.
+- `maxMentions?: number` — How many matches the list shows at most (default 8).
 - `onSend?: (text: string) => void`
 - `onAttach?: () => void`
+- `onMention?: (trigger: string, item: PromptMention) => void` — A mention was inserted (the text holds its trigger and label; keep the id from here).
 - `class?: string`
 
 ### ToolCallCard
@@ -519,6 +522,26 @@ Props:
 - `source?: "kitsuden" | "tallao"`
 - `class?: string`
 - `children?: import("svelte").Snippet`
+
+### ThemeToggle
+
+The button that switches the page between the dark and the light theme.
+
+```svelte
+<ThemeToggle />                                   remembered as "tallao-theme"
+<ThemeToggle storageKey="my-app-theme" transition="ink" bind:theme />
+```
+
+Props:
+- `theme?: Theme` — The current theme; bind it to follow or set it.
+- `storageKey?: string | null` — Where the choice is remembered in localStorage; `null` remembers nothing.
+- `transition?: ThemeTransitionStyle | "none"` — How the new theme appears; `"none"` switches at once.
+- `variant?: "ghost" | "outline" | "soft" | "secondary"`
+- `size?: "sm" | "icon"`
+- `lightLabel?: string` — Name of the button while the theme is dark.
+- `darkLabel?: string` — Name of the button while the theme is light.
+- `onchange?: (theme: Theme) => void` — Called after the theme changed.
+- `class?: string`
 
 ### Popover
 
@@ -1166,6 +1189,42 @@ Props:
 - `separator?: string`
 - `class?: string`
 
+### CategoryNav
+
+The categories of a catalogue, one open at a time.
+
+```svelte
+<CategoryNav current="levels" items={[
+  { id: "welcome", label: "Welcome and roles", href: "?g=welcome", icon: "user", count: "3/7" },
+  { id: "levels", label: "Levels and economy", href: "?g=levels", icon: "coin", count: "2/7", lit: true },
+]} />
+```
+
+Props:
+- `items: CategoryNavItem[]`
+- `current?: string | null` — Id or href of the open category; null marks none.
+- `ariaLabel?: string` — Accessible name of the <nav>.
+- `chipsBelow?: number` — At this viewport width (px) or less, a row of chips; 0 = always a rail.
+- `linkProps?: Record<string, unknown>` — Extra attributes for every link (data-sveltekit-noscroll…).
+- `class?: string`
+
+### GlassPanel
+
+A pane of liquid glass over whatever is behind it (an image, a 3D scene, a gradient).
+
+```svelte
+<GlassPanel class="chip">Agente IA</GlassPanel>
+```
+
+Props:
+- `as?: string` — The element to render (div, section, li, aside…).
+- `liquid?: boolean` — Bends what is behind through an SVG displacement (Chromium; elsewhere frosted glass).
+- `strength?: number` — How far the liquid displacement bends, in pixels.
+- `follow?: boolean` — The rim's highlight follows the pointer.
+- `tint?: string` — Any CSS colour laid over the blur (sets --ta-glass-tint).
+- `class?: string`
+- `children?: Snippet`
+
 ### Icon
 
 Stroke icons (24×24, text colour).
@@ -1510,6 +1569,32 @@ Props:
 - `label?: string` — Accessible name of the list.
 - `labels?: Partial<Record<StepStatus, string>>` — Text per status; defaults to the kit's labels.
 - `orientation?: "vertical" | "horizontal"` — Vertical (default) or a row that scrolls on narrow screens.
+- `class?: string`
+
+### FlowNode
+
+One step of a flow you build or watch run.
+
+```svelte
+<FlowNode label="…">…</FlowNode>
+```
+
+Props:
+- `label: string` — What the step is ("Give coins").
+- `description?: string` — What it does with its settings ("100 coins to the member").
+- `index?: number | string` — The number drawn at the start; the list around the nodes gives the order to screen readers.
+- `status?: FlowNodeStatus`
+- `statusLabel?: string` — The status word; defaults to the kit's label for `status`.
+- `selected?: boolean`
+- `change?: FlowNodeChange` — An edit under review: the node is new, changed or removed.
+- `changeLabel?: string` — The change's word; defaults to the kit's "Added", "Changed", "Removed".
+- `invalid?: boolean` — Marks the node as having a problem (danger border); say what in `children`.
+- `color?: string` — Any CSS colour for the icon and its tint, e.g. `rgb(var(--ta-series-3))`.
+- `onclick?: (event: MouseEvent) => void` — Makes the body a button.
+- `icon?: Snippet` — The step's icon (decorative: the label names it).
+- `children?: Snippet` — Text under the description: a condition, a problem. No controls.
+- `actions?: Snippet` — Controls beside the body: a menu, a remove button.
+- `ref?: HTMLElement` — The root element, e.g. to anchor a Beam between nodes.
 - `class?: string`
 
 ### SuggestionChips
@@ -2347,6 +2432,7 @@ Props:
 - `height?: string` — Height of the frame (a CSS length), or "auto" to let the document scroll.
 - `landmarks?: boolean` — `false`: no <header> / <main> / skip link, for a shell inside a page that has them.
 - `mainId?: string` — Id of the content region (the skip link's target).
+- `flush?: boolean` — The content fills the main area edge to edge: no padding, no scroll of its own.
 - `menuLabel?: string` — Accessible name of the menu button.
 - `navLabel?: string` — Accessible name of the phone sheet.
 - `skipLabel?: string`
@@ -2440,6 +2526,7 @@ Props:
 - `labels?: Partial<Record<TaskStatus, string>>` — Word per status, read by screen readers; the kit's labels by default.
 - `class?: string`
 - `details?: Snippet<[TaskItem]>` — Draws a row's details yourself; gets the task.
+- `current?: string` — The id of the row being looked at (a replay): marked like a running row.
 
 ### ApprovalCard
 
@@ -2772,6 +2859,7 @@ Props:
 - `moveUpLabel?: string`
 - `moveDownLabel?: string`
 - `instructions?: string`
+- `variant?: "card" | "bare"` — `card` (default): each row is a card. `bare`: the row draws nothing; the content is the card.
 - `class?: string`
 
 ### TreeView

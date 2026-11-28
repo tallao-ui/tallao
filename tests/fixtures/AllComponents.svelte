@@ -2,6 +2,10 @@
 <script lang="ts">
   import {
     Alert,
+    FlowNode,
+    CategoryNav,
+    GlassPanel,
+    ThemeToggle,
     Badge,
     Button,
     Card,
@@ -279,6 +283,14 @@
     <SortableList ariaLabel="Steps" items={["Reply", "Give coins"]} key={(s) => s} label={(s) => s} onReorder={() => {}}>
       {#snippet row(s)}{s}{/snippet}
     </SortableList>
+    <SortableList ariaLabel="Flow" variant="bare" items={["Cooldown", "Give coins"]} key={(s) => s} label={(s) => s} onReorder={() => {}}>
+      {#snippet row(s, i)}<FlowNode index={i + 1} label={s} description="Once a day" status={i === 0 ? "done" : "skipped"} onclick={() => {}} color="rgb(var(--ta-series-3))" />{/snippet}
+    </SortableList>
+    <ol><li><FlowNode label="Reply" description="Only the member sees it" status="running" invalid>
+      <span>embed.title: too long</span>
+      {#snippet actions()}<Button variant="ghost" size="icon" ariaLabel="More for Reply">…</Button>{/snippet}
+    </FlowNode></li></ol>
+    <ThemeToggle storageKey={null} transition="none" />
     <TreeView ariaLabel="Outline" expanded={["a"]} selected="a1" items={[{ id: "a", label: "Commands", badge: "2", children: [{ id: "a1", label: "ping" }, { id: "a2", label: "booth" }] }, { id: "b", label: "Panels" }]} />
     <div bind:this={beamBox} style="position: relative">
       <span bind:this={beamFrom}>Agent</span> <span bind:this={beamTo}>Search</span>
@@ -293,5 +305,7 @@
     <Button variant="aurora">Start</Button>
     <EventFeed events={[{ id: 1, title: "Read post #42", time: "12:03", tone: "info" }, { id: 2, title: "Run started" }]} />
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
+    <GlassPanel liquid aria-label="Glass">Glass</GlassPanel>
+    <CategoryNav ariaLabel="Groups" current="a" items={[{ id: "a", label: "Welcome", href: "?g=a", icon: "user", count: "3/7", lit: true }, { id: "b", label: "Custom", count: 2, onclick: () => {} }]} />
   </main>
 </ThemeScope>

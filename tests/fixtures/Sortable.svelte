@@ -2,6 +2,7 @@
 <script lang="ts">
   import { SortableList } from "$lib/components";
 
+  let { variant = "card" }: { variant?: "card" | "bare" } = $props();
   let steps = $state(["Reply", "Give coins", "Post panel"]);
 
   function onReorder(from: number, to: number) {
@@ -11,7 +12,7 @@
   }
 </script>
 
-<SortableList ariaLabel="Steps" items={steps} key={(s) => s} label={(s) => s} {onReorder}>
+<SortableList ariaLabel="Steps" {variant} items={steps} key={(s) => s} label={(s) => s} {onReorder}>
   {#snippet row(s, i)}<span>{i + 1}. {s}</span>{/snippet}
 </SortableList>
 <p data-testid="order">{steps.join(",")}</p>

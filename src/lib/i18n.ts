@@ -53,6 +53,8 @@ export interface Labels {
   pastedFileName: string;
   actions: string;
   breadcrumb: string;
+  /** Name of a CategoryNav when none is given. */
+  categories: string;
   resize: string;
   navigation: string;
   collapse: string;
@@ -88,6 +90,12 @@ export interface Labels {
   planSteps: string;
   /** "Skipped" state of a step (Steps). */
   skipped: string;
+  /** "Stopped" state: the run ended on purpose at this step (FlowNode). */
+  stopped: string;
+  /** Name of ThemeToggle while the theme is dark. */
+  themeToLight: string;
+  /** Name of ThemeToggle while the theme is light. */
+  themeToDark: string;
   /** Accessible name of the suggestion group (SuggestionChips). */
   suggestions: string;
   /** Accessible name of the source list (Sources). */
@@ -344,6 +352,7 @@ export const en: Labels = {
   pastedFileName: "Pasted image {n}",
   actions: "Actions",
   breadcrumb: "Breadcrumb",
+  categories: "Categories",
   resize: "Resize",
   navigation: "Navigation",
   collapse: "Collapse",
@@ -371,6 +380,9 @@ export const en: Labels = {
   copied: "Copied",
   planSteps: "Plan steps",
   skipped: "Skipped",
+  stopped: "Stopped",
+  themeToLight: "Switch to light theme",
+  themeToDark: "Switch to dark theme",
   suggestions: "Suggestions",
   sources: "Sources",
   showPassword: "Show password",
@@ -555,6 +567,7 @@ export const es: Labels = {
   pastedFileName: "Imagen pegada {n}",
   actions: "Acciones",
   breadcrumb: "Ruta de navegación",
+  categories: "Categorías",
   resize: "Redimensionar",
   navigation: "Navegación",
   collapse: "Contraer",
@@ -582,6 +595,9 @@ export const es: Labels = {
   copied: "Copiado",
   planSteps: "Pasos del plan",
   skipped: "Saltado",
+  stopped: "Detenido",
+  themeToLight: "Cambiar a tema claro",
+  themeToDark: "Cambiar a tema oscuro",
   suggestions: "Sugerencias",
   sources: "Fuentes",
   showPassword: "Mostrar contraseña",

@@ -30,6 +30,8 @@
   - `height` (100dvh by default) is the frame's height: the page scrolls inside `<main>`, so
     a sticky SaveBar stays at the bottom of the window. `height="auto"` lets the document
     scroll instead.
+  - `flush`: the content fills `<main>` edge to edge, with no padding and no scroll of its own,
+    for a page that lays itself out to the full height (an editor, a canvas, a map).
 -->
 <script lang="ts">
   import type { Snippet } from "svelte";
@@ -51,6 +53,8 @@
     landmarks?: boolean;
     /** Id of the content region (the skip link's target). */
     mainId?: string;
+    /** The content fills the main area edge to edge: no padding, no scroll of its own. */
+    flush?: boolean;
     /** Accessible name of the menu button. */
     menuLabel?: string;
     /** Accessible name of the phone sheet. */
@@ -79,6 +83,7 @@
     sidebarOpen = $bindable(false),
     height = "100dvh",
     landmarks = true,
+    flush = false,
     mainId = `${generated}-main`,
     menuLabel = L.openNavigation,
     navLabel = L.navigation,
@@ -134,7 +139,7 @@
         {@render user?.()}
       </div>
     </svelte:element>
-    <svelte:element this={landmarks ? "main" : "div"} id={mainId} class="ta-shell-main" tabindex={landmarks ? -1 : undefined}>
+    <svelte:element this={landmarks ? "main" : "div"} id={mainId} class={cn("ta-shell-main", flush && "ta-shell-main--flush")} tabindex={landmarks ? -1 : undefined}>
       {@render children?.()}
     </svelte:element>
   </div>
@@ -221,6 +226,11 @@
     outline: none;
   }
 
+  .ta-shell-main--flush {
+    padding: 0;
+    overflow: hidden;
+  }
+
   /* The phone sheet: the sidebar fills it. */
   .ta-shell :global(.ta-shell-sheet) { width: min(18rem, 86vw); }
   .ta-shell :global(.ta-shell-sheet .ta-dialog-body) { display: flex; padding: 0; }
@@ -229,6 +239,7 @@
   @media (max-width: 480px) {
     .ta-shell-top { padding: 0.5rem 0.75rem; }
     .ta-shell-main { padding: 1rem; }
+    .ta-shell-main--flush { padding: 0; }
   }
 
   @media (min-width: 640px) {

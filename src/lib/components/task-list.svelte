@@ -1,7 +1,8 @@
 <!--
   tallao — TaskList
   The live status of what an agent is working on: one row per task, pending, running (a
-  progress ring, with a count when the task has parts), done or failed.
+  progress ring, with a count when the task has parts), done, failed, skipped (a condition
+  passed it over) or stopped (the run ended here on purpose).
 
     <TaskList tasks={[
       { id: "a", title: "Collect match data", status: "done", meta: "12 s" },
@@ -19,11 +20,13 @@
   - Status is an icon and a word for screen readers, never colour alone; the running row is
     `aria-current="step"` and the block is `aria-busy` while anything runs. The rings are
     `role="progressbar"` with their values when the task has a count.
+  - `current` marks the row being looked at while a finished run is replayed step by step
+    (`aria-current="step"` and a highlight), as a running row is marked live.
   - Reduced motion: the indeterminate ring stops spinning (it stays as a dashed ring).
     Same HTML on the server.
 -->
 <script lang="ts" module>
-  export type TaskStatus = "pending" | "running" | "done" | "failed";
+  export type TaskStatus = "pending" | "running" | "done" | "failed" | "skipped" | "stopped";
 
   export interface TaskItem {
     id: string;
@@ -62,6 +65,8 @@
     class?: string;
     /** Draws a row's details yourself; gets the task. */
     details?: Snippet<[TaskItem]>;
+    /** The id of the row being looked at (a replay): marked like a running row. */
+    current?: string;
     /** Any other attribute goes to the root element. */
     [key: string]: unknown;
   }
@@ -76,11 +81,12 @@
     labels = {},
     class: className = "",
     details,
+    current,
     ...rest
   }: Props = $props();
 
   const id = $props.id();
-  const words = $derived<Record<TaskStatus, string>>({ pending: L.pending, running: L.running, done: L.done, failed: L.failed, ...labels });
+  const words = $derived<Record<TaskStatus, string>>({ pending: L.pending, running: L.running, done: L.done, failed: L.failed, skipped: L.skipped, stopped: L.stopped, ...labels });
   const statusOf = (task: TaskItem): TaskStatus => task.status ?? "pending";
   const finished = $derived(tasks.filter((t) => statusOf(t) === "done").length);
   const running = $derived(tasks.find((t) => statusOf(t) === "running"));
@@ -123,6 +129,8 @@
       <Icon name="check" size={12} strokeWidth={3} />
     {:else if status === "failed"}
       <Icon name="x" size={12} strokeWidth={3} />
+    {:else if status === "skipped" || status === "stopped"}
+      <Icon name="minus" size={12} strokeWidth={3} />
     {:else}
       <span class="ta-tasks-dot" aria-hidden="true"></span>
     {/if}
@@ -144,7 +152,10 @@
   <ol class="ta-tasks-list" id={`${id}-list`} aria-label={label}>
     {#each tasks as task (task.id)}
       {@const status = statusOf(task)}
-      <li class={cn("ta-tasks-item", `ta-tasks-item--${status}`)} aria-current={status === "running" ? "step" : undefined}>
+      <li
+        class={cn("ta-tasks-item", `ta-tasks-item--${status}`, current === task.id && "ta-tasks-item--current")}
+        aria-current={status === "running" || current === task.id ? "step" : undefined}
+      >
         {#if canOpen(task)}
           <button type="button" class="ta-tasks-row" aria-expanded={isOpen(task)} aria-controls={`${id}-${task.id}`} onclick={() => toggleRow(task)}>
             {@render row(task)}
@@ -220,6 +231,10 @@
   }
   .ta-tasks-mark--done { color: rgb(var(--ta-on-success)); background: rgb(var(--ta-success)); }
   .ta-tasks-mark--failed { color: rgb(var(--ta-on-danger)); background: rgb(var(--ta-danger)); }
+  .ta-tasks-mark--skipped { color: rgb(var(--ta-text-dim)); border: 1.5px solid rgb(var(--ta-muted)); }
+  .ta-tasks-mark--stopped { color: rgb(var(--ta-on-warning)); background: rgb(var(--ta-warning)); }
+  .ta-tasks-item--current > .ta-tasks-row { background: rgb(var(--ta-accent) / 0.12); box-shadow: inset 2px 0 0 rgb(var(--ta-accent)); }
+  .ta-tasks-item--current .ta-tasks-title { color: rgb(var(--ta-text)); }
   .ta-tasks-dot { width: 0.75rem; height: 0.75rem; border: 1.5px dashed rgb(var(--ta-muted)); border-radius: 50%; }
 
   .ta-tasks-ring { flex-shrink: 0; transform: rotate(-90deg); }

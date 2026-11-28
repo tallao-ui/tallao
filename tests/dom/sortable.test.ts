@@ -29,6 +29,19 @@ describe("SortableList", () => {
     expect(screen.getByRole("button", { name: "Move Reply" }).getAttribute("aria-pressed")).toBe("false");
   });
 
+  it("bare: the rows draw no card of their own and still move by keyboard", async () => {
+    render(Sortable, { props: { variant: "bare" } });
+    expect(screen.getByRole("list").classList.contains("ta-sortable--bare")).toBe(true);
+    screen.getByRole("button", { name: "Move Reply" }).focus();
+    await userEvent.keyboard("{Enter}{ArrowDown}{Enter}");
+    expect(order()).toBe("Give coins,Reply,Post panel");
+  });
+
+  it("card is the default", () => {
+    render(Sortable);
+    expect(screen.getByRole("list").classList.contains("ta-sortable--bare")).toBe(false);
+  });
+
   it("Escape puts the row back where it started", async () => {
     render(Sortable);
     screen.getByRole("button", { name: "Move Post panel" }).focus();
