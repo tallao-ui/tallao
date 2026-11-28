@@ -46,8 +46,22 @@ Parts of the KTG Studio bot builder (kon-dc) that any builder can use.
   map).
 - **Icon**: 13 new strokes: `message`, `hash`, `coin`, `branch`, `chip`, `slash`, `pill`, `form`,
   `bolt`, `play`, `sun`, `moon` and `more`.
-- **Labels**: new keys `stopped`, `themeToLight` and `themeToDark`, in English and Spanish. A
-  `Labels` object of your own (another language) needs them.
+- **Labels**: new keys `stopped`, `themeToLight`, `themeToDark` and `categories`, in English and
+  Spanish. A `Labels` object of your own (another language) needs them.
+- **`GlassPanel`** (new, Effects): a pane of liquid glass. Props: `as` (the element, default
+  `div`), `liquid` (an SVG feTurbulence + feDisplacementMap through `backdrop-filter: url()`,
+  Chromium only; other engines drop that value and keep the frosted blur), `strength` (px, 24),
+  `follow` (the rim's highlight follows the pointer: one passive window listener, at most once a
+  frame, writing `--mx`/`--my`), `tint` (sets `--ta-glass-tint`), `class`, `children`, and any
+  attribute. Token `--ta-glass-blur`. Purely presentational: no role. A solid surface where
+  `backdrop-filter` is unsupported.
+- **`CategoryNav`** (new, Navigation): the categories of a catalogue, one open at a time. Props:
+  `items` (`CategoryNavItem`: `id`, `label`, `href` or `onclick`, `icon` by name or snippet,
+  `count`, `lit`, `current`), `current` (id or href; `null` marks none, e.g. while a search spans
+  every category), `ariaLabel` (default: the new `categories` label), `chipsBelow` (px, default
+  900; `0` = always a rail) and `linkProps` (extra attributes for every link). A vertical rail of
+  44px links that becomes a row of chips scrolling sideways, scrolled so the open chip is in view.
+  Exports `CategoryNavItem`.
 
 ## 0.8.0 — 2026-11-26
 

@@ -53,6 +53,8 @@ export interface Labels {
   pastedFileName: string;
   actions: string;
   breadcrumb: string;
+  /** Name of a CategoryNav when none is given. */
+  categories: string;
   resize: string;
   navigation: string;
   collapse: string;
@@ -350,6 +352,7 @@ export const en: Labels = {
   pastedFileName: "Pasted image {n}",
   actions: "Actions",
   breadcrumb: "Breadcrumb",
+  categories: "Categories",
   resize: "Resize",
   navigation: "Navigation",
   collapse: "Collapse",
@@ -564,6 +567,7 @@ export const es: Labels = {
   pastedFileName: "Imagen pegada {n}",
   actions: "Acciones",
   breadcrumb: "Ruta de navegación",
+  categories: "Categorías",
   resize: "Redimensionar",
   navigation: "Navegación",
   collapse: "Contraer",

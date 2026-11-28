@@ -3,6 +3,8 @@
   import {
     Alert,
     FlowNode,
+    CategoryNav,
+    GlassPanel,
     ThemeToggle,
     Badge,
     Button,
@@ -303,5 +305,7 @@
     <Button variant="aurora">Start</Button>
     <EventFeed events={[{ id: 1, title: "Read post #42", time: "12:03", tone: "info" }, { id: 2, title: "Run started" }]} />
     <ConfirmDialog title="Are you sure?" onConfirm={() => {}} />
+    <GlassPanel liquid aria-label="Glass">Glass</GlassPanel>
+    <CategoryNav ariaLabel="Groups" current="a" items={[{ id: "a", label: "Welcome", href: "?g=a", icon: "user", count: "3/7", lit: true }, { id: "b", label: "Custom", count: 2, onclick: () => {} }]} />
   </main>
 </ThemeScope>

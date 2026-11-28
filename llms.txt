@@ -1189,6 +1189,42 @@ Props:
 - `separator?: string`
 - `class?: string`
 
+### CategoryNav
+
+The categories of a catalogue, one open at a time.
+
+```svelte
+<CategoryNav current="levels" items={[
+  { id: "welcome", label: "Welcome and roles", href: "?g=welcome", icon: "user", count: "3/7" },
+  { id: "levels", label: "Levels and economy", href: "?g=levels", icon: "coin", count: "2/7", lit: true },
+]} />
+```
+
+Props:
+- `items: CategoryNavItem[]`
+- `current?: string | null` — Id or href of the open category; null marks none.
+- `ariaLabel?: string` — Accessible name of the <nav>.
+- `chipsBelow?: number` — At this viewport width (px) or less, a row of chips; 0 = always a rail.
+- `linkProps?: Record<string, unknown>` — Extra attributes for every link (data-sveltekit-noscroll…).
+- `class?: string`
+
+### GlassPanel
+
+A pane of liquid glass over whatever is behind it (an image, a 3D scene, a gradient).
+
+```svelte
+<GlassPanel class="chip">Agente IA</GlassPanel>
+```
+
+Props:
+- `as?: string` — The element to render (div, section, li, aside…).
+- `liquid?: boolean` — Bends what is behind through an SVG displacement (Chromium; elsewhere frosted glass).
+- `strength?: number` — How far the liquid displacement bends, in pixels.
+- `follow?: boolean` — The rim's highlight follows the pointer.
+- `tint?: string` — Any CSS colour laid over the blur (sets --ta-glass-tint).
+- `class?: string`
+- `children?: Snippet`
+
 ### Icon
 
 Stroke icons (24×24, text colour).
